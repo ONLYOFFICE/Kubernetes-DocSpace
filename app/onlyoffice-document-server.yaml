@@ -38,7 +38,7 @@ spec:
 #    runAsGroup: 107
   containers:
   - name: onlyoffice-document-server
-    image: onlyoffice/documentserver
+    image: onlyoffice/documentserver:latest
     imagePullPolicy: IfNotPresent
     env:
     - name: MYSQL_ROOT_PASSWORD

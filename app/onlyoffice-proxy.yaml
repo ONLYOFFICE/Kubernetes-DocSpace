@@ -34,7 +34,7 @@ spec:
 #    runAsGroup: 107
   containers:
   - name: onlyoffice-proxy
-    image: onlyoffice/4testing-appserver-proxy:0.0.6
+    image: onlyoffice/4testing-appserver-proxy:0.0.9
     imagePullPolicy: IfNotPresent
     env:
     - name: MYSQL_ROOT_PASSWORD
