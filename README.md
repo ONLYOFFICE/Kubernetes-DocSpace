@@ -1,5 +1,5 @@
 # AppServer for Kubernetes
-The following guide covers the installation process of the ‘AppServer’ into a Kubernetes cluster
+The following guide covers the installation process of the ‘AppServer’ into a Kubernetes cluster.
 
 ## Requirements
   - Kubernetes version no lower than 1.19+
@@ -32,8 +32,9 @@ Read more on the installation of NFS Server Provisioner [here](https://github.co
 ### 3.1 Creating storages
 Open the repo directory and run the command:
 ```
-$ kubectl apply -f pvc/pvc.yaml
+$ kubectl apply -f ./pvc/pvc.yaml
 ```
+
 ### 3.2 Creating Kubernetes Secrets
 In the Secret named `mysql-password`, edit the `stringData.mysql-root-password` field by entering your password instead of `my-secret-pw`;
 edit the `stringData.mysql-password` field by entering your password instead of `onlyoffice_pass`.
@@ -42,13 +43,12 @@ In the Secret named `appserver-all`, change to your own variable values in field
 
 *Note: By default, AppServer services are installed in `namespace`: `default`.
 If a different `namespace` is used for the installation, change the value for all variables containing `default` to your own.
-(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/' ./secret/secret.yaml`)*
+(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/' ./secret/secret.yaml`).*
 ```
-$ kubectl apply -f secret/secret.yaml
+$ kubectl apply -f ./secret/secret.yaml
 ```
 
 ### 3.3 Installing MySQL
-
 Install the MySQL configmap:
 ```
 $ kubectl create configmap mysql-init \
@@ -58,7 +58,7 @@ $ kubectl create configmap mysql-init \
 ```
 Install MySQL:
 ```
-$ helm install mysql -f mysql/mysql_values.yaml bitnami/mysql
+$ helm install mysql -f ./mysql/mysql_values.yaml bitnami/mysql
 ```
 
 Check the pod readiness by running the following command:
@@ -71,7 +71,7 @@ Read more on the installation of MySQL [here](https://github.com/bitnami/charts/
 
 ### 3.4 Installing the Elasticsearch cluster
 ```
-$ helm install elasticsearch --version 7.4.0 -f elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
+$ helm install elasticsearch --version 7.4.0 -f ./elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
 ```
 Check the readiness of the Elasticsearch pods by running the following command:
 ```
@@ -84,7 +84,7 @@ elasticsearch-master-0                         1/1     Running
 elasticsearch-master-1                         1/1     Running   
 elasticsearch-master-2                         1/1     Running   
 ```
-Test the cluster by running helm test elasticsearch, the output should have the following line
+Test the cluster by running `helm test elasticsearch`, the output should have the following line
 ```
 Phase:          Succeeded
 ```
@@ -94,22 +94,23 @@ Read more on the installation of Elasticsearch [here](https://github.com/elastic
 
 ### 3.5 Installing Zookeeper
 ```
-$ helm install onlyoffice-zookeeper -f zookeeper/zookeeper_values.yaml bitnami/zookeeper
+$ helm install onlyoffice-zookeeper -f ./zookeeper/zookeeper_values.yaml bitnami/zookeeper
 ```
 Read more on the installation of Zookeeper [here](https://github.com/bitnami/charts/tree/master/bitnami/zookeeper)
 
 ### 3.6 Installing Kafka
 ```
-$ helm install onlyoffice-kafka -f kafka/kafka_values.yaml bitnami/kafka
+$ helm install onlyoffice-kafka -f ./kafka/kafka_values.yaml bitnami/kafka
 ```
 Read more on the installation of Kafka [here](https://github.com/bitnami/charts/tree/master/bitnami/kafka)
 
 ### 3.7 Installing AppServer
 ```
-$ kubectl apply -f app/
+$ kubectl apply -f ./app/
 ```
 
 ## 4. Providing access to the ONLYOFFICE portal
+
 ### 4.1 Installing dependencies
 ```
 $ helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publishService.enabled=true
@@ -118,7 +119,7 @@ Read more on the installation of NGINX Ingress Controller [here](https://github.
 
 ### 4.2 Access using HTTP
 ```
-kubectl apply -f ingress/app-ingress.yaml
+kubectl apply -f ./ingress/app-ingress.yaml
 ```
 Run the following command to get the ingress IP:
 ```
