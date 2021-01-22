@@ -1,0 +1,79 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-people-server
+spec:
+  ports:
+  - port: 5050
+    name: http
+    targetPort: 5050
+  selector:
+    app: onlyoffice-people-server
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: onlyoffice-people-server
+  labels:
+    app: onlyoffice-people-server
+spec:
+  securityContext:
+    runAsUser: 104
+    runAsGroup: 107
+  containers:
+  - name: onlyoffice-people-server
+    image: onlyoffice/4testing-appserver-people.server:0.0.6
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: mysql-root-password
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: mysql-password
+    - name: DOCUMENT_SERVER_JWT_ENABLED
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_ENABLED
+    - name: DOCUMENT_SERVER_JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_SECRET
+    - name: DOCUMENT_SERVER_JWT_HEADER
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_HEADER
+    envFrom:
+    - secretRef:
+        name: appserver-all
+    ports:
+    - containerPort: 5050
+      name: http
+#    livenessProbe:
+#      failureThreshold: 2
+#      httpGet:
+#        path: /
+#        port: 5050
+#      periodSeconds: 10
+#      successThreshold: 1
+#      timeoutSeconds: 5
+#      initialDelaySeconds: 45
+    volumeMounts:
+    - name: app-data
+      mountPath: /app/onlyoffice/data
+    securityContext:
+      allowPrivilegeEscalation: false
+  volumes:
+    - name: app-data
+      persistentVolumeClaim:
+        claimName: app-data-pv-claim

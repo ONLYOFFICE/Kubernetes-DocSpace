@@ -1,0 +1,7 @@
+minBrokerId: 1
+zookeeper:
+  enabled: false
+externalZookeeper:
+  servers: onlyoffice-zookeeper
+persistence:
+  size: 5Gi
