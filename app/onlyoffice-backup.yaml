@@ -20,9 +20,9 @@ metadata:
   labels:
     app: onlyoffice-backup
 spec:
-  securityContext:
-    runAsUser: 104
-    runAsGroup: 107
+#  securityContext:
+#    runAsUser: 104
+#    runAsGroup: 107
   containers:
   - name: onlyoffice-backup
     image: onlyoffice/4testing-appserver-backup:0.0.9
@@ -68,12 +68,42 @@ spec:
 #      successThreshold: 1
 #      timeoutSeconds: 5
 #      initialDelaySeconds: 45
+#    securityContext:
+#      allowPrivilegeEscalation: false
     volumeMounts:
     - name: app-data
       mountPath: /app/onlyoffice/data
-    securityContext:
-      allowPrivilegeEscalation: false
+    - name: files-data
+      mountPath: /var/www/products/ASC.Files/server/
+    - name: people-data
+      mountPath: /var/www/products/ASC.People/server/
+    - name: crm-data
+      mountPath: /var/www/products/ASC.CRM/server/
+    - name: project-data
+      mountPath: /var/www/products/ASC.Projects/server/
+    - name: calendar-data
+      mountPath: /var/www/products/ASC.Calendar/server/
+    - name: mail-data
+      mountPath: /var/www/products/ASC.Mail/server/
   volumes:
-    - name: app-data
-      persistentVolumeClaim:
-        claimName: app-data-pv-claim
+  - name: app-data
+    persistentVolumeClaim:
+      claimName: app-data
+  - name: files-data
+    persistentVolumeClaim:
+      claimName: files-data
+  - name: people-data
+    persistentVolumeClaim:
+      claimName: people-data
+  - name: crm-data
+    persistentVolumeClaim:
+      claimName: crm-data
+  - name: project-data
+    persistentVolumeClaim:
+      claimName: project-data
+  - name: calendar-data
+    persistentVolumeClaim:
+      claimName: calendar-data
+  - name: mail-data
+    persistentVolumeClaim:
+      claimName: mail-data

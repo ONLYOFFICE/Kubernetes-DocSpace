@@ -97,5 +97,5 @@ spec:
   volumes:
     - name: app-data
       persistentVolumeClaim:
-        claimName: app-data-pv-claim
+        claimName: app-data
     

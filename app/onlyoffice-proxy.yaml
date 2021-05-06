@@ -85,17 +85,12 @@ spec:
 #      successThreshold: 1
 #      timeoutSeconds: 5
 #      initialDelaySeconds: 45
-    volumeMounts:
-    - name: app-data
-      mountPath: /app/onlyoffice/data
-    - name: proxy-log
-      mountPath: /var/log/nginx
 #    securityContext:
 #      allowPrivilegeEscalation: false
-  volumes:
-    - name: app-data
-      persistentVolumeClaim:
-        claimName: app-data-pv-claim
+    volumeMounts:
     - name: proxy-log
-      persistentVolumeClaim:
-        claimName: proxy-log-pv-claim
+      mountPath: /var/log/nginx
+  volumes:
+  - name: proxy-log
+    persistentVolumeClaim:
+      claimName: proxy-log
