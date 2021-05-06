@@ -54,7 +54,10 @@ Install the MySQL configmap:
 $ kubectl create configmap mysql-init \
   --from-file=./mysql/01_createdb.sql \
   --from-file=./mysql/02_onlyoffice.sql \
-  --from-file=./mysql/03_onlyoffice.data.sql
+  --from-file=./mysql/03_onlyoffice.data.sql \
+  --from-file=./mysql/04_onlyoffice.upgradev110.sql \
+  --from-file=./mysql/05_onlyoffice.upgradev111.sql \
+  --from-file=./mysql/06_onlyoffice.upgradev115.sql
 ```
 Install MySQL:
 ```

@@ -41,8 +41,8 @@ primary:
     socket=/opt/bitnami/mysql/tmp/mysql.sock
     pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
 
-  containerSecurityContext:
-    enabled: true
-    runAsUser: 1001
-    capabilities:
-      add: ["SYS_NICE"]
+#  containerSecurityContext:
+#    enabled: true
+#    runAsUser: 1001
+#    capabilities:
+#      add: ["SYS_NICE"]
