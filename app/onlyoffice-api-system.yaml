@@ -25,7 +25,7 @@ spec:
 #    runAsGroup: 107
   containers:
   - name: onlyoffice-api-system
-    image: onlyoffice/4testing-appserver-api_system:0.0.9
+    image: onlyoffice/4testing-appserver-api-system:latest
     imagePullPolicy: IfNotPresent
     env:
     - name: MYSQL_ROOT_PASSWORD

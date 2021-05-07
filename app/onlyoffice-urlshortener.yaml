@@ -9,7 +9,7 @@ spec:
     name: http
     targetPort: 5050
   - port: 9999
-    name: url
+    name: urls
     targetPort: 9999
   selector:
     app: onlyoffice-urlshortener
@@ -28,7 +28,7 @@ spec:
 #    runAsGroup: 107
   containers:
   - name: onlyoffice-urlshortener
-    image: onlyoffice/4testing-appserver-urlshortener:0.0.9
+    image: onlyoffice/4testing-appserver-urlshortener:latest
     imagePullPolicy: IfNotPresent
     env:
     - name: MYSQL_ROOT_PASSWORD
@@ -63,7 +63,7 @@ spec:
     - containerPort: 5050
       name: http
     - containerPort: 9999
-      name: url
+      name: urls
 #    livenessProbe:
 #      failureThreshold: 2
 #      httpGet:

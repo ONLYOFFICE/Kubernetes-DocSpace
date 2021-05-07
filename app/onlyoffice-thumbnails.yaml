@@ -8,6 +8,9 @@ spec:
   - port: 5050
     name: http
     targetPort: 5050
+  - port: 9800
+    name: thum
+    targetPort: 9800
   selector:
     app: onlyoffice-thumbnails
   type: ClusterIP
@@ -25,7 +28,7 @@ spec:
 #    runAsGroup: 107
   containers:
   - name: onlyoffice-thumbnails
-    image: onlyoffice/4testing-appserver-thumbnails:0.0.9
+    image: onlyoffice/4testing-appserver-thumbnails:latest
     imagePullPolicy: IfNotPresent
     env:
     - name: MYSQL_ROOT_PASSWORD
@@ -59,6 +62,8 @@ spec:
     ports:
     - containerPort: 5050
       name: http
+    - containerPort: 9800
+      name: thum
 #    livenessProbe:
 #      failureThreshold: 2
 #      httpGet:
