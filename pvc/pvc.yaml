@@ -9,7 +9,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 5Gi
+      storage: 25Gi
 
 ---
 apiVersion: v1
@@ -35,7 +35,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi
 
 ---
 apiVersion: v1
@@ -48,7 +48,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi
 
 ---
 apiVersion: v1
@@ -61,7 +61,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi
 
 ---
 apiVersion: v1
@@ -74,7 +74,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi
 
 ---
 apiVersion: v1
@@ -87,7 +87,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi
 
 ---
 apiVersion: v1
@@ -100,4 +100,4 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 3Gi
+      storage: 2Gi

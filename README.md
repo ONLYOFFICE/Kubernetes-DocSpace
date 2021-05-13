@@ -23,7 +23,7 @@ $ helm repo update
 
 ## 2. Installing NFS Provisioner
 ```
-$ helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.storageClass=do-block-storage,persistence.size=25Gi
+$ helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.storageClass=do-block-storage,persistence.size=50Gi
 ```
 Read more on the installation of NFS Server Provisioner [here](https://github.com/helm/charts/tree/master/stable/nfs-server-provisioner)
 

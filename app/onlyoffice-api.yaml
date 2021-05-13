@@ -23,6 +23,14 @@ spec:
 #  securityContext:
 #    runAsUser: 104
 #    runAsGroup: 107
+  initContainers:
+  - name: appserver-wait-storage
+    image: busybox:latest
+    imagePullPolicy: IfNotPresent
+    command: ['sh', '-c', "until cat /var/www/products/status.txt; do echo waiting for the storage to be ready; sleep 5; done"]
+    volumeMounts:
+    - name: files-data
+      mountPath: /var/www/products/
   containers:
   - name: onlyoffice-api
     image: onlyoffice/4testing-appserver-api:latest

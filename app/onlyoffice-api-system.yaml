@@ -23,6 +23,23 @@ spec:
 #  securityContext:
 #    runAsUser: 104
 #    runAsGroup: 107
+  initContainers:
+  - name: appserver-init-storage
+    image: onlyoffice/4testing-appserver-storage-dll:latest
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+    - name: files-data
+      mountPath: /var/www/products/ASC.Files/server/
+    - name: people-data
+      mountPath: /var/www/products/ASC.People/server/
+    - name: crm-data
+      mountPath: /var/www/products/ASC.CRM/server/
+    - name: project-data
+      mountPath: /var/www/products/ASC.Projects/server/
+    - name: calendar-data
+      mountPath: /var/www/products/ASC.Calendar/server/
+    - name: mail-data
+      mountPath: /var/www/products/ASC.Mail/server/
   containers:
   - name: onlyoffice-api-system
     image: onlyoffice/4testing-appserver-api-system:latest

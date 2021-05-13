@@ -89,11 +89,11 @@ spec:
 #      successThreshold: 1
 #      timeoutSeconds: 5
 #      initialDelaySeconds: 45
+#    securityContext:
+#      allowPrivilegeEscalation: false
     volumeMounts:
     - name: app-data
       mountPath: /app/onlyoffice/data
-#    securityContext:
-#      allowPrivilegeEscalation: false
   volumes:
     - name: app-data
       persistentVolumeClaim:
