@@ -43,7 +43,7 @@ In the Secret named `appserver-all`, change to your own variable values in field
 
 *Note: By default, AppServer services are installed in `namespace`: `default`.
 If a different `namespace` is used for the installation, change the value for all variables containing `default` to your own.
-(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/' ./secret/secret.yaml`).*
+(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/g' ./secret/secret.yaml`).*
 ```
 $ kubectl apply -f ./secret/secret.yaml
 ```
