@@ -1,0 +1,48 @@
+auth:
+  database: onlyoffice
+  username: onlyoffice_user
+  existingSecret: mysql-password
+
+initdbScriptsConfigMap: mysql-init
+
+primary:
+  persistence:
+    size: 9Gi
+
+  configuration: |-
+    [mysqld]
+    default_authentication_plugin=mysql_native_password
+    sql_mode = 'NO_ENGINE_SUBSTITUTION'
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/opt/bitnami/mysql
+    plugin_dir=/opt/bitnami/mysql/plugin
+    port=3306
+    socket=/opt/bitnami/mysql/tmp/mysql.sock
+    datadir=/bitnami/mysql/data
+    tmpdir=/opt/bitnami/mysql/tmp
+    max_allowed_packet=1048576000
+    bind-address=0.0.0.0
+    pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+    log-error=/opt/bitnami/mysql/logs/mysqld.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    max_connections = 1000
+    group_concat_max_len = 2048
+
+    [client]
+    port=3306
+    socket=/opt/bitnami/mysql/tmp/mysql.sock
+    default-character-set=UTF8
+    plugin_dir=/opt/bitnami/mysql/plugin
+
+    [manager]
+    port=3306
+    socket=/opt/bitnami/mysql/tmp/mysql.sock
+    pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+
+#  containerSecurityContext:
+#    enabled: true
+#    runAsUser: 1001
+#    capabilities:
+#      add: ["SYS_NICE"]

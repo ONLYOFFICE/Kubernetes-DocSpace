@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-document-server
+spec:
+  ports:
+  - port: 80
+    name: http
+    targetPort: 80
+  - port: 443
+    name: https
+    targetPort: 443
+  - port: 8080
+    name: spch
+    targetPort: 8080
+  - port: 8000
+    name: docs
+    targetPort: 8000
+  - port: 8888
+    name: prox
+    targetPort: 8888
+
+  selector:
+    app: onlyoffice-document-server
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: onlyoffice-document-server
+  labels:
+    app: onlyoffice-document-server
+spec:
+#  securityContext:
+#    runAsUser: 104
+#    runAsGroup: 107
+  containers:
+  - name: onlyoffice-document-server
+    image: onlyoffice/documentserver:latest
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: mysql-root-password
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysql-password
+          key: mysql-password
+    - name: DOCUMENT_SERVER_JWT_ENABLED
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_ENABLED
+    - name: DOCUMENT_SERVER_JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_SECRET
+    - name: DOCUMENT_SERVER_JWT_HEADER
+      valueFrom:
+        secretKeyRef:
+          name: appserver-all
+          key: JWT_HEADER
+    envFrom:
+    - secretRef:
+        name: appserver-all
+    ports:
+    - containerPort: 80
+      name: http
+    - containerPort: 443
+      name: https
+    - containerPort: 8080
+      name: spch
+    - containerPort: 8000
+      name: docs
+    - containerPort: 8888
+      name: prox
+#    livenessProbe:
+#      failureThreshold: 2
+#      httpGet:
+#        path: /
+#        port: 80
+#      periodSeconds: 10
+#      successThreshold: 1
+#      timeoutSeconds: 5
+#      initialDelaySeconds: 45
+#    securityContext:
+#      allowPrivilegeEscalation: false
+    volumeMounts:
+    - name: app-data
+      mountPath: /app/onlyoffice/data
+  volumes:
+    - name: app-data
+      persistentVolumeClaim:
+        claimName: app-data
+    
