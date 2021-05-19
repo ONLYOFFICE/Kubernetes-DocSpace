@@ -49,15 +49,25 @@ $ kubectl apply -f ./secret/secret.yaml
 ```
 
 ### 3.3 Installing MySQL
-Install the MySQL configmap:
+Download the database initialization scripts:
+```
+wget -O 01_createdb.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/createdb.sql
+wget -O 02_onlyoffice.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.sql
+wget -O 03_onlyoffice.data.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.data.sql
+wget -O 04_onlyoffice.upgradev110.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev110.sql
+wget -O 05_onlyoffice.upgradev111.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev111.sql
+wget -O 06_onlyoffice.upgradev115.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev115.sql
+```
+
+Create a configmap from them:
 ```
 $ kubectl create configmap mysql-init \
-  --from-file=./mysql/01_createdb.sql \
-  --from-file=./mysql/02_onlyoffice.sql \
-  --from-file=./mysql/03_onlyoffice.data.sql \
-  --from-file=./mysql/04_onlyoffice.upgradev110.sql \
-  --from-file=./mysql/05_onlyoffice.upgradev111.sql \
-  --from-file=./mysql/06_onlyoffice.upgradev115.sql
+  --from-file=./01_createdb.sql \
+  --from-file=./02_onlyoffice.sql \
+  --from-file=./03_onlyoffice.data.sql \
+  --from-file=./04_onlyoffice.upgradev110.sql \
+  --from-file=./05_onlyoffice.upgradev111.sql \
+  --from-file=./06_onlyoffice.upgradev115.sql
 ```
 Install MySQL:
 ```
