@@ -41,22 +41,22 @@ edit the `stringData.mysql-password` field by entering your password instead of 
 
 In the Secret named `appserver-all`, change to your own variable values in fields `stringData.APP_CORE_MACHINEKEY`, `stringData.JWT_SECRET`, `stringData.JWT_HEADER`.
 
-*Note: By default, AppServer services are installed in `namespace`: `default`.
+*Note: By default, AppServer is installed in the `namespace`: `default`.
 If a different `namespace` is used for the installation, change the value for all variables containing `default` to your own.
-(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/g' ./secret/secret.yaml`).*
+(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/g' ./secrets/secret.yaml`).*
 ```
-$ kubectl apply -f ./secret/secret.yaml
+$ kubectl apply -f ./secrets/secret.yaml
 ```
 
 ### 3.3 Installing MySQL
 Download the database initialization scripts:
 ```
-wget -O 01_createdb.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/createdb.sql
-wget -O 02_onlyoffice.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.sql
-wget -O 03_onlyoffice.data.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.data.sql
-wget -O 04_onlyoffice.upgradev110.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev110.sql
-wget -O 05_onlyoffice.upgradev111.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev111.sql
-wget -O 06_onlyoffice.upgradev115.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev115.sql
+$ wget -O 01_createdb.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/createdb.sql
+$ wget -O 02_onlyoffice.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.sql
+$ wget -O 03_onlyoffice.data.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.data.sql
+$ wget -O 04_onlyoffice.upgradev110.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev110.sql
+$ wget -O 05_onlyoffice.upgradev111.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev111.sql
+$ wget -O 06_onlyoffice.upgradev115.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev115.sql
 ```
 
 Create a configmap from them:
@@ -118,8 +118,13 @@ $ helm install onlyoffice-kafka -f ./kafka/kafka_values.yaml bitnami/kafka
 Read more on the installation of Kafka [here](https://github.com/bitnami/charts/tree/master/bitnami/kafka)
 
 ### 3.7 Installing AppServer
+Deploy the appserver service:
 ```
-$ kubectl apply -f ./app/
+$ kubectl apply -f ./services/
+```
+Deploy the appserver apps:
+```
+$ kubectl apply -f ./apps/
 ```
 
 ## 4. Providing access to the ONLYOFFICE portal
@@ -132,10 +137,18 @@ Read more on the installation of NGINX Ingress Controller [here](https://github.
 
 ### 4.2 Access using HTTP
 ```
-kubectl apply -f ./ingress/app-ingress.yaml
+kubectl apply -f ./ingresses/app-ingress.yaml
 ```
 Run the following command to get the ingress IP:
 ```
 $ kubectl get ingresses.v1.networking.k8s.io ingress-appserver -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 The portal will be available over HTTP at `http://INGRESS-IP/`.
+
+## 5. Update AppServer
+
+To perform the update using a script, run the following command:
+```
+$ ./scripts/update-appserver.sh [APPSERVER_VERSION]
+```
+`APPSERVER_VERSION` is the new version of docker images for AppServer.
