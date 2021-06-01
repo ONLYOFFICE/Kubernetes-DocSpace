@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-storage-encryption
+  labels:
+    app: onlyoffice-storage-encryption
+spec:
+  ports:
+  - port: 5050
+    name: http
+    targetPort: 5050
+  selector:
+    statefulset.kubernetes.io/pod-name: onlyoffice-storage-encryption-0
+  type: ClusterIP

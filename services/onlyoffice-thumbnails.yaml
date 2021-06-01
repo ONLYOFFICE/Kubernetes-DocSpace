@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-thumbnails
+  labels:
+    app: onlyoffice-thumbnails
+spec:
+  ports:
+  - port: 5050
+    name: http
+    targetPort: 5050
+  - port: 9800
+    name: thum
+    targetPort: 9800
+  selector:
+    statefulset.kubernetes.io/pod-name: onlyoffice-thumbnails-0
+  type: ClusterIP
