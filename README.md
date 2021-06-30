@@ -84,7 +84,7 @@ Read more on the installation of MySQL [here](https://github.com/bitnami/charts/
 
 ### 3.4 Installing the Elasticsearch cluster
 ```
-$ helm install elasticsearch --version 7.9.3 -f ./elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
+$ helm install elasticsearch --version 7.13.1 -f ./elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
 ```
 Check the readiness of the Elasticsearch pods by running the following command:
 ```
@@ -101,8 +101,6 @@ Test the cluster by running `helm test elasticsearch`, the output should have th
 ```
 Phase:          Succeeded
 ```
-Delete the test pod by running `kubectl delete pod elasticsearch-xxxxx-xxxx`, where ‘elasticsearch-xxxxx-xxxx’ is the name of the test pod
-
 Read more on the installation of Elasticsearch [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch)
 
 ### 3.5 Installing Zookeeper
