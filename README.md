@@ -40,10 +40,6 @@ In the Secret named `mysql-password`, edit the `stringData.mysql-root-password` 
 edit the `stringData.mysql-password` field by entering your password instead of `onlyoffice_pass`.
 
 In the Secret named `appserver-all`, change to your own variable values in fields `stringData.APP_CORE_MACHINEKEY`, `stringData.JWT_SECRET`, `stringData.JWT_HEADER`.
-
-*Note: By default, AppServer is installed in the `namespace`: `default`.
-If a different `namespace` is used for the installation, change the value for all variables containing `default` to your own.
-(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/g' ./secrets/secret.yaml`).*
 ```
 $ kubectl apply -f ./secrets/secret.yaml
 ```
