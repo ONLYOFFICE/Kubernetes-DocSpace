@@ -111,7 +111,12 @@ $ helm install onlyoffice-kafka -f ./kafka/kafka_values.yaml bitnami/kafka
 ```
 Read more on the installation of Kafka [here](https://github.com/bitnami/charts/tree/master/bitnami/kafka)
 
-### 3.7 Installing AppServer
+### 3.7 Creating a ConfigMap AppServer
+```
+kubectl apply -f ./configmaps/appserver.yaml
+```
+
+### 3.8 Installing AppServer
 Deploy the appserver service:
 ```
 $ kubectl apply -f ./services/
