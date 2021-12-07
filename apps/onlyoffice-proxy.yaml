@@ -77,7 +77,14 @@ spec:
         volumeMounts:
         - name: proxy-log
           mountPath: /var/log/nginx
+        - name: change-hosts
+          mountPath: /docker-entrypoint.d/change-hosts.sh
+          subPath: change-hosts.sh
       volumes:
       - name: proxy-log
         persistentVolumeClaim:
           claimName: proxy-log
+      - name: change-hosts
+        configMap:
+          name: change-hosts
+          defaultMode: 0755
