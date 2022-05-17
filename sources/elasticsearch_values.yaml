@@ -1,5 +1,5 @@
 service:
   type: ClusterIP
 image: onlyoffice/elasticsearch
-imageTag: latest
+imageTag: 7.13.1
 esJavaOpts: "-Xmx512m -Xms512m"

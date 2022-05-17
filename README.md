@@ -52,7 +52,7 @@ $ kubectl create configmap mysql-init \
 ```
 Install MySQL:
 ```
-$ helm install mysql -f ./mysql/mysql_values.yaml bitnami/mysql
+$ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
 ```
 
 Check the pod readiness by running the following command:
@@ -65,7 +65,7 @@ Read more on the installation of MySQL [here](https://github.com/bitnami/charts/
 
 ### 3.3 Installing the Elasticsearch cluster
 ```
-$ helm install elasticsearch --version 7.13.1 -f ./elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
+$ helm install elasticsearch --version 7.13.1 -f ./sources/elasticsearch_values.yaml elastic/elasticsearch
 ```
 Check the readiness of the Elasticsearch pods by running the following command:
 ```
@@ -86,7 +86,7 @@ Read more on the installation of Elasticsearch [here](https://github.com/elastic
 
 ### 3.4 Installing Zookeeper
 ```
-$ helm install onlyoffice-zookeeper -f ./zookeeper/zookeeper_values.yaml bitnami/zookeeper
+$ helm install onlyoffice-zookeeper -f ./sources/zookeeper_values.yaml bitnami/zookeeper
 ```
 Read more on the installation of Zookeeper [here](https://github.com/bitnami/charts/tree/master/bitnami/zookeeper)
 
