@@ -18,12 +18,12 @@ init_appserver_update_job(){
   else
     # wget https://raw.githubusercontent.com/ONLYOFFICE/server/master/schema/mysql/changedb.sql
     # kubectl create configmap change-db-scripts --from-file=./changedb.sql
-    kubectl apply -f ./configmaps/update-appserver.yaml
+    kubectl apply -f ./templates/configmaps/update-appserver.yaml
   fi
 }
 
 create_appserver_update_job(){
-  kubectl apply -f ./jobs/appserver-update.yaml
+  kubectl apply -f ./templates/jobs/appserver-update.yaml
   sleep 5
   PODNAME="$(kubectl get pod | grep -i appserver-update | awk '{print $1}')"
 }

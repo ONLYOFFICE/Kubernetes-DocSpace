@@ -29,34 +29,18 @@ Read more on the installation of NFS Server Provisioner [here](https://github.co
 
 ## 3. Installing the AppServer components
 
-### 3.1 Creating storages
-Open the repo directory and run the command:
-```
-$ kubectl apply -f ./pvc/pvc.yaml
-```
-
-### 3.2 Creating Kubernetes Secrets
+### 3.1 Creating Kubernetes Secrets
 In the Secret named `mysql-password`, edit the `stringData.mysql-root-password` field by entering your password instead of `my-secret-pw`;
 edit the `stringData.mysql-password` field by entering your password instead of `onlyoffice_pass`.
 
 In the Secret named `appserver-all`, change to your own variable values in fields `stringData.APP_CORE_MACHINEKEY`, `stringData.JWT_SECRET`, `stringData.JWT_HEADER`.
 
-*Note: By default, AppServer is installed in the `namespace`: `default`.
-If a different `namespace` is used for the installation, change the value for all variables containing `default` to your own.
-(For example, for `namespace` `onlyoffice` you can run the command: `sed -i 's/default/onlyoffice/g' ./secrets/secret.yaml`).*
-```
-$ kubectl apply -f ./secrets/secret.yaml
-```
-
-### 3.3 Installing MySQL
+### 3.2 Installing MySQL
 Download the database initialization scripts:
 ```
 $ wget -O 01_createdb.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/createdb.sql
 $ wget -O 02_onlyoffice.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.sql
 $ wget -O 03_onlyoffice.data.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.data.sql
-$ wget -O 04_onlyoffice.upgradev110.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev110.sql
-$ wget -O 05_onlyoffice.upgradev111.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev111.sql
-$ wget -O 06_onlyoffice.upgradev115.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.upgradev115.sql
 ```
 
 Create a configmap from them:
@@ -65,9 +49,6 @@ $ kubectl create configmap mysql-init \
   --from-file=./01_createdb.sql \
   --from-file=./02_onlyoffice.sql \
   --from-file=./03_onlyoffice.data.sql \
-  --from-file=./04_onlyoffice.upgradev110.sql \
-  --from-file=./05_onlyoffice.upgradev111.sql \
-  --from-file=./06_onlyoffice.upgradev115.sql
 ```
 Install MySQL:
 ```
@@ -82,7 +63,7 @@ Wait in the output for the lines containing `ready for connections` and press `C
 
 Read more on the installation of MySQL [here](https://github.com/bitnami/charts/tree/master/bitnami/mysql)
 
-### 3.4 Installing the Elasticsearch cluster
+### 3.3 Installing the Elasticsearch cluster
 ```
 $ helm install elasticsearch --version 7.13.1 -f ./elasticsearch/elasticsearch_values.yaml elastic/elasticsearch
 ```
@@ -103,26 +84,22 @@ Phase:          Succeeded
 ```
 Read more on the installation of Elasticsearch [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch)
 
-### 3.5 Installing Zookeeper
+### 3.4 Installing Zookeeper
 ```
 $ helm install onlyoffice-zookeeper -f ./zookeeper/zookeeper_values.yaml bitnami/zookeeper
 ```
 Read more on the installation of Zookeeper [here](https://github.com/bitnami/charts/tree/master/bitnami/zookeeper)
 
-### 3.6 Installing Kafka
+### 3.5 Installing Kafka
 ```
 $ helm install onlyoffice-kafka -f ./kafka/kafka_values.yaml bitnami/kafka
 ```
 Read more on the installation of Kafka [here](https://github.com/bitnami/charts/tree/master/bitnami/kafka)
 
 ### 3.7 Installing AppServer
-Deploy the appserver service:
+Deploy the appserver :
 ```
-$ kubectl apply -f ./services/
-```
-Deploy the appserver apps:
-```
-$ kubectl apply -f ./apps/
+$ helm install appserver -f values.yaml ./
 ```
 
 ## 4. Providing access to the ONLYOFFICE portal
@@ -134,9 +111,6 @@ $ helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publis
 Read more on the installation of NGINX Ingress Controller [here](https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx)
 
 ### 4.2 Access using HTTP
-```
-kubectl apply -f ./ingresses/app-ingress.yaml
-```
 Run the following command to get the ingress IP:
 ```
 $ kubectl get ingresses.v1.networking.k8s.io ingress-appserver -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
@@ -147,6 +121,6 @@ The portal will be available over HTTP at `http://INGRESS-IP/`.
 
 To perform the update using a script, run the following command:
 ```
-$ ./scripts/update-appserver.sh [APPSERVER_VERSION]
+$ ./sources/scripts/update-appserver.sh [APPSERVER_VERSION]
 ```
 `APPSERVER_VERSION` is the new version of docker images for AppServer.
