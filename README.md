@@ -92,7 +92,7 @@ Read more on the installation of Zookeeper [here](https://github.com/bitnami/cha
 
 ### 3.5 Installing Kafka
 ```
-$ helm install onlyoffice-kafka -f ./kafka/kafka_values.yaml bitnami/kafka
+$ helm install onlyoffice-kafka -f ./sources/kafka_values.yaml bitnami/kafka
 ```
 Read more on the installation of Kafka [here](https://github.com/bitnami/charts/tree/master/bitnami/kafka)
 
