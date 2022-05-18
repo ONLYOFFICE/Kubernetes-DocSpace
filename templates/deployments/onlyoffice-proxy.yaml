@@ -80,6 +80,9 @@ spec:
         - name: change-hosts
           mountPath: /docker-entrypoint.d/change-hosts.sh
           subPath: change-hosts.sh
+        - name: proxy-upstream
+          mountPath: /etc/nginx/templates/upstream.conf.template
+          subPath: upstream.conf.template
       volumes:
       - name: proxy-log
         persistentVolumeClaim:
@@ -88,3 +91,6 @@ spec:
         configMap:
           name: change-hosts
           defaultMode: 0755
+      - name: proxy-upstream
+        configMap:
+          name: proxy-upstream
