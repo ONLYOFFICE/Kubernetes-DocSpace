@@ -3,3 +3,7 @@ service:
 image: onlyoffice/elasticsearch
 imageTag: 7.13.1
 esJavaOpts: "-Xmx512m -Xms512m"
+volumeClaimTemplate:
+  resources:
+    requests:
+      storage: 30Gi

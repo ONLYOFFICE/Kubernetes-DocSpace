@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-upstream
+data:
+  upstream.conf.template: |-
+    upstream $DOCUMENT_SERVER {
+        server      $DOCUMENT_SERVER max_fails=0 fail_timeout=0s;
+        keepalive   $service_keepalive;
+    }
+    upstream $API_SYSTEM_HOST {
+        server      $API_SYSTEM_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $BACKUP_HOST {
+        server      $BACKUP_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $CALENDAR_HOST {
+        server      $CALENDAR_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $CRM_HOST {
+        server      $CRM_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $FILES_HOST {
+        server      $FILES_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $MAIL_HOST {
+        server      $MAIL_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $PEOPLE_SERVER_HOST {
+        server      $PEOPLE_SERVER_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $PROJECTS_SERVER_HOST {
+        server      $PROJECTS_SERVER_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $URLSHORTENER_HOST {
+        server      $URLSHORTENER_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $API_HOST {
+        server      $API_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $STUDIO_HOST {
+        server      $STUDIO_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    # Map variables
+    map $host   $service_api_system {
+        default $API_SYSTEM_HOST;
+    }
+    map $host   $service_backup {
+        default $BACKUP_HOST;
+    }
+    map $host   $service_calendar {
+        default $CALENDAR_HOST;
+    }
+    map $host   $service_crm {
+        default $CRM_HOST;
+    }
+    map $host   $service_storage_encryption {
+        default $STORAGE_ENCRYPTION_HOST;
+    }
+    map $host   $service_files {
+        default $FILES_HOST;
+    }
+    map $host   $service_files_services {
+        default $FILES_SERVICES_HOST;
+    }
+    map $host   $service_mail {
+        default $MAIL_HOST;
+    }
+    map $host   $service_storage_migration {
+        default $STORAGE_MIGRATION_HOST;
+    }
+    map $host   $service_notify {
+        default $NOTIFY_HOST;
+    }
+    map $host   $service_people_server {
+        default $PEOPLE_SERVER_HOST;
+    }
+    map $host   $service_projects_server {
+        default $PROJECTS_SERVER_HOST;
+    }
+    map $host   $service_socket {
+        default $SOCKET_HOST;
+    }
+    map $host   $service_studio_notify {
+        default $STUDIO_NOTIFY_HOST;
+    }
+    map $host   $service_telegram_service {
+        default $TELEGRAM_SERVICE_HOST;
+    }
+    map $host   $service_thumbnails {
+        default $THUMBNAILS_HOST;
+    }
+    map $host   $service_urlshortener {
+        default $URLSHORTENER_HOST;
+    }
+    map $host   $service_api {
+        default $API_HOST;
+    }
+    map $host   $service_studio {
+        default $STUDIO_HOST;
+    }
+    map $host   $service_ssoauth {
+        default $SSOAUTH_HOST;
+    }
+    map $host   $document_server {
+        default $DOCUMENT_SERVER;
+    }
