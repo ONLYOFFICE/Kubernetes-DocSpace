@@ -28,19 +28,23 @@ spec:
                     values:
                     - onlyoffice-studio
               topologyKey: "kubernetes.io/hostname"
-    #  securityContext:
-    #    runAsUser: 104
-    #    runAsGroup: 107
+      {{ if .Values.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{ end }}
+      imagePullSecrets:
+      - name: myregistrykey
       initContainers:
       - name: appserver-wait-storage
-        image: onlyoffice/4testing-appserver-wait-bin-share:latest
+        image: onlyoffice/4testing-appserver-wait-bin-share:1.2.0-r01
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-studio
-        image: onlyoffice/4testing-appserver-studio:latest
+        image: onlyoffice/4testing-appserver-studio:1.2.0-r01
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -56,20 +60,20 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_HEADER
         envFrom:
-        - secretRef:
+        - configMapRef:
             name: appserver-all
         ports:
         - containerPort: 5050

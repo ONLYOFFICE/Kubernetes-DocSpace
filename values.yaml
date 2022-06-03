@@ -2,4 +2,85 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+connections:
+  mysqlDatabaseMigration: "true"
+  mysqlHost: "mysql"
+  mysqlDatabase: "onlyoffice"
+  mysqlUser: "onlyoffice_user"
+  appDotnetEnv: "test"
+  appCoreBaseDomain: "localhost"
+  appCoreMachinekey: "your_core_machinekey"
+  DocumentServerUrlPublic: "/ds-vpath/"
+  DocumentServerUrlInternal: "http://onlyoffice-document-server/"
+  DocumentServerUrlConverter: "/ds-vpath/ConvertService.ashx"
+  kafkaHost: "onlyoffice-kafka"
+  elkHost: "elasticsearch-master"
+  proxyHost: "onlyoffice-proxy"
+  countWorkerConnections: "1024"
+  nginxSnvsubstTemplateSuffix: ".template"
+  serviceKeepalive: "64"
+  apiHost: "onlyoffice-api"
+  apiSystemHost: "onlyoffice-api-system"
+  calendarHost: "onlyoffice-calendar"
+  crmHost: "onlyoffice-crm"
+  storageEncryptionHost: "onlyoffice-storage-encryption"
+  mailHost: "onlyoffice-mail"
+  storageMigrationHost: "onlyoffice-storage-migration"
+  notifyHost: "onlyoffice-notify"
+  projektsServerHost: "onlyoffice-projects-server"
+  urlshortenerHost: "onlyoffice-urlshortener"
+  studioNotifyHost: "onlyoffice-studio-notify"
+  sockerHost: "onlyoffice-socket"
+  telegramServiceHost: "onlyoffice-telegram-service"
+  peopleServerHost: "onlyoffice-people-server"
+  filesHost: "onlyoffice-files"
+  filesServicesHost: "onlyoffice-files-services"
+  studioHost: "onlyoffice-studio"
+  backupHost: "onlyoffice-backup"
+  thumbnailsHost: "onlyoffice-thumbnails"
+  ssoauthHost: "onlyoffice-ssoauth"
+  documentServer: "onlyoffice-document-server"
+  servicePort: "5050"
+
+jwt:
+  enabled: true
+  secret: "jwt_secret"
+  header: "AuthorizationJwt"
+  inBody: false
+##    inbox:
+##      Enabled: "true"
+##      Secret: "jwt_secret"
+##      Header: "AuthorizationJwt"
+##      InBody: "true"
+  inbox: {}
+##    outbox:
+##      Enabled: "true"
+##      Secret: "jwt_secret"
+##      Header: "AuthorizationJwt"
+##      InBody: "true"
+  outbox: {}
+
+onlyofficeApiSystem:
+  replicaCount: 2
+  initContainerImage: onlyoffice/4testing-appserver-bin-share:1.2.0-r01
+  image: onlyoffice/4testing-appserver-api-system:1.2.0-r01
+  
+securityContext:
+  enabled: false
+  runAsUser: 104
+  runAsGroup: 107
+
+onlyofficeCalendar:
+  enabled: true
+  
+onlyofficeCrm:
+  enabled: true
+  
+onlyofficeMail:
+  enabled: true
+  
+onlyofficeProjectServer:
+  enabled: true
+  
+
 replicaCount: 2

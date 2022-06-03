@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appserver-proxy
+data:
+  COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
+  NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
+  service_keepalive: {{ .Values.connections.serviceKeepalive | quote }}
+  API_HOST: {{ .Values.connections.apiHost }}
+  API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}
+  CALENDAR_HOST: {{ .Values.connections.calendarHost }}
+  CRM_HOST: {{ .Values.connections.crmHost }}
+  STORAGE_ENCRYPTION_HOST: {{ .Values.connections.storageEncryptionHost }}
+  MAIL_HOST: {{ .Values.connections.mailHost }}
+  STORAGE_MIGRATION_HOST: {{ .Values.connections.storageMigrationHost }}
+  NOTIFY_HOST: {{ .Values.connections.notifyHost }}
+  PROJECTS_SERVER_HOST: {{ .Values.connections.projektsServerHost }}
+  URLSHORTENER_HOST: {{ .Values.connections.urlshortenerHost }}
+  STUDIO_NOTIFY_HOST: {{ .Values.connections.studioNotifyHost }}
+  SOCKET_HOST: {{ .Values.connections.sockerHost }}
+  TELEGRAM_SERVICE_HOST: {{ .Values.connections.telegramServiceHost }}
+  PEOPLE_SERVER_HOST: {{ .Values.connections.peopleServerHost }}
+  FILES_HOST: {{ .Values.connections.filesHost }}
+  FILES_SERVICES_HOST: {{ .Values.connections.filesServicesHost }}
+  STUDIO_HOST: {{ .Values.connections.studioHost }}
+  BACKUP_HOST: {{ .Values.connections.backupHost }}
+  THUMBNAILS_HOST: {{ .Values.connections.thumbnailsHost }}
+  SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}
+  DOCUMENT_SERVER: {{ .Values.connections.documentServer }}
+  SERVICE_PORT: {{ .Values.connections.servicePort | quote }}

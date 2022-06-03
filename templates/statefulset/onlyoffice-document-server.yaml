@@ -28,9 +28,13 @@ spec:
                     values:
                     - onlyoffice-document-server
               topologyKey: "kubernetes.io/hostname"
-    #  securityContext:
-    #    runAsUser: 104
-    #    runAsGroup: 107
+      {{ if .Values.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{ end }}
+      imagePullSecrets:
+      - name: myregistrykey
       containers:
       - name: onlyoffice-document-server
         image: onlyoffice/documentserver:latest
@@ -49,20 +53,20 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_HEADER
         envFrom:
-        - secretRef:
+        - configMapRef:
             name: appserver-all
         ports:
         - containerPort: 80

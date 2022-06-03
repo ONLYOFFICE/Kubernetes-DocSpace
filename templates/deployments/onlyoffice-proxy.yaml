@@ -19,9 +19,11 @@ spec:
     #  securityContext:
     #    runAsUser: 104
     #    runAsGroup: 107
+      imagePullSecrets:
+      - name: myregistrykey
       containers:
       - name: onlyoffice-proxy
-        image: onlyoffice/4testing-appserver-proxy:latest
+        image: onlyoffice/4testing-appserver-proxy:1.2.0-r01
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -37,22 +39,22 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_HEADER
         envFrom:
-        - secretRef:
+        - configMapRef:
             name: appserver-all
-        - secretRef:
+        - configMapRef:
             name: appserver-proxy
         ports:
         - containerPort: 5050

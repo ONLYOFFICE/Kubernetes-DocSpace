@@ -3,8 +3,6 @@ auth:
   username: onlyoffice_user
   existingSecret: mysql-password
 
-initdbScriptsConfigMap: mysql-init
-
 primary:
   persistence:
     size: 9Gi

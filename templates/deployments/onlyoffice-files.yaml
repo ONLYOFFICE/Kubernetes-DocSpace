@@ -19,16 +19,18 @@ spec:
     #  securityContext:
     #    runAsUser: 104
     #    runAsGroup: 107
+      imagePullSecrets:
+      - name: myregistrykey
       initContainers:
       - name: appserver-wait-storage
-        image: onlyoffice/4testing-appserver-wait-bin-share:latest
+        image: onlyoffice/4testing-appserver-wait-bin-share:1.2.0-r01
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-files
-        image: onlyoffice/4testing-appserver-files:latest
+        image: onlyoffice/4testing-appserver-files:1.2.0-r01
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -44,20 +46,20 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_HEADER
         envFrom:
-        - secretRef:
+        - configMapRef:
             name: appserver-all
         ports:
         - containerPort: 5050

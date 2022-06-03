@@ -9,7 +9,7 @@ spec:
     matchLabels:
       app: onlyoffice-api-system
   serviceName: onlyoffice-api-system
-  replicas: 1
+  replicas: {{ .Values.onlyofficeApiSystem.replicaCount }}
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: OrderedReady
@@ -28,29 +28,41 @@ spec:
                     values:
                     - onlyoffice-api-system
               topologyKey: "kubernetes.io/hostname"
-    #  securityContext:
-    #    runAsUser: 104
-    #    runAsGroup: 107
+      {{ if .Values.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{ end }}
+      imagePullSecrets:
+      - name: myregistrykey
       initContainers:
       - name: appserver-init-storage
-        image: onlyoffice/4testing-appserver-bin-share:latest
+        image: {{ .Values.onlyofficeApiSystem.initContainerImage }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
+        {{ if .Values.onlyofficeCrm.enabled }}
         - name: crm-data
           mountPath: /var/www/products/ASC.CRM/server/
+        {{ end }}
+        {{ if .Values.onlyofficeProjectServer.enabled }}
         - name: project-data
           mountPath: /var/www/products/ASC.Projects/server/
+        {{ end }}
+        {{ if .Values.onlyofficeCalendar.enabled }}
         - name: calendar-data
           mountPath: /var/www/products/ASC.Calendar/server/
+        {{ end }}
+        {{ if .Values.onlyofficeMail.enabled }}
         - name: mail-data
           mountPath: /var/www/products/ASC.Mail/server/
+        {{ end }}
       containers:
       - name: onlyoffice-api-system
-        image: onlyoffice/4testing-appserver-api-system:latest
+        image: {{ .Values.onlyofficeApiSystem.image }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -66,20 +78,20 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: appserver-all
+              name: jwt
               key: JWT_HEADER
         envFrom:
-        - secretRef:
+        - configMapRef:
             name: appserver-all
         ports:
         - containerPort: 5050
@@ -102,14 +114,22 @@ spec:
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
+        {{ if .Values.onlyofficeCrm.enabled }}
         - name: crm-data
           mountPath: /var/www/products/ASC.CRM/server/
+        {{ end }}
+        {{ if .Values.onlyofficeProjectServer.enabled }}
         - name: project-data
           mountPath: /var/www/products/ASC.Projects/server/
+        {{ end }}
+        {{ if .Values.onlyofficeCalendar.enabled }}
         - name: calendar-data
           mountPath: /var/www/products/ASC.Calendar/server/
+        {{ end }}
+        {{ if .Values.onlyofficeMail.enabled }}
         - name: mail-data
           mountPath: /var/www/products/ASC.Mail/server/
+        {{ end }}
       volumes:
       - name: app-data
         persistentVolumeClaim:
