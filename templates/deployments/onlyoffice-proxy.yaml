@@ -16,14 +16,39 @@ spec:
       labels:
         app: onlyoffice-proxy
     spec:
-    #  securityContext:
-    #    runAsUser: 104
-    #    runAsGroup: 107
+      {{ if .Values.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+      {{ end }}
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.antiAffinity.type "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - onlyoffice-proxy
+              topologyKey: {{ .Values.antiAffinity.topologyKey }}
+            weight: {{ .Values.antiAffinity.weight }}
+        {{- else if eq .Values.antiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - onlyoffice-proxy
+            topologyKey: {{ .Values.antiAffinity.topologyKey }}
+        {{- end }}
       imagePullSecrets:
       - name: myregistrykey
       containers:
       - name: onlyoffice-proxy
-        image: onlyoffice/4testing-appserver-proxy:1.2.0-r01
+        image: {{ .Values.images.proxy }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -56,8 +81,10 @@ spec:
             name: appserver-all
         - configMapRef:
             name: appserver-proxy
+        - secretRef:
+            name: jwt
         ports:
-        - containerPort: 5050
+        - containerPort: {{ .Values.ports.appserver.http }}
           name: http
         - containerPort: 8081
           name: url

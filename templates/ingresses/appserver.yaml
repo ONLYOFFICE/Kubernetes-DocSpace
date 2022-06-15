@@ -1,3 +1,4 @@
+{{ if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,7 +8,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
 spec:
   rules:
+  {{ if .Values.ingress.host }}
+  - host: {{ .Values.ingress.host }}
+  {{ else }}
   - host:
+  {{ end }}
     http:
       paths:
       - path: /
@@ -17,3 +22,4 @@ spec:
             name: onlyoffice-proxy
             port:
               number: 8092
+{{ end }}

@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: files-data
 spec:
-  storageClassName: nfs
+  storageClassName: {{ .Values.persistence.filesData.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.filesData.size }}

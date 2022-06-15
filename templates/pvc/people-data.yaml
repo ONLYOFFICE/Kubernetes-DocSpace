@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: people-data
 spec:
-  storageClassName: nfs
+  storageClassName: {{ .Values.persistence.peopleData.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.peopleData.size }}

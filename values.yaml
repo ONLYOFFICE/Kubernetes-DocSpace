@@ -42,33 +42,90 @@ connections:
   documentServer: "onlyoffice-document-server"
   servicePort: "5050"
 
+images:
+  tag: 1.2.0-r01
+  initContainer:
+    initStorage: onlyoffice/4testing-appserver-bin-share
+    waitStorage: onlyoffice/4testing-appserver-wait-bin-share
+  calendar: onlyoffice/4testing-appserver-calendar
+  crm: onlyoffice/4testing-appserver-crm
+  files: onlyoffice/4testing-appserver-files
+  mail: onlyoffice/4testing-appserver-mail
+  people: onlyoffice/4testing-appserver-people-server
+  projects: onlyoffice/4testing-appserver-projects-server
+  proxy: onlyoffice/4testing-appserver-proxy
+  apiSystem: onlyoffice/4testing-appserver-api-system
+  api: onlyoffice/4testing-appserver-api
+  backup: onlyoffice/4testing-appserver-backup
+  documentserver: onlyoffice/documentserver
+  documentserverTag: 7.0.1
+  filesServices: onlyoffice/4testing-appserver-files-services
+  notify: onlyoffice/4testing-appserver-notify
+  socket: onlyoffice/4testing-appserver-socket
+  ssoauth: onlyoffice/4testing-appserver-ssoauth
+  storageEncryption: onlyoffice/4testing-appserver-storage-encryption
+  storageMigration: onlyoffice/4testing-appserver-storage-migration
+  studioNotify: onlyoffice/4testing-appserver-studio-notify
+  studio: onlyoffice/4testing-appserver-studio
+  telegramService: onlyoffice/4testing-appserver-telegram-service
+  thumbnails: onlyoffice/4testing-appserver-thumbnails
+  urlshortener: onlyoffice/4testing-appserver-urlshortener
+
+persistence:
+  appData:
+    storageClass: "nfs"
+    size: 1Gi
+  calendarData:
+    storageClass: "nfs"
+    size: 1Gi
+  crmData:
+    storageClass: "nfs"
+    size: 1Gi
+  filesData:
+    storageClass: "nfs"
+    size: 1Gi
+  mailData:
+    storageClass: "nfs"
+    size: 1Gi
+  peopleData:
+    storageClass: "nfs"
+    size: 1Gi
+  projectData:
+    storageClass: "nfs"
+    size: 1Gi
+  proxyLog:
+    storageClass: "nfs"
+    size: 1Gi
+ports: 
+  appserver: 
+    http: 5050
+  proxy:
+  docs:
+
+antiAffinity:
+  type: "soft"
+  topologyKey: kubernetes.io/hostname
+  weight: "100"
+
 jwt:
   enabled: true
   secret: "jwt_secret"
   header: "AuthorizationJwt"
-  inBody: false
-##    inbox:
-##      Enabled: "true"
-##      Secret: "jwt_secret"
-##      Header: "AuthorizationJwt"
-##      InBody: "true"
-  inbox: {}
-##    outbox:
-##      Enabled: "true"
-##      Secret: "jwt_secret"
-##      Header: "AuthorizationJwt"
-##      InBody: "true"
-  outbox: {}
 
 onlyofficeApiSystem:
   replicaCount: 2
-  initContainerImage: onlyoffice/4testing-appserver-bin-share:1.2.0-r01
+  initContainerImage: onlyoffice/4testing-appserver-wait-bin-share:1.2.0-r01
   image: onlyoffice/4testing-appserver-api-system:1.2.0-r01
+  
   
 securityContext:
   enabled: false
   runAsUser: 104
   runAsGroup: 107
+
+ingress:
+  enabled: true
+  host:
 
 onlyofficeCalendar:
   enabled: true

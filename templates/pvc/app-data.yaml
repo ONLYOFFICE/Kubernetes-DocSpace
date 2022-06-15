@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: app-data
 spec:
-  storageClassName: nfs
+  storageClassName: {{ .Values.persistence.appData.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.appData.size }}

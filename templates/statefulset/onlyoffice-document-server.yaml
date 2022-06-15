@@ -37,7 +37,7 @@ spec:
       - name: myregistrykey
       containers:
       - name: onlyoffice-document-server
-        image: onlyoffice/documentserver:latest
+        image: {{ .Values.images.documentserver }}:{{ .Values.images.documentserverTag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -68,6 +68,8 @@ spec:
         envFrom:
         - configMapRef:
             name: appserver-all
+        - secretRef:
+            name: jwt
         ports:
         - containerPort: 80
           name: http

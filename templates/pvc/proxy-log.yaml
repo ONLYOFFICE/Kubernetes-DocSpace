@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: proxy-log
 spec:
-  storageClassName: nfs
+  storageClassName: {{ .Values.persistence.proxyLog.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.proxyLog.size }}

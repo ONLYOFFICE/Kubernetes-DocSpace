@@ -17,6 +17,29 @@ spec:
       labels:
         app: onlyoffice-calendar
     spec:
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.antiAffinity.type "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - onlyoffice-calendar
+              topologyKey: {{ .Values.antiAffinity.topologyKey }}
+            weight: {{ .Values.antiAffinity.weight }}
+        {{- else if eq .Values.antiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - onlyoffice-calendar
+            topologyKey: {{ .Values.antiAffinity.topologyKey }}
+        {{- end }}
       {{ if .Values.securityContext.enabled }}
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
@@ -26,14 +49,14 @@ spec:
       - name: myregistrykey
       initContainers:
       - name: appserver-wait-storage
-        image: onlyoffice/4testing-appserver-wait-bin-share:1.2.0-r01
+        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-calendar
-        image: onlyoffice/4testing-appserver-calendar:1.2.0-r01
+        image: {{ .Values.images.calendar }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -64,8 +87,10 @@ spec:
         envFrom:
         - configMapRef:
             name: appserver-all
+        - secretRef:
+            name: jwt
         ports:
-        - containerPort: 5050
+        - containerPort: {{ .Values.ports.appserver.http }}
           name: http
     #    livenessProbe:
     #      failureThreshold: 2
@@ -85,12 +110,18 @@ spec:
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
+        {{ if .Values.onlyofficeCrm.enabled }}
         - name: crm-data
           mountPath: /var/www/products/ASC.CRM/server/
+        {{ end }}
+        {{ if .Values.onlyofficeProjectServer.enabled }}
         - name: project-data
           mountPath: /var/www/products/ASC.Projects/server/
+        {{ end }}
+        {{ if .Values.onlyofficeMail.enabled }}
         - name: mail-data
           mountPath: /var/www/products/ASC.Mail/server/
+        {{ end }}
       volumes:
       - name: app-data
         persistentVolumeClaim:
@@ -101,16 +132,24 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: people-data
+      {{ if .Values.onlyofficeCrm.enabled }}
       - name: crm-data
         persistentVolumeClaim:
           claimName: crm-data
+      {{ end }}
+      {{ if .Values.onlyofficeProjectServer.enabled }}
       - name: project-data
         persistentVolumeClaim:
           claimName: project-data
+      {{ end }}
+      {{ if .Values.onlyofficeCalendar.enabled }}
       - name: calendar-data
         persistentVolumeClaim:
           claimName: calendar-data
+      {{ end }}
+      {{ if .Values.onlyofficeMail.enabled }}
       - name: mail-data
         persistentVolumeClaim:
           claimName: mail-data
+      {{ end }}
 {{- end }}

@@ -3,9 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: crm-data
 spec:
-  storageClassName: nfs
+  storageClassName: {{ .Values.persistence.crmData.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: {{ .Values.persistence.crmData.size }}
