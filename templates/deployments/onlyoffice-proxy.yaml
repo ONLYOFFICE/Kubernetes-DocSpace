@@ -15,6 +15,12 @@ spec:
     metadata:
       labels:
         app: onlyoffice-proxy
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
     spec:
       {{ if .Values.securityContext.enabled }}
       securityContext:
@@ -92,15 +98,15 @@ spec:
           name: internal
         - containerPort: 8092
           name: external
-    #    livenessProbe:
-    #      failureThreshold: 2
-    #      httpGet:
-    #        path: /
-    #        port: 8081
-    #      periodSeconds: 10
-    #      successThreshold: 1
-    #      timeoutSeconds: 5
-    #      initialDelaySeconds: 45
+        {{ if .Values.readinessProbeEnabled }}
+        readinessProbe: {{ toYaml .Values.readinessProbe | nindent 10 }}
+        {{ end }}
+        {{ if .Values.livenessProbeEnabled }}
+        livenessProbe: {{ toYaml .Values.livenessProbe | nindent 10 }}
+        {{ end }}
+        {{ if .Values.startupProbeEnabled }}
+        startupProbe: {{ toYaml .Values.startupProbe | nindent 10 }}
+        {{ end }}
     #    securityContext:
     #      allowPrivilegeEscalation: false
         volumeMounts:

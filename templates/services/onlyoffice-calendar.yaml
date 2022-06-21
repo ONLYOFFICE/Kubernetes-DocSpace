@@ -6,7 +6,7 @@ spec:
   ports:
   - port: 5050
     name: http
-    targetPort: 5050
+    targetPort: {{ .Values.ports.appserver.http }}
   selector:
     app: onlyoffice-calendar
   type: ClusterIP

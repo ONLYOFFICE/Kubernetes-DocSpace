@@ -8,19 +8,19 @@ spec:
   ports:
   - port: 80
     name: http
-    targetPort: 80
+    targetPort: {{ .Values.ports.docs.http }}
   - port: 443
     name: https
-    targetPort: 443
+    targetPort: {{ .Values.ports.docs.https }}
   - port: 8080
     name: spch
-    targetPort: 8080
+    targetPort: {{ .Values.ports.docs.spch }}
   - port: 8000
     name: docs
-    targetPort: 8000
+    targetPort: {{ .Values.ports.docs.docs }}
   - port: 8888
     name: prox
-    targetPort: 8888
+    targetPort: {{ .Values.ports.docs.prox }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-document-server-0
   type: ClusterIP

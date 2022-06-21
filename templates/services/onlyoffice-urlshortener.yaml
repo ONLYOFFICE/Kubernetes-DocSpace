@@ -8,10 +8,10 @@ spec:
   ports:
   - port: 5050
     name: http
-    targetPort: 5050
+    targetPort: {{ .Values.ports.appserver.http }}
   - port: 9999
     name: urls
-    targetPort: 9999
+    targetPort: {{ .Values.ports.urlshortener }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-urlshortener-0
   type: ClusterIP

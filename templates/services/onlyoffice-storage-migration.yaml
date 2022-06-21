@@ -8,7 +8,7 @@ spec:
   ports:
   - port: 5050
     name: http
-    targetPort: 5050
+    targetPort: {{ .Values.ports.appserver.http }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-storage-migration-0
   type: ClusterIP

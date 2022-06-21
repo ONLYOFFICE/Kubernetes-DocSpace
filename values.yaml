@@ -96,11 +96,27 @@ persistence:
   proxyLog:
     storageClass: "nfs"
     size: 1Gi
-ports: 
-  appserver: 
+
+ports:
+  appserver:
     http: 5050
   proxy:
+    url: 8081
+    internal: 8099
+    external: 8092
   docs:
+    http: 80
+    https: 443
+    spch: 8080
+    docs: 8000
+    prox: 8888
+  socket: 9899
+  sso: 9834
+  thumbnails: 9800
+  urlshortener: 9999
+
+podAnnotations:
+  rollme: "{{ randAlphaNum 5 | quote }}"
 
 antiAffinity:
   type: "soft"
@@ -111,6 +127,36 @@ jwt:
   enabled: true
   secret: "jwt_secret"
   header: "AuthorizationJwt"
+
+livenessProbeEnabled: false
+
+livenessProbe:
+  failureThreshold: 2
+  httpGet:
+    path: /
+    port: 5050
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+  initialDelaySeconds: 45
+
+startupProbeEnabled: false
+startupProbe:
+  httpGet:
+    path: /
+    port: 5050
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbeEnabled: false
+readinessProbe:
+  failureThreshold: 2
+  httpGet:
+    path: /
+    port: 5050
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 3  
 
 onlyofficeApiSystem:
   replicaCount: 2

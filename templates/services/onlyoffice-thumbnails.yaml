@@ -8,10 +8,10 @@ spec:
   ports:
   - port: 5050
     name: http
-    targetPort: 5050
+    targetPort: {{ .Values.ports.appserver.http }}
   - port: 9800
     name: thum
-    targetPort: 9800
+    targetPort: {{ .Values.ports.thumbnails }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-thumbnails-0
   type: ClusterIP

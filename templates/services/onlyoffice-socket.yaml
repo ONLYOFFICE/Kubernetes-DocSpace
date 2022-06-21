@@ -8,10 +8,10 @@ spec:
   ports:
   - port: 5050
     name: http
-    targetPort: 5050
+    targetPort: {{ .Values.ports.appserver.http }}
   - port: 9899
     name: sock
-    targetPort: 9899
+    targetPort: {{ .Values.ports.socket }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-socket-0
   type: ClusterIP
