@@ -67,15 +67,15 @@ spec:
         - secretRef:
             name: jwt
         ports:
-        - containerPort: 80
+        - containerPort: {{ .Values.ports.docs.http }}
           name: http
-        - containerPort: 443
+        - containerPort: {{ .Values.ports.docs.https }}
           name: https
-        - containerPort: 8080
+        - containerPort: {{ .Values.ports.docs.spch }}
           name: spch
-        - containerPort: 8000
+        - containerPort: {{ .Values.ports.docs.docs }}
           name: docs
-        - containerPort: 8888
+        - containerPort: {{ .Values.ports.docs.prox }}
           name: prox
     #    livenessProbe:
     #      failureThreshold: 2

@@ -76,7 +76,7 @@ spec:
         ports:
         - containerPort: {{ .Values.ports.appserver.http }}
           name: http
-        - containerPort: 9999
+        - containerPort: {{ .Values.ports.urlshortener }}
           name: urls
     #    livenessProbe:
     #      failureThreshold: 2

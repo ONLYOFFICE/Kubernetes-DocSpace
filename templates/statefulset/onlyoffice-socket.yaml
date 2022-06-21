@@ -76,7 +76,7 @@ spec:
         ports:
         - containerPort: {{ .Values.ports.appserver.http }}
           name: http
-        - containerPort: 9899
+        - containerPort: {{ .Values.ports.socket }}
           name: sock
     #    livenessProbe:
     #      failureThreshold: 2

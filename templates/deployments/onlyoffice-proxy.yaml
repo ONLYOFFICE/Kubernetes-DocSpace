@@ -92,11 +92,11 @@ spec:
         ports:
         - containerPort: {{ .Values.ports.appserver.http }}
           name: http
-        - containerPort: 8081
+        - containerPort: {{ .Values.ports.proxy.url }}
           name: url
-        - containerPort: 8099
+        - containerPort: {{ .Values.ports.proxy.internal }}
           name: internal
-        - containerPort: 8092
+        - containerPort: {{ .Values.ports.proxy.external }}
           name: external
         {{ if .Values.readinessProbeEnabled }}
         readinessProbe: {{ toYaml .Values.readinessProbe | nindent 10 }}

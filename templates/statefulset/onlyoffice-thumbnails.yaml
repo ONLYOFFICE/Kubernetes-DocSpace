@@ -76,7 +76,7 @@ spec:
         ports:
         - containerPort: {{ .Values.ports.appserver.http }}
           name: http
-        - containerPort: 9800
+        - containerPort: {{ .Values.ports.thumbnails }}
           name: thum
     #    livenessProbe:
     #      failureThreshold: 2
