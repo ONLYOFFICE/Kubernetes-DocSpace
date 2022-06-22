@@ -1,9 +1,9 @@
 Get the update strategy type for oform-config
 */}}
 {{- define "appserver.update.strategyType" -}}
-{{- if eq .Values.updateStrategy.type "RollingUpdate" -}}
-    {{- toYaml .Values.updateStrategy | nindent 4 -}}
+{{- if eq .Values.deploymetsUpdateStrategy.type "RollingUpdate" -}}
+    {{- toYaml .Values.deploymetsUpdateStrategy | nindent 4 -}}
 {{- else }}
-    {{- omit .Values.updateStrategy "rollingUpdate" | toYaml | nindent 4 -}}
+    {{- omit .Values.deploymetsUpdateStrategy "rollingUpdate" | toYaml | nindent 4 -}}
 {{- end -}}
 {{- end -}}

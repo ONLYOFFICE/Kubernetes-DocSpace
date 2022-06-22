@@ -97,7 +97,7 @@ persistence:
     storageClass: "nfs"
     size: 1Gi
 
-ports:
+containerPorts:
   appserver:
     http: 5050
   proxy:
@@ -162,11 +162,14 @@ readinessProbe:
   successThreshold: 1
   timeoutSeconds: 3 
 
-updateStrategy:
+deploymetsUpdateStrategy:
   type: RollingUpdate
   rollingUpdate:
     maxUnavailable: 25%
     maxSurge: 25%
+
+statefulsetUpdateStrategy:
+  type: RollingUpdate
 
 onlyofficeApiSystem:
   replicaCount: 2
@@ -194,6 +197,7 @@ onlyofficeMail:
   
 onlyofficeProjectServer:
   enabled: true
-  
+
+imagePullSecrets: myregistrykey
 
 replicaCount: 2

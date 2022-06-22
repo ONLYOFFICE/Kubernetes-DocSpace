@@ -4,9 +4,9 @@ metadata:
   name: onlyoffice-mail
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
+    targetPort: {{ .Values.containerPorts.appserver.http }}
   selector:
     app: onlyoffice-mail
   type: ClusterIP

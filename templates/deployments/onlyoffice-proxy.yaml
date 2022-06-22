@@ -55,8 +55,10 @@ spec:
       {{- if .Values.tolerations }}
       tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
       {{- end }} 
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: myregistrykey
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
       - name: onlyoffice-proxy
         image: {{ .Values.images.proxy }}:{{ .Values.images.tag }}
@@ -95,13 +97,13 @@ spec:
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.ports.appserver.http }}
+        - containerPort: {{ .Values.containerPorts.appserver.http }}
           name: http
-        - containerPort: {{ .Values.ports.proxy.url }}
+        - containerPort: {{ .Values.containerPorts.proxy.url }}
           name: url
-        - containerPort: {{ .Values.ports.proxy.internal }}
+        - containerPort: {{ .Values.containerPorts.proxy.internal }}
           name: internal
-        - containerPort: {{ .Values.ports.proxy.external }}
+        - containerPort: {{ .Values.containerPorts.proxy.external }}
           name: external
         {{ if .Values.readinessProbeEnabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
@@ -112,8 +114,9 @@ spec:
         {{ if .Values.startupProbeEnabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{ end }}
-    #    securityContext:
-    #      allowPrivilegeEscalation: false
+        {{- if .Values.podSecurityContext.enabled }}
+        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - name: proxy-log
           mountPath: /var/log/nginx

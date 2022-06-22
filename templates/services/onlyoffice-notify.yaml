@@ -6,9 +6,9 @@ metadata:
     app: onlyoffice-notify
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
+    targetPort: {{ .Values.containerPorts.appserver.http }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-notify-0
   type: ClusterIP

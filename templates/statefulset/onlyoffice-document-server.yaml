@@ -11,7 +11,7 @@ spec:
   serviceName: onlyoffice-document-server
   replicas: 1
   updateStrategy:
-    type: RollingUpdate
+    type: {{ .Values.statefulsetUpdateStrategy.type }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
@@ -27,8 +27,10 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: myregistrykey
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
       - name: onlyoffice-document-server
         image: {{ .Values.images.documentserver }}:{{ .Values.images.documentserverTag }}
@@ -65,15 +67,15 @@ spec:
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.ports.docs.http }}
+        - containerPort: {{ .Values.containerPorts.docs.http }}
           name: http
-        - containerPort: {{ .Values.ports.docs.https }}
+        - containerPort: {{ .Values.containerPorts.docs.https }}
           name: https
-        - containerPort: {{ .Values.ports.docs.spch }}
+        - containerPort: {{ .Values.containerPorts.docs.spch }}
           name: spch
-        - containerPort: {{ .Values.ports.docs.docs }}
+        - containerPort: {{ .Values.containerPorts.docs.docs }}
           name: docs
-        - containerPort: {{ .Values.ports.docs.prox }}
+        - containerPort: {{ .Values.containerPorts.docs.prox }}
           name: prox
         {{ if .Values.readinessProbeEnabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
@@ -84,8 +86,9 @@ spec:
         {{ if .Values.startupProbeEnabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{ end }}
-    #    securityContext:
-    #      allowPrivilegeEscalation: false
+        {{- if .Values.podSecurityContext.enabled }}
+        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - name: app-data
           mountPath: /app/onlyoffice/data

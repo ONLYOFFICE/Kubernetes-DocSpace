@@ -6,12 +6,12 @@ metadata:
     app: onlyoffice-thumbnails
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
-  - port: 9800
+    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.thumbnails }}
     name: thum
-    targetPort: {{ .Values.ports.thumbnails }}
+    targetPort: {{ .Values.containerPorts.thumbnails }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-thumbnails-0
   type: ClusterIP

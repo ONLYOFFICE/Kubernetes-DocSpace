@@ -4,18 +4,18 @@ metadata:
   name: onlyoffice-proxy
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
-  - port: 8081
+    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.appserver.url }}
     name: url
-    targetPort: 8081
-  - port: 8099
+    targetPort: {{ .Values.containerPorts.appserver.url }}
+  - port: {{ .Values.containerPorts.appserver.internal }}
     name: internal
-    targetPort: 8099
-  - port: 8092
+    targetPort: {{ .Values.containerPorts.appserver.internal }}
+  - port: {{ .Values.containerPorts.appserver.external }}
     name: external
-    targetPort: 8092
+    targetPort: {{ .Values.containerPorts.appserver.external }}
   selector:
     app: onlyoffice-proxy
   type: ClusterIP

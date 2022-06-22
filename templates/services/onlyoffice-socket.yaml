@@ -6,12 +6,12 @@ metadata:
     app: onlyoffice-socket
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
-  - port: 9899
+    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.socket }}
     name: sock
-    targetPort: {{ .Values.ports.socket }}
+    targetPort: {{ .Values.containerPorts.socket }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-socket-0
   type: ClusterIP

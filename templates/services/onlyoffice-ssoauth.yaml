@@ -6,12 +6,12 @@ metadata:
     app: onlyoffice-ssoauth
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
-  - port: 9834
+    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.sso }}
     name: sso
-    targetPort: {{ .Values.ports.sso }}
+    targetPort: {{ .Values.containerPorts.sso }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-ssoauth-0
   type: ClusterIP

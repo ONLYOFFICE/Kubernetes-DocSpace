@@ -6,12 +6,12 @@ metadata:
     app: onlyoffice-urlshortener
 spec:
   ports:
-  - port: 5050
+  - port: {{ .Values.containerPorts.appserver.http }}
     name: http
-    targetPort: {{ .Values.ports.appserver.http }}
-  - port: 9999
+    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.urlshortener }}
     name: urls
-    targetPort: {{ .Values.ports.urlshortener }}
+    targetPort: {{ .Values.containerPorts.urlshortener }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-urlshortener-0
   type: ClusterIP
