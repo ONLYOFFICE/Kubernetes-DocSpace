@@ -118,7 +118,7 @@ ports:
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 
-antiAffinity:
+podAntiAffinity:
   type: "soft"
   topologyKey: kubernetes.io/hostname
   weight: "100"
@@ -156,7 +156,13 @@ readinessProbe:
     port: 5050
   periodSeconds: 10
   successThreshold: 1
-  timeoutSeconds: 3  
+  timeoutSeconds: 3 
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%
 
 onlyofficeApiSystem:
   replicaCount: 2
@@ -164,7 +170,7 @@ onlyofficeApiSystem:
   image: onlyoffice/4testing-appserver-api-system:1.2.0-r01
   
   
-securityContext:
+podSecurityContext:
   enabled: false
   runAsUser: 104
   runAsGroup: 107
