@@ -123,6 +123,10 @@ podAntiAffinity:
   topologyKey: kubernetes.io/hostname
   weight: "100"
 
+nodeSelector: {}
+
+tolerations: []
+
 jwt:
   enabled: true
   secret: "jwt_secret"

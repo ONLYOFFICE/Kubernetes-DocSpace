@@ -36,20 +36,7 @@ edit the `stringData.mysql-password` field by entering your password instead of 
 In the Secret named `appserver-all`, change to your own variable values in fields `stringData.APP_CORE_MACHINEKEY`, `stringData.JWT_SECRET`, `stringData.JWT_HEADER`.
 
 ### 3.2 Installing MySQL
-Download the database initialization scripts:
-```
-$ wget -O 01_createdb.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/createdb.sql
-$ wget -O 02_onlyoffice.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.sql
-$ wget -O 03_onlyoffice.data.sql https://raw.githubusercontent.com/ONLYOFFICE/AppServer/develop/build/install/docker/config/onlyoffice.data.sql
-```
 
-Create a configmap from them:
-```
-$ kubectl create configmap mysql-init \
-  --from-file=./01_createdb.sql \
-  --from-file=./02_onlyoffice.sql \
-  --from-file=./03_onlyoffice.data.sql \
-```
 Install MySQL:
 ```
 $ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
