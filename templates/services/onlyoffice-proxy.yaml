@@ -7,15 +7,15 @@ spec:
   - port: {{ .Values.containerPorts.appserver.http }}
     name: http
     targetPort: {{ .Values.containerPorts.appserver.http }}
-  - port: {{ .Values.containerPorts.appserver.url }}
+  - port: {{ .Values.containerPorts.proxy.url }}
     name: url
-    targetPort: {{ .Values.containerPorts.appserver.url }}
-  - port: {{ .Values.containerPorts.appserver.internal }}
+    targetPort: {{ .Values.containerPorts.proxy.url }}
+  - port: {{ .Values.containerPorts.proxy.internal }}
     name: internal
-    targetPort: {{ .Values.containerPorts.appserver.internal }}
-  - port: {{ .Values.containerPorts.appserver.external }}
+    targetPort: {{ .Values.containerPorts.proxy.internal }}
+  - port: {{ .Values.containerPorts.proxy.external }}
     name: external
-    targetPort: {{ .Values.containerPorts.appserver.external }}
+    targetPort: {{ .Values.containerPorts.proxy.external }}
   selector:
     app: onlyoffice-proxy
   type: ClusterIP
