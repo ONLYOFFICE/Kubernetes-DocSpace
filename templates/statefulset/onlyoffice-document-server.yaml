@@ -39,13 +39,13 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-password
-              key: mysql-root-password
+              name: {{ template "appserver.mysql.secretName" . }}
+              key: {{ .Values.connections.musqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-password
-              key: mysql-password
+              name: {{ template "appserver.mysql.secretName" . }}
+              key: {{ .Values.connections.musqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

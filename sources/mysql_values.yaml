@@ -1,7 +1,6 @@
 auth:
   database: onlyoffice
   username: onlyoffice_user
-  existingSecret: mysql-password
 
 primary:
   persistence:
