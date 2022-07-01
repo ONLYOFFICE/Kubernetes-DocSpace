@@ -46,6 +46,6 @@ Return MySQL root password
 {{- if not (empty .Values.connections.mysqlRootPassword) }}
     {{- .Values.connections.mysqlRootPassword }}
 {{- else }}
-    {{- required "A MySQL Password is required!" .Values.connections.mysqlRootPassword }}
+    {{- required "A MySQL root Password is required!" .Values.connections.mysqlRootPassword }}
 {{- end }}
 {{- end -}}

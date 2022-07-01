@@ -6,7 +6,7 @@ metadata:
     app: onlyoffice-people-server
 spec:
   replicas: 2
-  selector:
+  selector: {{ .Values.onlyofficePeopleServer.replicaCount }}
     matchLabels:
       app: onlyoffice-people-server
   {{- if .Values.updateStrategy }}

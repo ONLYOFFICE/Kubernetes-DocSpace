@@ -5,7 +5,7 @@ metadata:
   labels:
     app: onlyoffice-files
 spec:
-  replicas: 2
+  replicas: {{ .Values.onlyofficeFiles.replicaCount }}
   selector:
     matchLabels:
       app: onlyoffice-files

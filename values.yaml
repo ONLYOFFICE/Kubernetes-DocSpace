@@ -137,9 +137,8 @@ jwt:
   secret: "jwt_secret"
   header: "AuthorizationJwt"
 
-livenessProbeEnabled: false
-
 livenessProbe:
+  enabled: false
   failureThreshold: 2
   httpGet:
     path: /
@@ -149,16 +148,16 @@ livenessProbe:
   timeoutSeconds: 5
   initialDelaySeconds: 45
 
-startupProbeEnabled: false
 startupProbe:
+  enabled: false
   httpGet:
     path: /
     port: 5050
   failureThreshold: 30
   periodSeconds: 10
 
-readinessProbeEnabled: false
 readinessProbe:
+  enabled: false
   failureThreshold: 2
   httpGet:
     path: /
@@ -176,12 +175,6 @@ deploymetsUpdateStrategy:
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
-onlyofficeApiSystem:
-  replicaCount: 2
-  initContainerImage: onlyoffice/4testing-appserver-wait-bin-share:1.2.0-r01
-  image: onlyoffice/4testing-appserver-api-system:1.2.0-r01
-  
-  
 podSecurityContext:
   enabled: false
   runAsUser: 104
@@ -191,18 +184,29 @@ ingress:
   enabled: true
   host:
 
+onlyofficePeopleServer:
+  replicaCount: 2
+
+onlyofficeFiles:
+  replicaCount: 2
+
+onlyofficeProxy:
+  replicaCount: 2
+
 onlyofficeCalendar:
+  replicaCount: 2
   enabled: true
   
 onlyofficeCrm:
+  replicaCount: 2
   enabled: true
   
 onlyofficeMail:
+  replicaCount: 2
   enabled: true
   
 onlyofficeProjectServer:
+  replicaCount: 2
   enabled: true
 
 imagePullSecrets: myregistrykey
-
-replicaCount: 2

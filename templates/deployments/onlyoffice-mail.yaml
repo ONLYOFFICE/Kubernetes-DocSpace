@@ -6,7 +6,7 @@ metadata:
   labels:
     app: onlyoffice-mail
 spec:
-  replicas: 2
+  replicas: {{ .Values.onlyofficeMail.replicaCount }}
   selector:
     matchLabels:
       app: onlyoffice-mail
