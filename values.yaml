@@ -136,6 +136,7 @@ jwt:
   enabled: true
   secret: "jwt_secret"
   header: "AuthorizationJwt"
+  inBody: true
 
 livenessProbe:
   enabled: false
@@ -182,7 +183,13 @@ podSecurityContext:
 
 ingress:
   enabled: true
-  host:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+  tls:
+    enabled: false
+    secretName: tls
+  host: ""
 
 onlyofficePeopleServer:
   replicaCount: 2
@@ -194,19 +201,19 @@ onlyofficeProxy:
   replicaCount: 2
 
 onlyofficeCalendar:
-  replicaCount: 2
   enabled: true
+  replicaCount: 2
   
 onlyofficeCrm:
-  replicaCount: 2
   enabled: true
+  replicaCount: 2
   
 onlyofficeMail:
-  replicaCount: 2
   enabled: true
+  replicaCount: 2
   
 onlyofficeProjectServer:
-  replicaCount: 2
   enabled: true
+  replicaCount: 2
 
 imagePullSecrets: myregistrykey

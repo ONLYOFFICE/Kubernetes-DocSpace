@@ -17,29 +17,29 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-password
-              key: mysql-root-password
+              name: {{ template "appserver.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
-        {{ if .Values.onlyofficeCrm.enabled }}
+        {{- if .Values.onlyofficeCrm.enabled }}
         - name: crm-data
           mountPath: /var/www/products/ASC.CRM/server/
-        {{ end }}
-        {{ if .Values.onlyofficeProjectServer.enabled }}
+        {{- end }}
+        {{- if .Values.onlyofficeProjectServer.enabled }}
         - name: project-data
           mountPath: /var/www/products/ASC.Projects/server/
-        {{ end }}
-        {{ if .Values.onlyofficeCalendar.enabled }}
+        {{- end }}
+        {{- if .Values.onlyofficeCalendar.enabled }}
         - name: calendar-data
           mountPath: /var/www/products/ASC.Calendar/server/
-        {{ end }}
-        {{ if .Values.onlyofficeMail.enabled }}
+        {{- end }}
+        {{- if .Values.onlyofficeMail.enabled }}
         - name: mail-data
           mountPath: /var/www/products/ASC.Mail/server/
-        {{ end }}
+        {{- end }}
 #        - name: change-db-scripts
 #          mountPath: /sql/changedb.sql
 #          subPath: changedb.sql
@@ -55,26 +55,26 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: people-data
-      {{ if .Values.onlyofficeCrm.enabled }}
+      {{- if .Values.onlyofficeCrm.enabled }}
       - name: crm-data
         persistentVolumeClaim:
           claimName: crm-data
-      {{ end }}
-      {{ if .Values.onlyofficeProjectServer.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeProjectServer.enabled }}
       - name: project-data
         persistentVolumeClaim:
           claimName: project-data
-      {{ end }}
-      {{ if .Values.onlyofficeCalendar.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeCalendar.enabled }}
       - name: calendar-data
         persistentVolumeClaim:
           claimName: calendar-data
-      {{ end }}
-      {{ if .Values.onlyofficeMail.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeMail.enabled }}
       - name: mail-data
         persistentVolumeClaim:
           claimName: mail-data
-      {{ end }}
+      {{- end }}
 #      - name: change-db-scripts
 #        configMap:
 #          name: change-db-scripts
