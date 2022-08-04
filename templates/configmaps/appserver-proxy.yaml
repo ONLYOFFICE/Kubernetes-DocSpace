@@ -17,7 +17,7 @@ data:
   PROJECTS_SERVER_HOST: {{ .Values.connections.projektsServerHost }}
   URLSHORTENER_HOST: {{ .Values.connections.urlshortenerHost }}
   STUDIO_NOTIFY_HOST: {{ .Values.connections.studioNotifyHost }}
-  SOCKET_HOST: {{ .Values.connections.sockerHost }}
+  SOCKET_HOST: {{ .Values.connections.socketHost }}
   TELEGRAM_SERVICE_HOST: {{ .Values.connections.telegramServiceHost }}
   PEOPLE_SERVER_HOST: {{ .Values.connections.peopleServerHost }}
   FILES_HOST: {{ .Values.connections.filesHost }}

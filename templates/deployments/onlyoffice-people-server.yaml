@@ -75,12 +75,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyRootPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
