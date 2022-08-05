@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: mail-data
 spec:
-  storageClassName: {{ .Values.persistence.mailData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

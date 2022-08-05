@@ -77,29 +77,22 @@ images:
   urlshortener: onlyoffice/4testing-appserver-urlshortener
 
 persistence:
+  storageClass: "nfs"
   appData:
-    storageClass: "nfs"
     size: 1Gi
   calendarData:
-    storageClass: "nfs"
     size: 1Gi
   crmData:
-    storageClass: "nfs"
     size: 1Gi
   filesData:
-    storageClass: "nfs"
     size: 1Gi
   mailData:
-    storageClass: "nfs"
     size: 1Gi
   peopleData:
-    storageClass: "nfs"
     size: 1Gi
   projectData:
-    storageClass: "nfs"
     size: 1Gi
   proxyLog:
-    storageClass: "nfs"
     size: 1Gi
 
 containerPorts:

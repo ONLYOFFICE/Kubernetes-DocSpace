@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: calendar-data
 spec:
-  storageClassName: {{ .Values.persistence.calendarData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

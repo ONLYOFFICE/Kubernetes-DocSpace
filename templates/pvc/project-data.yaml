@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: project-data
 spec:
-  storageClassName: {{ .Values.persistence.projectData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

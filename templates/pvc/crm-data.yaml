@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: crm-data
 spec:
-  storageClassName: {{ .Values.persistence.crmData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
