@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: onlyoffice-proxy
-  {{- if .Values.updateStrategy }}
+  {{- if .Values.deploymetsUpdateStrategy }}
   strategy: {{ template "appserver.update.strategyType" . }}
   {{- end }}
   template:
@@ -105,17 +105,17 @@ spec:
           name: internal
         - containerPort: {{ .Values.containerPorts.proxy.external }}
           name: external
-        {{ if .Values.readinessProbeEnabled }}
+        {{- if .Values.readinessProbeEnabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.livenessProbeEnabled }}
+        {{- end }}
+        {{- if .Values.livenessProbeEnabled }}
         livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.startupProbeEnabled }}
+        {{- end }}
+        {{- if .Values.startupProbeEnabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{- if .Values.podSecurityContext.enabled }}
-        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
         - name: proxy-log
