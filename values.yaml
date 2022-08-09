@@ -62,8 +62,6 @@ images:
   apiSystem: onlyoffice/4testing-appserver-api-system
   api: onlyoffice/4testing-appserver-api
   backup: onlyoffice/4testing-appserver-backup
-  documentserver: onlyoffice/documentserver
-  documentserverTag: 7.0.1
   filesServices: onlyoffice/4testing-appserver-files-services
   notify: onlyoffice/4testing-appserver-notify
   socket: onlyoffice/4testing-appserver-socket
@@ -102,12 +100,6 @@ containerPorts:
     url: 8081
     internal: 8099
     external: 8092
-  docs:
-    http: 80
-    https: 443
-    spch: 8080
-    docs: 8000
-    prox: 8888
   socket: 9899
   sso: 9834
   thumbnails: 9800
@@ -214,3 +206,53 @@ onlyofficeProjectServer:
   replicaCount: 2
 
 imagePullSecrets: ""
+
+## Document server parameters
+## This block defines parameters for the document server StatefulSet only
+
+docs:
+  image:
+    repository: onlyoffice/documentserver
+    tag: 7.1.1
+    pullPolicy: IfNotPresent
+
+  podSecurityContext:
+    enabled: false
+    runAsUser: 104
+    runAsGroup: 107
+
+  containerPorts:
+    http: 80
+    https: 443
+    spch: 8080
+    docs: 8000
+    prox: 8888
+
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /index.html
+      port: 8888
+    failureThreshold: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45

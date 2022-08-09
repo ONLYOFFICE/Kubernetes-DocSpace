@@ -6,21 +6,21 @@ metadata:
     app: onlyoffice-document-server
 spec:
   ports:
-  - port: {{ .Values.containerPorts.docs.http }}
+  - port: {{ .Values.docs.containerPorts.http }}
     name: http
-    targetPort: {{ .Values.containerPorts.docs.http }}
-  - port: {{ .Values.containerPorts.docs.https }}
+    targetPort: {{ .Values.docs.containerPorts.http }}
+  - port: {{ .Values.docs.containerPorts.https }}
     name: https
-    targetPort: {{ .Values.containerPorts.docs.https }}
-  - port: {{ .Values.containerPorts.docs.spch }}
+    targetPort: {{ .Values.docs.containerPorts.https }}
+  - port: {{ .Values.docs.containerPorts.spch }}
     name: spch
-    targetPort: {{ .Values.containerPorts.docs.spch }}
-  - port: {{ .Values.containerPorts.docs.docs }}
+    targetPort: {{ .Values.docs.containerPorts.spch }}
+  - port: {{ .Values.docs.containerPorts.docs }}
     name: docs
-    targetPort: {{ .Values.containerPorts.docs.docs }}
-  - port: {{ .Values.containerPorts.docs.prox }}
-    name: prox
-    targetPort: {{ .Values.containerPorts.docs.prox }}
+    targetPort: {{ .Values.docs.containerPorts.docs }}
+  - port: {{ .Values.docs.containerPorts.proxy }}
+    name: proxy
+    targetPort: {{ .Values.docs.containerPorts.proxy }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-document-server-0
   type: ClusterIP
