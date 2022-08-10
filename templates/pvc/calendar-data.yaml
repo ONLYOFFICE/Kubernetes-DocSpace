@@ -1,11 +1,13 @@
+{{- if .Values.onlyofficeCalendar.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: calendar-data
 spec:
-  storageClassName: {{ .Values.persistence.calendarData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.persistence.calendarData.size }}
+{{- end }}

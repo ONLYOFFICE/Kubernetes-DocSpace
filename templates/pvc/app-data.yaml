@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: app-data
 spec:
-  storageClassName: {{ .Values.persistence.appData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

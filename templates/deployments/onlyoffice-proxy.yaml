@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: onlyoffice-proxy
-  {{- if .Values.updateStrategy }}
+  {{- if .Values.deploymetsUpdateStrategy }}
   strategy: {{ template "appserver.update.strategyType" . }}
   {{- end }}
   template:
@@ -68,12 +68,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyRootPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -105,19 +105,24 @@ spec:
           name: internal
         - containerPort: {{ .Values.containerPorts.proxy.external }}
           name: external
-        {{ if .Values.readinessProbeEnabled }}
+        {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.livenessProbeEnabled }}
+        {{- end }}
+        {{- if .Values.livenessProbe.enabled }}
         livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.startupProbeEnabled }}
+        {{- end }}
+        {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{- if .Values.podSecurityContext.enabled }}
-        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
+        {{- if .Values.onlyofficeProxy.extraConf.configMap }}
+        - name: custom-file
+          mountPath: /etc/nginx/templates/{{ .Values.onlyofficeProxy.extraConf.fileName }}
+          subPath: {{ .Values.onlyofficeProxy.extraConf.fileName }}
+        {{- end }}
         - name: proxy-log
           mountPath: /var/log/nginx
         - name: change-hosts
@@ -127,6 +132,11 @@ spec:
           mountPath: /etc/nginx/templates/upstream.conf.template
           subPath: upstream.conf.template
       volumes:
+      {{- if .Values.onlyofficeProxy.extraConf.configMap }}
+      - name: custom-file
+        configMap:
+          name: {{ .Values.onlyofficeProxy.extraConf.configMap }}
+      {{- end }}
       - name: proxy-log
         persistentVolumeClaim:
           claimName: proxy-log

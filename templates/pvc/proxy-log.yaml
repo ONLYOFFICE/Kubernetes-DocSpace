@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: proxy-log
 spec:
-  storageClassName: {{ .Values.persistence.proxyLog.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

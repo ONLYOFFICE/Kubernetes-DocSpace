@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: people-data
 spec:
-  storageClassName: {{ .Values.persistence.peopleData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:

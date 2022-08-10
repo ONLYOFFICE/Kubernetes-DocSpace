@@ -1,11 +1,13 @@
+{{- if .Values.onlyofficeMail.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mail-data
 spec:
-  storageClassName: {{ .Values.persistence.mailData.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.persistence.mailData.size }}
+{{- end }}

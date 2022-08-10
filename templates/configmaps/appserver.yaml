@@ -10,9 +10,9 @@ data:
   APP_DOTNET_ENV: {{ .Values.connections.appDotnetEnv }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain }}
   APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey }}
-  DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.DocumentServerUrlPublic }}
-  DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.DocumentServerUrlInternal }}
-  DOCUMENT_SERVER_URL_CONVERTER: {{ .Values.connections.DocumentServerUrlConverter }}
+  DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.DocumentServerUrlPublic | quote }}
+  DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.DocumentServerUrlInternal | quote }}
+  DOCUMENT_SERVER_URL_CONVERTER: {{ .Values.connections.DocumentServerUrlConverter | quote }}
   KAFKA_HOST: {{ .Values.connections.kafkaHost }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   PROXY_HOST: {{ .Values.connections.proxyHost }}

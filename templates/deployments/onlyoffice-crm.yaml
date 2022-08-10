@@ -10,7 +10,7 @@ spec:
   selector:
     matchLabels:
       app: onlyoffice-crm
-  {{- if .Values.updateStrategy }}
+  {{- if .Values.deploymetsUpdateStrategy }}
   strategy: {{ template "appserver.update.strategyType" . }}
   {{- end }}
   template:
@@ -76,12 +76,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyRootPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -105,38 +105,51 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.appserver.http }}
           name: http
-        {{ if .Values.readinessProbeEnabled }}
+        {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.livenessProbeEnabled }}
+        {{- end }}
+        {{- if .Values.livenessProbe.enabled }}
         livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.startupProbeEnabled }}
+        {{- end }}
+        {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{- if .Values.podSecurityContext.enabled }}
-        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        - name: custom-file
+          mountPath: /app/onlyoffice/config/{{ .Values.extraConf.fileName }}
+          subPath: {{ .Values.extraConf.fileName }}
+        {{- end }}
         - name: app-data
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
-        {{ if .Values.onlyofficeProjectServer.enabled }}
+        {{- if .Values.onlyofficeProjectServer.enabled }}
         - name: project-data
           mountPath: /var/www/products/ASC.Projects/server/
-        {{ end }}
-        {{ if .Values.onlyofficeCalendar.enabled }}
+        {{- end }}
+        {{- if .Values.onlyofficeCalendar.enabled }}
         - name: calendar-data
           mountPath: /var/www/products/ASC.Calendar/server/
-        {{ end }}
-        {{ if .Values.onlyofficeMail.enabled }}
+        {{- end }}
+        {{- if .Values.onlyofficeMail.enabled }}
         - name: mail-data
           mountPath: /var/www/products/ASC.Mail/server/
-        {{ end }}
+        {{- end }}
       volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+          items:
+          - key: {{ .Values.extraConf.fileName }}
+            path: {{ .Values.extraConf.fileName }}
+      {{- end }}
       - name: app-data
         persistentVolumeClaim:
           claimName: app-data
@@ -146,24 +159,24 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: people-data
-      {{ if .Values.onlyofficeCrm.enabled }}
+      {{- if .Values.onlyofficeCrm.enabled }}
       - name: crm-data
         persistentVolumeClaim:
           claimName: crm-data
-      {{ end }}
-      {{ if .Values.onlyofficeProjectServer.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeProjectServer.enabled }}
       - name: project-data
         persistentVolumeClaim:
           claimName: project-data
-      {{ end }}
-      {{ if .Values.onlyofficeCalendar.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeCalendar.enabled }}
       - name: calendar-data
         persistentVolumeClaim:
           claimName: calendar-data
-      {{ end }}
-      {{ if .Values.onlyofficeMail.enabled }}
+      {{- end }}
+      {{- if .Values.onlyofficeMail.enabled }}
       - name: mail-data
         persistentVolumeClaim:
           claimName: mail-data
-      {{ end }}
+      {{- end }}
 {{- end }}

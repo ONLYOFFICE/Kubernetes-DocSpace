@@ -24,8 +24,8 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if .Values.docs.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.docs.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -33,19 +33,19 @@ spec:
       {{- end }}
       containers:
       - name: onlyoffice-document-server
-        image: {{ .Values.images.documentserver }}:{{ .Values.images.documentserverTag }}
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.docs.image.repository }}:{{ .Values.docs.image.tag }}
+        imagePullPolicy: {{ .Values.docs.image.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyRootPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "appserver.mysql.secretName" . }}
-              key: {{ .Values.connections.musqlSecretKeyPassword }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -67,32 +67,32 @@ spec:
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.docs.http }}
+        - containerPort: {{ .Values.docs.containerPorts.http }}
           name: http
-        - containerPort: {{ .Values.containerPorts.docs.https }}
+        - containerPort: {{ .Values.docs.containerPorts.https }}
           name: https
-        - containerPort: {{ .Values.containerPorts.docs.spch }}
+        - containerPort: {{ .Values.docs.containerPorts.spch }}
           name: spch
-        - containerPort: {{ .Values.containerPorts.docs.docs }}
+        - containerPort: {{ .Values.docs.containerPorts.docs }}
           name: docs
-        - containerPort: {{ .Values.containerPorts.docs.prox }}
-          name: prox
-        {{ if .Values.readinessProbeEnabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.livenessProbeEnabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{ if .Values.startupProbeEnabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{ end }}
-        {{- if .Values.podSecurityContext.enabled }}
-        securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 10 }}
+        - containerPort: {{ .Values.docs.containerPorts.proxy }}
+          name: proxy
+        {{- if .Values.docs.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.docs.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.docs.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.docs.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.docs.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.docs.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
         - name: app-data
           mountPath: /app/onlyoffice/data
       volumes:
-        - name: app-data
-          persistentVolumeClaim:
-            claimName: app-data
+      - name: app-data
+        persistentVolumeClaim:
+          claimName: app-data
