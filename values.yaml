@@ -257,7 +257,7 @@ docs:
     https: 443
     spch: 8080
     docs: 8000
-    prox: 8888
+    proxy: 8888
 
   startupProbe:
     enabled: false
