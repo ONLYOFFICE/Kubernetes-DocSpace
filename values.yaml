@@ -1,6 +1,7 @@
-# Default values for appserver.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Default values for appserver
+
+## Appserver common parameters
+## This block defines common parameters for all deployments and statefulsets
 
 connections:
   mysqlDatabaseMigration: "true"
@@ -108,15 +109,6 @@ containerPorts:
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 
-podAntiAffinity:
-  type: "soft"
-  topologyKey: kubernetes.io/hostname
-  weight: "100"
-
-nodeSelector: {}
-
-tolerations: []
-
 jwt:
   enabled: true
   secret: "jwt_secret"
@@ -150,16 +142,7 @@ readinessProbe:
     port: 5050
   periodSeconds: 10
   successThreshold: 1
-  timeoutSeconds: 3 
-
-deploymetsUpdateStrategy:
-  type: RollingUpdate
-  rollingUpdate:
-    maxUnavailable: 25%
-    maxSurge: 25%
-
-statefulsetUpdateStrategy:
-  type: RollingUpdate
+  timeoutSeconds: 3
 
 podSecurityContext:
   enabled: false
@@ -170,6 +153,74 @@ containerSecurityContext
   enabled: false
   allowPrivilegeEscalation: false
 
+imagePullSecrets: ""
+
+## Appserver common deployment parameters
+## This block defines common parameters for all deployments only
+
+podAntiAffinity:
+  type: "soft"
+  topologyKey: kubernetes.io/hostname
+  weight: "100"
+
+nodeSelector: {}
+
+tolerations: []
+
+deploymetsUpdateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%
+
+## Appserver People Server deployment parameters
+
+onlyofficePeopleServer:
+  replicaCount: 2
+
+## Appserver Files deployment parameters
+
+onlyofficeFiles:
+  replicaCount: 2
+
+## Appserver Proxy deployment parameters
+
+onlyofficeProxy:
+  replicaCount: 2
+
+## Appserver Calendar deployment parameters
+
+onlyofficeCalendar:
+  enabled: true
+  replicaCount: 2
+
+## Appserver Crm deployment parameters
+
+onlyofficeCrm:
+  enabled: true
+  replicaCount: 2
+
+## Appserver Mail deployment parameters
+
+onlyofficeMail:
+  enabled: true
+  replicaCount: 2
+
+## Appserver Project Server deployment parameters
+
+onlyofficeProjectServer:
+  enabled: true
+  replicaCount: 2
+
+## Appserver common statefulset parameters
+## This block defines common parameters for all statefulsets only
+
+statefulsetUpdateStrategy:
+  type: RollingUpdate
+
+## Appserver ingress parameters
+## This block defines parameters for the Nginx ingress only
+
 ingress:
   enabled: true
   annotations:
@@ -179,33 +230,6 @@ ingress:
     enabled: false
     secretName: tls
   host: ""
-
-onlyofficePeopleServer:
-  replicaCount: 2
-
-onlyofficeFiles:
-  replicaCount: 2
-
-onlyofficeProxy:
-  replicaCount: 2
-
-onlyofficeCalendar:
-  enabled: true
-  replicaCount: 2
-  
-onlyofficeCrm:
-  enabled: true
-  replicaCount: 2
-  
-onlyofficeMail:
-  enabled: true
-  replicaCount: 2
-  
-onlyofficeProjectServer:
-  enabled: true
-  replicaCount: 2
-
-imagePullSecrets: ""
 
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only
