@@ -118,6 +118,11 @@ spec:
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        - name: custom-file
+          mountPath: /app/onlyoffice/config/{{ .Values.extraConf.fileName }}
+          subPath: {{ .Values.extraConf.fileName }}
+        {{- end }}
         - name: app-data
           mountPath: /app/onlyoffice/data
         - name: files-data
@@ -137,6 +142,14 @@ spec:
           mountPath: /var/www/products/ASC.Calendar/server/
         {{- end }}
       volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+          items:
+          - key: {{ .Values.extraConf.fileName }}
+            path: {{ .Values.extraConf.fileName }}
+      {{- end }}
       - name: app-data
         persistentVolumeClaim:
           claimName: app-data

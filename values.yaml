@@ -149,11 +149,15 @@ podSecurityContext:
   runAsUser: 104
   runAsGroup: 107
 
-containerSecurityContext
+containerSecurityContext:
   enabled: false
   allowPrivilegeEscalation: false
 
 imagePullSecrets: ""
+
+extraConf:
+  secretName: ""
+  fileName: appsettings.json
 
 ## Appserver common deployment parameters
 ## This block defines common parameters for all deployments only
@@ -187,6 +191,9 @@ onlyofficeFiles:
 
 onlyofficeProxy:
   replicaCount: 2
+  extraConf:
+    configMap: ""
+    fileName: "10.upstream.conf.upstream"
 
 ## Appserver Calendar deployment parameters
 

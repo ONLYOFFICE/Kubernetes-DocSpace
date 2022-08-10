@@ -33,7 +33,7 @@ spec:
       {{- end }}
       containers:
       - name: onlyoffice-document-server
-        image: {{ .Values.docs.images.repository }}:{{ .Values.docs.images.tag }}
+        image: {{ .Values.docs.image.repository }}:{{ .Values.docs.image.tag }}
         imagePullPolicy: {{ .Values.docs.image.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD

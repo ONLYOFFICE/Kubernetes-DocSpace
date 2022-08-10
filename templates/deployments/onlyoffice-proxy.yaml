@@ -118,6 +118,11 @@ spec:
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
+        {{- if .Values.onlyofficeProxy.extraConf.configMap }}
+        - name: custom-file
+          mountPath: /etc/nginx/templates/{{ .Values.onlyofficeProxy.extraConf.fileName }}
+          subPath: {{ .Values.onlyofficeProxy.extraConf.fileName }}
+        {{- end }}
         - name: proxy-log
           mountPath: /var/log/nginx
         - name: change-hosts
@@ -127,6 +132,11 @@ spec:
           mountPath: /etc/nginx/templates/upstream.conf.template
           subPath: upstream.conf.template
       volumes:
+      {{- if .Values.onlyofficeProxy.extraConf.configMap }}
+      - name: custom-file
+        configMap:
+          name: {{ .Values.onlyofficeProxy.extraConf.configMap }}
+      {{- end }}
       - name: proxy-log
         persistentVolumeClaim:
           claimName: proxy-log
