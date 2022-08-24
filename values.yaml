@@ -19,6 +19,9 @@ connections:
   DocumentServerUrlPublic: "/ds-vpath/"
   DocumentServerUrlInternal: "http://onlyoffice-document-server/"
   DocumentServerUrlConverter: "/ds-vpath/ConvertService.ashx"
+  AppUrlPortal: "http://onlyoffice-proxy:8092"
+  redisHost: "redis-master"
+  rabbitHost: "rabbitmq"
   kafkaHost: "onlyoffice-kafka"
   elkHost: "elasticsearch-master"
   proxyHost: "onlyoffice-proxy"
@@ -46,10 +49,14 @@ connections:
   thumbnailsHost: "onlyoffice-thumbnails"
   ssoauthHost: "onlyoffice-ssoauth"
   documentServer: "onlyoffice-document-server"
+  clearEvents: "onlyoffice-clear-events"
+  migration: "onlyoffice-migration"
+  webhooksService: "onlyoffice-webhooks-service"
+  doceditor: "onlyoffice-doceditor"
   servicePort: "5050"
 
 images:
-  tag: 1.2.0-r01
+  tag: develop
   initContainer:
     initStorage: onlyoffice/4testing-appserver-bin-share
     waitStorage: onlyoffice/4testing-appserver-wait-bin-share
@@ -74,6 +81,11 @@ images:
   telegramService: onlyoffice/4testing-appserver-telegram-service
   thumbnails: onlyoffice/4testing-appserver-thumbnails
   urlshortener: onlyoffice/4testing-appserver-urlshortener
+  clearEvents: onlyoffice/4testing-appserver-clear-events
+  backupBackgroundTasks: onlyoffice/4testing-appserver-backup-background
+  webhooksService: onlyoffice/4testing-appserver-webhooks-service
+  doceditor: onlyoffice/4testing-appserver-doceditor
+  migration: onlyoffice/4testing-appserver-migration
 
 persistence:
   storageClass: "nfs"
@@ -105,6 +117,7 @@ containerPorts:
   sso: 9834
   thumbnails: 9800
   urlshortener: 9999
+  doceditor: 5013
 
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
@@ -198,25 +211,25 @@ onlyofficeProxy:
 ## Appserver Calendar deployment parameters
 
 onlyofficeCalendar:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
 ## Appserver Crm deployment parameters
 
 onlyofficeCrm:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
 ## Appserver Mail deployment parameters
 
 onlyofficeMail:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
 ## Appserver Project Server deployment parameters
 
 onlyofficeProjectServer:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
 ## Appserver common statefulset parameters

@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: onlyoffice-storage-encryption
+  name: onlyoffice-clear-events
   labels:
-    app: onlyoffice-storage-encryption
+    app: onlyoffice-clear-events
 spec:
   ports:
   - port: {{ .Values.containerPorts.appserver.http }}
     name: http
     targetPort: {{ .Values.containerPorts.appserver.http }}
   selector:
-    statefulset.kubernetes.io/pod-name: onlyoffice-storage-encryption-0
+    statefulset.kubernetes.io/pod-name: onlyoffice-clear-events-0
   type: ClusterIP

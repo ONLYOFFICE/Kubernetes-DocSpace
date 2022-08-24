@@ -8,8 +8,12 @@ data:
         server      $DOCUMENT_SERVER max_fails=0 fail_timeout=0s;
         keepalive   $service_keepalive;
     }
-    upstream $API_SYSTEM_HOST {
-        server      $API_SYSTEM_HOST:$SERVICE_PORT;
+    upstream $SOCKET_HOST {
+        server      $SOCKET_HOST:$SERVICE_PORT;
+        keepalive   $service_keepalive;
+    }
+    upstream $SERVICE_DOCEDITOR {
+        server      $SERVICE_DOCEDITOR:5013;
         keepalive   $service_keepalive;
     }
     upstream $BACKUP_HOST {
@@ -53,9 +57,6 @@ data:
         keepalive   $service_keepalive;
     }
     # Map variables
-    map $host   $service_api_system {
-        default $API_SYSTEM_HOST;
-    }
     map $host   $service_backup {
         default $BACKUP_HOST;
     }
@@ -65,9 +66,6 @@ data:
     map $host   $service_crm {
         default $CRM_HOST;
     }
-    map $host   $service_storage_encryption {
-        default $STORAGE_ENCRYPTION_HOST;
-    }
     map $host   $service_files {
         default $FILES_HOST;
     }
@@ -76,9 +74,6 @@ data:
     }
     map $host   $service_mail {
         default $MAIL_HOST;
-    }
-    map $host   $service_storage_migration {
-        default $STORAGE_MIGRATION_HOST;
     }
     map $host   $service_notify {
         default $NOTIFY_HOST;
@@ -110,9 +105,18 @@ data:
     map $host   $service_studio {
         default $STUDIO_HOST;
     }
-    map $host   $service_ssoauth {
+    map $host   $service_sso {
         default $SSOAUTH_HOST;
     }
     map $host   $document_server {
         default $DOCUMENT_SERVER;
+    }
+    map $host   $service_migration {
+        default $SERVICE_MIGRATION;
+    }
+    map $host   $service_doceditor {
+        default $SERVICE_DOCEDITOR;
+    }
+    map $host   $service_api_system {
+        default $API_SYSTEM_HOST;
     }

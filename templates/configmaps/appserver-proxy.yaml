@@ -28,3 +28,7 @@ data:
   SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}
   DOCUMENT_SERVER: {{ .Values.connections.documentServer }}
   SERVICE_PORT: {{ .Values.connections.servicePort | quote }}
+  SERVICE_CLEAR_EVENTS: {{ .Values.connections.clearEvents }}
+  SERVICE_MIGRATION: {{ .Values.connections.migration }}
+  SERVICE_WEBHOOKS_SERVICE: {{ .Values.connections.webhooksService }}
+  SERVICE_DOCEDITOR: {{ .Values.connections.doceditor }}
