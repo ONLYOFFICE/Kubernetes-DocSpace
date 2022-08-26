@@ -4,6 +4,7 @@
 ## This block defines common parameters for all deployments and statefulsets
 
 connections:
+  envExtension: "none"
   mysqlDatabaseMigration: "true"
   mysqlHost: "mysql"
   mysqlDatabase: "onlyoffice"
@@ -48,11 +49,12 @@ connections:
   backupHost: "onlyoffice-backup"
   thumbnailsHost: "onlyoffice-thumbnails"
   ssoauthHost: "onlyoffice-ssoauth"
-  documentServer: "onlyoffice-document-server"
-  clearEvents: "onlyoffice-clear-events"
-  migration: "onlyoffice-migration"
-  webhooksService: "onlyoffice-webhooks-service"
-  doceditor: "onlyoffice-doceditor"
+  documentServerHost: "onlyoffice-document-server"
+  clearEventsHost: "onlyoffice-clear-events"
+  migrationHost: "onlyoffice-migration"
+  webhooksServiceHost: "onlyoffice-webhooks-service"
+  doceditorHost: "onlyoffice-doceditor"
+  backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
   servicePort: "5050"
 
 images:
@@ -118,6 +120,7 @@ containerPorts:
   thumbnails: 9800
   urlshortener: 9999
   doceditor: 5013
+  backupBackgruondTasks: 5032
 
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
