@@ -40,20 +40,12 @@ data:
         server      $SERVICE_BACKUP;
         keepalive   $service_keepalive;
     }
-    upstream $STORAGE_ENCRYPTION_HOST {
-        server      $SERVICE_STORAGE_ENCRYPTION;
-        keepalive   $service_keepalive;
-    }
     upstream $FILES_HOST {
         server      $SERVICE_FILES;
         keepalive   $service_keepalive;
     }
     upstream $FILES_SERVICES_HOST {
         server      $SERVICE_FILES_SERVICES;
-        keepalive   $service_keepalive;
-    }
-    upstream $STORAGE_MIGRATION_HOST {
-        server      $SERVICE_STORAGE_MIGRATION;
         keepalive   $service_keepalive;
     }
     upstream $NOTIFY_HOST {
@@ -136,12 +128,6 @@ data:
     }
     map $host   $service_api_system {
         default $API_SYSTEM_HOST;
-    }
-    map $host   $service_storage_encryption {
-        default $STORAGE_ENCRYPTION_HOST;
-    }
-    map $host   $service_storage_migration {
-        default $STORAGE_MIGRATION_HOST;
     }
     map $host   $service_backup_backgruond_tasks {
         default $BACKUP_BACKGRUOND_TASKS_HOST;

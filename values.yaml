@@ -5,7 +5,7 @@
 
 connections:
   envExtension: "none"
-  mysqlDatabaseMigration: "true"
+  mysqlDatabaseMigration: "false"
   mysqlHost: "mysql"
   mysqlDatabase: "onlyoffice"
   mysqlUser: "onlyoffice_user"
@@ -253,6 +253,17 @@ ingress:
     enabled: false
     secretName: tls
   host: ""
+
+## Appserver jobs parameters
+## This block defines parameters for the jobs only
+
+install:
+  job:
+    enabled: true
+    image:
+      repository: onlyoffice/4testing-appserver-migration-runner
+      tag: develop
+      pullPolicy: IfNotPresent
 
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only

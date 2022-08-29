@@ -1,3 +1,4 @@
+{{- if .Values.install.job.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -7,27 +8,34 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   backoffLimit: 2
   template:
     spec:
-      restartPolicy: Never
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       containers:
       - name:  migration-runner
-        image: onlyoffice/4testing-appserver-migration-runner:develop
-        ports:
-        - containerPort: 5050
+        image: {{ .Values.install.job.image.repository }}:{{ .Values.install.job.image.tag }}
+        imagePullPolicy: {{ .Values.install.job.image.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql
-              key: mysql-root-password
+              name: {{ template "appserver.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql
-              key: mysql-password
+              name: {{ template "appserver.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         envFrom:
         - configMapRef:
             name: appserver-all
+      restartPolicy: Never
+{{- end }}
