@@ -9,62 +9,88 @@ data:
         keepalive   $service_keepalive;
     }
     upstream $SOCKET_HOST {
-        server      $SOCKET_HOST:$SERVICE_PORT;
+        server      $SERVICE_SOCKET;
         keepalive   $service_keepalive;
     }
-    upstream $SERVICE_DOCEDITOR {
-        server      $SERVICE_DOCEDITOR:5013;
-        keepalive   $service_keepalive;
-    }
-    upstream $BACKUP_HOST {
-        server      $BACKUP_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $CALENDAR_HOST {
-        server      $CALENDAR_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $CRM_HOST {
-        server      $CRM_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $FILES_HOST {
-        server      $FILES_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $MAIL_HOST {
-        server      $MAIL_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $PEOPLE_SERVER_HOST {
-        server      $PEOPLE_SERVER_HOST:$SERVICE_PORT;
-        keepalive   $service_keepalive;
-    }
-    upstream $PROJECTS_SERVER_HOST {
-        server      $PROJECTS_SERVER_HOST:$SERVICE_PORT;
+    upstream $DOCEDITOR_HOST {
+        server      $SERVICE_DOCEDITOR;
         keepalive   $service_keepalive;
     }
     upstream $URLSHORTENER_HOST {
-        server      $URLSHORTENER_HOST:$SERVICE_PORT;
+        server      $SERVICE_URLSHORTENER;
         keepalive   $service_keepalive;
     }
     upstream $API_HOST {
-        server      $API_HOST:$SERVICE_PORT;
+        server      $SERVICE_API;
         keepalive   $service_keepalive;
     }
     upstream $STUDIO_HOST {
-        server      $STUDIO_HOST:$SERVICE_PORT;
+        server      $SERVICE_STUDIO;
+        keepalive   $service_keepalive;
+    }
+    upstream $MIGRATION_HOST {
+        server      $SERVICE_MIGRATION;
+        keepalive   $service_keepalive;
+    }
+    upstream $API_SYSTEM_HOST {
+        server      $SERVICE_API_SYSTEM;
+        keepalive   $service_keepalive;
+    }
+    upstream $BACKUP_HOST {
+        server      $SERVICE_BACKUP;
+        keepalive   $service_keepalive;
+    }
+    upstream $STORAGE_ENCRYPTION_HOST {
+        server      $SERVICE_STORAGE_ENCRYPTION;
+        keepalive   $service_keepalive;
+    }
+    upstream $FILES_HOST {
+        server      $SERVICE_FILES;
+        keepalive   $service_keepalive;
+    }
+    upstream $FILES_SERVICES_HOST {
+        server      $SERVICE_FILES_SERVICES;
+        keepalive   $service_keepalive;
+    }
+    upstream $STORAGE_MIGRATION_HOST {
+        server      $SERVICE_STORAGE_MIGRATION;
+        keepalive   $service_keepalive;
+    }
+    upstream $NOTIFY_HOST {
+        server      $SERVICE_NOTIFY;
+        keepalive   $service_keepalive;
+    }
+    upstream $PEOPLE_SERVER_HOST {
+        server      $SERVICE_PEOPLE_SERVER;
+        keepalive   $service_keepalive;
+    }
+    upstream $STUDIO_NOTIFY_HOST {
+        server      $SERVICE_STUDIO_NOTIFY;
+        keepalive   $service_keepalive;
+    }
+    upstream $TELEGRAM_SERVICE_HOST {
+        server      $SERVICE_TELEGRAM_SERVICE;
+        keepalive   $service_keepalive;
+    }
+    upstream $SSOAUTH_HOST {
+        server      $SERVICE_SSOAUTH;
+        keepalive   $service_keepalive;
+    }
+    upstream $BACKUP_BACKGRUOND_TASKS_HOST {
+        server      $SERVICE_BACKUP_BACKGRUOND_TASKS;
+        keepalive   $service_keepalive;
+    }
+    upstream $CLEAR_EVENTS_HOST {
+        server      $SERVICE_CLEAR_EVENTS;
+        keepalive   $service_keepalive;
+    }
+    upstream $WEBHOOKS_SERVICE_HOST {
+        server      $SERVICE_WEBHOOKS_SERVICE;
         keepalive   $service_keepalive;
     }
     # Map variables
     map $host   $service_backup {
         default $BACKUP_HOST;
-    }
-    map $host   $service_calendar {
-        default $CALENDAR_HOST;
-    }
-    map $host   $service_crm {
-        default $CRM_HOST;
     }
     map $host   $service_files {
         default $FILES_HOST;
@@ -72,17 +98,11 @@ data:
     map $host   $service_files_services {
         default $FILES_SERVICES_HOST;
     }
-    map $host   $service_mail {
-        default $MAIL_HOST;
-    }
     map $host   $service_notify {
         default $NOTIFY_HOST;
     }
     map $host   $service_people_server {
         default $PEOPLE_SERVER_HOST;
-    }
-    map $host   $service_projects_server {
-        default $PROJECTS_SERVER_HOST;
     }
     map $host   $service_socket {
         default $SOCKET_HOST;
@@ -92,9 +112,6 @@ data:
     }
     map $host   $service_telegram_service {
         default $TELEGRAM_SERVICE_HOST;
-    }
-    map $host   $service_thumbnails {
-        default $THUMBNAILS_HOST;
     }
     map $host   $service_urlshortener {
         default $URLSHORTENER_HOST;
@@ -112,11 +129,26 @@ data:
         default $DOCUMENT_SERVER;
     }
     map $host   $service_migration {
-        default $SERVICE_MIGRATION;
+        default $MIGRATION_HOST;
     }
     map $host   $service_doceditor {
-        default $SERVICE_DOCEDITOR;
+        default $DOCEDITOR_HOST;
     }
     map $host   $service_api_system {
         default $API_SYSTEM_HOST;
+    }
+    map $host   $service_storage_encryption {
+        default $STORAGE_ENCRYPTION_HOST;
+    }
+    map $host   $service_storage_migration {
+        default $STORAGE_MIGRATION_HOST;
+    }
+    map $host   $service_backup_backgruond_tasks {
+        default $BACKUP_BACKGRUOND_TASKS_HOST;
+    }
+    map $host   $service_clear_events {
+        default $CLEAR_EVENTS_HOST;
+    }
+    map $host   $service_webhooks_service {
+        default $WEBHOOKS_SERVICE_HOST;
     }
