@@ -40,7 +40,7 @@ spec:
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-webhooks-service
-        image: {{ .Values.images.api }}:{{ .Values.images.tag }}
+        image: {{ .Values.images.webhooksService }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD

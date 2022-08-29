@@ -40,7 +40,7 @@ spec:
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-migration
-        image: {{ .Values.images.api }}:{{ .Values.images.tag }}
+        image: {{ .Values.images.migration }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD

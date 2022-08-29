@@ -40,7 +40,7 @@ spec:
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-backup-background-tasks
-        image: {{ .Values.images.api }}:{{ .Values.images.tag }}
+        image: {{ .Values.images.backupBackgroundTasks }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
