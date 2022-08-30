@@ -28,7 +28,7 @@ data:
   SERVICE_STORAGE_ENCRYPTION: {{ .Values.connections.storageEncryptionHost }}:{{ .Values.connections.servicePort }}
   SERVICE_STORAGE_MIGRATION: {{ .Values.connections.storageMigrationHost }}:{{ .Values.connections.servicePort }}
   SERVICE_NOTIFY: {{ .Values.connections.notifyHost }}:{{ .Values.connections.servicePort }}
-  SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.containerPorts.backupBackgruondTasks }}
+  SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.connections.servicePort }}
   API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}
   BACKUP_HOST: {{ .Values.connections.backupHost }}
   BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgruondTasksHost }}

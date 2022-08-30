@@ -32,30 +32,12 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
-      - name: appserver-init-storage
-        image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
+      - name: appserver-wait-storage
+        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
-        {{- if .Values.onlyofficeCrm.enabled }}
-        - name: crm-data
-          mountPath: /var/www/products/ASC.CRM/server/
-        {{- end }}
-        {{- if .Values.onlyofficeProjectServer.enabled }}
-        - name: project-data
-          mountPath: /var/www/products/ASC.Projects/server/
-        {{- end }}
-        {{- if .Values.onlyofficeCalendar.enabled }}
-        - name: calendar-data
-          mountPath: /var/www/products/ASC.Calendar/server/
-        {{- end }}
-        {{- if .Values.onlyofficeMail.enabled }}
-        - name: mail-data
-          mountPath: /var/www/products/ASC.Mail/server/
-        {{- end }}
+          mountPath: /var/www/products/
       containers:
       - name: onlyoffice-api-system
         image: {{ .Values.images.apiSystem }}:{{ .Values.images.tag }}

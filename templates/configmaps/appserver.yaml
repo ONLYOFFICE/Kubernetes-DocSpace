@@ -5,7 +5,6 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "1"
-
 data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}

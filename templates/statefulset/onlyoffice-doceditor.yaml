@@ -76,6 +76,8 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.appserver.http }}
           name: http
+        - containerPort: {{ .Values.containerPorts.doceditor }}
+          name: doceditor
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
