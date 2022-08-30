@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,3 +16,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-thumbnails-0
   type: ClusterIP
+{{- end }}

@@ -1,7 +1,13 @@
-# Default values for appserver
+# Default values for App
 
-## Appserver common parameters
+## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
+
+## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
+## Allowed values: `docspace` or `appsever`
+##
+product:
+  name: "docspace"
 
 connections:
   envExtension: "none"
@@ -55,6 +61,7 @@ connections:
   webhooksServiceHost: "onlyoffice-webhooks-service"
   doceditorHost: "onlyoffice-doceditor"
   backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
+  thumbnailsHost: "onlyoffice-thumbnails"
   servicePort: "5050"
 
 images:
@@ -175,7 +182,7 @@ extraConf:
   secretName: ""
   fileName: appsettings.json
 
-## Appserver common deployment parameters
+## App common deployment parameters
 ## This block defines common parameters for all deployments only
 
 podAntiAffinity:
@@ -193,17 +200,17 @@ deploymetsUpdateStrategy:
     maxUnavailable: 25%
     maxSurge: 25%
 
-## Appserver People Server deployment parameters
+## App People Server deployment parameters
 
 onlyofficePeopleServer:
   replicaCount: 2
 
-## Appserver Files deployment parameters
+## App Files deployment parameters
 
 onlyofficeFiles:
   replicaCount: 2
 
-## Appserver Proxy deployment parameters
+## App Proxy deployment parameters
 
 onlyofficeProxy:
   replicaCount: 2
@@ -211,37 +218,37 @@ onlyofficeProxy:
     configMap: ""
     fileName: "10.upstream.conf.upstream"
 
-## Appserver Calendar deployment parameters
+## App Calendar deployment parameters
 
 onlyofficeCalendar:
   enabled: false
   replicaCount: 2
 
-## Appserver Crm deployment parameters
+## App Crm deployment parameters
 
 onlyofficeCrm:
   enabled: false
   replicaCount: 2
 
-## Appserver Mail deployment parameters
+## App Mail deployment parameters
 
 onlyofficeMail:
   enabled: false
   replicaCount: 2
 
-## Appserver Project Server deployment parameters
+## App Project Server deployment parameters
 
 onlyofficeProjectServer:
   enabled: false
   replicaCount: 2
 
-## Appserver common statefulset parameters
+## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
 
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
-## Appserver ingress parameters
+## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
 
 ingress:
@@ -254,7 +261,7 @@ ingress:
     secretName: tls
   host: ""
 
-## Appserver jobs parameters
+## App jobs parameters
 ## This block defines parameters for the jobs only
 
 install:
@@ -263,6 +270,14 @@ install:
     image:
       repository: onlyoffice/4testing-appserver-migration-runner
       tag: develop
+      pullPolicy: IfNotPresent
+
+upgrade:
+  job:
+    enabled: true
+    image:
+      repository: mysql
+      tag: latest
       pullPolicy: IfNotPresent
 
 ## Document server parameters

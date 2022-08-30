@@ -1,16 +1,16 @@
-{{- if eq .Values.product.name "docspace" }}
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: onlyoffice-webhooks-service
+  name: onlyoffice-storage-migration
   labels:
-    app: onlyoffice-webhooks-service
+    app: onlyoffice-storage-migration
 spec:
   ports:
   - port: {{ .Values.containerPorts.appserver.http }}
     name: http
     targetPort: {{ .Values.containerPorts.appserver.http }}
   selector:
-    statefulset.kubernetes.io/pod-name: onlyoffice-webhooks-service-0
+    statefulset.kubernetes.io/pod-name: onlyoffice-storage-migration-0
   type: ClusterIP
 {{- end }}

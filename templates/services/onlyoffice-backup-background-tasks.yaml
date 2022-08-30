@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "docspace" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,3 +13,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-backup-background-tasks-0
   type: ClusterIP
+{{- end }}
