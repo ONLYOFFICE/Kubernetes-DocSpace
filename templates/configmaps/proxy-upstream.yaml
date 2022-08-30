@@ -12,10 +12,6 @@ data:
         server      $SERVICE_SOCKET;
         keepalive   $service_keepalive;
     }
-    upstream $DOCEDITOR_HOST {
-        server      $SERVICE_DOCEDITOR;
-        keepalive   $service_keepalive;
-    }
     upstream $URLSHORTENER_HOST {
         server      $SERVICE_URLSHORTENER;
         keepalive   $service_keepalive;
@@ -26,14 +22,6 @@ data:
     }
     upstream $STUDIO_HOST {
         server      $SERVICE_STUDIO;
-        keepalive   $service_keepalive;
-    }
-    upstream $MIGRATION_HOST {
-        server      $SERVICE_MIGRATION;
-        keepalive   $service_keepalive;
-    }
-    upstream $API_SYSTEM_HOST {
-        server      $SERVICE_API_SYSTEM;
         keepalive   $service_keepalive;
     }
     upstream $BACKUP_HOST {
@@ -68,6 +56,19 @@ data:
         server      $SERVICE_SSOAUTH;
         keepalive   $service_keepalive;
     }
+    upstream $API_SYSTEM_HOST {
+        server      $SERVICE_API_SYSTEM;
+        keepalive   $service_keepalive;
+    }
+    {{- if eq .Values.product.name "docspace" }}
+    upstream $DOCEDITOR_HOST {
+        server      $SERVICE_DOCEDITOR;
+        keepalive   $service_keepalive;
+    }
+    upstream $MIGRATION_HOST {
+        server      $SERVICE_MIGRATION;
+        keepalive   $service_keepalive;
+    }
     upstream $BACKUP_BACKGRUOND_TASKS_HOST {
         server      $SERVICE_BACKUP_BACKGRUOND_TASKS;
         keepalive   $service_keepalive;
@@ -80,6 +81,21 @@ data:
         server      $SERVICE_WEBHOOKS_SERVICE;
         keepalive   $service_keepalive;
     }
+    {{- end }}
+    {{- if eq .Values.product.name "appsever" }}
+    upstream $STORAGE_ENCRYPTION_HOST {
+        server      $SERVICE_STORAGE_ENCRYPTION;
+        keepalive   $service_keepalive;
+    }
+    upstream $STORAGE_MIGRATION_HOST {
+        server      $SERVICE_STORAGE_MIGRATION;
+        keepalive   $service_keepalive;
+    }
+    upstream $THUMBNAILS_HOST {
+        server      $SERVICE_THUMBNAILS;
+        keepalive   $service_keepalive;
+    }
+    {{- end }}
     # Map variables
     map $host   $service_backup {
         default $BACKUP_HOST;
@@ -120,14 +136,15 @@ data:
     map $host   $document_server {
         default $DOCUMENT_SERVER;
     }
+    map $host   $service_api_system {
+        default $API_SYSTEM_HOST;
+    }
+    {{- if eq .Values.product.name "docspace" }}
     map $host   $service_migration {
         default $MIGRATION_HOST;
     }
     map $host   $service_doceditor {
         default $DOCEDITOR_HOST;
-    }
-    map $host   $service_api_system {
-        default $API_SYSTEM_HOST;
     }
     map $host   $service_backup_backgruond_tasks {
         default $BACKUP_BACKGRUOND_TASKS_HOST;
@@ -138,3 +155,15 @@ data:
     map $host   $service_webhooks_service {
         default $WEBHOOKS_SERVICE_HOST;
     }
+    {{- end }}
+    {{- if eq .Values.product.name "appsever" }}
+    map $host   $service_storage_encryption {
+        default $STORAGE_ENCRYPTION_HOST;
+    }
+    map $host   $service_storage_migration {
+        default $STORAGE_MIGRATION_HOST;
+    }
+    map $host   $service_thumbnails {
+        default $THUMBNAILS_HOST;
+    }
+    {{- end }}

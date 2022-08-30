@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -156,3 +157,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}

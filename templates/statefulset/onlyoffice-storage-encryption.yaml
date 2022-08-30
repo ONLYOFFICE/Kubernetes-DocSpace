@@ -1,15 +1,15 @@
-{{- if eq .Values.product.name "docspace" }}
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-backup-background-tasks
+  name: onlyoffice-storage-encryption
   labels:
-    app: onlyoffice-backup-background-tasks
+    app: onlyoffice-storage-encryption
 spec:
   selector:
     matchLabels:
-      app: onlyoffice-backup-background-tasks
-  serviceName: onlyoffice-backup-background-tasks
+      app: onlyoffice-storage-encryption
+  serviceName: onlyoffice-storage-encryption
   replicas: 1
   updateStrategy:
     type: {{ .Values.statefulsetUpdateStrategy.type }}
@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: onlyoffice-backup-background-tasks
+        app: onlyoffice-storage-encryption
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -40,8 +40,8 @@ spec:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-backup-background-tasks
-        image: {{ .Values.images.backupBackgroundTasks }}:{{ .Values.images.tag }}
+      - name: onlyoffice-storage-encryption
+        image: {{ .Values.images.storageEncryption }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
