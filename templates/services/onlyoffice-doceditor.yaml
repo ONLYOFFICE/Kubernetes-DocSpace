@@ -7,9 +7,9 @@ metadata:
     app: onlyoffice-doceditor
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   - port: {{ .Values.containerPorts.doceditor }}
     name: doceditor
     targetPort: {{ .Values.containerPorts.doceditor }}

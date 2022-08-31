@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: update-appserver
+  name: update-app
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "1"

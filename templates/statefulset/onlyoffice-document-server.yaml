@@ -39,12 +39,12 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
@@ -63,7 +63,7 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
         - secretRef:
             name: jwt
         ports:

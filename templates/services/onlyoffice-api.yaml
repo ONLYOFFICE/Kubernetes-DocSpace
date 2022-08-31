@@ -6,9 +6,9 @@ metadata:
     app: onlyoffice-api
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-api-0
   type: ClusterIP

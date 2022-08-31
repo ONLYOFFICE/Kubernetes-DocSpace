@@ -33,7 +33,7 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         volumeMounts:
         - name: files-data
@@ -65,7 +65,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["/sql/update.sh"]
       containers:
-      - name: appserver-init-storage
+      - name: app-init-storage
         image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
@@ -122,7 +122,7 @@ spec:
 #          name: change-db-scripts
       - name: update-scripts
         configMap:
-          name: update-appserver
+          name: update-app
           defaultMode: 0755
       restartPolicy: Never
 {{- end }}
