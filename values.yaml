@@ -96,25 +96,6 @@ images:
   doceditor: onlyoffice/4testing-appserver-doceditor
   migration: onlyoffice/4testing-appserver-migration
 
-persistence:
-  storageClass: "nfs"
-  appData:
-    size: 1Gi
-  calendarData:
-    size: 1Gi
-  crmData:
-    size: 1Gi
-  filesData:
-    size: 1Gi
-  mailData:
-    size: 1Gi
-  peopleData:
-    size: 1Gi
-  projectData:
-    size: 1Gi
-  proxyLog:
-    size: 1Gi
-
 containerPorts:
   appserver:
     http: 5050
@@ -131,12 +112,6 @@ containerPorts:
 
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
-
-jwt:
-  enabled: true
-  secret: "jwt_secret"
-  header: "AuthorizationJwt"
-  inBody: true
 
 livenessProbe:
   enabled: false
@@ -175,6 +150,39 @@ podSecurityContext:
 containerSecurityContext:
   enabled: false
   allowPrivilegeEscalation: false
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+persistence:
+  storageClass: "nfs"
+  appData:
+    size: 1Gi
+  calendarData:
+    size: 1Gi
+  crmData:
+    size: 1Gi
+  filesData:
+    size: 1Gi
+  mailData:
+    size: 1Gi
+  peopleData:
+    size: 1Gi
+  projectData:
+    size: 1Gi
+  proxyLog:
+    size: 1Gi
+
+jwt:
+  enabled: true
+  secret: "jwt_secret"
+  header: "AuthorizationJwt"
+  inBody: true
 
 imagePullSecrets: ""
 

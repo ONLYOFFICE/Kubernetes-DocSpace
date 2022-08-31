@@ -76,6 +76,7 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.appserver.http }}
           name: http
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}

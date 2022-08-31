@@ -87,6 +87,7 @@ spec:
         {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}

@@ -11,6 +11,9 @@ spec:
   backoffLimit: 2
   template:
     spec:
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -25,6 +28,7 @@ spec:
       - name: pre-upgrade
         image: {{ .Values.upgrade.job.image.repository }}:{{ .Values.upgrade.job.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.image.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -64,6 +68,7 @@ spec:
       - name: appserver-init-storage
         image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
         imagePullPolicy: IfNotPresent
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
