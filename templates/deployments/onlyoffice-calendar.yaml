@@ -63,14 +63,15 @@ spec:
       initContainers:
       - name: appserver-wait-storage
         image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-calendar
         image: {{ .Values.images.calendar }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:

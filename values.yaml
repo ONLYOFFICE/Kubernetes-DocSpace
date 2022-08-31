@@ -65,7 +65,6 @@ connections:
   servicePort: "5050"
 
 images:
-  tag: develop
   initContainer:
     initStorage: onlyoffice/4testing-appserver-bin-share
     waitStorage: onlyoffice/4testing-appserver-wait-bin-share
@@ -95,6 +94,8 @@ images:
   webhooksService: onlyoffice/4testing-appserver-webhooks-service
   doceditor: onlyoffice/4testing-appserver-doceditor
   migration: onlyoffice/4testing-appserver-migration
+  tag: develop
+  pullPolicy: IfNotPresent
 
 containerPorts:
   appserver:

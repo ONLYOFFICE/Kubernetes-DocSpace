@@ -62,7 +62,8 @@ spec:
       containers:
       - name: onlyoffice-proxy
         image: {{ .Values.images.proxy }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:

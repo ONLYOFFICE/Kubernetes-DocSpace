@@ -46,7 +46,7 @@ spec:
       containers:
       - name: appserver-init-storage
         image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
