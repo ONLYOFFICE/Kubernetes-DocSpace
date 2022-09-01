@@ -39,6 +39,12 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 Create a secret containing the `root` user password and the user password to be used by the DocSpace. 
 To do this, in the `./sources/secrets/mysql-password.yaml` file, change the values for the `mysql-root-password` and `mysql-password` keys.
 
+Next, create a secret by running the following command:
+
+```bash
+$ kubectl apply -f ./sources/secrets/mysql-password.yaml
+```
+
 #### 3.2 Installing MySQL:
 
 ```bash
@@ -59,7 +65,7 @@ Test the Elasticsearch cluster by running `helm test elasticsearch`, the output 
 Phase:          Succeeded
 ```
 
-See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch)
+See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch).
 
 ### 5 Install RabbitMQ
 
@@ -156,6 +162,9 @@ $ helm rollback [RELEASE_NAME]
 _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command documentation._
 
 ## Parameters
+
+| Parameter           | Description           | Default          |
+|---------------------|-----------------------|------------------|
 
 ## Configuration and installation details
 
