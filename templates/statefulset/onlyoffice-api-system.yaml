@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -32,44 +33,27 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
-      - name: appserver-init-storage
-        image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+      - name: app-wait-storage
+        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
-        {{- if .Values.onlyofficeCrm.enabled }}
-        - name: crm-data
-          mountPath: /var/www/products/ASC.CRM/server/
-        {{- end }}
-        {{- if .Values.onlyofficeProjectServer.enabled }}
-        - name: project-data
-          mountPath: /var/www/products/ASC.Projects/server/
-        {{- end }}
-        {{- if .Values.onlyofficeCalendar.enabled }}
-        - name: calendar-data
-          mountPath: /var/www/products/ASC.Calendar/server/
-        {{- end }}
-        {{- if .Values.onlyofficeMail.enabled }}
-        - name: mail-data
-          mountPath: /var/www/products/ASC.Mail/server/
-        {{- end }}
+          mountPath: /var/www/products/
       containers:
       - name: onlyoffice-api-system
         image: {{ .Values.images.apiSystem }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
@@ -88,12 +72,13 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.appserver.http }}
-          name: http
+        - containerPort: {{ .Values.containerPorts.app }}
+          name: app
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -172,3 +157,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}

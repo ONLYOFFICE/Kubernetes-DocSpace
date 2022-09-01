@@ -1,14 +1,15 @@
+{{- if eq .Values.product.name "docspace" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-files-services
+  name: onlyoffice-doceditor
   labels:
-    app: onlyoffice-files-services
+    app: onlyoffice-doceditor
 spec:
   selector:
     matchLabels:
-      app: onlyoffice-files-services
-  serviceName: onlyoffice-files-services
+      app: onlyoffice-doceditor
+  serviceName: onlyoffice-doceditor
   replicas: 1
   updateStrategy:
     type: {{ .Values.statefulsetUpdateStrategy.type }}
@@ -16,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: onlyoffice-files-services
+        app: onlyoffice-doceditor
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -40,8 +41,8 @@ spec:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-files-services
-        image: {{ .Values.images.filesServices }}:{{ .Values.images.tag }}
+      - name: onlyoffice-doceditor
+        image: {{ .Values.images.doceditor }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -77,7 +78,8 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.app }}
           name: app
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        - containerPort: {{ .Values.containerPorts.doceditor }}
+          name: doceditor
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -87,6 +89,7 @@ spec:
         {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -156,3 +159,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}

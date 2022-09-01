@@ -1,10 +1,17 @@
-# Default values for appserver
+# Default values for App
 
-## Appserver common parameters
+## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
 
+## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
+## Allowed values: `docspace` or `appsever`
+##
+product:
+  name: "docspace"
+
 connections:
-  mysqlDatabaseMigration: "true"
+  envExtension: "none"
+  mysqlDatabaseMigration: "false"
   mysqlHost: "mysql"
   mysqlDatabase: "onlyoffice"
   mysqlUser: "onlyoffice_user"
@@ -19,6 +26,9 @@ connections:
   DocumentServerUrlPublic: "/ds-vpath/"
   DocumentServerUrlInternal: "http://onlyoffice-document-server/"
   DocumentServerUrlConverter: "/ds-vpath/ConvertService.ashx"
+  AppUrlPortal: "http://onlyoffice-proxy:8092"
+  redisHost: "redis-master"
+  rabbitHost: "rabbitmq"
   kafkaHost: "onlyoffice-kafka"
   elkHost: "elasticsearch-master"
   proxyHost: "onlyoffice-proxy"
@@ -45,11 +55,15 @@ connections:
   backupHost: "onlyoffice-backup"
   thumbnailsHost: "onlyoffice-thumbnails"
   ssoauthHost: "onlyoffice-ssoauth"
-  documentServer: "onlyoffice-document-server"
-  servicePort: "5050"
+  documentServerHost: "onlyoffice-document-server"
+  clearEventsHost: "onlyoffice-clear-events"
+  migrationHost: "onlyoffice-migration"
+  webhooksServiceHost: "onlyoffice-webhooks-service"
+  doceditorHost: "onlyoffice-doceditor"
+  backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
+  thumbnailsHost: "onlyoffice-thumbnails"
 
 images:
-  tag: 1.2.0-r01
   initContainer:
     initStorage: onlyoffice/4testing-appserver-bin-share
     waitStorage: onlyoffice/4testing-appserver-wait-bin-share
@@ -74,46 +88,29 @@ images:
   telegramService: onlyoffice/4testing-appserver-telegram-service
   thumbnails: onlyoffice/4testing-appserver-thumbnails
   urlshortener: onlyoffice/4testing-appserver-urlshortener
-
-persistence:
-  storageClass: "nfs"
-  appData:
-    size: 1Gi
-  calendarData:
-    size: 1Gi
-  crmData:
-    size: 1Gi
-  filesData:
-    size: 1Gi
-  mailData:
-    size: 1Gi
-  peopleData:
-    size: 1Gi
-  projectData:
-    size: 1Gi
-  proxyLog:
-    size: 1Gi
+  clearEvents: onlyoffice/4testing-appserver-clear-events
+  backupBackgroundTasks: onlyoffice/4testing-appserver-backup-background
+  webhooksService: onlyoffice/4testing-appserver-webhooks-service
+  doceditor: onlyoffice/4testing-appserver-doceditor
+  migration: onlyoffice/4testing-appserver-migration
+  tag: develop
+  pullPolicy: IfNotPresent
 
 containerPorts:
-  appserver:
-    http: 5050
-  proxy:
-    url: 8081
-    internal: 8099
-    external: 8092
+  app: 5050
   socket: 9899
   sso: 9834
   thumbnails: 9800
   urlshortener: 9999
+  doceditor: 5013
+  backupBackgruondTasks: 5032
+  proxy:
+    url: 8081
+    internal: 8099
+    external: 8092
 
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
-
-jwt:
-  enabled: true
-  secret: "jwt_secret"
-  header: "AuthorizationJwt"
-  inBody: true
 
 livenessProbe:
   enabled: false
@@ -153,13 +150,46 @@ containerSecurityContext:
   enabled: false
   allowPrivilegeEscalation: false
 
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+persistence:
+  storageClass: "nfs"
+  appData:
+    size: 1Gi
+  calendarData:
+    size: 1Gi
+  crmData:
+    size: 1Gi
+  filesData:
+    size: 1Gi
+  mailData:
+    size: 1Gi
+  peopleData:
+    size: 1Gi
+  projectData:
+    size: 1Gi
+  proxyLog:
+    size: 1Gi
+
+jwt:
+  enabled: true
+  secret: "jwt_secret"
+  header: "AuthorizationJwt"
+  inBody: true
+
 imagePullSecrets: ""
 
 extraConf:
   secretName: ""
   fileName: appsettings.json
 
-## Appserver common deployment parameters
+## App common deployment parameters
 ## This block defines common parameters for all deployments only
 
 podAntiAffinity:
@@ -177,17 +207,17 @@ deploymetsUpdateStrategy:
     maxUnavailable: 25%
     maxSurge: 25%
 
-## Appserver People Server deployment parameters
+## App People Server deployment parameters
 
 onlyofficePeopleServer:
   replicaCount: 2
 
-## Appserver Files deployment parameters
+## App Files deployment parameters
 
 onlyofficeFiles:
   replicaCount: 2
 
-## Appserver Proxy deployment parameters
+## App Proxy deployment parameters
 
 onlyofficeProxy:
   replicaCount: 2
@@ -195,37 +225,37 @@ onlyofficeProxy:
     configMap: ""
     fileName: "10.upstream.conf.upstream"
 
-## Appserver Calendar deployment parameters
+## App Calendar deployment parameters
 
 onlyofficeCalendar:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
-## Appserver Crm deployment parameters
+## App Crm deployment parameters
 
 onlyofficeCrm:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
-## Appserver Mail deployment parameters
+## App Mail deployment parameters
 
 onlyofficeMail:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
-## Appserver Project Server deployment parameters
+## App Project Server deployment parameters
 
 onlyofficeProjectServer:
-  enabled: true
+  enabled: false
   replicaCount: 2
 
-## Appserver common statefulset parameters
+## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
 
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
-## Appserver ingress parameters
+## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
 
 ingress:
@@ -237,6 +267,25 @@ ingress:
     enabled: false
     secretName: tls
   host: ""
+
+## App jobs parameters
+## This block defines parameters for the jobs only
+
+install:
+  job:
+    enabled: true
+    image:
+      repository: onlyoffice/4testing-appserver-migration-runner
+      tag: develop
+      pullPolicy: IfNotPresent
+
+upgrade:
+  job:
+    enabled: true
+    image:
+      repository: mysql
+      tag: latest
+      pullPolicy: IfNotPresent
 
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only

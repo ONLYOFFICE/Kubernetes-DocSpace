@@ -1,14 +1,15 @@
+{{- if eq .Values.product.name "docspace" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-files-services
+  name: onlyoffice-backup-background-tasks
   labels:
-    app: onlyoffice-files-services
+    app: onlyoffice-backup-background-tasks
 spec:
   selector:
     matchLabels:
-      app: onlyoffice-files-services
-  serviceName: onlyoffice-files-services
+      app: onlyoffice-backup-background-tasks
+  serviceName: onlyoffice-backup-background-tasks
   replicas: 1
   updateStrategy:
     type: {{ .Values.statefulsetUpdateStrategy.type }}
@@ -16,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: onlyoffice-files-services
+        app: onlyoffice-backup-background-tasks
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -40,8 +41,8 @@ spec:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-files-services
-        image: {{ .Values.images.filesServices }}:{{ .Values.images.tag }}
+      - name: onlyoffice-backup-background-tasks
+        image: {{ .Values.images.backupBackgroundTasks }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -156,3 +157,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}

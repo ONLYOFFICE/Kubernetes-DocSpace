@@ -1,16 +1,16 @@
-{{- if eq .Values.product.name "appsever" }}
+{{- if eq .Values.product.name "docspace" }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: onlyoffice-storage-encryption
+  name: onlyoffice-backup-background-tasks
   labels:
-    app: onlyoffice-storage-encryption
+    app: onlyoffice-backup-background-tasks
 spec:
   ports:
   - port: {{ .Values.containerPorts.app }}
     name: app
     targetPort: {{ .Values.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: onlyoffice-storage-encryption-0
+    statefulset.kubernetes.io/pod-name: onlyoffice-backup-background-tasks-0
   type: ClusterIP
 {{- end }}

@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,9 +7,10 @@ metadata:
     app: onlyoffice-storage-migration
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-storage-migration-0
   type: ClusterIP
+{{- end }}

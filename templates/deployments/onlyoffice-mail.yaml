@@ -11,7 +11,7 @@ spec:
     matchLabels:
       app: onlyoffice-mail
   {{- if .Values.deploymetsUpdateStrategy }}
-  strategy: {{ template "appserver.update.strategyType" . }}
+  strategy: {{ template "app.update.strategyType" . }}
   {{- end }}
   template:
     metadata:
@@ -61,26 +61,27 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
-      - name: appserver-wait-storage
+      - name: app-wait-storage
         image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-mail
         image: {{ .Values.images.mail }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
@@ -99,12 +100,13 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.appserver.http }}
-          name: http
+        - containerPort: {{ .Values.containerPorts.app }}
+          name: app
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}

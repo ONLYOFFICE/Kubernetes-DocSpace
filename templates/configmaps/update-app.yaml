@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: update-appserver
+  name: update-app
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "1"
@@ -9,7 +9,10 @@ metadata:
 data:
   update.sh: |-
     #!/bin/bash
-    mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD -e "show databases;" > /dev/null
+    mysql -h {{ .Values.connections.mysqlHost }} \
+      -u root \
+      -p$MYSQL_ROOT_PASSWORD \
+      -e "show databases;" > /dev/null
     if [ $? -ne 0 ]; then
       echo -e "\e[0;31m DB is not available \e[0m"
       exit 1

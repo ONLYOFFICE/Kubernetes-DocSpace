@@ -10,7 +10,7 @@ spec:
     matchLabels:
       app: onlyoffice-proxy
   {{- if .Values.deploymetsUpdateStrategy }}
-  strategy: {{ template "appserver.update.strategyType" . }}
+  strategy: {{ template "app.update.strategyType" . }}
   {{- end }}
   template:
     metadata:
@@ -62,17 +62,17 @@ spec:
       containers:
       - name: onlyoffice-proxy
         image: {{ .Values.images.proxy }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
@@ -91,14 +91,14 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
         - configMapRef:
-            name: appserver-proxy
+            name: app-proxy
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.appserver.http }}
-          name: http
+        - containerPort: {{ .Values.containerPorts.app }}
+          name: app
         - containerPort: {{ .Values.containerPorts.proxy.url }}
           name: url
         - containerPort: {{ .Values.containerPorts.proxy.internal }}
@@ -114,6 +114,7 @@ spec:
         {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}

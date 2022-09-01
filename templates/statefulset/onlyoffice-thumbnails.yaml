@@ -1,3 +1,4 @@
+{{- if eq .Values.product.name "appsever" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -32,26 +33,27 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
-      - name: appserver-wait-storage
+      - name: app-wait-storage
         image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
       - name: onlyoffice-thumbnails
         image: {{ .Values.images.thumbnails }}:{{ .Values.images.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
@@ -70,12 +72,12 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.appserver.http }}
-          name: http
+        - containerPort: {{ .Values.containerPorts.app }}
+          name: app
         - containerPort: {{ .Values.containerPorts.thumbnails }}
           name: thum
         {{- if .Values.readinessProbe.enabled }}
@@ -87,6 +89,7 @@ spec:
         {{- if .Values.startupProbe.enabled }}
         startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -156,3 +159,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}

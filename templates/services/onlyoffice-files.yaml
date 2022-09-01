@@ -4,9 +4,9 @@ metadata:
   name: onlyoffice-files
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   selector:
     app: onlyoffice-files
   type: ClusterIP

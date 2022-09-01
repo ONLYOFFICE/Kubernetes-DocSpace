@@ -1,12 +1,14 @@
+{{- if .Values.onlyofficeCalendar.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: onlyoffice-calendar
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   selector:
     app: onlyoffice-calendar
   type: ClusterIP
+{{- end }}

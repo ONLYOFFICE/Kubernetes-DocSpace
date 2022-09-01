@@ -1,7 +1,8 @@
+{{- if .Values.upgrade.job.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: appserver-update
+  name: pre-upgrade
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "3"
@@ -10,14 +11,29 @@ spec:
   backoffLimit: 2
   template:
     spec:
-      containers:
-      - name: appserver-update
-        image: mysql
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      - name: pre-upgrade
+        image: {{ .Values.upgrade.job.image.repository }}:{{ .Values.upgrade.job.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.image.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         volumeMounts:
         - name: files-data
@@ -48,6 +64,32 @@ spec:
           subPath: update.sh
         command: ["/bin/sh", "-c"]
         args: ["/sql/update.sh"]
+      containers:
+      - name: app-init-storage
+        image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+        {{- if .Values.onlyofficeCrm.enabled }}
+        - name: crm-data
+          mountPath: /var/www/products/ASC.CRM/server/
+        {{- end }}
+        {{- if .Values.onlyofficeProjectServer.enabled }}
+        - name: project-data
+          mountPath: /var/www/products/ASC.Projects/server/
+        {{- end }}
+        {{- if .Values.onlyofficeCalendar.enabled }}
+        - name: calendar-data
+          mountPath: /var/www/products/ASC.Calendar/server/
+        {{- end }}
+        {{- if .Values.onlyofficeMail.enabled }}
+        - name: mail-data
+          mountPath: /var/www/products/ASC.Mail/server/
+        {{- end }}
       volumes:
       - name: files-data
         persistentVolumeClaim:
@@ -80,6 +122,7 @@ spec:
 #          name: change-db-scripts
       - name: update-scripts
         configMap:
-          name: update-appserver
+          name: update-app
           defaultMode: 0755
       restartPolicy: Never
+{{- end }}
