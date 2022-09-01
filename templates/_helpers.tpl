@@ -1,6 +1,6 @@
-Get the update strategy type for oform-config
+Get the update strategy type for App deploymets
 */}}
-{{- define "appserver.update.strategyType" -}}
+{{- define "app.update.strategyType" -}}
 {{- if eq .Values.deploymetsUpdateStrategy.type "RollingUpdate" -}}
     {{- toYaml .Values.deploymetsUpdateStrategy | nindent 4 -}}
 {{- else -}}
@@ -11,7 +11,7 @@ Get the update strategy type for oform-config
 {{/*
 Get the MySQL password secret
 */}}
-{{- define "appserver.mysql.secretName" -}}
+{{- define "app.mysql.secretName" -}}
 {{- if .Values.connections.mysqlPassword -}}
     {{- printf "%s-mysql" .Release.Name -}}
 {{- else if .Values.connections.mysqlExistingSecret -}}
@@ -22,7 +22,7 @@ Get the MySQL password secret
 {{/*
 Return true if a secret object should be created for MySQL
 */}}
-{{- define "appserver.mysql.createSecret" -}}
+{{- define "app.mysql.createSecret" -}}
 {{- if or .Values.connections.mysqlPassword .Values.connections.mysqlRootPassword (not .Values.connections.mysqlExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -31,7 +31,7 @@ Return true if a secret object should be created for MySQL
 {{/*
 Return MySQL password
 */}}
-{{- define "appserver.mysql.password" -}}
+{{- define "app.mysql.password" -}}
 {{- if not (empty .Values.connections.mysqlPassword) }}
     {{- .Values.connections.mysqlPassword }}
 {{- else -}}
@@ -42,7 +42,7 @@ Return MySQL password
 {{/*
 Return MySQL root password
 */}}
-{{- define "appserver.mysql.rootPassword" -}}
+{{- define "app.mysql.rootPassword" -}}
 {{- if not (empty .Values.connections.mysqlRootPassword) }}
     {{- .Values.connections.mysqlRootPassword }}
 {{- else -}}

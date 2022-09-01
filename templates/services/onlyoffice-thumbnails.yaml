@@ -7,9 +7,9 @@ metadata:
     app: onlyoffice-thumbnails
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   - port: {{ .Values.containerPorts.thumbnails }}
     name: thum
     targetPort: {{ .Values.containerPorts.thumbnails }}

@@ -33,18 +33,18 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "appserver.mysql.secretName" . }}
+              name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         envFrom:
         - configMapRef:
-            name: appserver-all
+            name: app-all
       containers:
-      - name: appserver-init-storage
+      - name: app-init-storage
         image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         resources: {{- toYaml .Values.resources | nindent 10 }}

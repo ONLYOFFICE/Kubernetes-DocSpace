@@ -5,9 +5,9 @@ metadata:
   name: onlyoffice-projects-server
 spec:
   ports:
-  - port: {{ .Values.containerPorts.appserver.http }}
-    name: http
-    targetPort: {{ .Values.containerPorts.appserver.http }}
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
   selector:
     app: onlyoffice-projects-server
   type: ClusterIP

@@ -62,7 +62,6 @@ connections:
   doceditorHost: "onlyoffice-doceditor"
   backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
   thumbnailsHost: "onlyoffice-thumbnails"
-  servicePort: "5050"
 
 images:
   initContainer:
@@ -98,18 +97,17 @@ images:
   pullPolicy: IfNotPresent
 
 containerPorts:
-  appserver:
-    http: 5050
-  proxy:
-    url: 8081
-    internal: 8099
-    external: 8092
+  app: 5050
   socket: 9899
   sso: 9834
   thumbnails: 9800
   urlshortener: 9999
   doceditor: 5013
   backupBackgruondTasks: 5032
+  proxy:
+    url: 8081
+    internal: 8099
+    external: 8092
 
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
