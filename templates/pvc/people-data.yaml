@@ -1,3 +1,4 @@
+{{- if eq (include "app.pvc.people.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,3 +13,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.peopleData.size }}
+{{- end }}

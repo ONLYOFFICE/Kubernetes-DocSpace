@@ -1,3 +1,4 @@
+{{- if eq (include "app.pvc.files.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,3 +13,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.filesData.size }}
+{{- end }}

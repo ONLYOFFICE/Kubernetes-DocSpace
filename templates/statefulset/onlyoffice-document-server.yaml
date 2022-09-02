@@ -95,4 +95,4 @@ spec:
       volumes:
       - name: app-data
         persistentVolumeClaim:
-          claimName: app-data
+          claimName: {{ template "app.pvc.data.name" . }}
