@@ -157,6 +157,15 @@ resources:
   limits:
     memory: "1Gi"
     cpu: "1000m"
+## App service parameters
+##
+service:
+  proxy:
+    existing: ""
+    annotations: {}
+    port:
+      external: 8092
+    type: ClusterIP
 
 persistence:
   storageClass: "nfs"

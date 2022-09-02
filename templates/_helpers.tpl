@@ -49,3 +49,23 @@ Return MySQL root password
     {{- required "A MySQL root Password is required!" .Values.connections.mysqlRootPassword }}
 {{- end }}
 {{- end -}}
+
+{{/*
+Return true if a service object should be created for App Proxy
+*/}}
+{{- define "app.svc.proxy.create" -}}
+{{- if empty .Values.service.proxy.existing }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the service name for confluence-cloud
+*/}}
+{{- define "app.svc.proxy.name" -}}
+{{- if .Values.service.proxy.existing -}}
+    {{- printf "%s" (tpl .Values.service.proxy.existing $) -}}
+{{- else -}}
+    {{- printf "onlyoffice-proxy" -}}
+{{- end -}}
+{{- end -}}
