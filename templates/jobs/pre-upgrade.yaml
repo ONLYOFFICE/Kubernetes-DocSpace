@@ -93,10 +93,10 @@ spec:
       volumes:
       - name: files-data
         persistentVolumeClaim:
-          claimName: files-data
+          claimName: {{ template "app.pvc.files.name" . }}
       - name: people-data
         persistentVolumeClaim:
-          claimName: people-data
+          claimName: {{ template "app.pvc.people.name" . }}
       {{- if .Values.onlyofficeCrm.enabled }}
       - name: crm-data
         persistentVolumeClaim:

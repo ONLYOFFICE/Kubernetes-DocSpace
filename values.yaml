@@ -170,20 +170,24 @@ service:
 persistence:
   storageClass: "nfs"
   appData:
+    existingClaim: ""
     size: 1Gi
   calendarData:
     size: 1Gi
   crmData:
     size: 1Gi
   filesData:
+    existingClaim: ""
     size: 1Gi
   mailData:
     size: 1Gi
   peopleData:
+    existingClaim: ""
     size: 1Gi
   projectData:
     size: 1Gi
   proxyLog:
+    existingClaim: ""
     size: 1Gi
 
 jwt:

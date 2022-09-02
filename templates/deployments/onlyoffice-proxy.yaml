@@ -140,7 +140,7 @@ spec:
       {{- end }}
       - name: proxy-log
         persistentVolumeClaim:
-          claimName: proxy-log
+          claimName: {{ template "app.pvc.proxy.name" . }}
       - name: change-hosts
         configMap:
           name: change-hosts

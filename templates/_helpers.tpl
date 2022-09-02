@@ -60,12 +60,92 @@ Return true if a service object should be created for App Proxy
 {{- end -}}
 
 {{/*
-Get the service name for confluence-cloud
+Get the service name for App Proxy
 */}}
 {{- define "app.svc.proxy.name" -}}
 {{- if .Values.service.proxy.existing -}}
     {{- printf "%s" (tpl .Values.service.proxy.existing $) -}}
 {{- else -}}
     {{- printf "onlyoffice-proxy" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the PVC name for App Data
+*/}}
+{{- define "app.pvc.data.name" -}}
+{{- if .Values.persistence.appData.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.appData.existingClaim $) -}}
+{{- else }}
+    {{- printf "app-data" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a pvc object should be created for App Data
+*/}}
+{{- define "app.pvc.data.create" -}}
+{{- if empty .Values.persistence.appData.existingClaim }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the PVC name for App People
+*/}}
+{{- define "app.pvc.people.name" -}}
+{{- if .Values.persistence.peopleData.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.peopleData.existingClaim $) -}}
+{{- else }}
+    {{- printf "people-data" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a pvc object should be created for App People
+*/}}
+{{- define "app.pvc.people.create" -}}
+{{- if empty .Values.persistence.peopleData.existingClaim }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the PVC name for App Files
+*/}}
+{{- define "app.pvc.files.name" -}}
+{{- if .Values.persistence.filesData.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.filesData.existingClaim $) -}}
+{{- else }}
+    {{- printf "files-data" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a pvc object should be created for App Files
+*/}}
+{{- define "app.pvc.files.create" -}}
+{{- if empty .Values.persistence.filesData.existingClaim }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the PVC name for App Proxy log
+*/}}
+{{- define "app.pvc.proxy.name" -}}
+{{- if .Values.persistence.proxyLog.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.proxyLog.existingClaim $) -}}
+{{- else }}
+    {{- printf "proxy-log" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a pvc object should be created for App Proxy log
+*/}}
+{{- define "app.pvc.proxy.create" -}}
+{{- if empty .Values.persistence.proxyLog.existingClaim }}
+    {{- true -}}
 {{- end -}}
 {{- end -}}
