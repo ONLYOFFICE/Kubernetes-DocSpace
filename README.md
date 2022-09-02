@@ -53,7 +53,7 @@ $ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
 
 See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/mysql).
 
-### 4 Install the Elasticsearch cluster
+### 4. Install the Elasticsearch cluster
 
 ```bash
 $ helm install elasticsearch --version 7.13.1 -f ./sources/elasticsearch_values.yaml elastic/elasticsearch
@@ -67,7 +67,7 @@ Phase:          Succeeded
 
 See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch).
 
-### 5 Install RabbitMQ
+### 5. Install RabbitMQ
 
 To install RabbitMQ to your cluster, run the following command:
 
@@ -81,7 +81,7 @@ $ helm install rabbitmq bitnami/rabbitmq \
 
 See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq#rabbitmq).
 
-### 6 Install Redis
+### 6. Install Redis
 
 To install Redis to your cluster, run the following command:
 
@@ -97,7 +97,7 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 
 ## Deploy DocSpace
 
-### 1 Install DocSpace
+### 1. Install DocSpace
 
 To install DocSpace to your cluster, run the following command:
 
@@ -109,7 +109,7 @@ The command deploys DocSpace on the Kubernetes cluster in the default configurat
 
 _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documentation._
 
-### 2 Uninstall DocSpace
+### 2. Uninstall DocSpace
 
 To uninstall/delete the `docspace` deployment:
 
@@ -121,7 +121,7 @@ The `helm uninstall` command removes all the Kubernetes components associated wi
 
 _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command documentation._
 
-### 3 Upgrade DocSpace
+### 3. Upgrade DocSpace
 
 It's necessary to set the parameters for updating. For example,
 
@@ -168,9 +168,42 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 ## Configuration and installation details
 
-### 1 Expose DocSpace
+### 1. Expose DocSpace
 
-#### 1.1 Installing the Kubernetes Nginx Ingress Controller
+#### 1.1 Expose DocSpace via Service (HTTP Only)
+
+*You should skip step[#1.1] if you are going to expose DocSpace via HTTPS*
+
+This type of exposure has the least overheads of performance, it creates a loadbalancer to get access to DocSpace.
+Use this type of exposure if you use external TLS termination, and don't have another WEB application in the k8s cluster.
+
+To expose DocSpace via service, set the `service.proxy.type` parameter to `LoadBalancer`:
+
+```bash
+$ helm install [RELEASE_NAME] ./ --set service.proxy.type=LoadBalancer,service.proxy.port.external=8092
+
+```
+
+Run the following command to get the `DocSpace` service IP:
+
+```bash
+$ kubectl get service onlyoffice-proxy -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+```
+
+After that, DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
+
+If the service IP is empty, try getting the `DocSpace` service hostname:
+
+```bash
+$ kubectl get service onlyoffice-proxy -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+```
+
+In this case, DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
+
+
+#### 1.2 Expose DocumentServer via Ingress
+
+#### 1.2.1 Installing the Kubernetes Nginx Ingress Controller
 
 To install the Nginx Ingress Controller to your cluster, run the following command:
 
@@ -180,7 +213,7 @@ $ helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publis
 
 See more detail about installing Nginx Ingress Controller via Helm [here](https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx).
 
-#### 1.2 Expose DocSpace via HTTP
+#### 1.2.2 Expose DocSpace via HTTP
 
 *You should skip step[2.1.2] if you are going to expose DocSpace via HTTPS*
 
@@ -190,7 +223,7 @@ Use this type if you use external TLS termination and when you have several WEB 
 To expose DocSpace via ingress HTTP, set the `ingress.enabled` parameter to true:
 
 ```bash
-$ helm install docspace ./ --set ingress.enabled=true
+$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true
 
 ```
 
@@ -210,7 +243,7 @@ $ kubectl get ingress ingress-app -o jsonpath="{.status.loadBalancer.ingress[*].
 
 In this case, DocSpace will be available at `http://DOCSPACE-INGRESS-HOSTNAME/`.
 
-#### 1.3 Expose DocSpace via HTTPS
+#### 1.2.3 Expose DocSpace via HTTPS
 
 This type of exposure allows you to enable internal TLS termination for DocSpace.
 
@@ -225,7 +258,7 @@ $ kubectl create secret generic tls \
 ```
 
 ```bash
-$ helm install docspace ./ --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
+$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
 
 ```
 
