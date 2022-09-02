@@ -28,7 +28,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: onlyoffice-proxy
+            name: {{ template "app.svc.proxy.name" . }}
             port:
-              number: {{ .Values.containerPorts.proxy.external }}
+              number: {{ .Values.service.proxy.port.external }}
 {{- end }}
