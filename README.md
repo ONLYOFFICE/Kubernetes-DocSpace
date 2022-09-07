@@ -109,7 +109,6 @@ Note: When installing to an OpenShift cluster, you must apply the `SecurityConte
 
 To do this, run the following commands:
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Docs/master/sources/scc/docs-components.yaml
 $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-AppServer/docspace/sources/scc/app-components.yaml
 $ oc adm policy add-scc-to-group scc-app-components system:authenticated
 ```
