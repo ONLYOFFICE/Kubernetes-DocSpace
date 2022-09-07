@@ -1,19 +1,25 @@
 # DocSpace for Kubernetes
-The following guide covers the installation process of the ‘DocSpace’ into a Kubernetes cluster.
+The following guide covers the installation process of the ‘DocSpace’ into a Kubernetes cluster or OpenShift cluster.
 
 ## Requirements
 
-  - Kubernetes version no lower than 1.19+
+  - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
   - A minimum of three hosts is required for the Kubernetes cluster
   - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
-  - Kubectl is installed on the cluster management host
-
-    Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-  - Helm is installed on the cluster management host
-    
-    Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
+  - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+  - Helm is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
+  - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
+  - If the installation of components external to ‘DocSpace’ is performed from Helm Chart in an OpenShift cluster, then it is recommended to install them from a user who has the `cluster-admin` role, in order to avoid possible problems with access rights. See [this](https://docs.openshift.com/container-platform/4.7/authentication/using-rbac.html) guide to add the necessary roles to the user.
 
 ## Deploy prerequisites
+
+Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 1000` and `ID = 1001`.
+
+To do this, run the following commands:
+```
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-AppServer/docspace/sources/scc/helm-components.yaml
+$ oc adm policy add-scc-to-group scc-helm-components system:authenticated
+```
 
 ### 1. Add Helm repositories
 
@@ -26,6 +32,8 @@ $ helm repo update
 ```
 
 ### 2. Install NFS Provisioner
+
+Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created. When installing to an OpenShift cluster, the user must have a role that allows you to create Storage Classes in the cluster. Read more [here](https://docs.openshift.com/container-platform/4.7/storage/dynamic-provisioning.html).
 
 ```bash
 $ helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.storageClass=do-block-storage,persistence.size=50Gi
@@ -96,6 +104,19 @@ $ helm install redis bitnami/redis \
 See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/redis).
 
 ## Deploy DocSpace
+
+Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 104`.
+
+To do this, run the following commands:
+```
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Docs/master/sources/scc/docs-components.yaml
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-AppServer/docspace/sources/scc/app-components.yaml
+$ oc adm policy add-scc-to-group scc-app-components system:authenticated
+```
+Also, you must set the `podSecurityContext.enabled` parameter to `true`:
+```
+$ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
+```
 
 ### 1. Install DocSpace
 
