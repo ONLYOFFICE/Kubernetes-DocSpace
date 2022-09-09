@@ -81,8 +81,12 @@ data:
         server      $SERVICE_WEBHOOKS_SERVICE;
         keepalive   $service_keepalive;
     }
+    upstream $LOGIN_HOST {
+        server      $SERVICE_LOGIN;
+        keepalive   $service_keepalive;
+    }
     {{- end }}
-    {{- if eq .Values.product.name "appsever" }}
+    {{- if eq .Values.product.name "appserver" }}
     upstream $STORAGE_ENCRYPTION_HOST {
         server      $SERVICE_STORAGE_ENCRYPTION;
         keepalive   $service_keepalive;
@@ -155,8 +159,11 @@ data:
     map $host   $service_webhooks_service {
         default $WEBHOOKS_SERVICE_HOST;
     }
+    map $host   $service_login {
+        default $LOGIN_HOST;
+    }
     {{- end }}
-    {{- if eq .Values.product.name "appsever" }}
+    {{- if eq .Values.product.name "appserver" }}
     map $host   $service_storage_encryption {
         default $STORAGE_ENCRYPTION_HOST;
     }

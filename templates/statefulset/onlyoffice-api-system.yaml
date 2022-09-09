@@ -1,4 +1,4 @@
-{{- if eq .Values.product.name "appsever" }}
+{{- if eq .Values.product.name "appserver" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

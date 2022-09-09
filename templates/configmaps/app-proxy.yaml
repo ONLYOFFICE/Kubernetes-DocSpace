@@ -30,6 +30,7 @@ data:
   SERVICE_NOTIFY: {{ .Values.connections.notifyHost }}:{{ .Values.containerPorts.app }}
   SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.containerPorts.app }}
   SERVICE_THUMBNAILS: {{ .Values.connections.thumbnailsHost }}:{{ .Values.containerPorts.app }}
+  SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.containerPorts.login }}
   API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}
   BACKUP_HOST: {{ .Values.connections.backupHost }}
   BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgruondTasksHost }}
@@ -51,3 +52,4 @@ data:
   SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}
   DOCEDITOR_HOST: {{ .Values.connections.doceditorHost }}
   THUMBNAILS_HOST: {{ .Values.connections.thumbnailsHost }}
+  LOGIN_HOST: {{ .Values.connections.loginHost }}
