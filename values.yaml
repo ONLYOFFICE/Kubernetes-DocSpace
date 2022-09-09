@@ -4,7 +4,7 @@
 ## This block defines common parameters for all deployments and statefulsets
 
 ## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
-## Allowed values: `docspace` or `appsever`
+## Allowed values: `docspace` or `appserver`
 ##
 product:
   name: "docspace"
@@ -62,37 +62,39 @@ connections:
   doceditorHost: "onlyoffice-doceditor"
   backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
   thumbnailsHost: "onlyoffice-thumbnails"
+  loginHost: "onlyoffice-login"
 
 images:
   initContainer:
-    initStorage: onlyoffice/4testing-appserver-bin-share
-    waitStorage: onlyoffice/4testing-appserver-wait-bin-share
-  calendar: onlyoffice/4testing-appserver-calendar
-  crm: onlyoffice/4testing-appserver-crm
-  files: onlyoffice/4testing-appserver-files
-  mail: onlyoffice/4testing-appserver-mail
-  people: onlyoffice/4testing-appserver-people-server
-  projects: onlyoffice/4testing-appserver-projects-server
-  proxy: onlyoffice/4testing-appserver-proxy
-  apiSystem: onlyoffice/4testing-appserver-api-system
-  api: onlyoffice/4testing-appserver-api
-  backup: onlyoffice/4testing-appserver-backup
-  filesServices: onlyoffice/4testing-appserver-files-services
-  notify: onlyoffice/4testing-appserver-notify
-  socket: onlyoffice/4testing-appserver-socket
-  ssoauth: onlyoffice/4testing-appserver-ssoauth
-  storageEncryption: onlyoffice/4testing-appserver-storage-encryption
-  storageMigration: onlyoffice/4testing-appserver-storage-migration
-  studioNotify: onlyoffice/4testing-appserver-studio-notify
-  studio: onlyoffice/4testing-appserver-studio
-  telegramService: onlyoffice/4testing-appserver-telegram-service
-  thumbnails: onlyoffice/4testing-appserver-thumbnails
-  urlshortener: onlyoffice/4testing-appserver-urlshortener
-  clearEvents: onlyoffice/4testing-appserver-clear-events
-  backupBackgroundTasks: onlyoffice/4testing-appserver-backup-background
-  webhooksService: onlyoffice/4testing-appserver-webhooks-service
-  doceditor: onlyoffice/4testing-appserver-doceditor
-  migration: onlyoffice/4testing-appserver-migration
+    initStorage: onlyoffice/4testing-docspace-bin-share
+    waitStorage: onlyoffice/4testing-docspace-wait-bin-share
+  calendar: onlyoffice/4testing-docspace-calendar
+  crm: onlyoffice/4testing-docspace-crm
+  files: onlyoffice/4testing-docspace-files
+  mail: onlyoffice/4testing-docspace-mail
+  people: onlyoffice/4testing-docspace-people-server
+  projects: onlyoffice/4testing-docspace-projects-server
+  proxy: onlyoffice/4testing-docspace-proxy
+  apiSystem: onlyoffice/4testing-docspace-api-system
+  api: onlyoffice/4testing-docspace-api
+  backup: onlyoffice/4testing-docspace-backup
+  filesServices: onlyoffice/4testing-docspace-files-services
+  notify: onlyoffice/4testing-docspace-notify
+  socket: onlyoffice/4testing-docspace-socket
+  ssoauth: onlyoffice/4testing-docspace-ssoauth
+  storageEncryption: onlyoffice/4testing-docspace-storage-encryption
+  storageMigration: onlyoffice/4testing-docspace-storage-migration
+  studioNotify: onlyoffice/4testing-docspace-studio-notify
+  studio: onlyoffice/4testing-docspace-studio
+  telegramService: onlyoffice/4testing-docspace-telegram-service
+  thumbnails: onlyoffice/4testing-docspace-thumbnails
+  urlshortener: onlyoffice/4testing-docspace-urlshortener
+  clearEvents: onlyoffice/4testing-docspace-clear-events
+  backupBackgroundTasks: onlyoffice/4testing-docspace-backup-background
+  webhooksService: onlyoffice/4testing-docspace-webhooks-service
+  doceditor: onlyoffice/4testing-docspace-doceditor
+  migration: onlyoffice/4testing-docspace-migration
+  login: onlyoffice/4testing-docspace-login
   tag: develop
   pullPolicy: IfNotPresent
 
@@ -104,6 +106,7 @@ containerPorts:
   urlshortener: 9999
   doceditor: 5013
   backupBackgruondTasks: 5032
+  login: 5011
   proxy:
     url: 8081
     internal: 8099
@@ -288,7 +291,7 @@ install:
   job:
     enabled: true
     image:
-      repository: onlyoffice/4testing-appserver-migration-runner
+      repository: onlyoffice/4testing-docspace-migration-runner
       tag: develop
       pullPolicy: IfNotPresent
 

@@ -1,15 +1,14 @@
-{{- if eq .Values.product.name "appserver" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-thumbnails
+  name: onlyoffice-login
   labels:
-    app: onlyoffice-thumbnails
+    app: onlyoffice-login
 spec:
   selector:
     matchLabels:
-      app: onlyoffice-thumbnails
-  serviceName: onlyoffice-thumbnails
+      app: onlyoffice-login
+  serviceName: onlyoffice-login
   replicas: 1
   updateStrategy:
     type: {{ .Values.statefulsetUpdateStrategy.type }}
@@ -17,7 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app: onlyoffice-thumbnails
+        app: onlyoffice-login
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -41,8 +40,8 @@ spec:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-thumbnails
-        image: {{ .Values.images.thumbnails }}:{{ .Values.images.tag }}
+      - name: onlyoffice-login
+        image: {{ .Values.images.login }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -76,10 +75,8 @@ spec:
         - secretRef:
             name: jwt
         ports:
-        - containerPort: {{ .Values.containerPorts.app }}
-          name: app
-        - containerPort: {{ .Values.containerPorts.thumbnails }}
-          name: thum
+        - containerPort: {{ .Values.containerPorts.login }}
+          name: login
         {{- if .Values.readinessProbe.enabled }}
         readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -159,4 +156,3 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
-{{- end }}
