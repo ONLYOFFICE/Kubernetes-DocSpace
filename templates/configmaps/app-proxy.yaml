@@ -20,7 +20,6 @@ data:
   SERVICE_BACKUP: {{ .Values.connections.backupHost }}:{{ .Values.containerPorts.app }}
   SERVICE_SSOAUTH: {{ .Values.connections.ssoauthHost }}:{{ .Values.containerPorts.app }}
   DOCUMENT_SERVER: {{ .Values.connections.documentServerHost }}
-  SERVICE_PORT: {{ .Values.containerPorts.app | quote }}
   SERVICE_CLEAR_EVENTS: {{ .Values.connections.clearEventsHost }}:{{ .Values.containerPorts.app }}
   SERVICE_MIGRATION: {{ .Values.connections.migrationHost }}:{{ .Values.containerPorts.app }}
   SERVICE_WEBHOOKS_SERVICE: {{ .Values.connections.webhooksServiceHost }}:{{ .Values.containerPorts.app }}

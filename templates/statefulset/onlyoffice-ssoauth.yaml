@@ -94,9 +94,11 @@ spec:
         {{- end }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
+        {{- range .Values.extraConf.fileName }}
         - name: custom-file
-          mountPath: /app/onlyoffice/config/{{ .Values.extraConf.fileName }}
-          subPath: {{ .Values.extraConf.fileName }}
+          mountPath: /app/onlyoffice/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
         {{- end }}
         - name: app-data
           mountPath: /app/onlyoffice/data
@@ -125,9 +127,6 @@ spec:
       - name: custom-file
         secret:
           secretName: {{ .Values.extraConf.secretName }}
-          items:
-          - key: {{ .Values.extraConf.fileName }}
-            path: {{ .Values.extraConf.fileName }}
       {{- end }}
       - name: app-data
         persistentVolumeClaim:
