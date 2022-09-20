@@ -180,6 +180,7 @@ service:
     type: ClusterIP
 
   proxyFrontend:
+    existing: ""
     annotations: {}
     type: LoadBalancer
 
