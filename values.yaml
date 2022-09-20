@@ -370,6 +370,8 @@ proxyFrontend:
     configMap: default-conf
     filename: default.conf
 
+  hostname: ""
+
   tls:
     secretName: tls
     mountPath: /etc/godaddy/live

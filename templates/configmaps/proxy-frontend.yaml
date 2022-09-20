@@ -19,9 +19,9 @@ data:
 
     map $http_x_forwarded_host $the_host {
       default $http_x_forwarded_host;
-      #default {{ .Values.ingress.host }};
+      #default {{ .Values.proxyFrontend.hostname }};
       "" $this_host;
-      #"" {{ .Values.ingress.host }};
+      #"" {{ .Values.proxyFrontend.hostname }};
     }
 
     map $http_upgrade $proxy_connection {
@@ -39,7 +39,7 @@ data:
     server {
        listen 80;
        listen [::]:80;
-       server_name {{ .Values.ingress.host }};
+       server_name {{ .Values.proxyFrontend.hostname }};
        return 301 https://$host$request_uri;
 
     }
@@ -47,7 +47,7 @@ data:
     server {
       listen 0.0.0.0:443 ssl http2;
       listen [::]:443 ssl http2;
-      server_name {{ .Values.ingress.host }};
+      server_name {{ .Values.proxyFrontend.hostname }};
       server_tokens off;
       client_max_body_size    4G;
       dav_methods PUT DELETE MKCOL COPY MOVE;
@@ -61,8 +61,8 @@ data:
 
      # root /usr/share/nginx/html;
 
-      ssl_certificate /etc/godaddy/live/cert.crt;
-      ssl_certificate_key /etc/godaddy/live/generated-private-key.key;
+      ssl_certificate /etc/godaddy/live/{{ .Values.proxyFrontend.tls.crtName }};
+      ssl_certificate_key /etc/godaddy/live/{{ .Values.proxyFrontend.tls.keyName }};
       ssl_verify_client off;
 
       ssl_session_cache shared:MozSSL:10m;   # 40000 sessions
