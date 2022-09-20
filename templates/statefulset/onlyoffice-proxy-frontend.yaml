@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: proxy-frontend
-  serviceName: proxy-frontend
+  serviceName: {{ template "app.svc.proxyFrontend.name" . }}
   replicas: 1
   updateStrategy:
     type: {{ .Values.statefulsetUpdateStrategy.type }}
