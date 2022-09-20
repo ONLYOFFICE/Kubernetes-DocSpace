@@ -1,0 +1,25 @@
+{{- if .Values.proxyFrontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-frontend
+  labels:
+    app: proxy-frontend
+  {{- if .Values.service.proxyFrontend.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.service.proxyFrontend.annotations }}
+    {{ $key }}: {{ tpl $value $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.proxyFrontend.containerPorts.http }}
+    name: http
+    targetPort: {{ .Values.proxyFrontend.containerPorts.http }}
+  - port: {{ .Values.proxyFrontend.containerPorts.https }}
+    name: https
+    targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
+  selector:
+    statefulset.kubernetes.io/pod-name: proxy-frontend-0
+  type: {{ .Values.service.proxyFrontend.type }}
+{{- end }}
