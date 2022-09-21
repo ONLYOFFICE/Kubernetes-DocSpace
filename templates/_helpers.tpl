@@ -71,6 +71,26 @@ Get the service name for App Proxy
 {{- end -}}
 
 {{/*
+Return true if a service object should be created for App Proxy Frontend
+*/}}
+{{- define "app.svc.proxyFrontend.create" -}}
+{{- if empty .Values.service.proxyFrontend.existing }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the service name for App Proxy Frontend
+*/}}
+{{- define "app.svc.proxyFrontend.name" -}}
+{{- if .Values.service.proxyFrontend.existing -}}
+    {{- printf "%s" (tpl .Values.service.proxyFrontend.existing $) -}}
+{{- else -}}
+    {{- printf "proxy-frontend" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the PVC name for App Data
 */}}
 {{- define "app.pvc.data.name" -}}

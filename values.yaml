@@ -124,17 +124,6 @@ containerPorts:
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 
-livenessProbe:
-  enabled: false
-  failureThreshold: 2
-  httpGet:
-    path: /
-    port: 5050
-  periodSeconds: 10
-  successThreshold: 1
-  timeoutSeconds: 5
-  initialDelaySeconds: 45
-
 startupProbe:
   enabled: false
   httpGet:
@@ -152,6 +141,17 @@ readinessProbe:
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 3
+
+livenessProbe:
+  enabled: false
+  failureThreshold: 2
+  httpGet:
+    path: /
+    port: 5050
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+  initialDelaySeconds: 45
 
 podSecurityContext:
   enabled: false
@@ -178,6 +178,11 @@ service:
     port:
       external: 8092
     type: ClusterIP
+
+  proxyFrontend:
+    existing: ""
+    annotations: {}
+    type: LoadBalancer
 
 persistence:
   storageClass: "nfs"
@@ -313,6 +318,67 @@ upgrade:
       tag: latest
       pullPolicy: IfNotPresent
 
+## App Proxy Frontend parameters
+## This block defines parameters for the Proxy Frontend StatefulSet only
+
+proxyFrontend:
+  enabled: false
+
+  image:
+    repository: nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  podSecurityContext:
+    enabled: false
+    runAsUser: 104
+    runAsGroup: 107
+
+  containerPorts:
+    http: 80
+    https: 443
+
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /index.html
+      port: 8888
+    failureThreshold: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+  extraConf:
+    configMap: default-conf
+    filename: default.conf
+
+  hostname: ""
+
+  tls:
+    secretName: tls
+    mountPath: /etc/godaddy/live
+    crtName: cert.crt
+    keyName: generated-private-key.key
+
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only
 
@@ -324,8 +390,8 @@ docs:
 
   podSecurityContext:
     enabled: false
-    runAsUser: 104
-    runAsGroup: 107
+    runAsUser: 101
+    runAsGroup: 101
 
   containerPorts:
     http: 80
