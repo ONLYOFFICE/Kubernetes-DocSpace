@@ -14,12 +14,13 @@ connections:
   mysqlDatabaseMigration: "false"
   mysqlHost: "mysql"
   mysqlDatabase: "onlyoffice"
+  superuser: "root"
+  mysqlRootPassword: ""
   mysqlUser: "onlyoffice_user"
   mysqlPassword: ""
-  mysqlRootPassword: ""
   mysqlExistingSecret: "mysql"
-  mysqlSecretKeyPassword: "mysql-password"
   mysqlSecretKeyRootPassword: "mysql-root-password"
+  mysqlSecretKeyPassword: "mysql-password"
   appProduct: "onlyoffice"
   appBaseDir: ""
   appUrls: ""
@@ -305,18 +306,29 @@ ingress:
 install:
   job:
     enabled: true
-    image:
-      repository: onlyoffice/4testing-docspace-migration-runner
-      tag: develop
-      pullPolicy: IfNotPresent
+    initContainers:
+      migrationRunner:
+        enabled: true
+        image:
+          repository: onlyoffice/4testing-docspace-migration-runner
+          tag: develop
+          pullPolicy: IfNotPresent
 
 upgrade:
   job:
     enabled: true
-    image:
-      repository: mysql
-      tag: latest
-      pullPolicy: IfNotPresent
+    initContainers:
+      migrationRunner:
+        enabled: true
+        image:
+          repository: onlyoffice/4testing-docspace-migration-runner
+          tag: develop
+          pullPolicy: IfNotPresent
+      clearStorage:
+        image:
+          repository: mysql
+          tag: latest
+          pullPolicy: IfNotPresent
 
 ## App Proxy Frontend parameters
 ## This block defines parameters for the Proxy Frontend StatefulSet only

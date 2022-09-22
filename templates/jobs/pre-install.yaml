@@ -24,10 +24,11 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       initContainers:
       - name:  migration-runner
-        image: {{ .Values.install.job.image.repository }}:{{ .Values.install.job.image.tag }}
-        imagePullPolicy: {{ .Values.install.job.image.pullPolicy }}
+        image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ .Values.install.job.initContainers.migrationRunner.image.tag }}
+        imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -43,6 +44,7 @@ spec:
         envFrom:
         - configMapRef:
             name: app-all
+      {{- end }}
       containers:
       - name: app-init-storage
         image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}

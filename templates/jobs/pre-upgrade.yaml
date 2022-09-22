@@ -25,9 +25,29 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
-      - name: pre-upgrade
-        image: {{ .Values.upgrade.job.image.repository }}:{{ .Values.upgrade.job.image.tag }}
-        imagePullPolicy: {{ .Values.upgrade.job.image.pullPolicy }}
+      {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
+      - name:  migration-runner
+        image: {{ .Values.upgrade.job.initContainers.migrationRunner.image.repository }}:{{ .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        envFrom:
+        - configMapRef:
+            name: app-all
+      {{- end }}
+      - name: app-clear-storage
+        image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.initContainers.clearStorage.image.pullPolicy }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
