@@ -4,13 +4,13 @@ metadata:
   name: update-app
   annotations:
     "helm.sh/hook": pre-upgrade
-    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-weight": "2"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 data:
   update.sh: |-
     #!/bin/bash
     mysql -h {{ .Values.connections.mysqlHost }} \
-      -u root \
+      -u {{ .Values.connections.superuser }} \
       -p$MYSQL_ROOT_PASSWORD \
       -e "show databases;" > /dev/null
     if [ $? -ne 0 ]; then
