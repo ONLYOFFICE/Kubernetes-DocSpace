@@ -1,3 +1,4 @@
+{{- if .Values.docs.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -24,3 +25,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-document-server-0
   type: ClusterIP
+{{- end }}

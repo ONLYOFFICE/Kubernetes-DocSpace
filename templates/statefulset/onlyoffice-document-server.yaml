@@ -1,3 +1,4 @@
+{{- if .Values.docs.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -96,3 +97,4 @@ spec:
       - name: app-data
         persistentVolumeClaim:
           claimName: {{ template "app.pvc.data.name" . }}
+{{- end }}
