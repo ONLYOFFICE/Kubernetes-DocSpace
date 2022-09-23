@@ -4,10 +4,12 @@ metadata:
   name: proxy-upstream
 data:
   upstream.conf.template: |-
+    {{- if not (empty .Values.connections.documentServerHost) }}
     upstream $DOCUMENT_SERVER {
         server      $DOCUMENT_SERVER max_fails=0 fail_timeout=0s;
         keepalive   $service_keepalive;
     }
+    {{- end }}
     upstream $SOCKET_HOST {
         server      $SERVICE_SOCKET;
         keepalive   $service_keepalive;
@@ -137,9 +139,11 @@ data:
     map $host   $service_sso {
         default $SSOAUTH_HOST;
     }
+    {{- if not (empty .Values.connections.documentServerHost) }}
     map $host   $document_server {
         default $DOCUMENT_SERVER;
     }
+    {{- end }}
     map $host   $service_api_system {
         default $API_SYSTEM_HOST;
     }
