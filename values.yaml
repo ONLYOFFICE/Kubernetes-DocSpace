@@ -118,8 +118,6 @@ containerPorts:
   backupBackgruondTasks: 5032
   login: 5011
   proxy:
-    url: 8081
-    internal: 8099
     external: 8092
 
 podAnnotations:

@@ -11,15 +11,6 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.containerPorts.app }}
-    name: app
-    targetPort: {{ .Values.containerPorts.app }}
-  - port: {{ .Values.containerPorts.proxy.url }}
-    name: url
-    targetPort: {{ .Values.containerPorts.proxy.url }}
-  - port: {{ .Values.containerPorts.proxy.internal }}
-    name: internal
-    targetPort: {{ .Values.containerPorts.proxy.internal }}
   - port: {{ .Values.service.proxy.port.external }}
     name: external
     targetPort: {{ .Values.containerPorts.proxy.external }}
