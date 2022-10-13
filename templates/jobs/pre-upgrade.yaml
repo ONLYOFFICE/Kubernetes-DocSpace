@@ -55,6 +55,11 @@ spec:
             secretKeyRef:
               name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
