@@ -10,8 +10,8 @@ data:
   update.sh: |-
     #!/bin/bash
     mysql -h {{ .Values.connections.mysqlHost }} \
-      -u {{ .Values.connections.superuser }} \
-      -p$MYSQL_ROOT_PASSWORD \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p$MYSQL_PASSWORD \
       -e "show databases;" > /dev/null
     if [ $? -ne 0 ]; then
       echo -e "\e[0;31m DB is not available \e[0m"
@@ -23,5 +23,5 @@ data:
     rm -rf /var/www/products/ASC.Mail/server/*
     rm -rf /var/www/products/ASC.People/server/*
     rm -rf /var/www/products/ASC.Projects/server/*
-    echo "mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD onlyoffice < /sql/changedb.sql"
+    echo "mysql -h mysql -u root -p$MYSQL_PASSWORD onlyoffice < /sql/changedb.sql"
     echo work done
