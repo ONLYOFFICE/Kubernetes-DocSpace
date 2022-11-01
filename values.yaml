@@ -285,6 +285,36 @@ onlyofficeProjectServer:
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
+## App doceditor statefulset parameters
+
+onlyofficeDoceditor:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /index.html
+      port: 5013
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /index.html
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /index.html
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
 ## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
 
@@ -333,21 +363,17 @@ upgrade:
 
 proxyFrontend:
   enabled: false
-
   image:
     repository: nginx
     tag: latest
     pullPolicy: IfNotPresent
-
   podSecurityContext:
     enabled: false
     runAsUser: 104
     runAsGroup: 107
-
   containerPorts:
     http: 80
     https: 443
-
   startupProbe:
     enabled: false
     httpGet:
@@ -355,7 +381,6 @@ proxyFrontend:
       port: 8888
     failureThreshold: 30
     periodSeconds: 10
-
   readinessProbe:
     enabled: false
     failureThreshold: 2
@@ -365,7 +390,6 @@ proxyFrontend:
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
-
   livenessProbe:
     enabled: false
     failureThreshold: 5
@@ -376,13 +400,10 @@ proxyFrontend:
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
-
   extraConf:
     configMap: default-conf
     filename: default.conf
-
   hostname: ""
-
   tls:
     secretName: tls
     mountPath: /etc/godaddy/live
@@ -398,19 +419,16 @@ docs:
     repository: onlyoffice/documentserver
     tag: 7.1.1
     pullPolicy: IfNotPresent
-
   podSecurityContext:
     enabled: false
     runAsUser: 101
     runAsGroup: 101
-
   containerPorts:
     http: 80
     https: 443
     spch: 8080
     docs: 8000
     proxy: 8888
-
   startupProbe:
     enabled: false
     httpGet:
@@ -418,7 +436,6 @@ docs:
       port: 8888
     failureThreshold: 30
     periodSeconds: 10
-
   readinessProbe:
     enabled: false
     failureThreshold: 2
@@ -428,7 +445,6 @@ docs:
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
-
   livenessProbe:
     enabled: false
     failureThreshold: 5
