@@ -2,6 +2,7 @@
 
 ## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
+##
 
 ## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
 ## Allowed values: `docspace` or `appserver`
@@ -221,7 +222,7 @@ extraConf:
 
 ## App common deployment parameters
 ## This block defines common parameters for all deployments only
-
+##
 podAntiAffinity:
   type: "soft"
   topologyKey: kubernetes.io/hostname
@@ -238,17 +239,17 @@ deploymetsUpdateStrategy:
     maxSurge: 25%
 
 ## App People Server deployment parameters
-
+##
 onlyofficePeopleServer:
   replicaCount: 2
 
 ## App Files deployment parameters
-
+##
 onlyofficeFiles:
   replicaCount: 2
 
 ## App Proxy deployment parameters
-
+##
 onlyofficeProxy:
   replicaCount: 2
   extraConf:
@@ -256,37 +257,37 @@ onlyofficeProxy:
     fileName: "10.upstream.conf.upstream"
 
 ## App Calendar deployment parameters
-
+##
 onlyofficeCalendar:
   enabled: false
   replicaCount: 2
 
 ## App Crm deployment parameters
-
+##
 onlyofficeCrm:
   enabled: false
   replicaCount: 2
 
 ## App Mail deployment parameters
-
+##
 onlyofficeMail:
   enabled: false
   replicaCount: 2
 
 ## App Project Server deployment parameters
-
+##
 onlyofficeProjectServer:
   enabled: false
   replicaCount: 2
 
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
-
+##
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
-## App doceditor statefulset parameters
-
+## App Doceditor statefulset parameters
+##
 onlyofficeDoceditor:
   startupProbe:
     enabled: false
@@ -315,9 +316,39 @@ onlyofficeDoceditor:
     timeoutSeconds: 3
     initialDelaySeconds: 45
 
+## App Doceditor statefulset parameters
+##
+onlyofficeBackupBackgruondTasks^
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /index.html
+      port: 5050
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /index.html
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /index.html
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
 ## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
-
+##
 ingress:
   enabled: false
   annotations:
@@ -330,7 +361,7 @@ ingress:
 
 ## App jobs parameters
 ## This block defines parameters for the jobs only
-
+##
 install:
   job:
     enabled: true
@@ -360,7 +391,7 @@ upgrade:
 
 ## App Proxy Frontend parameters
 ## This block defines parameters for the Proxy Frontend StatefulSet only
-
+##
 proxyFrontend:
   enabled: false
   image:
@@ -412,7 +443,7 @@ proxyFrontend:
 
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only
-
+##
 docs:
   enabled: true
   image:

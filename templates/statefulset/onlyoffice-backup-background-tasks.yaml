@@ -78,16 +78,16 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.app }}
           name: app
+        {{- if .Values.onlyofficeBackupBackgruondTasks.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.onlyofficeBackupBackgruondTasks.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.onlyofficeBackupBackgruondTasks.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.onlyofficeBackupBackgruondTasks.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.onlyofficeBackupBackgruondTasks.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.onlyofficeBackupBackgruondTasks.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
