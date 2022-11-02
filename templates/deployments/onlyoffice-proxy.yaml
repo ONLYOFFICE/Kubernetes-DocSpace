@@ -99,14 +99,14 @@ spec:
         ports:
         - containerPort: {{ .Values.containerPorts.proxy.external }}
           name: external
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeProxy.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.onlyofficeProxy.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeProxy.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.onlyofficeProxy.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeProxy.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.onlyofficeProxy.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
