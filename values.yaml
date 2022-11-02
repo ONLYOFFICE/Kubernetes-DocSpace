@@ -2,6 +2,7 @@
 
 ## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
+##
 
 ## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
 ## Allowed values: `docspace` or `appserver`
@@ -126,7 +127,7 @@ podAnnotations:
 startupProbe:
   enabled: false
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   failureThreshold: 30
   periodSeconds: 10
@@ -135,7 +136,7 @@ readinessProbe:
   enabled: false
   failureThreshold: 2
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   periodSeconds: 10
   successThreshold: 1
@@ -145,7 +146,7 @@ livenessProbe:
   enabled: false
   failureThreshold: 2
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   periodSeconds: 10
   successThreshold: 1
@@ -177,7 +178,6 @@ service:
     port:
       external: 8092
     type: ClusterIP
-
   proxyFrontend:
     existing: ""
     annotations: {}
@@ -221,7 +221,7 @@ extraConf:
 
 ## App common deployment parameters
 ## This block defines common parameters for all deployments only
-
+##
 podAntiAffinity:
   type: "soft"
   topologyKey: kubernetes.io/hostname
@@ -238,56 +238,172 @@ deploymetsUpdateStrategy:
     maxSurge: 25%
 
 ## App People Server deployment parameters
-
+##
 onlyofficePeopleServer:
   replicaCount: 2
 
 ## App Files deployment parameters
-
+##
 onlyofficeFiles:
   replicaCount: 2
 
 ## App Proxy deployment parameters
-
+##
 onlyofficeProxy:
   replicaCount: 2
   extraConf:
     configMap: ""
     fileName: "10.upstream.conf.upstream"
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /
+      port: 8092
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /
+      port: 8092
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /
+      port: 8092
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
 
 ## App Calendar deployment parameters
-
+##
 onlyofficeCalendar:
   enabled: false
   replicaCount: 2
 
 ## App Crm deployment parameters
-
+##
 onlyofficeCrm:
   enabled: false
   replicaCount: 2
 
 ## App Mail deployment parameters
-
+##
 onlyofficeMail:
   enabled: false
   replicaCount: 2
 
 ## App Project Server deployment parameters
-
+##
 onlyofficeProjectServer:
   enabled: false
   replicaCount: 2
 
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
-
+##
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
+## App Doceditor statefulset parameters
+##
+onlyofficeDoceditor:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5013
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Backup Backgruond Tasks statefulset parameters
+##
+onlyofficeBackupBackgruondTasks:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5050
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Login statefulset parameters
+##
+onlyofficeLogin:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5011
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5011
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5011
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
 ## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
-
+##
 ingress:
   enabled: false
   annotations:
@@ -300,7 +416,7 @@ ingress:
 
 ## App jobs parameters
 ## This block defines parameters for the jobs only
-
+##
 install:
   job:
     enabled: true
@@ -330,59 +446,50 @@ upgrade:
 
 ## App Proxy Frontend parameters
 ## This block defines parameters for the Proxy Frontend StatefulSet only
-
+##
 proxyFrontend:
   enabled: false
-
   image:
     repository: nginx
     tag: latest
     pullPolicy: IfNotPresent
-
   podSecurityContext:
     enabled: false
     runAsUser: 104
     runAsGroup: 107
-
   containerPorts:
     http: 80
     https: 443
-
   startupProbe:
     enabled: false
     httpGet:
-      path: /index.html
-      port: 8888
+      path: /
+      port: 80
     failureThreshold: 30
     periodSeconds: 10
-
   readinessProbe:
     enabled: false
     failureThreshold: 2
     httpGet:
-      path: /index.html
-      port: 8888
+      path: /
+      port: 80
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
-
   livenessProbe:
     enabled: false
     failureThreshold: 5
     httpGet:
-      path: /index.html
-      port: 8888
+      path: /
+      port: 80
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
-
   extraConf:
     configMap: default-conf
     filename: default.conf
-
   hostname: ""
-
   tls:
     secretName: tls
     mountPath: /etc/godaddy/live
@@ -391,26 +498,23 @@ proxyFrontend:
 
 ## Document server parameters
 ## This block defines parameters for the document server StatefulSet only
-
+##
 docs:
   enabled: true
   image:
     repository: onlyoffice/documentserver
     tag: 7.1.1
     pullPolicy: IfNotPresent
-
   podSecurityContext:
     enabled: false
     runAsUser: 101
     runAsGroup: 101
-
   containerPorts:
     http: 80
     https: 443
     spch: 8080
     docs: 8000
     proxy: 8888
-
   startupProbe:
     enabled: false
     httpGet:
@@ -418,7 +522,6 @@ docs:
       port: 8888
     failureThreshold: 30
     periodSeconds: 10
-
   readinessProbe:
     enabled: false
     failureThreshold: 2
@@ -428,7 +531,6 @@ docs:
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
-
   livenessProbe:
     enabled: false
     failureThreshold: 5
