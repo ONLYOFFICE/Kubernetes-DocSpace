@@ -79,14 +79,14 @@ spec:
           name: app
         - containerPort: {{ .Values.containerPorts.urlshortener }}
           name: urls
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeUrlShortener.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.onlyofficeUrlShortener.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeUrlShortener.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.onlyofficeUrlShortener.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.onlyofficeUrlShortener.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.onlyofficeUrlShortener.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         {{- if .Values.containerSecurityContext.enabled }}
