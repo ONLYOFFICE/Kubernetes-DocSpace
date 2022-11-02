@@ -127,7 +127,7 @@ podAnnotations:
 startupProbe:
   enabled: false
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   failureThreshold: 30
   periodSeconds: 10
@@ -136,7 +136,7 @@ readinessProbe:
   enabled: false
   failureThreshold: 2
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   periodSeconds: 10
   successThreshold: 1
@@ -146,7 +146,7 @@ livenessProbe:
   enabled: false
   failureThreshold: 2
   httpGet:
-    path: /
+    path: /liveness
     port: 5050
   periodSeconds: 10
   successThreshold: 1
@@ -292,7 +292,7 @@ onlyofficeDoceditor:
   startupProbe:
     enabled: false
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5013
     failureThreshold: 30
     periodSeconds: 10
@@ -300,7 +300,7 @@ onlyofficeDoceditor:
     enabled: false
     failureThreshold: 2
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5013
     periodSeconds: 10
     successThreshold: 1
@@ -309,20 +309,20 @@ onlyofficeDoceditor:
     enabled: false
     failureThreshold: 5
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5013
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
 
-## App Doceditor statefulset parameters
+## App Backup Backgruond Tasks statefulset parameters
 ##
-onlyofficeBackupBackgruondTasks^
+onlyofficeBackupBackgruondTasks:
   startupProbe:
     enabled: false
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5050
     failureThreshold: 30
     periodSeconds: 10
@@ -330,7 +330,7 @@ onlyofficeBackupBackgruondTasks^
     enabled: false
     failureThreshold: 2
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5050
     periodSeconds: 10
     successThreshold: 1
@@ -339,8 +339,38 @@ onlyofficeBackupBackgruondTasks^
     enabled: false
     failureThreshold: 5
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Login statefulset parameters
+##
+onlyofficeLogin:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5011
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5011
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5011
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
@@ -408,7 +438,7 @@ proxyFrontend:
   startupProbe:
     enabled: false
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 8888
     failureThreshold: 30
     periodSeconds: 10
@@ -416,7 +446,7 @@ proxyFrontend:
     enabled: false
     failureThreshold: 2
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 8888
     periodSeconds: 10
     successThreshold: 1
@@ -425,7 +455,7 @@ proxyFrontend:
     enabled: false
     failureThreshold: 5
     httpGet:
-      path: /index.html
+      path: /liveness
       port: 8888
     periodSeconds: 10
     successThreshold: 1
