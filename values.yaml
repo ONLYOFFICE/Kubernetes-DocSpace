@@ -254,6 +254,9 @@ onlyofficeProxy:
   extraConf:
     configMap: ""
     fileName: "10.upstream.conf.upstream"
+    confd:
+      configMap: ""
+      fileName: "gzip.conf"
   startupProbe:
     enabled: false
     httpGet:

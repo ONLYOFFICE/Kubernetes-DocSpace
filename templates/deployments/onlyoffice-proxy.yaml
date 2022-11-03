@@ -118,6 +118,11 @@ spec:
           mountPath: /etc/nginx/templates/{{ .Values.onlyofficeProxy.extraConf.fileName }}
           subPath: {{ .Values.onlyofficeProxy.extraConf.fileName }}
         {{- end }}
+        {{- if .Values.onlyofficeProxy.extraConf.confd.configMap }}
+        - name: custom-confd-file
+          mountPath: /etc/nginx/conf.d/{{ .Values.onlyofficeProxy.extraConf.confd.fileName }}
+          subPath: {{ .Values.onlyofficeProxy.extraConf.confd.fileName }}
+        {{- end }}
         - name: proxy-log
           mountPath: /var/log/nginx
         - name: change-hosts
@@ -131,6 +136,11 @@ spec:
       - name: custom-file
         configMap:
           name: {{ .Values.onlyofficeProxy.extraConf.configMap }}
+      {{- end }}
+      {{- if .Values.onlyofficeProxy.extraConf.confd.configMap }}
+      - name: custom-confd-file
+        configMap:
+          name: {{ .Values.onlyofficeProxy.extraConf.confd.configMap }}
       {{- end }}
       - name: proxy-log
         persistentVolumeClaim:
