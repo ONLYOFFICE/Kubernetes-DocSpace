@@ -314,6 +314,11 @@ onlyofficeProjectServer:
 statefulsetUpdateStrategy:
   type: RollingUpdate
 
+## App Api System statefulset parameters
+##
+onlyofficeApiSystem:
+  enabled: true
+
 ## App Doceditor statefulset parameters
 ##
 onlyofficeDoceditor:
@@ -404,9 +409,20 @@ onlyofficeLogin:
     timeoutSeconds: 3
     initialDelaySeconds: 45
 
+## App Migration statefulset parameters
+##
+onlyofficeMigration:
+  enabled: false
+
+## App Telegram Service statefulset parameters
+##
+onlyofficeTelegramService:
+  enabled: false
+
 ## App Url Shortener statefulset parameters
 ##
 onlyofficeUrlShortener:
+  enabled: false
   startupProbe:
     enabled: false
     httpGet:
@@ -433,6 +449,11 @@ onlyofficeUrlShortener:
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
+
+## App Webhooks Service statefulset parameters
+##
+onlyofficeWebhooksService:
+  enabled: false
 
 ## App Socket statefulset parameters
 ##

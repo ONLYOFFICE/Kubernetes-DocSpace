@@ -1,3 +1,4 @@
+{{- if .Values.onlyofficeApiSystem.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -161,3 +162,4 @@ spec:
         persistentVolumeClaim:
           claimName: mail-data
       {{- end }}
+{{- end }}
