@@ -1,3 +1,4 @@
+{{- if .Values.onlyofficeUrlShortener.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,3 +16,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-urlshortener-0
   type: ClusterIP
+{{- end }}
