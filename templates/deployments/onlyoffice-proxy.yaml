@@ -63,39 +63,11 @@ spec:
       - name: onlyoffice-proxy
         image: {{ .Values.images.proxy }}:{{ .Values.images.tag }}
         imagePullPolicy: {{ .Values.images.pullPolicy }}
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyPassword }}
-        - name: DOCUMENT_SERVER_JWT_ENABLED
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_ENABLED
-        - name: DOCUMENT_SERVER_JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_SECRET
-        - name: DOCUMENT_SERVER_JWT_HEADER
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_HEADER
         envFrom:
         - configMapRef:
             name: app-all
         - configMapRef:
             name: app-proxy
-        - secretRef:
-            name: jwt
         ports:
         - containerPort: {{ .Values.containerPorts.proxy.external }}
           name: external
@@ -113,42 +85,57 @@ spec:
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         volumeMounts:
-        {{- if .Values.onlyofficeProxy.extraConf.configMap }}
-        - name: custom-file
-          mountPath: /etc/nginx/templates/{{ .Values.onlyofficeProxy.extraConf.fileName }}
-          subPath: {{ .Values.onlyofficeProxy.extraConf.fileName }}
+        {{- if .Values.onlyofficeProxy.extraConf.initScripts.configMap }}
+        {{- range .Values.onlyofficeProxy.extraConf.initScripts.fileName }}
+        - name: init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.onlyofficeProxy.extraConf.customInitScripts.configMap }}
+        {{- range .Values.onlyofficeProxy.extraConf.customInitScripts.fileName }}
+        - name: custom-init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.onlyofficeProxy.extraConf.templates.configMap }}
+        {{- range .Values.onlyofficeProxy.extraConf.templates.fileName }}
+        - name: template-files
+          mountPath: /etc/nginx/templates/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
         {{- end }}
         {{- if .Values.onlyofficeProxy.extraConf.confd.configMap }}
-        - name: custom-confd-file
-          mountPath: /etc/nginx/conf.d/{{ .Values.onlyofficeProxy.extraConf.confd.fileName }}
-          subPath: {{ .Values.onlyofficeProxy.extraConf.confd.fileName }}
+        {{- range .Values.onlyofficeProxy.extraConf.confd.fileName }}
+        - name: confd-file
+          mountPath: /etc/nginx/conf.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
         {{- end }}
         - name: proxy-log
           mountPath: /var/log/nginx
-        - name: change-hosts
-          mountPath: /docker-entrypoint.d/change-hosts.sh
-          subPath: change-hosts.sh
-        - name: proxy-upstream
-          mountPath: /etc/nginx/templates/upstream.conf.template
-          subPath: upstream.conf.template
       volumes:
-      {{- if .Values.onlyofficeProxy.extraConf.configMap }}
-      - name: custom-file
+      {{- if .Values.onlyofficeProxy.extraConf.initScripts.configMap }}
+      - name: init-scripts
         configMap:
-          name: {{ .Values.onlyofficeProxy.extraConf.configMap }}
+          name: {{ .Values.onlyofficeProxy.extraConf.initScripts.configMap }}
+      {{- end }}
+      {{- if .Values.onlyofficeProxy.extraConf.customInitScripts.configMap }}
+      - name: custom-init-scripts
+        configMap:
+          name: {{ .Values.onlyofficeProxy.extraConf.customInitScripts.configMap }}
+      {{- end }}
+      {{- if .Values.onlyofficeProxy.extraConf.templates.configMap }}
+      - name: template-files
+        configMap:
+          name: {{ .Values.onlyofficeProxy.extraConf.templates.configMap }}
       {{- end }}
       {{- if .Values.onlyofficeProxy.extraConf.confd.configMap }}
-      - name: custom-confd-file
+      - name: confd-file
         configMap:
           name: {{ .Values.onlyofficeProxy.extraConf.confd.configMap }}
       {{- end }}
       - name: proxy-log
         persistentVolumeClaim:
           claimName: {{ template "app.pvc.proxy.name" . }}
-      - name: change-hosts
-        configMap:
-          name: change-hosts
-          defaultMode: 0755
-      - name: proxy-upstream
-        configMap:
-          name: proxy-upstream
