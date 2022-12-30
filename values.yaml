@@ -252,11 +252,23 @@ onlyofficeFiles:
 onlyofficeProxy:
   replicaCount: 2
   extraConf:
-    configMap: ""
-    fileName: "10.upstream.conf.upstream"
+    initScripts:
+      configMap: proxy-init-scripts
+      fileName:
+        - 40-change-hosts.sh
+        - 50-change-proxy-onlyoffice-conf.sh
+    customInitScripts:
+      configMap: ""
+      fileName:
+        - 60-custom-init-scripts.sh
+    templates:
+      configMap: ""
+      fileName:
+        - 10.upstream.conf.template
     confd:
       configMap: ""
-      fileName: "gzip.conf"
+      fileName:
+        - gzip.conf
   startupProbe:
     enabled: false
     httpGet:
