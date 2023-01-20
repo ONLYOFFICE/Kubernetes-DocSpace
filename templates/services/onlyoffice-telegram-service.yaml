@@ -1,3 +1,4 @@
+{{- if .Values.onlyofficeTelegramService.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,3 +13,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: onlyoffice-telegram-service-0
   type: ClusterIP
+{{- end }}
