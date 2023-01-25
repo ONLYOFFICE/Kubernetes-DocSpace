@@ -120,11 +120,13 @@ spec:
       - name: init-scripts
         configMap:
           name: {{ .Values.onlyofficeProxy.extraConf.initScripts.configMap }}
+          defaultMode: 0755
       {{- end }}
       {{- if .Values.onlyofficeProxy.extraConf.customInitScripts.configMap }}
       - name: custom-init-scripts
         configMap:
           name: {{ .Values.onlyofficeProxy.extraConf.customInitScripts.configMap }}
+          defaultMode: 0755
       {{- end }}
       {{- if .Values.onlyofficeProxy.extraConf.templates.configMap }}
       - name: template-files

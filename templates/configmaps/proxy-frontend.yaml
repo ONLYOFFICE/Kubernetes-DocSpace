@@ -61,8 +61,8 @@ data:
 
      # root /usr/share/nginx/html;
 
-      ssl_certificate /etc/godaddy/live/{{ .Values.proxyFrontend.tls.crtName }};
-      ssl_certificate_key /etc/godaddy/live/{{ .Values.proxyFrontend.tls.keyName }};
+      ssl_certificate {{ .Values.proxyFrontend.tls.mountPath }}/{{ .Values.proxyFrontend.tls.crtName }};
+      ssl_certificate_key {{ .Values.proxyFrontend.tls.mountPath }}/{{ .Values.proxyFrontend.tls.keyName }};
       ssl_verify_client off;
 
       ssl_session_cache shared:MozSSL:10m;   # 40000 sessions
