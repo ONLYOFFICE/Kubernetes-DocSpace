@@ -26,7 +26,6 @@ data:
   SERVICE_DOCEDITOR: {{ .Values.connections.doceditorHost }}:{{ .Values.containerPorts.doceditor }}
   SERVICE_STORAGE_ENCRYPTION: {{ .Values.connections.storageEncryptionHost }}:{{ .Values.containerPorts.app }}
   SERVICE_STORAGE_MIGRATION: {{ .Values.connections.storageMigrationHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_NOTIFY: {{ .Values.connections.notifyHost }}:{{ .Values.containerPorts.app }}
   SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.containerPorts.app }}
   SERVICE_THUMBNAILS: {{ .Values.connections.thumbnailsHost }}:{{ .Values.containerPorts.app }}
   SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.containerPorts.login }}
