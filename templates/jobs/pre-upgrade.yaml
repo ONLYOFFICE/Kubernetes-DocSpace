@@ -1,0 +1,153 @@
+{{- if .Values.upgrade.job.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-upgrade
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
+      - name:  migration-runner
+        image: {{ .Values.upgrade.job.initContainers.migrationRunner.image.repository }}:{{ .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        envFrom:
+        - configMapRef:
+            name: app-all
+      {{- end }}
+      - name: app-clear-storage
+        image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.initContainers.clearStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+        {{- if .Values.onlyofficeCrm.enabled }}
+        - name: crm-data
+          mountPath: /var/www/products/ASC.CRM/server/
+        {{- end }}
+        {{- if .Values.onlyofficeProjectServer.enabled }}
+        - name: project-data
+          mountPath: /var/www/products/ASC.Projects/server/
+        {{- end }}
+        {{- if .Values.onlyofficeCalendar.enabled }}
+        - name: calendar-data
+          mountPath: /var/www/products/ASC.Calendar/server/
+        {{- end }}
+        {{- if .Values.onlyofficeMail.enabled }}
+        - name: mail-data
+          mountPath: /var/www/products/ASC.Mail/server/
+        {{- end }}
+#        - name: change-db-scripts
+#          mountPath: /sql/changedb.sql
+#          subPath: changedb.sql
+        - name: update-scripts
+          mountPath: /sql/update.sh
+          subPath: update.sh
+        command: ["/bin/sh", "-c"]
+        args: ["/sql/update.sh"]
+      containers:
+      - name: app-init-storage
+        image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+        {{- if .Values.onlyofficeCrm.enabled }}
+        - name: crm-data
+          mountPath: /var/www/products/ASC.CRM/server/
+        {{- end }}
+        {{- if .Values.onlyofficeProjectServer.enabled }}
+        - name: project-data
+          mountPath: /var/www/products/ASC.Projects/server/
+        {{- end }}
+        {{- if .Values.onlyofficeCalendar.enabled }}
+        - name: calendar-data
+          mountPath: /var/www/products/ASC.Calendar/server/
+        {{- end }}
+        {{- if .Values.onlyofficeMail.enabled }}
+        - name: mail-data
+          mountPath: /var/www/products/ASC.Mail/server/
+        {{- end }}
+      volumes:
+      - name: files-data
+        persistentVolumeClaim:
+          claimName: {{ template "app.pvc.files.name" . }}
+      - name: people-data
+        persistentVolumeClaim:
+          claimName: {{ template "app.pvc.people.name" . }}
+      {{- if .Values.onlyofficeCrm.enabled }}
+      - name: crm-data
+        persistentVolumeClaim:
+          claimName: crm-data
+      {{- end }}
+      {{- if .Values.onlyofficeProjectServer.enabled }}
+      - name: project-data
+        persistentVolumeClaim:
+          claimName: project-data
+      {{- end }}
+      {{- if .Values.onlyofficeCalendar.enabled }}
+      - name: calendar-data
+        persistentVolumeClaim:
+          claimName: calendar-data
+      {{- end }}
+      {{- if .Values.onlyofficeMail.enabled }}
+      - name: mail-data
+        persistentVolumeClaim:
+          claimName: mail-data
+      {{- end }}
+#      - name: change-db-scripts
+#        configMap:
+#          name: change-db-scripts
+      - name: update-scripts
+        configMap:
+          name: update-app
+          defaultMode: 0755
+      restartPolicy: Never
+{{- end }}

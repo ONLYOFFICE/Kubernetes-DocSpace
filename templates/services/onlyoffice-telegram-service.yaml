@@ -1,0 +1,16 @@
+{{- if .Values.onlyofficeTelegramService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-telegram-service
+  labels:
+    app: onlyoffice-telegram-service
+spec:
+  ports:
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
+  selector:
+    statefulset.kubernetes.io/pod-name: onlyoffice-telegram-service-0
+  type: ClusterIP
+{{- end }}

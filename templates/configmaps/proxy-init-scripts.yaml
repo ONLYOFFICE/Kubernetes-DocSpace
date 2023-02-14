@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-init-scripts
+data:
+  40-change-hosts.sh: |-
+    #!/bin/bash
+    cp /etc/hosts ~/hosts.new
+    sed -i '/^::1/s/^/#/' ~/hosts.new
+    cp -f ~/hosts.new /etc/hosts
+  50-change-proxy-onlyoffice-conf.sh: |-
+    #!/bin/sh
+    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.containerPorts.doceditor }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.containerPorts.login }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/http\:\/\/$document_server/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    rm -rf /etc/nginx/conf.d/upstream.conf

@@ -1,0 +1,28 @@
+{{- if .Values.docs.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-document-server
+  labels:
+    app: onlyoffice-document-server
+spec:
+  ports:
+  - port: {{ .Values.docs.containerPorts.http }}
+    name: http
+    targetPort: {{ .Values.docs.containerPorts.http }}
+  - port: {{ .Values.docs.containerPorts.https }}
+    name: https
+    targetPort: {{ .Values.docs.containerPorts.https }}
+  - port: {{ .Values.docs.containerPorts.spch }}
+    name: spch
+    targetPort: {{ .Values.docs.containerPorts.spch }}
+  - port: {{ .Values.docs.containerPorts.docs }}
+    name: docs
+    targetPort: {{ .Values.docs.containerPorts.docs }}
+  - port: {{ .Values.docs.containerPorts.proxy }}
+    name: proxy
+    targetPort: {{ .Values.docs.containerPorts.proxy }}
+  selector:
+    statefulset.kubernetes.io/pod-name: onlyoffice-document-server-0
+  type: ClusterIP
+{{- end }}

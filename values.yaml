@@ -1,0 +1,639 @@
+# Default values for App
+
+## App common parameters
+## This block defines common parameters for all deployments and statefulsets
+##
+
+## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
+## Allowed values: `docspace` or `appserver`
+##
+product:
+  name: "docspace"
+
+connections:
+  envExtension: "none"
+  mysqlDatabaseMigration: "false"
+  mysqlHost: "mysql"
+  mysqlDatabase: "onlyoffice"
+  superuser: "root"
+  mysqlRootPassword: ""
+  mysqlUser: "onlyoffice_user"
+  mysqlPassword: ""
+  mysqlExistingSecret: "mysql"
+  mysqlSecretKeyRootPassword: "mysql-root-password"
+  mysqlSecretKeyPassword: "mysql-password"
+  appProduct: "onlyoffice"
+  appBaseDir: ""
+  appUrls: ""
+  appConfPath: ""
+  appLogDir: ""
+  appCoreBaseDomain: "localhost"
+  appCoreMachinekey: "your_core_machinekey"
+  documentServerUrlPublic: "/ds-vpath/"
+  documentServerUrlInternal: "http://onlyoffice-document-server/"
+  documentServerUrlConverter: "/ds-vpath/ConvertService.ashx"
+  appUrlPortal: "http://onlyoffice-proxy:8092"
+  appStorageRoot: ""
+  redisHost: "redis-master"
+  rabbitHost: "rabbitmq"
+  kafkaHost: "onlyoffice-kafka"
+  elkSheme: "http"
+  elkHost: "elasticsearch-master"
+  elkPort: "9200"
+  elkThreads: "1"
+  proxyHost: "onlyoffice-proxy"
+  routerHost: "localhost"
+  countWorkerConnections: "1024"
+  nginxSnvsubstTemplateSuffix: ".template"
+  serviceKeepalive: "64"
+  apiHost: "onlyoffice-api"
+  apiSystemHost: "onlyoffice-api-system"
+  calendarHost: "onlyoffice-calendar"
+  crmHost: "onlyoffice-crm"
+  storageEncryptionHost: "onlyoffice-storage-encryption"
+  mailHost: "onlyoffice-mail"
+  storageMigrationHost: "onlyoffice-storage-migration"
+  notifyHost: "onlyoffice-notify"
+  projektsServerHost: "onlyoffice-projects-server"
+  urlshortenerHost: "onlyoffice-urlshortener"
+  studioNotifyHost: "onlyoffice-studio-notify"
+  socketHost: "onlyoffice-socket"
+  telegramServiceHost: "onlyoffice-telegram-service"
+  peopleServerHost: "onlyoffice-people-server"
+  filesHost: "onlyoffice-files"
+  filesServicesHost: "onlyoffice-files-services"
+  studioHost: "onlyoffice-studio"
+  backupHost: "onlyoffice-backup"
+  thumbnailsHost: "onlyoffice-thumbnails"
+  ssoauthHost: "onlyoffice-ssoauth"
+  documentServerHost: "onlyoffice-document-server"
+  clearEventsHost: "onlyoffice-clear-events"
+  migrationHost: "onlyoffice-migration"
+  webhooksServiceHost: "onlyoffice-webhooks-service"
+  doceditorHost: "onlyoffice-doceditor"
+  backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
+  thumbnailsHost: "onlyoffice-thumbnails"
+  loginHost: "onlyoffice-login"
+
+images:
+  initContainer:
+    initStorage: onlyoffice/4testing-docspace-bin-share
+    waitStorage: onlyoffice/4testing-docspace-wait-bin-share
+  calendar: onlyoffice/4testing-docspace-calendar
+  crm: onlyoffice/4testing-docspace-crm
+  files: onlyoffice/4testing-docspace-files
+  mail: onlyoffice/4testing-docspace-mail
+  people: onlyoffice/4testing-docspace-people-server
+  projects: onlyoffice/4testing-docspace-projects-server
+  proxy: onlyoffice/4testing-docspace-proxy
+  apiSystem: onlyoffice/4testing-docspace-api-system
+  api: onlyoffice/4testing-docspace-api
+  backup: onlyoffice/4testing-docspace-backup
+  filesServices: onlyoffice/4testing-docspace-files-services
+  notify: onlyoffice/4testing-docspace-notify
+  socket: onlyoffice/4testing-docspace-socket
+  ssoauth: onlyoffice/4testing-docspace-ssoauth
+  storageEncryption: onlyoffice/4testing-docspace-storage-encryption
+  storageMigration: onlyoffice/4testing-docspace-storage-migration
+  studioNotify: onlyoffice/4testing-docspace-studio-notify
+  studio: onlyoffice/4testing-docspace-studio
+  telegramService: onlyoffice/4testing-docspace-telegram-service
+  thumbnails: onlyoffice/4testing-docspace-thumbnails
+  urlshortener: onlyoffice/4testing-docspace-urlshortener
+  clearEvents: onlyoffice/4testing-docspace-clear-events
+  backupBackgroundTasks: onlyoffice/4testing-docspace-backup-background
+  webhooksService: onlyoffice/4testing-docspace-webhooks-service
+  doceditor: onlyoffice/4testing-docspace-doceditor
+  migration: onlyoffice/4testing-docspace-migration
+  login: onlyoffice/4testing-docspace-login
+  tag: develop
+  pullPolicy: IfNotPresent
+
+containerPorts:
+  app: 5050
+  socket: 9899
+  sso: 9834
+  thumbnails: 9800
+  urlshortener: 9999
+  doceditor: 5013
+  backupBackgruondTasks: 5032
+  login: 5011
+  proxy:
+    external: 8092
+
+podAnnotations:
+  rollme: "{{ randAlphaNum 5 | quote }}"
+
+startupProbe:
+  enabled: false
+  httpGet:
+    path: /liveness
+    port: 5050
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: false
+  failureThreshold: 2
+  httpGet:
+    path: /liveness
+    port: 5050
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 3
+
+livenessProbe:
+  enabled: false
+  failureThreshold: 2
+  httpGet:
+    path: /liveness
+    port: 5050
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+  initialDelaySeconds: 45
+
+podSecurityContext:
+  enabled: false
+  runAsUser: 104
+  runAsGroup: 107
+
+containerSecurityContext:
+  enabled: false
+  allowPrivilegeEscalation: false
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+## App service parameters
+##
+service:
+  proxy:
+    existing: ""
+    annotations: {}
+    port:
+      external: 8092
+    type: ClusterIP
+  proxyFrontend:
+    existing: ""
+    annotations: {}
+    type: LoadBalancer
+
+persistence:
+  storageClass: "nfs"
+  appData:
+    existingClaim: ""
+    size: 1Gi
+  calendarData:
+    size: 1Gi
+  crmData:
+    size: 1Gi
+  filesData:
+    existingClaim: ""
+    size: 1Gi
+  mailData:
+    size: 1Gi
+  peopleData:
+    existingClaim: ""
+    size: 1Gi
+  projectData:
+    size: 1Gi
+  proxyLog:
+    existingClaim: ""
+    size: 1Gi
+
+jwt:
+  enabled: true
+  secret: "jwt_secret"
+  header: "AuthorizationJwt"
+  inBody: true
+
+imagePullSecrets: ""
+
+extraConf:
+  secretName: ""
+  fileName:
+    - appsettings.test.json
+
+## App common deployment parameters
+## This block defines common parameters for all deployments only
+##
+podAntiAffinity:
+  type: "soft"
+  topologyKey: kubernetes.io/hostname
+  weight: "100"
+
+nodeSelector: {}
+
+tolerations: []
+
+deploymetsUpdateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%
+
+## App People Server deployment parameters
+##
+onlyofficePeopleServer:
+  replicaCount: 2
+
+## App Files deployment parameters
+##
+onlyofficeFiles:
+  replicaCount: 2
+
+## App Proxy deployment parameters
+##
+onlyofficeProxy:
+  replicaCount: 2
+  extraConf:
+    initScripts:
+      configMap: proxy-init-scripts
+      fileName:
+        - 40-change-hosts.sh
+        - 50-change-proxy-onlyoffice-conf.sh
+    customInitScripts:
+      configMap: ""
+      fileName:
+        - 60-custom-init-scripts.sh
+    templates:
+      configMap: ""
+      fileName:
+        - 10.upstream.conf.template
+    confd:
+      configMap: ""
+      fileName:
+        - gzip.conf
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /
+      port: 8092
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /
+      port: 8092
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /
+      port: 8092
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Calendar deployment parameters
+##
+onlyofficeCalendar:
+  enabled: false
+  replicaCount: 2
+
+## App Crm deployment parameters
+##
+onlyofficeCrm:
+  enabled: false
+  replicaCount: 2
+
+## App Mail deployment parameters
+##
+onlyofficeMail:
+  enabled: false
+  replicaCount: 2
+
+## App Project Server deployment parameters
+##
+onlyofficeProjectServer:
+  enabled: false
+  replicaCount: 2
+
+## App common statefulset parameters
+## This block defines common parameters for all statefulsets only
+##
+statefulsetUpdateStrategy:
+  type: RollingUpdate
+
+## App Api System statefulset parameters
+##
+onlyofficeApiSystem:
+  enabled: true
+
+## App Doceditor statefulset parameters
+##
+onlyofficeDoceditor:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5013
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5013
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Backup Backgruond Tasks statefulset parameters
+##
+onlyofficeBackupBackgruondTasks:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5050
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Login statefulset parameters
+##
+onlyofficeLogin:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5011
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5011
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5011
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Migration statefulset parameters
+##
+onlyofficeMigration:
+  enabled: false
+
+## App Telegram Service statefulset parameters
+##
+onlyofficeTelegramService:
+  enabled: false
+
+## App Url Shortener statefulset parameters
+##
+onlyofficeUrlShortener:
+  enabled: false
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5050
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App Webhooks Service statefulset parameters
+##
+onlyofficeWebhooksService:
+  enabled: false
+
+## App Socket statefulset parameters
+##
+onlyofficeSocket:
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /liveness
+      port: 5050
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /liveness
+      port: 5050
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+
+## App ingress parameters
+## This block defines parameters for the Nginx ingress only
+##
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+  tls:
+    enabled: false
+    secretName: tls
+  host: ""
+
+## App jobs parameters
+## This block defines parameters for the jobs only
+##
+install:
+  job:
+    enabled: true
+    initContainers:
+      migrationRunner:
+        enabled: true
+        image:
+          repository: onlyoffice/4testing-docspace-migration-runner
+          tag: develop
+          pullPolicy: IfNotPresent
+
+upgrade:
+  job:
+    enabled: true
+    initContainers:
+      migrationRunner:
+        enabled: true
+        image:
+          repository: onlyoffice/4testing-docspace-migration-runner
+          tag: develop
+          pullPolicy: IfNotPresent
+      clearStorage:
+        image:
+          repository: mysql
+          tag: latest
+          pullPolicy: IfNotPresent
+
+## App Proxy Frontend parameters
+## This block defines parameters for the Proxy Frontend StatefulSet only
+##
+proxyFrontend:
+  enabled: false
+  image:
+    repository: nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+  podSecurityContext:
+    enabled: false
+    runAsUser: 104
+    runAsGroup: 107
+  containerPorts:
+    http: 80
+    https: 443
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /
+      port: 80
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /
+      port: 80
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45
+  extraConf:
+    configMap: default-conf
+    filename: default.conf
+  hostname: ""
+  tls:
+    secretName: tls
+    mountPath: /etc/godaddy/live
+    crtName: cert.crt
+    keyName: generated-private-key.key
+
+## Document server parameters
+## This block defines parameters for the document server StatefulSet only
+##
+docs:
+  enabled: true
+  image:
+    repository: onlyoffice/documentserver
+    tag: 7.1.1
+    pullPolicy: IfNotPresent
+  podSecurityContext:
+    enabled: false
+    runAsUser: 101
+    runAsGroup: 101
+  containerPorts:
+    http: 80
+    https: 443
+    spch: 8080
+    docs: 8000
+    proxy: 8888
+  startupProbe:
+    enabled: false
+    httpGet:
+      path: /index.html
+      port: 8888
+    failureThreshold: 30
+    periodSeconds: 10
+  readinessProbe:
+    enabled: false
+    failureThreshold: 2
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+  livenessProbe:
+    enabled: false
+    failureThreshold: 5
+    httpGet:
+      path: /index.html
+      port: 8888
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    initialDelaySeconds: 45

@@ -1,0 +1,16 @@
+{{- if eq (include "app.pvc.files.create" .) "true" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: files-data
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.persistence.filesData.size }}
+{{- end }}

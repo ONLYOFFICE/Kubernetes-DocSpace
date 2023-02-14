@@ -1,0 +1,14 @@
+{{- if .Values.onlyofficeMail.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-mail
+spec:
+  ports:
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
+  selector:
+    app: onlyoffice-mail
+  type: ClusterIP
+{{- end }}

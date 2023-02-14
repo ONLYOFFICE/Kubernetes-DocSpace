@@ -1,0 +1,16 @@
+{{- if eq (include "app.pvc.people.create" .) "true" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: people-data
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.persistence.peopleData.size }}
+{{- end }}

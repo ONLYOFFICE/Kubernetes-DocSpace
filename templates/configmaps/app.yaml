@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-all
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+data:
+  ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
+  SERVICE_PORT: {{ .Values.containerPorts.app | quote }}
+  DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
+  MYSQL_HOST: {{ .Values.connections.mysqlHost }}
+  MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
+  MYSQL_USER: {{ .Values.connections.mysqlUser }}
+  KAFKA_HOST: {{ .Values.connections.kafkaHost }}
+  ELK_SHEME: {{ .Values.connections.elkSheme | quote }}
+  ELK_HOST: {{ .Values.connections.elkHost }}
+  ELK_PORT: {{ .Values.connections.elkPort | quote }}
+  ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
+  PROXY_HOST: {{ .Values.connections.proxyHost }}
+  REDIS_HOST: {{ .Values.connections.redisHost }}
+  RABBIT_HOST: {{ .Values.connections.rabbitHost }}
+  ROUTER_HOST: {{ .Values.connections.routerHost }}
+  APP_URL_PORTAL: {{ .Values.connections.appUrlPortal | quote }}
+  {{- if .Values.connections.appStorageRoot }}
+  APP_STORAGE_ROOT: {{ .Values.connections.appStorageRoot | quote }}
+  {{- end }}
+  PRODUCT: {{ .Values.connections.appProduct | quote }}
+  {{- if .Values.connections.appBaseDir }}
+  BASE_DIR: {{ .Values.connections.appBaseDir | quote }}
+  {{- end }}
+  {{- if .Values.connections.appUrls }}
+  URLS: {{ .Values.connections.appUrls | quote }}
+  {{- end }}
+  {{- if .Values.connections.appConfPath }}
+  PATH_TO_CONF: {{ .Values.connections.appConfPath | quote }}
+  {{- end }}
+  {{- if .Values.connections.appLogDir }}
+  LOG_DIR: {{ .Values.connections.appLogDir | quote }}
+  {{- end }}
+  APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain }}
+  APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey }}
+  DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
+  DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}

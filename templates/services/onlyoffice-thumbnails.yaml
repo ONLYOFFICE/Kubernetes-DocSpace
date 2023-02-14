@@ -1,0 +1,19 @@
+{{- if eq .Values.product.name "appserver" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: onlyoffice-thumbnails
+  labels:
+    app: onlyoffice-thumbnails
+spec:
+  ports:
+  - port: {{ .Values.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.containerPorts.app }}
+  - port: {{ .Values.containerPorts.thumbnails }}
+    name: thum
+    targetPort: {{ .Values.containerPorts.thumbnails }}
+  selector:
+    statefulset.kubernetes.io/pod-name: onlyoffice-thumbnails-0
+  type: ClusterIP
+{{- end }}

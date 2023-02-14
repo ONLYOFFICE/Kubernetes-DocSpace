@@ -1,0 +1,13 @@
+{{- if eq (include "app.pvc.proxy.create" .) "true" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: proxy-log
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.persistence.proxyLog.size }}
+{{- end }}
