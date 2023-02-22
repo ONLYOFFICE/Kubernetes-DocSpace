@@ -51,6 +51,88 @@ Return MySQL root password
 {{- end -}}
 
 {{/*
+Get the Redis password secret
+*/}}
+{{- define "app.redis.secretName" -}}
+{{- if or .Values.connections.redisPassword .Values.connections.redisNoPass -}}
+    {{- printf "%s-redis" .Release.Name -}}
+{{- else if .Values.connections.redisExistingSecret -}}
+    {{- printf "%s" (tpl .Values.connections.redisExistingSecret $) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for Redis
+*/}}
+{{- define "app.redis.createSecret" -}}
+{{- if or .Values.connections.redisPassword .Values.connections.redisNoPass (not .Values.connections.redisExistingSecret) -}}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return Redis password
+*/}}
+{{- define "app.redis.password" -}}
+{{- if not (empty .Values.connections.redisPassword) }}
+    {{- .Values.connections.redisPassword }}
+{{- else if .Values.connections.redisNoPass }}
+    {{- printf "" }}
+{{- else }}
+    {{- required "A Redis Password is required!" .Values.connections.redisPassword }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Get the Broker password secret
+*/}}
+{{- define "app.broker.secretName" -}}
+{{- if .Values.connections.brokerPassword -}}
+    {{- printf "%s-broker" .Release.Name -}}
+{{- else if .Values.connections.brokerExistingSecret -}}
+    {{- printf "%s" (tpl .Values.connections.brokerExistingSecret $) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for Broker
+*/}}
+{{- define "app.broker.createSecret" -}}
+{{- if or .Values.connections.brokerPassword (not .Values.connections.brokerExistingSecret) -}}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return Broker password
+*/}}
+{{- define "app.broker.password" -}}
+{{- if not (empty .Values.connections.brokerPassword) }}
+    {{- .Values.connections.brokerPassword }}
+{{- else }}
+    {{- required "A Broker Password is required!" .Values.connections.brokerPassword }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Get the Broker URI
+*/}}
+{{- define "app.broker.uri" -}}
+{{- $brokerSecret := include "app.broker.secretName" . }}
+{{- $secretKey := (lookup "v1" "Secret" .Release.Namespace $brokerSecret).data }}
+{{- $keyValue := (get $secretKey .Values.connections.brokerSecretKeyName) | b64dec }}
+{{- if .Values.connections.brokerUri -}}
+    {{- printf "%s" .Values.connections.brokerUri -}}
+{{- else if $keyValue -}}
+    {{- printf "%s://%s:%s@%s:%s%s" .Values.connections.brokerProto .Values.connections.brokerUser $keyValue .Values.connections.brokerHost .Values.connections.brokerPort .Values.connections.brokerVhost -}}
+{{- else if .Values.connections.brokerPassword -}}
+    {{- printf "%s://%s:%s@%s:%s%s" .Values.connections.brokerProto .Values.connections.brokerUser .Values.connections.brokerPassword .Values.connections.brokerHost .Values.connections.brokerPort .Values.connections.brokerVhost -}}
+{{- else if not .Values.connections.brokerPassword -}}
+    {{- required "A Broker user Password is required!" .Values.connections.brokerPassword -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for App Proxy
 */}}
 {{- define "app.svc.proxy.create" -}}
