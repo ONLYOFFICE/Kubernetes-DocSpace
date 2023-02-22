@@ -19,7 +19,12 @@ data:
   ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
   PROXY_HOST: {{ .Values.connections.proxyHost }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
-  RABBIT_HOST: {{ .Values.connections.rabbitHost }}
+  REDIS_PORT: {{ .Values.connections.redisPort }}
+  REDIS_USER_NAME: {{ .Values.connections.redisUser }}
+  RABBIT_HOST: {{ .Values.connections.brokerHost }}
+  RABBIT_PORT: {{ .Values.connections.brokerPort }}
+  RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost }}
+  RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
   ROUTER_HOST: {{ .Values.connections.routerHost }}
   APP_URL_PORTAL: {{ .Values.connections.appUrlPortal | quote }}
   {{- if .Values.connections.appStorageRoot }}

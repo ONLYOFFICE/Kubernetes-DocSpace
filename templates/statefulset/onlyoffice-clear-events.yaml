@@ -61,6 +61,13 @@ spec:
             secretKeyRef:
               name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "app.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          value: {{ include "app.broker.uri" . | quote }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

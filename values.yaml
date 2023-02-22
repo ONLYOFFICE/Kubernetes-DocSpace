@@ -35,7 +35,21 @@ connections:
   appUrlPortal: "http://onlyoffice-proxy:8092"
   appStorageRoot: ""
   redisHost: "redis-master"
-  rabbitHost: "rabbitmq"
+  redisPort: "6379"
+  redisUser: default
+  redisExistingSecret: redis
+  redisSecretKeyName: redis-password
+  redisPassword: ""
+  redisNoPass: false
+  brokerHost: "rabbitmq"
+  brokerPort: "5672"
+  brokerVhost: "/"
+  brokerUser: user
+  brokerProto: amqp
+  brokerUri: ""
+  brokerExistingSecret: rabbitmq
+  brokerSecretKeyName: rabbitmq-password
+  brokerPassword: ""
   kafkaHost: "onlyoffice-kafka"
   elkSheme: "http"
   elkHost: "elasticsearch-master"
