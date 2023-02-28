@@ -17,11 +17,7 @@ data:
       echo -e "\e[0;31m DB is not available \e[0m"
       exit 1
     fi
-    rm -rf /var/www/products/ASC.CRM/server/*
-    rm -rf /var/www/products/ASC.Calendar/server/*
     rm -rf /var/www/products/ASC.Files/server/*
-    rm -rf /var/www/products/ASC.Mail/server/*
     rm -rf /var/www/products/ASC.People/server/*
-    rm -rf /var/www/products/ASC.Projects/server/*
     echo "mysql -h mysql -u root -p$MYSQL_PASSWORD onlyoffice < /sql/changedb.sql"
     echo work done

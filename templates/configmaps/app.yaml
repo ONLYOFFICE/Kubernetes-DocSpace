@@ -12,7 +12,6 @@ data:
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
   MYSQL_USER: {{ .Values.connections.mysqlUser }}
-  KAFKA_HOST: {{ .Values.connections.kafkaHost }}
   ELK_SHEME: {{ .Values.connections.elkSheme | quote }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
@@ -25,24 +24,6 @@ data:
   RABBIT_PORT: {{ .Values.connections.brokerPort }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
-  ROUTER_HOST: {{ .Values.connections.routerHost }}
-  APP_URL_PORTAL: {{ .Values.connections.appUrlPortal | quote }}
-  {{- if .Values.connections.appStorageRoot }}
-  APP_STORAGE_ROOT: {{ .Values.connections.appStorageRoot | quote }}
-  {{- end }}
-  PRODUCT: {{ .Values.connections.appProduct | quote }}
-  {{- if .Values.connections.appBaseDir }}
-  BASE_DIR: {{ .Values.connections.appBaseDir | quote }}
-  {{- end }}
-  {{- if .Values.connections.appUrls }}
-  URLS: {{ .Values.connections.appUrls | quote }}
-  {{- end }}
-  {{- if .Values.connections.appConfPath }}
-  PATH_TO_CONF: {{ .Values.connections.appConfPath | quote }}
-  {{- end }}
-  {{- if .Values.connections.appLogDir }}
-  LOG_DIR: {{ .Values.connections.appLogDir | quote }}
-  {{- end }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain }}
   APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey }}
   DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}

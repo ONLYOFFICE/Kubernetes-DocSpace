@@ -1,5 +1,0 @@
-dataLogDir: /bitnami/zookeeper/dataLog
-persistence:
-  size: 5Gi
-  dataLogDir:
-    size: 2Gi
