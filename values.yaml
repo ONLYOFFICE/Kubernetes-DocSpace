@@ -1,15 +1,9 @@
-# Default values for App
+# Default values for DocSpace
 
 ## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
 ##
-
-## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
-## Allowed values: `docspace` or `appserver`
-##
-product:
-  name: "docspace"
-
+## Connection parameters to external services
 connections:
   envExtension: "none"
   mysqlDatabaseMigration: "false"

@@ -16,8 +16,9 @@ The following guide covers the installation process of the ‘DocSpace’ into a
 Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 1000` and `ID = 1001`.
 
 To do this, run the following commands:
+
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-AppServer/docspace/sources/scc/helm-components.yaml
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/helm-components.yaml
 $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ```
 
@@ -25,7 +26,7 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm repo add stable https://charts.helm.sh/stable
+$ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
 $ helm repo add elastic https://helm.elastic.co
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 $ helm repo update
@@ -36,9 +37,13 @@ $ helm repo update
 Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created. When installing to an OpenShift cluster, the user must have a role that allows you to create Storage Classes in the cluster. Read more [here](https://docs.openshift.com/container-platform/4.7/storage/dynamic-provisioning.html).
 
 ```bash
-$ helm install nfs-server stable/nfs-server-provisioner --set persistence.enabled=true,persistence.storageClass=do-block-storage,persistence.size=50Gi
+$ helm install nfs-server --version 1.5.0 nfs-server-provisioner/nfs-server-provisioner \
+  --set persistence.enabled=true \
+  --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
+  --set persistence.size=PERSISTENT_SIZE
 ```
-See more details about installing NFS Server Provisioner via Helm [here](https://github.com/helm/charts/tree/master/stable/nfs-server-provisioner).
+
+See more details about installing NFS Server Provisioner via Helm [here](https://github.com/kubernetes-sigs/nfs-ganesha-server-and-external-provisioner/tree/master/charts/nfs-server-provisioner).
 
 ### 3. Install MySQL
 
@@ -108,11 +113,14 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 104`.
 
 To do this, run the following commands:
+
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-AppServer/docspace/sources/scc/app-components.yaml
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/app-components.yaml
 $ oc adm policy add-scc-to-group scc-app-components system:authenticated
 ```
+
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
+
 ```
 $ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
 ```
