@@ -18,13 +18,14 @@ data:
   ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
   PROXY_HOST: {{ .Values.connections.proxyHost }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
-  REDIS_PORT: {{ .Values.connections.redisPort }}
+  REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
-  RABBIT_PORT: {{ .Values.connections.brokerPort }}
-  RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost }}
+  RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
+  RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
-  APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain }}
-  APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey }}
+  APP_URL_PORTAL: {{ .Values.connections.appUrlPortal | quote }}
+  APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
+  APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey | quote }}
   DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
   DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}

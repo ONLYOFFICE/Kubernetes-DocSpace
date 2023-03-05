@@ -16,10 +16,6 @@ connections:
   mysqlExistingSecret: "mysql"
   mysqlSecretKeyRootPassword: "mysql-root-password"
   mysqlSecretKeyPassword: "mysql-password"
-  appCoreBaseDomain: "localhost"
-  appCoreMachinekey: "your_core_machinekey"
-  documentServerUrlPublic: "/ds-vpath/"
-  documentServerUrlInternal: "http://onlyoffice-document-server/"
   redisHost: "redis-master"
   redisPort: "6379"
   redisUser: default
@@ -59,6 +55,11 @@ connections:
   doceditorHost: "onlyoffice-doceditor"
   backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
   loginHost: "onlyoffice-login"
+  appUrlPortal: "http://onlyoffice-proxy:8092"
+  appCoreBaseDomain: "localhost"
+  appCoreMachinekey: "your_core_machinekey"
+  documentServerUrlPublic: "/ds-vpath/"
+  documentServerUrlInternal: "http://onlyoffice-document-server/"
 
 images:
   initContainer:
