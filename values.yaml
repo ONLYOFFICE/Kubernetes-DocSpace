@@ -26,7 +26,7 @@ connections:
   brokerHost: "rabbitmq"
   brokerPort: "5672"
   brokerVhost: "/"
-  brokerUser: user
+  brokerUser: guest
   brokerProto: amqp
   brokerUri: ""
   brokerExistingSecret: rabbitmq
@@ -499,7 +499,7 @@ docs:
   enabled: true
   image:
     repository: onlyoffice/documentserver
-    tag: 7.1.1
+    tag: 7.3.2
     pullPolicy: IfNotPresent
   podSecurityContext:
     enabled: false

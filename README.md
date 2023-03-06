@@ -101,7 +101,6 @@ To install Redis to your cluster, run the following command:
 ```bash
 $ helm install redis bitnami/redis \
   --set architecture=standalone \
-  --set auth.enabled=false \
   --set master.persistence.size=9Gi \
   --set metrics.enabled=false
 ```
