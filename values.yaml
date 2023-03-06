@@ -1,15 +1,9 @@
-# Default values for App
+# Default values for DocSpace
 
 ## App common parameters
 ## This block defines common parameters for all deployments and statefulsets
 ##
-
-## product.name The name of the product to be deployed. Depending on the name, different manifests will be applied
-## Allowed values: `docspace` or `appserver`
-##
-product:
-  name: "docspace"
-
+## Connection parameters to external services
 connections:
   envExtension: "none"
   mysqlDatabaseMigration: "false"
@@ -22,18 +16,6 @@ connections:
   mysqlExistingSecret: "mysql"
   mysqlSecretKeyRootPassword: "mysql-root-password"
   mysqlSecretKeyPassword: "mysql-password"
-  appProduct: "onlyoffice"
-  appBaseDir: ""
-  appUrls: ""
-  appConfPath: ""
-  appLogDir: ""
-  appCoreBaseDomain: "localhost"
-  appCoreMachinekey: "your_core_machinekey"
-  documentServerUrlPublic: "/ds-vpath/"
-  documentServerUrlInternal: "http://onlyoffice-document-server/"
-  documentServerUrlConverter: "/ds-vpath/ConvertService.ashx"
-  appUrlPortal: "http://onlyoffice-proxy:8092"
-  appStorageRoot: ""
   redisHost: "redis-master"
   redisPort: "6379"
   redisUser: default
@@ -44,61 +26,47 @@ connections:
   brokerHost: "rabbitmq"
   brokerPort: "5672"
   brokerVhost: "/"
-  brokerUser: user
+  brokerUser: guest
   brokerProto: amqp
   brokerUri: ""
   brokerExistingSecret: rabbitmq
   brokerSecretKeyName: rabbitmq-password
   brokerPassword: ""
-  kafkaHost: "onlyoffice-kafka"
   elkSheme: "http"
   elkHost: "elasticsearch-master"
   elkPort: "9200"
   elkThreads: "1"
   proxyHost: "onlyoffice-proxy"
-  routerHost: "localhost"
   countWorkerConnections: "1024"
   nginxSnvsubstTemplateSuffix: ".template"
-  serviceKeepalive: "64"
   apiHost: "onlyoffice-api"
   apiSystemHost: "onlyoffice-api-system"
-  calendarHost: "onlyoffice-calendar"
-  crmHost: "onlyoffice-crm"
-  storageEncryptionHost: "onlyoffice-storage-encryption"
-  mailHost: "onlyoffice-mail"
-  storageMigrationHost: "onlyoffice-storage-migration"
   notifyHost: "onlyoffice-notify"
-  projektsServerHost: "onlyoffice-projects-server"
-  urlshortenerHost: "onlyoffice-urlshortener"
   studioNotifyHost: "onlyoffice-studio-notify"
   socketHost: "onlyoffice-socket"
-  telegramServiceHost: "onlyoffice-telegram-service"
   peopleServerHost: "onlyoffice-people-server"
   filesHost: "onlyoffice-files"
   filesServicesHost: "onlyoffice-files-services"
   studioHost: "onlyoffice-studio"
   backupHost: "onlyoffice-backup"
-  thumbnailsHost: "onlyoffice-thumbnails"
   ssoauthHost: "onlyoffice-ssoauth"
   documentServerHost: "onlyoffice-document-server"
   clearEventsHost: "onlyoffice-clear-events"
-  migrationHost: "onlyoffice-migration"
-  webhooksServiceHost: "onlyoffice-webhooks-service"
   doceditorHost: "onlyoffice-doceditor"
   backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
-  thumbnailsHost: "onlyoffice-thumbnails"
   loginHost: "onlyoffice-login"
+  appUrlPortal: "http://onlyoffice-proxy:8092"
+  appCoreBaseDomain: "localhost"
+  appCoreMachinekey: "your_core_machinekey"
+  documentServerUrlPublic: "/ds-vpath/"
+  documentServerUrlInternal: "http://onlyoffice-document-server/"
 
 images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  calendar: onlyoffice/4testing-docspace-calendar
-  crm: onlyoffice/4testing-docspace-crm
   files: onlyoffice/4testing-docspace-files
-  mail: onlyoffice/4testing-docspace-mail
   people: onlyoffice/4testing-docspace-people-server
-  projects: onlyoffice/4testing-docspace-projects-server
   proxy: onlyoffice/4testing-docspace-proxy
   apiSystem: onlyoffice/4testing-docspace-api-system
   api: onlyoffice/4testing-docspace-api
@@ -107,18 +75,11 @@ images:
   notify: onlyoffice/4testing-docspace-notify
   socket: onlyoffice/4testing-docspace-socket
   ssoauth: onlyoffice/4testing-docspace-ssoauth
-  storageEncryption: onlyoffice/4testing-docspace-storage-encryption
-  storageMigration: onlyoffice/4testing-docspace-storage-migration
   studioNotify: onlyoffice/4testing-docspace-studio-notify
   studio: onlyoffice/4testing-docspace-studio
-  telegramService: onlyoffice/4testing-docspace-telegram-service
-  thumbnails: onlyoffice/4testing-docspace-thumbnails
-  urlshortener: onlyoffice/4testing-docspace-urlshortener
   clearEvents: onlyoffice/4testing-docspace-clear-events
   backupBackgroundTasks: onlyoffice/4testing-docspace-backup-background
-  webhooksService: onlyoffice/4testing-docspace-webhooks-service
   doceditor: onlyoffice/4testing-docspace-doceditor
-  migration: onlyoffice/4testing-docspace-migration
   login: onlyoffice/4testing-docspace-login
   tag: develop
   pullPolicy: IfNotPresent
@@ -127,8 +88,6 @@ containerPorts:
   app: 5050
   socket: 9899
   sso: 9834
-  thumbnails: 9800
-  urlshortener: 9999
   doceditor: 5013
   backupBackgruondTasks: 5032
   login: 5011
@@ -183,6 +142,7 @@ resources:
   limits:
     memory: "1Gi"
     cpu: "1000m"
+
 ## App service parameters
 ##
 service:
@@ -197,34 +157,30 @@ service:
     annotations: {}
     type: LoadBalancer
 
+## App persistence parameters
+##
 persistence:
   storageClass: "nfs"
   appData:
     existingClaim: ""
     size: 1Gi
-  calendarData:
-    size: 1Gi
-  crmData:
-    size: 1Gi
   filesData:
     existingClaim: ""
     size: 1Gi
-  mailData:
-    size: 1Gi
   peopleData:
     existingClaim: ""
-    size: 1Gi
-  projectData:
     size: 1Gi
   proxyLog:
     existingClaim: ""
     size: 1Gi
 
+## App JWT parameters
+##
 jwt:
   enabled: true
   secret: "jwt_secret"
   header: "AuthorizationJwt"
-  inBody: true
+  inBody: false
 
 imagePullSecrets: ""
 
@@ -309,30 +265,6 @@ onlyofficeProxy:
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
-
-## App Calendar deployment parameters
-##
-onlyofficeCalendar:
-  enabled: false
-  replicaCount: 2
-
-## App Crm deployment parameters
-##
-onlyofficeCrm:
-  enabled: false
-  replicaCount: 2
-
-## App Mail deployment parameters
-##
-onlyofficeMail:
-  enabled: false
-  replicaCount: 2
-
-## App Project Server deployment parameters
-##
-onlyofficeProjectServer:
-  enabled: false
-  replicaCount: 2
 
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
@@ -434,52 +366,6 @@ onlyofficeLogin:
     successThreshold: 1
     timeoutSeconds: 3
     initialDelaySeconds: 45
-
-## App Migration statefulset parameters
-##
-onlyofficeMigration:
-  enabled: false
-
-## App Telegram Service statefulset parameters
-##
-onlyofficeTelegramService:
-  enabled: false
-
-## App Url Shortener statefulset parameters
-##
-onlyofficeUrlShortener:
-  enabled: false
-  startupProbe:
-    enabled: false
-    httpGet:
-      path: /liveness
-      port: 5050
-    failureThreshold: 30
-    periodSeconds: 10
-  readinessProbe:
-    enabled: false
-    failureThreshold: 2
-    httpGet:
-      path: /liveness
-      port: 5050
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-  livenessProbe:
-    enabled: false
-    failureThreshold: 5
-    httpGet:
-      path: /liveness
-      port: 5050
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-    initialDelaySeconds: 45
-
-## App Webhooks Service statefulset parameters
-##
-onlyofficeWebhooksService:
-  enabled: false
 
 ## App Socket statefulset parameters
 ##
@@ -613,7 +499,7 @@ docs:
   enabled: true
   image:
     repository: onlyoffice/documentserver
-    tag: 7.1.1
+    tag: 7.3.2
     pullPolicy: IfNotPresent
   podSecurityContext:
     enabled: false

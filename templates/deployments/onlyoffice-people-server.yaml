@@ -137,22 +137,6 @@ spec:
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
-        {{- if .Values.onlyofficeCrm.enabled }}
-        - name: crm-data
-          mountPath: /var/www/products/ASC.CRM/server/
-        {{- end }}
-        {{- if .Values.onlyofficeProjectServer.enabled }}
-        - name: project-data
-          mountPath: /var/www/products/ASC.Projects/server/
-        {{- end }}
-        {{- if .Values.onlyofficeCalendar.enabled }}
-        - name: calendar-data
-          mountPath: /var/www/products/ASC.Calendar/server/
-        {{- end }}
-        {{- if .Values.onlyofficeMail.enabled }}
-        - name: mail-data
-          mountPath: /var/www/products/ASC.Mail/server/
-        {{- end }}
       volumes:
       {{- if .Values.extraConf.secretName }}
       - name: custom-file
@@ -168,23 +152,3 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "app.pvc.people.name" . }}
-      {{- if .Values.onlyofficeCrm.enabled }}
-      - name: crm-data
-        persistentVolumeClaim:
-          claimName: crm-data
-      {{- end }}
-      {{- if .Values.onlyofficeProjectServer.enabled }}
-      - name: project-data
-        persistentVolumeClaim:
-          claimName: project-data
-      {{- end }}
-      {{- if .Values.onlyofficeCalendar.enabled }}
-      - name: calendar-data
-        persistentVolumeClaim:
-          claimName: calendar-data
-      {{- end }}
-      {{- if .Values.onlyofficeMail.enabled }}
-      - name: mail-data
-        persistentVolumeClaim:
-          claimName: mail-data
-      {{- end }}

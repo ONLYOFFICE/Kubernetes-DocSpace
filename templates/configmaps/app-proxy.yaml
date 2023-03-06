@@ -5,14 +5,11 @@ metadata:
 data:
   COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
   NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
-  service_keepalive: {{ .Values.connections.serviceKeepalive | quote }}
   SERVICE_API: {{ .Values.connections.apiHost }}:{{ .Values.containerPorts.app }}
   SERVICE_API_SYSTEM: {{ .Values.connections.apiSystemHost }}:{{ .Values.containerPorts.app }}
   SERVICE_NOTIFY: {{ .Values.connections.notifyHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_URLSHORTENER: {{ .Values.connections.urlshortenerHost }}:{{ .Values.containerPorts.app }}
   SERVICE_STUDIO_NOTIFY: {{ .Values.connections.studioNotifyHost }}:{{ .Values.containerPorts.app }}
   SERVICE_SOCKET: {{ .Values.connections.socketHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_TELEGRAM_SERVICE: {{ .Values.connections.telegramServiceHost }}:{{ .Values.containerPorts.app }}
   SERVICE_PEOPLE_SERVER: {{ .Values.connections.peopleServerHost }}:{{ .Values.containerPorts.app }}
   SERVICE_FILES: {{ .Values.connections.filesHost }}:{{ .Values.containerPorts.app }}
   SERVICE_FILES_SERVICES: {{ .Values.connections.filesServicesHost }}:{{ .Values.containerPorts.app }}
@@ -21,33 +18,6 @@ data:
   SERVICE_SSOAUTH: {{ .Values.connections.ssoauthHost }}:{{ .Values.containerPorts.app }}
   DOCUMENT_SERVER: {{ .Values.connections.documentServerHost }}
   SERVICE_CLEAR_EVENTS: {{ .Values.connections.clearEventsHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_MIGRATION: {{ .Values.connections.migrationHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_WEBHOOKS_SERVICE: {{ .Values.connections.webhooksServiceHost }}:{{ .Values.containerPorts.app }}
   SERVICE_DOCEDITOR: {{ .Values.connections.doceditorHost }}:{{ .Values.containerPorts.doceditor }}
-  SERVICE_STORAGE_ENCRYPTION: {{ .Values.connections.storageEncryptionHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_STORAGE_MIGRATION: {{ .Values.connections.storageMigrationHost }}:{{ .Values.containerPorts.app }}
   SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.containerPorts.app }}
-  SERVICE_THUMBNAILS: {{ .Values.connections.thumbnailsHost }}:{{ .Values.containerPorts.app }}
   SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.containerPorts.login }}
-  API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}
-  BACKUP_HOST: {{ .Values.connections.backupHost }}
-  BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgruondTasksHost }}
-  CLEAR_EVENTS_HOST: {{ .Values.connections.clearEventsHost }}
-  MIGRATION_HOST: {{ .Values.connections.migrationHost }}
-  WEBHOOKS_SERVICE_HOST: {{ .Values.connections.webhooksServiceHost }}
-  STORAGE_ENCRYPTION_HOST: {{ .Values.connections.storageEncryptionHost }}
-  FILES_HOST: {{ .Values.connections.filesHost }}
-  FILES_SERVICES_HOST: {{ .Values.connections.filesServicesHost }}
-  STORAGE_MIGRATION_HOST: {{ .Values.connections.storageMigrationHost }}
-  NOTIFY_HOST: {{ .Values.connections.notifyHost }}
-  PEOPLE_SERVER_HOST: {{ .Values.connections.peopleServerHost }}
-  SOCKET_HOST: {{ .Values.connections.socketHost }}
-  STUDIO_NOTIFY_HOST: {{ .Values.connections.studioNotifyHost }}
-  TELEGRAM_SERVICE_HOST: {{ .Values.connections.telegramServiceHost }}
-  URLSHORTENER_HOST: {{ .Values.connections.urlshortenerHost }}
-  API_HOST: {{ .Values.connections.apiHost }}
-  STUDIO_HOST: {{ .Values.connections.studioHost }}
-  SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}
-  DOCEDITOR_HOST: {{ .Values.connections.doceditorHost }}
-  THUMBNAILS_HOST: {{ .Values.connections.thumbnailsHost }}
-  LOGIN_HOST: {{ .Values.connections.loginHost }}
