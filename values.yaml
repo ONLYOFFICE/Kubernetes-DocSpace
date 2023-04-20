@@ -81,8 +81,89 @@ images:
   backupBackgroundTasks: onlyoffice/4testing-docspace-backup-background
   doceditor: onlyoffice/4testing-docspace-doceditor
   login: onlyoffice/4testing-docspace-login
-  tag: develop
+  tag: v1.0.0
   pullPolicy: IfNotPresent
+
+## namespaceOverride The name of the namespace in which DocSpace will be deployed
+## If not set, the name will be taken from .Release.Namespace
+namespaceOverride: ""
+## commonLabels Defines labels that will be additionally added to all the deployed resources
+## You can also use `tpl` as the value for the key
+## ref: https://helm.sh/docs/chart_best_practices/labels/
+## Example:
+## commonLabels:
+##   app.kubernetes.io/name: "{{ .Chart.Name }}"
+##   helm.sh/chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+##   app.kubernetes.io/managed-by: "{{ .Release.Service }}"
+##   app.kubernetes.io/instance: "{{ .Release.Name }}"
+##   app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
+commonLabels: {}
+## podAnnotations Map of annotations to add to the DocSpace pods
+podAnnotations:
+  rollme: "{{ randAlphaNum 5 | quote }}"
+## Service account parameters
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+serviceAccount:
+  ## serviceAccount.create Enable ServiceAccount creation
+  create: false
+  ## serviceAccount.name Name of the ServiceAccount to be used
+  ## If not set and `serviceAccount.create` is `true` the name will be taken from .Release.Name
+  ## If not set and `serviceAccount.create` is `false` the name will be "default"
+  name: ""
+  ## serviceAccount.annotations Map of annotations to add to the ServiceAccount
+  annotations: {}
+  ## serviceAccount.automountServiceAccountToken Enable auto mount of ServiceAccountToken on the serviceAccount created
+  ## Used only if `serviceAccount.create` is `true`
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
+  automountServiceAccountToken: true
+## Configure a Security Context for a Pods
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+podSecurityContext:
+  ## podSecurityContext.enabled Enable security context for the pods
+  ## If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
+  enabled: false
+  ## podSecurityContext.runAsUser User ID for the DocSpace pods
+  runAsUser: 104
+  ## podSecurityContext.runAsGroup Group ID for the DocSpace pods
+  runAsGroup: 107
+## Configure a Security Context for containers in Pods
+containerSecurityContext:
+   ## containerSecurityContext.enabled Enable security context for containers in pods
+  enabled: false
+  ## containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+  allowPrivilegeEscalation: false
+## nodeSelector Node labels for pods assignment
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+nodeSelector: {}
+## tolerations Tolerations for pods assignment
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+tolerations: []
+## imagePullSecrets Container image registry secret name
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: ""
+## DocSpace Init Containers parameters
+initContainers:
+  ## Parameters of the Wait Storage initContainers
+  waitStorage:
+    image:
+      ## initContainers.waitStorage.image.repository app-wait-storage initContainer image repository
+      repository: onlyoffice/4testing-docspace-wait-bin-share
+      ## initContainers.waitStorage.image.tag app-wait-storage initContainer image tag
+      ## If set to, it takes priority over the `images.tag`
+      tag: ""
+      ## initContainers.waitStorage.image.pullPolicy app-wait-storage initContainer image pull policy
+      pullPolicy: IfNotPresent
+    ## app-wait-storage initContainer resource requests and limits
+    ## ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    ## initContainers.waitStorage.resources.requests The requested resources for the app-wait-storage initContainer
+    ## initContainers.waitStorage.resources.limits The resources limits for the app-wait-storage initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
 
 containerPorts:
   app: 5050
@@ -93,9 +174,6 @@ containerPorts:
   login: 5011
   proxy:
     external: 8092
-
-podAnnotations:
-  rollme: "{{ randAlphaNum 5 | quote }}"
 
 startupProbe:
   enabled: false
@@ -125,15 +203,6 @@ livenessProbe:
   successThreshold: 1
   timeoutSeconds: 5
   initialDelaySeconds: 45
-
-podSecurityContext:
-  enabled: false
-  runAsUser: 104
-  runAsGroup: 107
-
-containerSecurityContext:
-  enabled: false
-  allowPrivilegeEscalation: false
 
 resources:
   requests:
@@ -182,8 +251,6 @@ jwt:
   header: "AuthorizationJwt"
   inBody: false
 
-imagePullSecrets: ""
-
 extraConf:
   secretName: ""
   fileName:
@@ -197,25 +264,137 @@ podAntiAffinity:
   topologyKey: kubernetes.io/hostname
   weight: "100"
 
-nodeSelector: {}
-
-tolerations: []
-
 deploymetsUpdateStrategy:
   type: RollingUpdate
   rollingUpdate:
     maxUnavailable: 25%
     maxSurge: 25%
 
-## App People Server deployment parameters
+## App People Server Deployment parameters
 ##
 onlyofficePeopleServer:
   replicaCount: 2
 
-## App Files deployment parameters
+## DocSpace Files Deployment parameters
+## This block defines the parameters common to all the Pods of this deployment
 ##
-onlyofficeFiles:
-  replicaCount: 2
+files:
+  ## files.replicaCount Number of Files replicas to deploy
+  ## If the `files.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 1
+  ## Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    ## files.updateStrategy.type Files deployment update strategy type
+    ## Allowed values: `RollingUpdate` or `Recreate`
+    type: RollingUpdate
+    ## files.updateStrategy.rollingUpdate Used only when `files.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      ## files.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Pods unavailable during the update process
+      maxUnavailable: 25%
+      ## files.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Pods created over the desired number of Pods
+      maxSurge: 25%
+  ## Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
+  ## Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ## Example:
+  ## podAffinity:
+  ##   requiredDuringSchedulingIgnoredDuringExecution:
+  ##   - labelSelector:
+  ##       matchExpressions:
+  ##       - key: app
+  ##         operator: In
+  ##         values:
+  ##         - store
+  ##     topologyKey: topology.kubernetes.io/zone
+  ##
+  podAffinity: {}
+  ## Node affinity rules for Files Pods scheduling by nodes
+  ## Node affinity allow you to constrain which nodes Files Pod can be scheduled on based on node labels
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## Example:
+  ## nodeAffinity:
+  ##   requiredDuringSchedulingIgnoredDuringExecution:
+  ##     nodeSelectorTerms:
+  ##     - matchExpressions:
+  ##       - key: topology.kubernetes.io/zone
+  ##         operator: In
+  ##         values:
+  ##         - zone1
+  ##         - zone2
+  ##
+  nodeAffinity: {}
+  ## Files container image parameters
+  image:
+    ## files.image.repository files container image repository
+    repository: onlyoffice/4testing-docspace-files
+    ## files.image.tag files container image tag
+    ## If set to, it takes priority over the `images.tag`
+    tag: ""
+    ## files.image.pullPolicy files container image pull policy
+    pullPolicy: IfNotPresent
+  ## files.containerPorts.app files container port
+  containerPorts:
+    app: 5050
+  ## Probe used for the files container: startup, readiness and liveness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## The parameters below for startup probes are used only when `files.startupProbe.enabled=true`
+  startupProbe:
+    ## files.startupProbe.enabled Enable startupProbe for files container
+    enabled: false
+    httpGet:
+      ## files.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      ## files.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    ## files.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    ## files.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  ## The parameters below for readiness probes are used only when `files.readinessProbe.enabled=true`
+  readinessProbe:
+    ## files.readinessProbe.enabled Enable readinessProbe for files container
+    enabled: false
+    ## files.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      ## files.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      ## files.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    ## files.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    ## files.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    ## files.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  ## The parameters below for liveness probes are used only when `files.livenessProbe.enabled=true`
+  livenessProbe:
+    ## files.livenessProbe.enabled Enable livenessProbe for files container
+    enabled: false
+    ## files.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      ## files.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      ## files.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    ## files.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    ## files.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## files.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  ## files container resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## files.resources.requests The requested resources for the files container
+  ## files.resources.limits The resources limits for the files container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
 
 ## App Proxy deployment parameters
 ##
@@ -421,7 +600,7 @@ install:
         enabled: true
         image:
           repository: onlyoffice/4testing-docspace-migration-runner
-          tag: develop
+          tag: v1.0.0
           pullPolicy: IfNotPresent
 
 upgrade:
@@ -432,7 +611,7 @@ upgrade:
         enabled: true
         image:
           repository: onlyoffice/4testing-docspace-migration-runner
-          tag: develop
+          tag: v1.0.0
           pullPolicy: IfNotPresent
       clearStorage:
         image:

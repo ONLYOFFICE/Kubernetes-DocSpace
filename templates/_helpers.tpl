@@ -9,6 +9,37 @@ Get the update strategy type for App deploymets
 {{- end -}}
 
 {{/*
+Get the App Namespace
+*/}}
+{{- define "app.namespace" -}}
+{{- if .Values.namespaceOverride -}}
+    {{- .Values.namespaceOverride -}}
+{{- else -}}
+    {{- .Release.Namespace -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the App labels
+*/}}
+{{- define "app.labels.commonLabels" -}}
+{{- range $key, $value := .Values.commonLabels }}
+{{ $key }}: {{ tpl $value $ }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Get the App Service Account name
+*/}}
+{{- define "app.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default .Release.Name .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the MySQL password secret
 */}}
 {{- define "app.mysql.secretName" -}}
