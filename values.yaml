@@ -65,9 +65,7 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  files: onlyoffice/4testing-docspace-files
   people: onlyoffice/4testing-docspace-people-server
-  proxy: onlyoffice/4testing-docspace-proxy
   apiSystem: onlyoffice/4testing-docspace-api-system
   api: onlyoffice/4testing-docspace-api
   backup: onlyoffice/4testing-docspace-backup
@@ -172,8 +170,6 @@ containerPorts:
   doceditor: 5013
   backupBackgruondTasks: 5032
   login: 5011
-  proxy:
-    external: 8092
 
 startupProbe:
   enabled: false
@@ -396,54 +392,162 @@ files:
       memory: "4Gi"
       cpu: "4000m"
 
-## App Proxy deployment parameters
+## DocSpace Proxy Deployment parameters
+## This block defines the parameters common to all the Pods of this deployment
 ##
-onlyofficeProxy:
-  replicaCount: 2
+proxy:
+  ## proxy.replicaCount Number of proxy replicas to deploy
+  ## If the `proxy.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 1
+  ## Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    ## proxy.updateStrategy.type proxy deployment update strategy type
+    ## Allowed values: `RollingUpdate` or `Recreate`
+    type: RollingUpdate
+    ## proxy.updateStrategy.rollingUpdate Used only when `proxy.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      ## proxy.updateStrategy.rollingUpdate.maxUnavailable Maximum number of proxy Pods unavailable during the update process
+      maxUnavailable: 25%
+      ## proxy.updateStrategy.rollingUpdate.maxSurge Maximum number of proxy Pods created over the desired number of Pods
+      maxSurge: 25%
+  ## Pod affinity rules for proxy Pods scheduling by nodes relative to other Pods
+  ## Pod affinity allow you to constrain which nodes proxy Pods can be scheduled on based on the labels of Pods already running on that node
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ## Example:
+  ## podAffinity:
+  ##   requiredDuringSchedulingIgnoredDuringExecution:
+  ##   - labelSelector:
+  ##       matchExpressions:
+  ##       - key: app
+  ##         operator: In
+  ##         values:
+  ##         - store
+  ##     topologyKey: topology.kubernetes.io/zone
+  ##
+  podAffinity: {}
+  ## Node affinity rules for proxy Pods scheduling by nodes
+  ## Node affinity allow you to constrain which nodes proxy Pod can be scheduled on based on node labels
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## Example:
+  ## nodeAffinity:
+  ##   requiredDuringSchedulingIgnoredDuringExecution:
+  ##     nodeSelectorTerms:
+  ##     - matchExpressions:
+  ##       - key: topology.kubernetes.io/zone
+  ##         operator: In
+  ##         values:
+  ##         - zone1
+  ##         - zone2
+  ##
+  nodeAffinity: {}
+  ## proxy container image parameters
+  image:
+    ## proxy.image.repository proxy container image repository
+    repository: onlyoffice/4testing-docspace-proxy
+    ## proxy.image.tag proxy container image tag
+    ## If set to, it takes priority over the `images.tag`
+    tag: ""
+    ## proxy.image.pullPolicy proxy container image pull policy
+    pullPolicy: IfNotPresent
+  ## proxy.containerPorts.external proxy container port
+  containerPorts:
+    external: 8092
+  ## Probe used for the proxy container: startup, readiness and liveness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## The parameters below for startup probes are used only when `proxy.startupProbe.enabled=true`
+  startupProbe:
+    ## proxy.startupProbe.enabled Enable startupProbe for proxy container
+    enabled: false
+    httpGet:
+      ## proxy.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /
+      ## proxy.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 8092
+    ## proxy.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    ## proxy.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  ## The parameters below for readiness probes are used only when `proxy.readinessProbe.enabled=true`
+  readinessProbe:
+    ## proxy.readinessProbe.enabled Enable readinessProbe for proxy container
+    enabled: false
+    ## proxy.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      ## proxy.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /
+      ## proxy.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 8092
+    ## proxy.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    ## proxy.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    ## proxy.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  ## The parameters below for liveness probes are used only when `proxy.livenessProbe.enabled=true`
+  livenessProbe:
+    ## proxy.livenessProbe.enabled Enable livenessProbe for proxy container
+    enabled: false
+    ## proxy.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 5
+    httpGet:
+      ## proxy.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /
+      ## proxy.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 8092
+    ## proxy.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    ## proxy.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## proxy.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  ## proxy container resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## proxy.resources.requests The requested resources for the proxy container
+  ## proxy.resources.limits The resources limits for the proxy container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  ## Additional configuration files for Proxy
   extraConf:
     initScripts:
+      ## proxy.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
       configMap: proxy-init-scripts
+      ## proxy.extraConf.initScripts.fileName The names of scripts containing initialization scripts
+      ## The values set here are necessary for correct proxy configuration. You don't need to change it
       fileName:
         - 40-change-hosts.sh
         - 50-change-proxy-onlyoffice-conf.sh
     customInitScripts:
+      ## proxy.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
       configMap: ""
+      ## proxy.extraConf.customInitScripts.fileName The names of scripts containing custom initialization scripts
+      ## Must be the same as the `key` names in `proxy.extraConf.customInitScripts.configMap`
+      ## May contain multiple values
       fileName:
         - 60-custom-init-scripts.sh
     templates:
+      ## proxy.extraConf.templates.configMap The name of the ConfigMap containing configuration file templates containing environment variables
+      ## The values of these variables will be substituted when the container is started
       configMap: ""
+      ## proxy.extraConf.templates.fileName The names of the configuration file templates containing environment variables
+      ## Must be the same as the `key` names in `proxy.extraConf.templates.configMap`
+      ## May contain multiple values
       fileName:
         - 10.upstream.conf.template
     confd:
+      ## proxy.extraConf.confd.configMap The name of the ConfigMap containing additional custom configuration files
+      ## These files will be map in the `/etc/nginx/conf.d/` directory of the container
       configMap: ""
+      ## proxy.extraConf.confd.fileName The names of the configuration files containing custom configuration files
+      ## Must be the same as the `key` names in `proxy.extraConf.confd.configMap`
+      ## May contain multiple values
       fileName:
         - gzip.conf
-  startupProbe:
-    enabled: false
-    httpGet:
-      path: /
-      port: 8092
-    failureThreshold: 30
-    periodSeconds: 10
-  readinessProbe:
-    enabled: false
-    failureThreshold: 2
-    httpGet:
-      path: /
-      port: 8092
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-  livenessProbe:
-    enabled: false
-    failureThreshold: 5
-    httpGet:
-      path: /
-      port: 8092
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-    initialDelaySeconds: 45
 
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
