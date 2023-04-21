@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy
+  namespace: {{ include "app.namespace" . | quote }}
+  labels:
+    app: proxy
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.proxy.replicaCount }}
+  selector:
+    matchLabels:
+      app: proxy
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if .Values.proxy.updateStrategy }}
+  strategy: {{- toYaml .Values.proxy.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: proxy
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.podAntiAffinity.type "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - proxy
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+        {{- else if eq .Values.podAntiAffinity.type "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - proxy
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+        {{- end }}
+        {{- with .Values.proxy.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.proxy.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }} 
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+      - name: proxy
+        image: {{ .Values.proxy.image.repository }}:{{ default .Values.images.tag .Values.proxy.image.tag }}
+        imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.proxy.containerPorts.external }}
+          name: external
+        {{- if .Values.proxy.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.proxy.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.proxy.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.proxy.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.proxy.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.proxy.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.proxy.resources | nindent 10 }}
+        envFrom:
+        - configMapRef:
+            name: app-all
+        - configMapRef:
+            name: app-proxy
+        volumeMounts:
+        {{- if .Values.proxy.extraConf.initScripts.configMap }}
+        {{- range .Values.proxy.extraConf.initScripts.fileName }}
+        - name: init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.proxy.extraConf.customInitScripts.configMap }}
+        {{- range .Values.proxy.extraConf.customInitScripts.fileName }}
+        - name: custom-init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.proxy.extraConf.templates.configMap }}
+        {{- range .Values.proxy.extraConf.templates.fileName }}
+        - name: template-files
+          mountPath: /etc/nginx/templates/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.proxy.extraConf.confd.configMap }}
+        {{- range .Values.proxy.extraConf.confd.fileName }}
+        - name: confd-file
+          mountPath: /etc/nginx/conf.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        - name: proxy-log
+          mountPath: /var/log/nginx
+      volumes:
+      {{- if .Values.proxy.extraConf.initScripts.configMap }}
+      - name: init-scripts
+        configMap:
+          name: {{ .Values.proxy.extraConf.initScripts.configMap }}
+          defaultMode: 0755
+      {{- end }}
+      {{- if .Values.proxy.extraConf.customInitScripts.configMap }}
+      - name: custom-init-scripts
+        configMap:
+          name: {{ .Values.proxy.extraConf.customInitScripts.configMap }}
+          defaultMode: 0755
+      {{- end }}
+      {{- if .Values.proxy.extraConf.templates.configMap }}
+      - name: template-files
+        configMap:
+          name: {{ .Values.proxy.extraConf.templates.configMap }}
+      {{- end }}
+      {{- if .Values.proxy.extraConf.confd.configMap }}
+      - name: confd-file
+        configMap:
+          name: {{ .Values.proxy.extraConf.confd.configMap }}
+      {{- end }}
+      - name: proxy-log
+        persistentVolumeClaim:
+          claimName: {{ template "app.pvc.proxy.name" . }}
