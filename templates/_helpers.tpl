@@ -1,13 +1,3 @@
-Get the update strategy type for App deploymets
-*/}}
-{{- define "app.update.strategyType" -}}
-{{- if eq .Values.deploymetsUpdateStrategy.type "RollingUpdate" -}}
-    {{- toYaml .Values.deploymetsUpdateStrategy | nindent 4 -}}
-{{- else -}}
-    {{- omit .Values.deploymetsUpdateStrategy "rollingUpdate" | toYaml | nindent 4 -}}
-{{- end -}}
-{{- end -}}
-
 {{/*
 Get the App Namespace
 */}}
