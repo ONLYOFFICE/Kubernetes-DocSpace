@@ -65,7 +65,6 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  apiSystem: onlyoffice/4testing-docspace-api-system
   api: onlyoffice/4testing-docspace-api
   backup: onlyoffice/4testing-docspace-backup
   filesServices: onlyoffice/4testing-docspace-files-services
@@ -380,7 +379,7 @@ files:
       memory: "4Gi"
       cpu: "4000m"
 
-## DocSpace peopleServer Deployment parameters
+## DocSpace People Server Deployment parameters
 ## This block defines the parameters common to all the Pods of this deployment
 ##
 peopleServer:
@@ -658,16 +657,131 @@ proxy:
       fileName:
         - gzip.conf
 
+## DocSpace common statefulset parameters
+## This block defines common parameters for all statefulsets only
+##
+
+## DocSpace Api System StatefulSet parameters
+##
+apiSystem:
+  ## apiSystem.enabled Enables Api System installation
+  enabled: false
+  ## apiSystem.replicaCount Number of Api System replicas to deploy
+  replicaCount: 1
+  ## Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    ## apiSystem.updateStrategy.type Api System deployment update strategy type
+    ## Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  ## Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
+  ## Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ## Example:
+  ## podAffinity:
+  ##   preferredDuringSchedulingIgnoredDuringExecution:
+  ##   - weight: 100
+  ##     podAffinityTerm:
+  ##       labelSelector:
+  ##         matchExpressions:
+  ##         - key: app
+  ##           operator: NotIn
+  ##           values:
+  ##           - database
+  ##       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  ## Node affinity rules for Api System Pod scheduling by nodes
+  ## Node affinity allow you to constrain which nodes Api System Pod can be scheduled on based on node labels
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ## Example:
+  ## nodeAffinity:
+  ##   preferredDuringSchedulingIgnoredDuringExecution:
+  ##   - weight: 100
+  ##     preference:
+  ##       matchExpressions:
+  ##       - key: kubernetes.io/name
+  ##         operator: In
+  ##         values:
+  ##         - name1
+  ##         - name2
+  nodeAffinity: {}
+  ## Api System container image parameters
+  image:
+    ## apiSystem.image.repository Api System container image repository
+    repository: onlyoffice/4testing-docspace-api-system
+    ## apiSystem.image.tag Api System container image tag
+    ## If set to, it takes priority over the `images.tag`
+    tag: ""
+    ## apiSystem.image.pullPolicy Api System container image pull policy
+    pullPolicy: IfNotPresent
+  ## apiSystem.containerPorts.app Api System container port
+  containerPorts:
+    app: 5050
+  ## Probe used for the Api System container: startup, readiness and liveness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## The parameters below for startup probes are used only when `apiSystem.startupProbe.enabled=true`
+  startupProbe:
+    ## apiSystem.startupProbe.enabled Enable startupProbe for Api System container
+    enabled: false
+    httpGet:
+      ## apiSystem.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      ## apiSystem.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    ## apiSystem.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    ## apiSystem.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  ## The parameters below for readiness probes are used only when `Api System.readinessProbe.enabled=true`
+  readinessProbe:
+    ## apiSystem.readinessProbe.enabled Enable readinessProbe for Api System container
+    enabled: false
+    ## apiSystem.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      ## apiSystem.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      ## apiSystem.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    ## apiSystem.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    ## apiSystem.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    ## apiSystem.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  ## The parameters below for liveness probes are used only when `Api System.livenessProbe.enabled=true`
+  livenessProbe:
+    ## apiSystem.livenessProbe.enabled Enable livenessProbe for Api System container
+    enabled: false
+    ## apiSystem.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      ## apiSystem.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      ## apiSystem.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    ## apiSystem.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    ## apiSystem.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## apiSystem.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  ## Api System container resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## apiSystem.resources.requests The requested resources for the Api System container
+  ## apiSystem.resources.limits The resources limits for the Api System container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
 ##
 statefulsetUpdateStrategy:
   type: RollingUpdate
-
-## App Api System statefulset parameters
-##
-onlyofficeApiSystem:
-  enabled: true
 
 ## App Doceditor statefulset parameters
 ##
