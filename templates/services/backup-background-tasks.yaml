@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-background-tasks
+  namespace: {{ include "app.namespace" . | quote }}
+  labels:
+    app: backup-background-tasks
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.backupBackgroundTasks.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.backupBackgroundTasks.containerPorts.app }}
+  selector:
+    statefulset.kubernetes.io/pod-name: backup-background-tasks-0
+  type: ClusterIP
