@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: doceditor
+  namespace: {{ include "app.namespace" . | quote }}
+  labels:
+    app: doceditor
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.doceditor.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.doceditor.containerPorts.app }}
+  - port: {{ .Values.doceditor.containerPorts.doceditor }}
+    name: doceditor
+    targetPort: {{ .Values.doceditor.containerPorts.doceditor }}
+  selector:
+    statefulset.kubernetes.io/pod-name: doceditor-0
+  type: ClusterIP

@@ -36,26 +36,26 @@ connections:
   elkHost: "elasticsearch-master"
   elkPort: "9200"
   elkThreads: "1"
-  proxyHost: "onlyoffice-proxy"
+  proxyHost: "proxy"
   countWorkerConnections: "1024"
   nginxSnvsubstTemplateSuffix: ".template"
-  apiHost: "onlyoffice-api"
-  apiSystemHost: "onlyoffice-api-system"
+  apiHost: "api"
+  apiSystemHost: "api-system"
   notifyHost: "onlyoffice-notify"
   studioNotifyHost: "onlyoffice-studio-notify"
   socketHost: "onlyoffice-socket"
-  peopleServerHost: "onlyoffice-people-server"
+  peopleServerHost: "people-server"
   filesHost: "onlyoffice-files"
   filesServicesHost: "onlyoffice-files-services"
   studioHost: "onlyoffice-studio"
-  backupHost: "onlyoffice-backup"
+  backupHost: "backup"
   ssoauthHost: "onlyoffice-ssoauth"
   documentServerHost: "onlyoffice-document-server"
-  clearEventsHost: "onlyoffice-clear-events"
-  doceditorHost: "onlyoffice-doceditor"
-  backupBackgruondTasksHost: "onlyoffice-backup-background-tasks"
+  clearEventsHost: "clear-events"
+  doceditorHost: "doceditor"
+  backupBackgruondTasksHost: "backup-background-tasks"
   loginHost: "onlyoffice-login"
-  appUrlPortal: "http://onlyoffice-proxy:8092"
+  appUrlPortal: "http://proxy:8092"
   appCoreBaseDomain: "localhost"
   appCoreMachinekey: "your_core_machinekey"
   documentServerUrlPublic: "/ds-vpath/"
@@ -71,7 +71,6 @@ images:
   ssoauth: onlyoffice/4testing-docspace-ssoauth
   studioNotify: onlyoffice/4testing-docspace-studio-notify
   studio: onlyoffice/4testing-docspace-studio
-  doceditor: onlyoffice/4testing-docspace-doceditor
   login: onlyoffice/4testing-docspace-login
   tag: v1.0.0
   pullPolicy: IfNotPresent
@@ -161,7 +160,6 @@ containerPorts:
   app: 5050
   socket: 9899
   sso: 9834
-  doceditor: 5013
   backupBackgruondTasks: 5032
   login: 5011
 
@@ -1213,71 +1211,124 @@ clearEvents:
       memory: "2Gi"
       cpu: "2000m"
 
+# DocSpace Doceditor StatefulSet parameters
+#
+doceditor:
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Doceditor Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Doceditor Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # Doceditor container image parameters
+  image:
+    # doceditor.image.repository Doceditor container image repository
+    repository: onlyoffice/4testing-docspace-doceditor
+    # doceditor.image.tag Doceditor container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # doceditor.image.pullPolicy Doceditor container image pull policy
+    pullPolicy: IfNotPresent
+  # doceditor.containerPorts.app Doceditor container port
+  containerPorts:
+    app: 5050
+    doceditor: 5013
+  # Probe used for the Doceditor container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `doceditor.startupProbe.enabled=true`
+  startupProbe:
+    # doceditor.startupProbe.enabled Enable startupProbe for Doceditor container
+    enabled: false
+    httpGet:
+      # doceditor.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # doceditor.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5013
+    # doceditor.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # doceditor.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `doceditor.readinessProbe.enabled=true`
+  readinessProbe:
+    # doceditor.readinessProbe.enabled Enable readinessProbe for Doceditor container
+    enabled: false
+    # doceditor.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # doceditor.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # doceditor.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5013
+    # doceditor.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # doceditor.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # doceditor.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `doceditor.livenessProbe.enabled=true`
+  livenessProbe:
+    # doceditor.livenessProbe.enabled Enable livenessProbe for Doceditor container
+    enabled: false
+    # doceditor.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # doceditor.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # doceditor.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5013
+    # doceditor.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # doceditor.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## doceditor.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Doceditor container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # doceditor.resources.requests The requested resources for the Doceditor container
+  # doceditor.resources.limits The resources limits for the Doceditor container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
 ## App common statefulset parameters
 ## This block defines common parameters for all statefulsets only
 ##
 statefulsetUpdateStrategy:
   type: RollingUpdate
-
-## App Doceditor statefulset parameters
-##
-onlyofficeDoceditor:
-  startupProbe:
-    enabled: false
-    httpGet:
-      path: /liveness
-      port: 5013
-    failureThreshold: 30
-    periodSeconds: 10
-  readinessProbe:
-    enabled: false
-    failureThreshold: 2
-    httpGet:
-      path: /liveness
-      port: 5013
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-  livenessProbe:
-    enabled: false
-    failureThreshold: 5
-    httpGet:
-      path: /liveness
-      port: 5013
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-    initialDelaySeconds: 45
-
-## App Backup Backgruond Tasks statefulset parameters
-##
-onlyofficeBackupBackgruondTasks:
-  startupProbe:
-    enabled: false
-    httpGet:
-      path: /liveness
-      port: 5050
-    failureThreshold: 30
-    periodSeconds: 10
-  readinessProbe:
-    enabled: false
-    failureThreshold: 2
-    httpGet:
-      path: /liveness
-      port: 5050
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-  livenessProbe:
-    enabled: false
-    failureThreshold: 5
-    httpGet:
-      path: /liveness
-      port: 5050
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-    initialDelaySeconds: 45
 
 ## App Login statefulset parameters
 ##
