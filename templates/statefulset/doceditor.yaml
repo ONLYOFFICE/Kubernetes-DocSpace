@@ -1,22 +1,33 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-doceditor
+  name: doceditor
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
-    app: onlyoffice-doceditor
+    app: doceditor
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: onlyoffice-doceditor
-  serviceName: onlyoffice-doceditor
-  replicas: 1
-  updateStrategy:
-    type: {{ .Values.statefulsetUpdateStrategy.type }}
+      app: doceditor
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: doceditor
+  {{- if .Values.doceditor.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.doceditor.updateStrategy | nindent 4 }}
+  {{- end }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
-        app: onlyoffice-doceditor
+        app: doceditor
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -24,8 +35,20 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.doceditor.podAffinity .Values.doceditor.nodeAffinity }}
+      affinity:
+        {{- with .Values.doceditor.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.doceditor.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -39,16 +62,34 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-doceditor
-        image: {{ .Values.images.doceditor }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
+      - name: doceditor
+        image: {{ .Values.doceditor.image.repository }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
+        imagePullPolicy: {{ .Values.doceditor.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.doceditor.containerPorts.app }}
+          name: app
+        - containerPort: {{ .Values.doceditor.containerPorts.doceditor }}
+          name: doceditor
+        {{- if .Values.doceditor.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.doceditor.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.doceditor.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.doceditor.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.doceditor.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.doceditor.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.doceditor.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -87,24 +128,6 @@ spec:
             name: app-all
         - secretRef:
             name: jwt
-        ports:
-        - containerPort: {{ .Values.containerPorts.app }}
-          name: app
-        - containerPort: {{ .Values.containerPorts.doceditor }}
-          name: doceditor
-        {{- if .Values.onlyofficeDoceditor.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.onlyofficeDoceditor.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.onlyofficeDoceditor.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.onlyofficeDoceditor.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.onlyofficeDoceditor.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.onlyofficeDoceditor.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
-        {{- end }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- range .Values.extraConf.fileName }}
