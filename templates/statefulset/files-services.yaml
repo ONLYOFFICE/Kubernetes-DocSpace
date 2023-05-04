@@ -1,22 +1,33 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-files-services
+  name: files-services
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
-    app: onlyoffice-files-services
+    app: files-services
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: onlyoffice-files-services
-  serviceName: onlyoffice-files-services
-  replicas: 1
-  updateStrategy:
-    type: {{ .Values.statefulsetUpdateStrategy.type }}
+      app: files-services
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: files-services
+  {{- if .Values.filesServices.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.filesServices.updateStrategy | nindent 4 }}
+  {{- end }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
-        app: onlyoffice-files-services
+        app: files-services
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -24,8 +35,20 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.filesServices.podAffinity .Values.filesServices.nodeAffinity }}
+      affinity:
+        {{- with .Values.filesServices.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.filesServices.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -39,16 +62,32 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-files-services
-        image: {{ .Values.images.filesServices }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
+      - name: files-services
+        image: {{ .Values.filesServices.image.repository }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
+        imagePullPolicy: {{ .Values.filesServices.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.filesServices.containerPorts.app }}
+          name: app
+        {{- if .Values.filesServices.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.filesServices.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.filesServices.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.filesServices.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.filesServices.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.filesServices.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.filesServices.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -87,22 +126,6 @@ spec:
             name: app-all
         - secretRef:
             name: jwt
-        ports:
-        - containerPort: {{ .Values.containerPorts.app }}
-          name: app
-        resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
-        {{- end }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- range .Values.extraConf.fileName }}

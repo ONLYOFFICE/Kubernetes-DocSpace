@@ -46,7 +46,7 @@ connections:
   socketHost: "onlyoffice-socket"
   peopleServerHost: "people-server"
   filesHost: "onlyoffice-files"
-  filesServicesHost: "onlyoffice-files-services"
+  filesServicesHost: "files-services"
   studioHost: "onlyoffice-studio"
   backupHost: "backup"
   ssoauthHost: "onlyoffice-ssoauth"
@@ -65,7 +65,6 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  filesServices: onlyoffice/4testing-docspace-files-services
   notify: onlyoffice/4testing-docspace-notify
   socket: onlyoffice/4testing-docspace-socket
   ssoauth: onlyoffice/4testing-docspace-ssoauth
@@ -1316,6 +1315,118 @@ doceditor:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # doceditor.resources.requests The requested resources for the Doceditor container
   # doceditor.resources.limits The resources limits for the Doceditor container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# DocSpace Files Services StatefulSet parameters
+#
+filesServices:
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Files Services Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Files Services Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # Files Services container image parameters
+  image:
+    # filesServices.image.repository Files Services container image repository
+    repository: onlyoffice/4testing-docspace-files-services
+    # filesServices.image.tag Files Services container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # filesServices.image.pullPolicy Files Services container image pull policy
+    pullPolicy: IfNotPresent
+  # filesServices.containerPorts.app Files Services container port
+  containerPorts:
+    app: 5050
+  # Probe used for the Files Services container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `filesServices.startupProbe.enabled=true`
+  startupProbe:
+    # filesServices.startupProbe.enabled Enable startupProbe for Files Services container
+    enabled: false
+    httpGet:
+      # filesServices.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # filesServices.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # filesServices.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # filesServices.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `filesServices.readinessProbe.enabled=true`
+  readinessProbe:
+    # filesServices.readinessProbe.enabled Enable readinessProbe for Files Services container
+    enabled: false
+    # filesServices.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # filesServices.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # filesServices.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # filesServices.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # filesServices.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # filesServices.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `filesServices.livenessProbe.enabled=true`
+  livenessProbe:
+    # filesServices.livenessProbe.enabled Enable livenessProbe for Files Services container
+    enabled: false
+    # filesServices.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # filesServices.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # filesServices.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # filesServices.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # filesServices.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## filesServices.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Files Services container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # filesServices.resources.requests The requested resources for the Files Services container
+  # filesServices.resources.limits The resources limits for the Files Services container
   resources:
     requests:
       memory: "256Mi"
