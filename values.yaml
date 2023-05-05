@@ -65,7 +65,6 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  notify: onlyoffice/4testing-docspace-notify
   socket: onlyoffice/4testing-docspace-socket
   ssoauth: onlyoffice/4testing-docspace-ssoauth
   studioNotify: onlyoffice/4testing-docspace-studio-notify
@@ -1537,6 +1536,118 @@ login:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # login.resources.requests The requested resources for the Login container
   # login.resources.limits The resources limits for the Login container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# DocSpace Notify StatefulSet parameters
+#
+notify:
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # notify.updateStrategy.type Notify StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Notify Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Notify Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # Notify container image parameters
+  image:
+    # notify.image.repository Notify container image repository
+    repository: onlyoffice/4testing-docspace-notify
+    # notify.image.tag Notify container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # notify.image.pullPolicy Notify container image pull policy
+    pullPolicy: IfNotPresent
+  # notify.containerPorts.app Notify container port
+  containerPorts:
+    app: 5050
+  # Probe used for the Notify container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `notify.startupProbe.enabled=true`
+  startupProbe:
+    # notify.startupProbe.enabled Enable startupProbe for Notify container
+    enabled: false
+    httpGet:
+      # notify.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # notify.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # notify.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # notify.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `notify.readinessProbe.enabled=true`
+  readinessProbe:
+    # notify.readinessProbe.enabled Enable readinessProbe for Notify container
+    enabled: false
+    # notify.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # notify.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # notify.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # notify.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # notify.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # notify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `notify.livenessProbe.enabled=true`
+  livenessProbe:
+    # notify.livenessProbe.enabled Enable livenessProbe for Notify container
+    enabled: false
+    # notify.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # notify.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # notify.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # notify.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # notify.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## notify.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Notify container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # notify.resources.requests The requested resources for the Notify container
+  # notify.resources.limits The resources limits for the Notify container
   resources:
     requests:
       memory: "256Mi"
