@@ -65,7 +65,6 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  ssoauth: onlyoffice/4testing-docspace-ssoauth
   studioNotify: onlyoffice/4testing-docspace-studio-notify
   studio: onlyoffice/4testing-docspace-studio
   tag: v1.0.0
@@ -154,8 +153,6 @@ initContainers:
 
 containerPorts:
   app: 5050
-  sso: 9834
-  backupBackgruondTasks: 5032
 
 startupProbe:
   enabled: false
@@ -1759,6 +1756,119 @@ socket:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # socket.resources.requests The requested resources for the Socket container
   # socket.resources.limits The resources limits for the Socket container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# DocSpace ssoauth StatefulSet parameters
+#
+ssoauth:
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for ssoauth Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes ssoauth Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # ssoauth container image parameters
+  image:
+    # ssoauth.image.repository ssoauth container image repository
+    repository: onlyoffice/4testing-docspace-ssoauth
+    # ssoauth.image.tag ssoauth container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # ssoauth.image.pullPolicy ssoauth container image pull policy
+    pullPolicy: IfNotPresent
+  # ssoauth.containerPorts.app ssoauth container port
+  containerPorts:
+    app: 5050
+    sso: 9834
+  # Probe used for the ssoauth container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `ssoauth.startupProbe.enabled=true`
+  startupProbe:
+    # ssoauth.startupProbe.enabled Enable startupProbe for ssoauth container
+    enabled: false
+    httpGet:
+      # ssoauth.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # ssoauth.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # ssoauth.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # ssoauth.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `ssoauth.readinessProbe.enabled=true`
+  readinessProbe:
+    # ssoauth.readinessProbe.enabled Enable readinessProbe for ssoauth container
+    enabled: false
+    # ssoauth.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # ssoauth.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # ssoauth.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # ssoauth.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # ssoauth.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # ssoauth.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `ssoauth.livenessProbe.enabled=true`
+  livenessProbe:
+    # ssoauth.livenessProbe.enabled Enable livenessProbe for ssoauth container
+    enabled: false
+    # ssoauth.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # ssoauth.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # ssoauth.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # ssoauth.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # ssoauth.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## ssoauth.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # ssoauth container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # ssoauth.resources.requests The requested resources for the ssoauth container
+  # ssoauth.resources.limits The resources limits for the ssoauth container
   resources:
     requests:
       memory: "256Mi"

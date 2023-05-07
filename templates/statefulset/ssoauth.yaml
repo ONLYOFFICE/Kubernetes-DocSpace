@@ -1,22 +1,33 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-ssoauth
+  name: ssoauth
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
-    app: onlyoffice-ssoauth
+    app: ssoauth
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: onlyoffice-ssoauth
-  serviceName: onlyoffice-ssoauth
-  replicas: 1
-  updateStrategy:
-    type: {{ .Values.statefulsetUpdateStrategy.type }}
+      app: ssoauth
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: ssoauth
+  {{- if .Values.ssoauth.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.ssoauth.updateStrategy | nindent 4 }}
+  {{- end }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
-        app: onlyoffice-ssoauth
+        app: ssoauth
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -24,8 +35,20 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.ssoauth.podAffinity .Values.ssoauth.nodeAffinity }}
+      affinity:
+        {{- with .Values.ssoauth.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.ssoauth.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -39,16 +62,34 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-ssoauth
-        image: {{ .Values.images.ssoauth }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
+      - name: ssoauth
+        image: {{ .Values.ssoauth.image.repository }}:{{ default .Values.images.tag .Values.ssoauth.image.tag }}
+        imagePullPolicy: {{ .Values.ssoauth.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ssoauth.containerPorts.app }}
+          name: app
+        - containerPort: {{ .Values.ssoauth.containerPorts.sso }}
+          name: sso
+        {{- if .Values.ssoauth.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.ssoauth.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.ssoauth.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.ssoauth.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.ssoauth.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.ssoauth.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.ssoauth.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -87,24 +128,6 @@ spec:
             name: app-all
         - secretRef:
             name: jwt
-        ports:
-        - containerPort: {{ .Values.containerPorts.app }}
-          name: app
-        - containerPort: {{ .Values.containerPorts.sso }}
-          name: sso
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
-        {{- end }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- range .Values.extraConf.fileName }}
