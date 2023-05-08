@@ -65,7 +65,6 @@ images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  studioNotify: onlyoffice/4testing-docspace-studio-notify
   tag: v1.0.0
   pullPolicy: IfNotPresent
 
@@ -1980,6 +1979,118 @@ studio:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # studio.resources.requests The requested resources for the Studio container
   # studio.resources.limits The resources limits for the Studio container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# DocSpace Studio Notify StatefulSet parameters
+#
+studioNotify:
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Studio Notify Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Studio Notify Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # Studio Notify container image parameters
+  image:
+    # studioNotify.image.repository Studio Notify container image repository
+    repository: onlyoffice/4testing-docspace-studio-notify
+    # studioNotify.image.tag Studio Notify container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # studioNotify.image.pullPolicy Studio Notify container image pull policy
+    pullPolicy: IfNotPresent
+  # studioNotify.containerPorts.app Studio Notify container port
+  containerPorts:
+    app: 5050
+  # Probe used for the Studio Notify container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `studioNotify.startupProbe.enabled=true`
+  startupProbe:
+    # studioNotify.startupProbe.enabled Enable Startup Probe for studioNotify container
+    enabled: false
+    httpGet:
+      # studioNotify.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # studioNotify.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # studioNotify.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # studioNotify.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `studioNotify.readinessProbe.enabled=true`
+  readinessProbe:
+    # studioNotify.readinessProbe.enabled Enable readinessProbe for Studio Notify container
+    enabled: false
+    # studioNotify.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # studioNotify.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # studioNotify.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # studioNotify.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # studioNotify.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # studioNotify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `studioNotify.livenessProbe.enabled=true`
+  livenessProbe:
+    # studioNotify.livenessProbe.enabled Enable livenessProbe for Studio Notify container
+    enabled: false
+    # studioNotify.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # studioNotify.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # studioNotify.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # studioNotify.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # studioNotify.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## studioNotify.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Studio Notify container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # studioNotify.resources.requests The requested resources for the Studio Notify container
+  # studioNotify.resources.limits The resources limits for the Studio Notify container
   resources:
     requests:
       memory: "256Mi"
