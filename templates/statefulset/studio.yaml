@@ -1,22 +1,33 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: onlyoffice-studio
+  name: studio
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
-    app: onlyoffice-studio
+    app: studio
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: onlyoffice-studio
-  serviceName: onlyoffice-studio
-  replicas: 1
-  updateStrategy:
-    type: {{ .Values.statefulsetUpdateStrategy.type }}
+      app: studio
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: studio
+  {{- if .Values.studio.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.studio.updateStrategy | nindent 4 }}
+  {{- end }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
-        app: onlyoffice-studio
+        app: studio
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -24,8 +35,20 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.studio.podAffinity .Values.studio.nodeAffinity }}
+      affinity:
+        {{- with .Values.studio.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.studio.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -39,16 +62,32 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.images.initContainer.waitStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
       containers:
-      - name: onlyoffice-studio
-        image: {{ .Values.images.studio }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
+      - name: studio
+        image: {{ .Values.studio.image.repository }}:{{ default .Values.images.tag .Values.studio.image.tag }}
+        imagePullPolicy: {{ .Values.studio.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.studio.containerPorts.app }}
+          name: app
+        {{- if .Values.studio.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.studio.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.studio.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.studio.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.studio.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.studio.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.studio.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -87,22 +126,6 @@ spec:
             name: app-all
         - secretRef:
             name: jwt
-        ports:
-        - containerPort: {{ .Values.containerPorts.app }}
-          name: app
-        resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.startupProbe "enabled" | toYaml | nindent 10 }}
-        {{- end }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
-        {{- end }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- range .Values.extraConf.fileName }}
