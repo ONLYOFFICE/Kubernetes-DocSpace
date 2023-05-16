@@ -77,7 +77,7 @@ data:
 
     location / {
 
-            proxy_pass http://onlyoffice-proxy:8092;
+            proxy_pass http://proxy:8092;
         }
     }
 {{- end }}

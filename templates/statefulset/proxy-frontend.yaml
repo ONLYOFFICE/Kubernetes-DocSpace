@@ -3,21 +3,32 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: proxy-frontend
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
     app: proxy-frontend
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: proxy-frontend
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
   serviceName: {{ template "app.svc.proxyFrontend.name" . }}
-  replicas: 1
-  updateStrategy:
-    type: {{ .Values.statefulsetUpdateStrategy.type }}
+  {{- if .Values.proxyFrontend.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.proxyFrontend.updateStrategy | nindent 4 }}
+  {{- end }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
         app: proxy-frontend
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
@@ -25,8 +36,20 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      {{- if .Values.proxyFrontend.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.proxyFrontend.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.proxyFrontend.podAffinity .Values.proxyFrontend.nodeAffinity }}
+      affinity:
+        {{- with .Values.proxyFrontend.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.proxyFrontend.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -42,6 +65,9 @@ spec:
       - name: proxy-frontend
         image: {{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
         imagePullPolicy: {{ .Values.proxyFrontend.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.proxyFrontend.containerPorts.http }}
           name: http
@@ -56,15 +82,21 @@ spec:
         {{- if .Values.proxyFrontend.livenessProbe.enabled }}
         livenessProbe: {{- omit .Values.proxyFrontend.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
-        {{- end }}
+        resources: {{- toYaml .Values.proxyFrontend.resources | nindent 10 }}
         volumeMounts:
-        {{- if .Values.proxyFrontend.extraConf.configMap }}
-        - name: custom-file
-          mountPath: /etc/nginx/conf.d/{{ .Values.proxyFrontend.extraConf.filename }}
-          subPath: {{ .Values.proxyFrontend.extraConf.filename }}
+        {{- if .Values.proxyFrontend.extraConf.confd.configMap }}
+        {{- range .Values.proxyFrontend.extraConf.confd.fileName }}
+        - name: confd-file
+          mountPath: /etc/nginx/conf.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.proxyFrontend.extraConf.customConfd.configMap }}
+        {{- range .Values.proxyFrontend.extraConf.customConfd.fileName }}
+        - name: custom-confd-file
+          mountPath: /etc/nginx/conf.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
         {{- end }}
         {{- if .Values.proxyFrontend.tls.secretName }}
         - name: tls
@@ -72,10 +104,15 @@ spec:
           readOnly: true
         {{- end }}
       volumes:
-      {{- if .Values.proxyFrontend.extraConf.configMap }}
-      - name: custom-file
+      {{- if .Values.proxyFrontend.extraConf.confd.configMap }}
+      - name: confd-file
         configMap:
-          name: {{ .Values.proxyFrontend.extraConf.configMap }}
+          name: {{ .Values.proxyFrontend.extraConf.confd.configMap }}
+      {{- end }}
+      {{- if .Values.proxyFrontend.extraConf.customConfd.configMap }}
+      - name: custom-confd-file
+        configMap:
+          name: {{ .Values.proxyFrontend.extraConf.customConfd.configMap }}
       {{- end }}
       {{- if .Values.proxyFrontend.tls.secretName }}
       - name: tls
