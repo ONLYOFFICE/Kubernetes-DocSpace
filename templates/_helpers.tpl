@@ -169,7 +169,7 @@ Get the service name for App Proxy
 {{- if .Values.service.proxy.existing -}}
     {{- printf "%s" (tpl .Values.service.proxy.existing $) -}}
 {{- else -}}
-    {{- printf "onlyoffice-proxy" -}}
+    {{- printf "proxy" -}}
 {{- end -}}
 {{- end -}}
 
@@ -177,7 +177,7 @@ Get the service name for App Proxy
 Return true if a service object should be created for App Proxy Frontend
 */}}
 {{- define "app.svc.proxyFrontend.create" -}}
-{{- if empty .Values.service.proxyFrontend.existing }}
+{{- if empty .Values.proxyFrontend.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
@@ -186,8 +186,8 @@ Return true if a service object should be created for App Proxy Frontend
 Get the service name for App Proxy Frontend
 */}}
 {{- define "app.svc.proxyFrontend.name" -}}
-{{- if .Values.service.proxyFrontend.existing -}}
-    {{- printf "%s" (tpl .Values.service.proxyFrontend.existing $) -}}
+{{- if .Values.proxyFrontend.service.existing -}}
+    {{- printf "%s" (tpl .Values.proxyFrontend.service.existing $) -}}
 {{- else -}}
     {{- printf "proxy-frontend" -}}
 {{- end -}}

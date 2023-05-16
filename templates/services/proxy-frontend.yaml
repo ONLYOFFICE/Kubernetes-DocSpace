@@ -3,11 +3,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: proxy-frontend
+  namespace: {{ include "app.namespace" . | quote }}
   labels:
     app: proxy-frontend
-  {{- if .Values.service.proxyFrontend.annotations }}
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.proxyFrontend.service.annotations }}
   annotations:
-    {{- range $key, $value := .Values.service.proxyFrontend.annotations }}
+    {{- range $key, $value := .Values.proxyFrontend.service.annotations }}
     {{ $key }}: {{ tpl $value $ }}
     {{- end }}
   {{- end }}
@@ -21,5 +25,5 @@ spec:
     targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
   selector:
     statefulset.kubernetes.io/pod-name: proxy-frontend-0
-  type: {{ .Values.service.proxyFrontend.type }}
+  type: {{ .Values.proxyFrontend.service.type }}
 {{- end }}
