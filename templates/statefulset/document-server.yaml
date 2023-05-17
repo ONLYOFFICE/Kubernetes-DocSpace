@@ -1,0 +1,116 @@
+{{- if .Values.docs.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: document-server
+  namespace: {{ include "app.namespace" . | quote }}
+  labels:
+    app: document-server
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: document-server
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: document-server
+  {{- if .Values.docs.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.docs.updateStrategy | nindent 4 }}
+  {{- end }}
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: document-server
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      {{- if .Values.docs.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.docs.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.docs.podAffinity .Values.docs.nodeAffinity }}
+      affinity:
+        {{- with .Values.docs.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.docs.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+      - name: document-server
+        image: {{ .Values.docs.image.repository }}:{{ .Values.docs.image.tag }}
+        imagePullPolicy: {{ .Values.docs.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.docs.containerPorts.http }}
+          name: http
+        - containerPort: {{ .Values.docs.containerPorts.https }}
+          name: https
+        - containerPort: {{ .Values.docs.containerPorts.docservice }}
+          name: docservice
+        {{- if .Values.docs.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.docs.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.docs.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.docs.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.docs.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.docs.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.docs.resources | nindent 10 }}
+        env:
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: jwt
+              key: JWT_HEADER
+        envFrom:
+        - configMapRef:
+            name: app-all
+        - secretRef:
+            name: jwt
+        volumeMounts:
+        - name: app-data
+          mountPath: /app/onlyoffice/data
+      volumes:
+      - name: app-data
+        persistentVolumeClaim:
+          claimName: {{ template "app.pvc.data.name" . }}
+{{- end }}
