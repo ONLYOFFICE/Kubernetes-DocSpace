@@ -42,15 +42,15 @@ connections:
   apiHost: "api"
   apiSystemHost: "api-system"
   notifyHost: "notify"
-  studioNotifyHost: "onlyoffice-studio-notify"
+  studioNotifyHost: "studio-notify"
   socketHost: "socket"
   peopleServerHost: "people-server"
-  filesHost: "onlyoffice-files"
+  filesHost: "files"
   filesServicesHost: "files-services"
-  studioHost: "onlyoffice-studio"
+  studioHost: "studio"
   backupHost: "backup"
-  ssoauthHost: "onlyoffice-ssoauth"
-  documentServerHost: "onlyoffice-document-server"
+  ssoauthHost: "ssoauth"
+  documentServerHost: "document-server"
   clearEventsHost: "clear-events"
   doceditorHost: "doceditor"
   backupBackgruondTasksHost: "backup-background-tasks"
@@ -59,7 +59,7 @@ connections:
   appCoreBaseDomain: "localhost"
   appCoreMachinekey: "your_core_machinekey"
   documentServerUrlPublic: "/ds-vpath/"
-  documentServerUrlInternal: "http://onlyoffice-document-server/"
+  documentServerUrlInternal: "http://document-server/"
 
 images:
   initContainer:
@@ -1244,7 +1244,7 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
-  # doceditor.containerPorts.app Doceditor container port
+  # doceditor.containerPorts Doceditor container ports
   containerPorts:
     app: 5050
     doceditor: 5013
@@ -1806,7 +1806,7 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
-  # ssoauth.containerPorts.app ssoauth container port
+  # ssoauth.containerPorts ssoauth container ports
   containerPorts:
     app: 5050
     sso: 9834
@@ -2144,7 +2144,7 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
-  # proxyFrontend.containerPorts.http Proxy Frontend container port
+  # proxyFrontend.containerPorts Proxy Frontend container ports
   containerPorts:
     http: 80
     https: 443
@@ -2251,11 +2251,129 @@ proxyFrontend:
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
 
-## App common statefulset parameters
-## This block defines common parameters for all statefulsets only
-##
-statefulsetUpdateStrategy:
-  type: RollingUpdate
+# DocSpace Document Server StatefulSet parameters
+#
+docs:
+  # docs.enabled Enables local installation of Document Server in k8s cluster
+  enabled: false
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # docs.updateStrategy.type Document Server StatefulSet update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # Document Server Pod Security Context parameters
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  podSecurityContext:
+    # .docs.podSecurityContext.enabled Enable security context for the Document Server Pod
+    enabled: false
+    # docs.podSecurityContext.runAsUser User ID for the Document Server pods
+    runAsUser: 101
+    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pods
+    runAsGroup: 101
+  # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Document Server Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # docs container image parameters
+  image:
+    # docs.image.repository Document Server container image repository
+    repository: onlyoffice/documentserver
+    # docs.image.tag Document Server container image tag
+    tag: 7.3.3
+    # docs.image.pullPolicy Document Server container image pull policy
+    pullPolicy: IfNotPresent
+  # docs.containerPorts Document Server container ports
+  containerPorts:
+    http: 80
+    https: 443
+    docservice: 8000
+  # Probe used for the Document Server container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `docs.startupProbe.enabled=true`
+  startupProbe:
+    # docs.startupProbe.enabled Enable startupProbe for Document Server container
+    enabled: false
+    httpGet:
+      # docs.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /index.html
+      # docs.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 80
+    # docs.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # docs.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `docs.readinessProbe.enabled=true`
+  readinessProbe:
+    # docs.readinessProbe.enabled Enable readinessProbe for Document Server container
+    enabled: false
+    # docs.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # docs.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /index.html
+      # docs.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 80
+    # docs.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # docs.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # docs.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `docs.livenessProbe.enabled=true`
+  livenessProbe:
+    # docs.livenessProbe.enabled Enable livenessProbe for Document Server container
+    enabled: false
+    # docs.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # docs.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /index.html
+      # docs.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 80
+    # docs.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # docs.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    ## docs.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Document Server container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # docs.resources.requests The requested resources for the Document Server container
+  # docs.resources.limits The resources limits for the Document Server container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
 
 ## App ingress parameters
 ## This block defines parameters for the Nginx ingress only
@@ -2299,49 +2417,3 @@ upgrade:
           repository: mysql
           tag: latest
           pullPolicy: IfNotPresent
-
-## Document server parameters
-## This block defines parameters for the document server StatefulSet only
-##
-docs:
-  enabled: true
-  image:
-    repository: onlyoffice/documentserver
-    tag: 7.3.2
-    pullPolicy: IfNotPresent
-  podSecurityContext:
-    enabled: false
-    runAsUser: 101
-    runAsGroup: 101
-  containerPorts:
-    http: 80
-    https: 443
-    spch: 8080
-    docs: 8000
-    proxy: 8888
-  startupProbe:
-    enabled: false
-    httpGet:
-      path: /index.html
-      port: 8888
-    failureThreshold: 30
-    periodSeconds: 10
-  readinessProbe:
-    enabled: false
-    failureThreshold: 2
-    httpGet:
-      path: /index.html
-      port: 8888
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-  livenessProbe:
-    enabled: false
-    failureThreshold: 5
-    httpGet:
-      path: /index.html
-      port: 8888
-    periodSeconds: 10
-    successThreshold: 1
-    timeoutSeconds: 3
-    initialDelaySeconds: 45
