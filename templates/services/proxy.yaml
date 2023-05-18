@@ -8,18 +8,18 @@ metadata:
   labels:
     {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
-  {{- if .Values.service.proxy.annotations }}
+  {{- if .Values.proxy.service.annotations }}
   annotations:
-    {{- range $key, $value := .Values.service.proxy.annotations }}
+    {{- range $key, $value := .Values.proxy.service.annotations }}
     {{ $key }}: {{ tpl $value $ }}
     {{- end }}
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.service.proxy.port.external }}
+  - port: {{ .Values.proxy.service.port.external }}
     name: external
     targetPort: {{ .Values.proxy.containerPorts.external }}
   selector:
     app: proxy
-  type: {{ .Values.service.proxy.type }}
+  type: {{ .Values.proxy.service.type }}
 {{- end }}

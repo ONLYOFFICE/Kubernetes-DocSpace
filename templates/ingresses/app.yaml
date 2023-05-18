@@ -30,5 +30,5 @@ spec:
           service:
             name: {{ template "app.svc.proxy.name" . }}
             port:
-              number: {{ .Values.service.proxy.port.external }}
+              number: {{ .Values.proxy.service.port.external }}
 {{- end }}

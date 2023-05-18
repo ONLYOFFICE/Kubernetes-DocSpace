@@ -204,10 +204,10 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 This type of exposure has the least overheads of performance, it creates a loadbalancer to get access to DocSpace.
 Use this type of exposure if you use external TLS termination, and don't have another WEB application in the k8s cluster.
 
-To expose DocSpace via service, set the `service.proxy.type` parameter to `LoadBalancer`:
+To expose DocSpace via service, set the `proxy.service.type` parameter to `LoadBalancer`:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set service.proxy.type=LoadBalancer,service.proxy.port.external=8092
+$ helm install [RELEASE_NAME] ./ --set proxy.service.type=LoadBalancer,proxy.service.port.external=8092
 
 ```
 
