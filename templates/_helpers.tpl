@@ -154,10 +154,25 @@ Get the Broker URI
 {{- end -}}
 
 {{/*
+Get the App Url Portal
+*/}}
+{{- define "app.url.portal" -}}
+{{- if empty .Values.connections.appUrlPortal -}}
+    {{- printf "" -}}
+{{- else if .Values.proxy.service.existing -}}
+    {{- printf "http://%s:%s" (tpl .Values.proxy.service.existing $) (toString .Values.proxy.service.port.external) -}}
+{{- else if empty .Values.proxy.service.existing -}}
+    {{- printf "http://proxy:%s" (toString .Values.proxy.service.port.external) -}}
+{{- else -}}
+    {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for App Proxy
 */}}
 {{- define "app.svc.proxy.create" -}}
-{{- if empty .Values.service.proxy.existing }}
+{{- if empty .Values.proxy.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
@@ -166,8 +181,8 @@ Return true if a service object should be created for App Proxy
 Get the service name for App Proxy
 */}}
 {{- define "app.svc.proxy.name" -}}
-{{- if .Values.service.proxy.existing -}}
-    {{- printf "%s" (tpl .Values.service.proxy.existing $) -}}
+{{- if .Values.proxy.service.existing -}}
+    {{- printf "%s" (tpl .Values.proxy.service.existing $) -}}
 {{- else -}}
     {{- printf "proxy" -}}
 {{- end -}}

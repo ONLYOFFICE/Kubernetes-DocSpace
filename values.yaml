@@ -36,7 +36,6 @@ connections:
   elkHost: "elasticsearch-master"
   elkPort: "9200"
   elkThreads: "1"
-  proxyHost: "proxy"
   countWorkerConnections: "1024"
   nginxSnvsubstTemplateSuffix: ".template"
   apiHost: "api"
@@ -188,16 +187,6 @@ resources:
   limits:
     memory: "1Gi"
     cpu: "1000m"
-
-## App service parameters
-##
-service:
-  proxy:
-    existing: ""
-    annotations: {}
-    port:
-      external: 8092
-    type: ClusterIP
 
 ## App persistence parameters
 ##
@@ -629,6 +618,18 @@ proxy:
       # May contain multiple values
       fileName:
         - example.conf
+  # Proxy service parameters
+  service:
+    # proxy.service.existing The name of an existing service for Proxy. If not set, a service named `proxy` will be created
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/proxy.yaml
+    existing: ""
+    # proxy.service.annotations Map of annotations to add to the Proxy service
+    annotations: {}
+    port:
+      # proxy.service.port.external Proxy service port
+      external: 8092
+    # proxy.service.type Proxy service type
+    type: ClusterIP
 
 # DocSpace common statefulset parameters
 # This block defines common parameters for all statefulsets only

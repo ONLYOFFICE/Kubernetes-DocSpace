@@ -16,7 +16,7 @@ data:
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
   ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
-  PROXY_HOST: {{ .Values.connections.proxyHost }}
+  PROXY_HOST: {{ template "app.svc.proxy.name" . }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
@@ -24,7 +24,7 @@ data:
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
-  APP_URL_PORTAL: {{ .Values.connections.appUrlPortal | quote }}
+  APP_URL_PORTAL: {{ include "app.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
   APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey | quote }}
   DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
