@@ -2372,16 +2372,23 @@ docs:
       cpu: "2000m"
 
 ## App ingress parameters
-## This block defines parameters for the Nginx ingress only
+## NGINX Ingress Controller must be installed
+## ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-the-kubernetes-nginx-ingress-controller
 ##
 ingress:
+  ## ingress.enabled Enable the creation of an ingress for the DocSpace
   enabled: false
+  ## ingress.annotations Map of annotations to add to the Ingress
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
   tls:
+    ## ingress.tls.enabled Enable TLS for the DocSpace
     enabled: false
+    ## ingress.tls.secretName Secret name for TLS to mount into the Ingress
+    ## Used only when `ingress.tls.enabled=true`
     secretName: tls
+  ## ingress.host Ingress hostname for the DocSpace
   host: ""
 
 ## App jobs parameters
