@@ -12,6 +12,7 @@ spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
+  volumeMode: Filesystem
   resources:
     requests:
       storage: {{ .Values.persistence.proxyLog.size }}

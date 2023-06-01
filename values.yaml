@@ -154,35 +154,6 @@ initContainers:
 containerPorts:
   app: 5050
 
-startupProbe:
-  enabled: false
-  httpGet:
-    path: /liveness
-    port: 5050
-  failureThreshold: 30
-  periodSeconds: 10
-
-readinessProbe:
-  enabled: false
-  failureThreshold: 2
-  httpGet:
-    path: /liveness
-    port: 5050
-  periodSeconds: 10
-  successThreshold: 1
-  timeoutSeconds: 3
-
-livenessProbe:
-  enabled: false
-  failureThreshold: 2
-  httpGet:
-    path: /liveness
-    port: 5050
-  periodSeconds: 10
-  successThreshold: 1
-  timeoutSeconds: 5
-  initialDelaySeconds: 45
-
 resources:
   requests:
     memory: "256Mi"
@@ -194,18 +165,31 @@ resources:
 ## App persistence parameters
 ##
 persistence:
+  ## persistence.storageClass PVC Storage Class for DocSpace data volume
   storageClass: "nfs"
   appData:
+    ## persistence.appData.existingClaim The name of the existing PVC for storing files common to all services
+    ## If not specified, a PVC named "app-data" will be created
     existingClaim: ""
+    ## persistence.appData.size PVC Storage Request for common files volume
     size: 1Gi
   filesData:
+    ## persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
+    ## If not specified, a PVC named "files-data" will be created
     existingClaim: ""
+    ## persistence.filesData.size PVC Storage Request for Files volume
     size: 1Gi
   peopleData:
+    ## persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
+    ## If not specified, a PVC named "people-data" will be created
     existingClaim: ""
+    ## persistence.peopleData.size PVC Storage Request for People Server volume
     size: 1Gi
   proxyLog:
+    ## persistence.proxyLog.existingClaim The name of the existing PVC for storing Nginx logs of the Proxy service
+    ## If not specified, a PVC named "proxy-log" will be created
     existingClaim: ""
+    ## persistence.proxyLog.size PVC Storage Request for Nginx logs volume
     size: 1Gi
 
 ## App JWT parameters
