@@ -7,23 +7,23 @@
 connections:
   envExtension: "none"
   mysqlDatabaseMigration: "false"
-  mysqlHost: "mysql"
-  mysqlDatabase: "onlyoffice"
-  superuser: "root"
+  mysqlHost: mysql
+  mysqlDatabase: onlyoffice
+  superuser: root
   mysqlRootPassword: ""
-  mysqlUser: "onlyoffice_user"
+  mysqlUser: onlyoffice_user
   mysqlPassword: ""
-  mysqlExistingSecret: "mysql"
-  mysqlSecretKeyRootPassword: "mysql-root-password"
-  mysqlSecretKeyPassword: "mysql-password"
-  redisHost: "redis-master"
+  mysqlExistingSecret: mysql
+  mysqlSecretKeyRootPassword: mysql-root-password
+  mysqlSecretKeyPassword: mysql-password
+  redisHost: redis-master
   redisPort: "6379"
   redisUser: default
   redisExistingSecret: redis
   redisSecretKeyName: redis-password
   redisPassword: ""
   redisNoPass: false
-  brokerHost: "rabbitmq"
+  brokerHost: rabbitmq
   brokerPort: "5672"
   brokerVhost: "/"
   brokerUser: guest
@@ -32,39 +32,42 @@ connections:
   brokerExistingSecret: rabbitmq
   brokerSecretKeyName: rabbitmq-password
   brokerPassword: ""
-  elkSheme: "http"
-  elkHost: "elasticsearch-master"
+  elkSheme: http
+  elkHost: elasticsearch-master
   elkPort: "9200"
   elkThreads: "1"
-  countWorkerConnections: "1024"
-  nginxSnvsubstTemplateSuffix: ".template"
   apiHost: "api"
-  apiSystemHost: "api-system"
-  notifyHost: "notify"
-  studioNotifyHost: "studio-notify"
-  socketHost: "socket"
-  peopleServerHost: "people-server"
-  filesHost: "files"
+  apiSystemHost: api-system
+  notifyHost: notify
+  studioNotifyHost: studio-notify
+  socketHost: socket
+  peopleServerHost: people-server
+  filesHost: files
   filesServicesHost: "files-services"
-  studioHost: "studio"
-  backupHost: "backup"
-  ssoauthHost: "ssoauth"
-  documentServerHost: "document-server"
-  clearEventsHost: "clear-events"
-  doceditorHost: "doceditor"
-  backupBackgruondTasksHost: "backup-background-tasks"
-  loginHost: "login"
-  appUrlPortal: "http://proxy:8092"
-  appCoreBaseDomain: "localhost"
-  appCoreMachinekey: "your_core_machinekey"
+  studioHost: studio
+  backupHost: backup
+  ssoauthHost: ssoauth
+  clearEventsHost: clear-events
+  doceditorHost: doceditor
+  backupBackgruondTasksHost: backup-background-tasks
+  loginHost: login
+  healthchecksHost: healthchecks
+  documentServerHost: document-server
   documentServerUrlPublic: "/ds-vpath/"
   documentServerUrlInternal: "http://document-server/"
+  appUrlPortal: "http://proxy:8092"
+  appCoreBaseDomain: localhost
+  appCoreMachinekey: "your_core_machinekey"
+  countWorkerConnections: "1024"
+  nginxSnvsubstTemplateSuffix: ".template"
+  appKnownProxies: ""
+  appKnownNetworks: ""
 
 images:
   initContainer:
     initStorage: onlyoffice/4testing-docspace-bin-share
     waitStorage: onlyoffice/4testing-docspace-wait-bin-share
-  tag: v1.0.0
+  tag: v1.1.0
   pullPolicy: IfNotPresent
 
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
@@ -630,6 +633,14 @@ proxy:
       external: 8092
     # proxy.service.type Proxy service type
     type: ClusterIP
+
+# DocSpace Healthchecks Deployment parameters
+# This block defines the parameters common to all the Pods of this deployment
+#
+healthchecks:
+  # proxy.containerPorts.external proxy container port
+  containerPorts:
+    healthcheck: 5050
 
 # DocSpace common statefulset parameters
 # This block defines common parameters for all statefulsets only

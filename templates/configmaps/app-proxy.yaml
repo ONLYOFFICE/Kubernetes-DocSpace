@@ -26,3 +26,4 @@ data:
   SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
   SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
   DOCUMENT_SERVER: {{ .Values.connections.documentServerHost }}
+  SERVICE_HELTHCHECKS: {{ .Values.connections.healthchecksHost }}:{{ .Values.healthchecks.containerPorts.healthcheck }}
