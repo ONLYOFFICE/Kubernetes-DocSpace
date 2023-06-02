@@ -36,14 +36,14 @@ connections:
   elkHost: elasticsearch-master
   elkPort: "9200"
   elkThreads: "1"
-  apiHost: "api"
+  apiHost: api
   apiSystemHost: api-system
   notifyHost: notify
   studioNotifyHost: studio-notify
   socketHost: socket
   peopleServerHost: people-server
   filesHost: files
-  filesServicesHost: "files-services"
+  filesServicesHost: files-services
   studioHost: studio
   backupHost: backup
   ssoauthHost: ssoauth
@@ -127,6 +127,16 @@ tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
+## JSON Web Token parameters
+jwt:
+  ## jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
+  enabled: true
+  ## jwt.secret Defines the secret key to validate the JSON Web Token in the request to the DocSpace
+  secret: "jwt_secret"
+  ## jwt.header Defines the http header that will be used to send the JSON Web Token
+  header: "AuthorizationJwt"
+  ## jwt.inBody Specifies the enabling the token validation in the request body to the DocSpace
+  inBody: false
 # DocSpace Init Containers parameters
 initContainers:
   # Parameters of the Wait Storage initContainers
@@ -191,14 +201,6 @@ persistence:
     existingClaim: ""
     ## persistence.proxyLog.size PVC Storage Request for Nginx logs volume
     size: 1Gi
-
-## App JWT parameters
-##
-jwt:
-  enabled: true
-  secret: "jwt_secret"
-  header: "AuthorizationJwt"
-  inBody: false
 
 extraConf:
   secretName: ""
