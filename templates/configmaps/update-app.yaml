@@ -24,5 +24,5 @@ data:
     fi
     rm -rf /var/www/products/ASC.Files/server/*
     rm -rf /var/www/products/ASC.People/server/*
-    echo "mysql -h mysql -u root -p$MYSQL_PASSWORD onlyoffice < /sql/changedb.sql"
+    # mysql -h mysql -u root -p$MYSQL_PASSWORD onlyoffice < /sql/changedb.sql
     echo work done

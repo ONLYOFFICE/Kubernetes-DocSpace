@@ -3,6 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: pre-install
+  namespace: {{ include "app.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "4"
@@ -11,8 +16,20 @@ spec:
   backoffLimit: 2
   template:
     spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
+      affinity:
+        {{- with .Values.install.job.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.install.job.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
@@ -26,10 +43,10 @@ spec:
       {{- end }}
       {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       initContainers:
-      - name:  migration-runner
-        image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ .Values.install.job.initContainers.migrationRunner.image.tag }}
+      - name: migration-runner
+        image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
@@ -47,9 +64,9 @@ spec:
       {{- end }}
       containers:
       - name: app-init-storage
-        image: {{ .Values.images.initContainer.initStorage }}:{{ .Values.images.tag }}
-        imagePullPolicy: {{ .Values.images.pullPolicy }}
-        resources: {{- toYaml .Values.resources | nindent 10 }}
+        image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.initStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
