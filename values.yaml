@@ -1,68 +1,136 @@
 # Default values for DocSpace
 
-# App common parameters
+# DocSpace common parameters
 # This block defines common parameters for all deployments and statefulsets
 #
-# Connection parameters to external services
+# Connection parameters to services
 connections:
+  # connections.envExtension Defines whether an environment will be used
   envExtension: "none"
+  # connections.mysqlDatabaseMigration Enables database migration
   mysqlDatabaseMigration: "false"
+  # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
+  # connections.mysqlDatabase Name of the Database database the application will be connected with
+  # Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml"
   mysqlDatabase: onlyoffice
+  # connections.superuser Database user with root rights
   superuser: root
+  # connections.mysqlRootPassword Database root password
+  # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlRootPassword: ""
+  # connections.mysqlUser Database user
+  # Must match the value of the `auth.username` parameter from the "sources/mysql_values.yaml"
   mysqlUser: onlyoffice_user
+  # connections.mysqlPassword Database user password
+  # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlPassword: ""
+  # connections.mysqlExistingSecret Name of existing secret to use for Database passwords
+  # Must match the value of the `auth.existingSecret` parameter from the "sources/mysql_values.yaml"
+  # Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword`
   mysqlExistingSecret: mysql
+  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
+  # If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyRootPassword: mysql-root-password
+  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database user password
+  # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
+  # connections.redisHost The IP address or the name of the Redis host
   redisHost: redis-master
+  # connections.redisPort The Redis server port number
   redisPort: "6379"
+  # connections.redisUser The Redis user name
+  # ref: https://redis.io/docs/management/security/acl/
   redisUser: default
+  # connections.redisExistingSecret Name of existing secret to use for Redis password
+  # Must contain the key specified in `connections.redisSecretKeyName`
   redisExistingSecret: redis
+  # connections.redisSecretKeyName The name of the key that contains the Redis user password
+  # If you set a password in `connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here
   redisSecretKeyName: redis-password
+  # connections.redisPassword The password set for the Redis account
+  # If set to, it takes priority over the `connections.redisExistingSecret`
   redisPassword: ""
+  # connections.redisNoPass Defines whether to use a Redis auth without a password
+  # If the connection to Redis server does not require a password, set the value to `true`
   redisNoPass: false
+  # connections.brokerHost The IP address or the name of the Broker host
   brokerHost: rabbitmq
+  # connections.brokerPort The port for the connection to Broker host
   brokerPort: "5672"
+  # connections.brokerVhost The virtual host for the connection to Broker host
   brokerVhost: "/"
+  # connections.brokerUser The username for the Broker account
   brokerUser: guest
+  # connections.brokerProto The protocol for the connection to Broker host
   brokerProto: amqp
+  # connections.brokerUri A string containing the necessary connection parameters to Broker
+  # If set to, it takes priority
   brokerUri: ""
+  # connections.brokerExistingSecret The name of existing secret to use for Broker password
+  # Must contain the key specified in `connections.brokerSecretKeyName`
   brokerExistingSecret: rabbitmq
+  # connections.brokerSecretKeyName The name of the key that contains the Broker user password
+  # If you set a password in `connections.brokerPassword`, a secret will be automatically created, the key name of which will be the value set here
   brokerSecretKeyName: rabbitmq-password
+  # connections.brokerPassword Broker user password
+  # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
-  elkSheme: http
+  # connections.elkHost The IP address or the name of the Elasticsearch host
   elkHost: elasticsearch-master
-  elkPort: "9200"
-  elkThreads: "1"
+  # connections.apiHost The name of the DocSpace Api service
   apiHost: api
+  # connections.apiSystemHost The name of the DocSpace Api System service
   apiSystemHost: api-system
+  # connections.notifyHost The name of the DocSpace Notify service
   notifyHost: notify
+  # connections.studioNotifyHost The name of the DocSpace Studio Notify service
   studioNotifyHost: studio-notify
+  # connections.socketHost The name of the DocSpace Socket service
   socketHost: socket
+  # connections.peopleServerHost The name of the DocSpace People Server service
   peopleServerHost: people-server
+  # connections.filesHost The name of the DocSpace Files service
   filesHost: files
+  # connections.filesServicesHost The name of the DocSpace Files Services service
   filesServicesHost: files-services
+  # connections.studioHost The name of the DocSpace Studio service
   studioHost: studio
+  # connections.backupHost The name of the DocSpace Backup service
   backupHost: backup
+  # connections.ssoauthHost The name of the DocSpace SSO service
   ssoauthHost: ssoauth
   clearEventsHost: clear-events
+  # connections.doceditorHost The name of the DocSpace Doceditor service
   doceditorHost: doceditor
-  backupBackgruondTasksHost: backup-background-tasks
+  # connections.backupBackgroundTasksHost The name of the DocSpace Backup Background Tasks service
+  backupBackgroundTasksHost: backup-background-tasks
+  # connections.loginHost The name of the DocSpace Login service
   loginHost: login
+  # connections.healthchecksHost The name of the DocSpace Healthchecks service
   healthchecksHost: healthchecks
+  # connections.documentServerHost The name of the Document Server service
   documentServerHost: document-server
+  # connections.documentServerUrlPublic The name of the Document Server service
   documentServerUrlPublic: "/ds-vpath/"
+  # connections.documentServerUrlInternal The name of the Document Server service for internal requests
   documentServerUrlInternal: "http://document-server/"
+  # connections.appUrlPortal URL for DocSpace requests
+  # By default, the name of the routing (Proxy) service and the port on which it accepts requests are used
   appUrlPortal: "http://proxy:8092"
+  # connections.appCoreBaseDomain The base domain on which the DocSpace will be available
   appCoreBaseDomain: localhost
+  # connections.appCoreMachinekey The key used in the DocSpace
   appCoreMachinekey: "your_core_machinekey"
+  # connections.countWorkerConnections Defines the nginx config worker_connections directive for routing (Proxy) service
+  # ref: https://nginx.org/en/docs/ngx_core_module.html#worker_connections
   countWorkerConnections: "1024"
+  # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Proxy) service
   nginxSnvsubstTemplateSuffix: ".template"
+  # connections.appKnownProxies
   appKnownProxies: ""
+  # connections.appKnownNetworks List of intermediate proxy addresses
   appKnownNetworks: ""
-
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
 # If not set, the name will be taken from .Release.Namespace
 namespaceOverride: ""
@@ -134,6 +202,15 @@ jwt:
   header: "AuthorizationJwt"
   # jwt.inBody Specifies the enabling the token validation in the request body to the DocSpace
   inBody: false
+# Configs for overriding default values and additional configuration files for DocSpace
+extraConf:
+  # extraConf.secretName The name of the Secret containing the json files that override the default values and additional configuration files
+  secretName: ""
+  # extraConf.filename The name of the json files that contains custom values and name additional configuration files
+  # Must be the same as the `key` name in `extraConf.secretName`
+  # May contain multiple values
+  fileName:
+    - appsettings.test.json
 # DocSpace Init Containers parameters
 initContainers:
   # Parameters of the Wait Storage initContainers
@@ -178,7 +255,7 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
-# App persistence parameters
+# DocSpace persistence parameters
 persistence:
   # persistence.storageClass PVC Storage Class for DocSpace data volume
   storageClass: "nfs"
@@ -207,17 +284,18 @@ persistence:
     # persistence.proxyLog.size PVC Storage Request for Nginx logs volume
     size: 1Gi
 
-extraConf:
-  secretName: ""
-  fileName:
-    - appsettings.test.json
-
-# App common deployment parameters
+# DocSpace common deployment parameters
 # This block defines common parameters for all deployments only
 #
+# Pod anti-affinity parameters
+# Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
+  # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `soft` or `hard` (soft=preferred, hard=required)
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   type: "soft"
+  # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
+  # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=soft`
   weight: "100"
 
 # DocSpace Files Deployment parameters
@@ -633,10 +711,8 @@ healthchecks:
   containerPorts:
     healthcheck: 5050
 
-# DocSpace common statefulset parameters
-# This block defines common parameters for all statefulsets only
+# DocSpace statefulsets
 #
-
 # DocSpace Api System StatefulSet parameters
 #
 apiSystem:
@@ -2378,7 +2454,7 @@ docs:
       memory: "2Gi"
       cpu: "2000m"
 
-# App ingress parameters
+# DocSpace ingress parameters
 # NGINX Ingress Controller must be installed
 # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-the-kubernetes-nginx-ingress-controller
 #
@@ -2398,11 +2474,11 @@ ingress:
   # ingress.host Ingress hostname for the DocSpace
   host: ""
 
-# App jobs parameters
+# DocSpace jobs parameters
 #
 # Job by install has a pre-install hook and executes before any resources are created in Kubernetes
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
-# He creates tables, initializes the database in the `connections.mysqlDatabase` database and initializes the storage for DocSpace 
+# He creates tables, initializes the database in the `connections.mysqlDatabase` database and initializes the storage for DocSpace
 install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace

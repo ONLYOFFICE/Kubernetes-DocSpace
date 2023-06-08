@@ -214,7 +214,7 @@ $ helm install [RELEASE_NAME] ./ --set proxy.service.type=LoadBalancer,proxy.ser
 Run the following command to get the `DocSpace` service IP:
 
 ```bash
-$ kubectl get service onlyoffice-proxy -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+$ kubectl get service proxy -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
 After that, DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
@@ -222,7 +222,7 @@ After that, DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
 If the service IP is empty, try getting the `DocSpace` service hostname:
 
 ```bash
-$ kubectl get service onlyoffice-proxy -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+$ kubectl get service proxy -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
 In this case, DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
