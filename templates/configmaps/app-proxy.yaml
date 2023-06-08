@@ -23,7 +23,7 @@ data:
   SERVICE_SSOAUTH: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
   SERVICE_CLEAR_EVENTS: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
   SERVICE_DOCEDITOR: {{ .Values.connections.doceditorHost }}:{{ .Values.doceditor.containerPorts.doceditor }}
-  SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgruondTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+  SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
   SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
   DOCUMENT_SERVER: {{ .Values.connections.documentServerHost }}
   SERVICE_HELTHCHECKS: {{ .Values.connections.healthchecksHost }}:{{ .Values.healthchecks.containerPorts.healthcheck }}
