@@ -1,0 +1,23 @@
+{{- if .Values.healthchecks.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: healthchecks
+  namespace: {{ include "app.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+data:
+  API_HOST: {{ .Values.connections.apiHost }}:{{ .Values.api.containerPorts.app }}
+  API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}:{{ .Values.apiSystem.containerPorts.app }}
+  NOTIFY_HOST: {{ .Values.connections.notifyHost }}:{{ .Values.notify.containerPorts.app }}
+  STUDIO_NOTIFY_HOST: {{ .Values.connections.studioNotifyHost }}:{{ .Values.studioNotify.containerPorts.app }}
+  PEOPLE_SERVER_HOST: {{ .Values.connections.peopleServerHost }}:{{ .Values.peopleServer.containerPorts.app }}
+  FILES_HOST: {{ .Values.connections.filesHost }}:{{ .Values.files.containerPorts.app }}
+  FILES_SERVICES_HOST: {{ .Values.connections.filesServicesHost }}:{{ .Values.filesServices.containerPorts.app }}
+  STUDIO_HOST: {{ .Values.connections.studioHost }}:{{ .Values.studio.containerPorts.app }}
+  BACKUP_HOST: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
+  CLEAR_EVENTS_HOST: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
+  BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+{{- end }}

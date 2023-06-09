@@ -707,9 +707,122 @@ proxy:
 # This block defines the parameters common to all the Pods of this deployment
 #
 healthchecks:
-  # proxy.containerPorts.external proxy container port
+  # healthchecks.enabled Enables Healthchecks installation
+  enabled: true
+  # healthchecks.replicaCount Number of Healthchecks replicas to deploy
+  # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 1
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # healthchecks.updateStrategy.type Healthchecks Deployment update strategy type
+    # Allowed values: `RollingUpdate` or `Recreate`
+    type: RollingUpdate
+    # healthchecks.updateStrategy.rollingUpdate Used only when `healthchecks.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # healthchecks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Healthchecks Pods unavailable during the update process
+      maxUnavailable: 25%
+      # healthchecks.updateStrategy.rollingUpdate.maxSurge Maximum number of Healthchecks Pods created over the desired number of Pods
+      maxSurge: 25%
+  # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - store
+  #     topologyKey: topology.kubernetes.io/zone
+  podAffinity: {}
+  # Node affinity rules for Healthchecks Pods scheduling by nodes
+  # Node affinity allow you to constrain which nodes Healthchecks Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: topology.kubernetes.io/zone
+  #         operator: In
+  #         values:
+  #         - zone1
+  #         - zone2
+  nodeAffinity: {}
+  # Healthchecks container image parameters
+  image:
+    # healthchecks.image.repository Healthchecks container image repository
+    repository: onlyoffice/4testing-docspace-healthchecks
+    # healthchecks.image.tag Healthchecks container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # healthchecks.image.pullPolicy Healthchecks container image pull policy
+    pullPolicy: IfNotPresent
+  # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
+  # Probe used for the Healthchecks container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `healthchecks.startupProbe.enabled=true`
+  startupProbe:
+    # healthchecks.startupProbe.enabled Enable startupProbe for Healthchecks container
+    enabled: false
+    httpGet:
+      # healthchecks.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /liveness
+      # healthchecks.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # healthchecks.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # healthchecks.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `healthchecks.readinessProbe.enabled=true`
+  readinessProbe:
+    # healthchecks.readinessProbe.enabled Enable readinessProbe for Healthchecks container
+    enabled: false
+    # healthchecks.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # healthchecks.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /liveness
+      # healthchecks.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # healthchecks.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # healthchecks.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # healthchecks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 3
+  # The parameters below for liveness probes are used only when `healthchecks.livenessProbe.enabled=true`
+  livenessProbe:
+    # healthchecks.livenessProbe.enabled Enable livenessProbe for Healthchecks container
+    enabled: false
+    # healthchecks.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # healthchecks.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /liveness
+      # healthchecks.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # healthchecks.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # healthchecks.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # healthchecks.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Healthchecks container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # healthchecks.resources.requests The requested resources for the Healthchecks container
+  # healthchecks.resources.limits The resources limits for the Healthchecks container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
 
 # DocSpace statefulsets
 #
