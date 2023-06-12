@@ -702,6 +702,24 @@ proxy:
       external: 8092
     # proxy.service.type Proxy service type
     type: ClusterIP
+    # proxy.service.sessionAffinity Session Affinity for Proxy service
+    # If not set, `None` will be set as the default value
+    # ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity
+    sessionAffinity: ""
+    # proxy.service.sessionAffinityConfig Configuration for Proxy service Session Affinity
+    # Used if the `proxy.service.sessionAffinity` is set
+    # ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout
+    # Example:
+    # sessionAffinityConfig:
+    #   clientIP:
+    #     timeoutSeconds: 900
+    sessionAffinityConfig: {}
+    # proxy.service.externalTrafficPolicy Enable preservation of the client source IP
+    # There are two available options: `Cluster` (default) and `Local`
+    # ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    # Not supported for service type - `ClusterIP`
+    # ref: https://kubernetes.io/docs/tutorials/services/source-ip/
+    externalTrafficPolicy: ""
 
 # DocSpace Healthchecks Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
