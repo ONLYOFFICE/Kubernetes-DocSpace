@@ -22,4 +22,16 @@ spec:
   selector:
     app: proxy
   type: {{ .Values.proxy.service.type }}
+  {{- if .Values.proxy.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.proxy.service.sessionAffinity }}
+  {{- if .Values.proxy.service.sessionAffinityConfig }}
+  {{- with .Values.proxy.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.proxy.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.proxy.service.externalTrafficPolicy }}
+  {{- end }}
 {{- end }}
