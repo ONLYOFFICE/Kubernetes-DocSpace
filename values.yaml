@@ -11,7 +11,7 @@ connections:
   mysqlDatabaseMigration: "false"
   # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
-  # connections.mysqlDatabase Name of the Database database the application will be connected with
+  # connections.mysqlDatabase Name of the Database the application will be connected with
   # Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml"
   mysqlDatabase: onlyoffice
   # connections.superuser Database user with root rights
@@ -32,7 +32,7 @@ connections:
   # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
   # If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyRootPassword: mysql-root-password
-  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database user password
+  # connections.mysqlSecretKeyPassword The name of the key that contains the Database user password
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
   # connections.redisHost The IP address or the name of the Redis host
@@ -100,6 +100,7 @@ connections:
   backupHost: backup
   # connections.ssoauthHost The name of the DocSpace SSO service
   ssoauthHost: ssoauth
+  # connections.clearEventsHost The name of the DocSpace Clear Events service
   clearEventsHost: clear-events
   # connections.doceditorHost The name of the DocSpace Doceditor service
   doceditorHost: doceditor
@@ -127,7 +128,7 @@ connections:
   countWorkerConnections: "1024"
   # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Proxy) service
   nginxSnvsubstTemplateSuffix: ".template"
-  # connections.appKnownProxies
+  # connections.appKnownProxies Defines the known proxies for DocSpace services
   appKnownProxies: ""
   # connections.appKnownNetworks List of intermediate proxy addresses
   appKnownNetworks: ""
@@ -264,7 +265,7 @@ persistence:
     # If not specified, a PVC named "app-data" will be created
     existingClaim: ""
     # persistence.appData.size PVC Storage Request for common files volume
-    size: 1Gi
+    size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
     # If not specified, a PVC named "files-data" will be created
@@ -282,7 +283,7 @@ persistence:
     # If not specified, a PVC named "proxy-log" will be created
     existingClaim: ""
     # persistence.proxyLog.size PVC Storage Request for Nginx logs volume
-    size: 1Gi
+    size: 5Gi
 
 # DocSpace common deployment parameters
 # This block defines common parameters for all deployments only
