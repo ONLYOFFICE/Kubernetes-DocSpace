@@ -291,12 +291,12 @@ persistence:
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
-  # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `soft` or `hard` (soft=preferred, hard=required)
+  # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-  type: "soft"
+  type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
-  # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=soft`
+  # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
 # DocSpace Files Deployment parameters

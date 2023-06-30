@@ -64,7 +64,7 @@ $ kubectl apply -f ./sources/secrets/mysql-password.yaml
 $ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
 ```
 
-See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/mysql).
+See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
 
 ### 4. Install the Elasticsearch cluster
 
@@ -92,7 +92,7 @@ $ helm install rabbitmq bitnami/rabbitmq \
   --set metrics.enabled=false
 ```
 
-See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/rabbitmq#rabbitmq).
+See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq#rabbitmq).
 
 ### 6. Install Redis
 
@@ -105,7 +105,7 @@ $ helm install redis bitnami/redis \
   --set metrics.enabled=false
 ```
 
-See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/master/bitnami/redis).
+See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/redis).
 
 ## Deploy DocSpace
 
@@ -195,7 +195,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `none`                        |
-| `connections.mysqlDatabaseMigration                    | Enables database migration                                                                                                  | `false`                       |
+| `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
 | `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml" | `onlyoffice` |
 | `connections.superuser`                                | Database user with root rights                                                                                              | `root`                        |
@@ -203,8 +203,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.mysqlUser`                                | Database user. Must match the value of the `auth.username` parameter from the "sources/mysql_values.yaml"                   | `onlyoffice_user`             |
 | `connections.mysqlPassword`                            | Database user password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
 | `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must match the value of the `auth.existingSecret` parameter from the "sources/mysql_values.yaml". Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword` | `mysql` |
-| `connections.mysqlSecretKeyRootPassword                | The name of the key that contains the Database root password. If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-root-password` |
-| `connections.mysqlSecretKeyPassword                    | The name of the key that contains the Database user password. If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
+| `connections.mysqlSecretKeyRootPassword`               | The name of the key that contains the Database root password. If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-root-password` |
+| `connections.mysqlSecretKeyPassword`                   | The name of the key that contains the Database user password. If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
 | `connections.redisHost`                                | The IP address or the name of the Redis host                                                                                | `redis-master`                |
 | `connections.redisPort`                                | The Redis server port number                                                                                                | `6379`                        |
 | `connections.redisUser`                                | The Redis [user](https://redis.io/docs/management/security/acl/) name                                                       | `default`                     |
@@ -245,7 +245,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.appCoreBaseDomain`                        | The base domain on which the DocSpace will be available                                                                     | `localhost`                   |
 | `connections.appCoreMachinekey`                        | The key used in the DocSpace                                                                                                | `your_core_machinekey`        |
 | `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Proxy) service | `1024` |
-| `connections.nginxSnvsubstTemplateSuffix               | A suffix of template files for rendering nginx configs in routing (Proxy) service                                           | `.template`                   |
+| `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Proxy) service                                           | `.template`                   |
 | `connections.appKnownProxies`                          | Defines the known proxies for DocSpace services                                                                             | `""`                          |
 | `connections.appKnownNetworks`                         | List of intermediate proxy addresses                                                                                        | `""`                          |
 | `namespaceOverride`                                    | The name of the namespace in which DocSpace will be deployed. If not set, the name will be taken from `.Release.Namespace`  | `""`                          |
@@ -259,7 +259,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods                                                                                               | `104`                         |
 | `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods                                                                                              | `107`                         |
 | `containerSecurityContext.enabled`                     | Enable security context for containers in pods                                                                              | `false`                       |
-| `containerSecurityContext.allowPrivilegeEscalation     | Controls whether a process can gain more privileges than its parent process                                                 | `false`                       |
+| `containerSecurityContext.allowPrivilegeEscalation`    | Controls whether a process can gain more privileges than its parent process                                                 | `false`                       |
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
 | `tolerations`                                          | Tolerations for pods assignment                                                                                             | `[]`                          |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
@@ -293,6 +293,57 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                            | `1Gi`                                                                                 |
 | `persistence.proxyLog.existingClaim`                   | The name of the existing PVC for storing Nginx logs of the Proxy service. If not specified, a PVC named "proxy-log" will be created | `""`                                                                      |
 | `persistence.proxyLog.size`                            | PVC Storage Request for Nginx logs volume                                                                               | `5Gi`                                                                                 |
+
+### DocSpace common Deployments parameters
+
+| Parameter                                              | Description                                                                                                     | Default                       |
+|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------|
+| `podAntiAffinity.type`                                 | Types of Pod antiaffinity. Allowed values: `preferred` or `required`                                            | `preferred`                   |
+| `podAntiAffinity.topologyKey`                          | Node label key to match                                                                                         | `kubernetes.io/hostname`      |
+| `podAntiAffinity.weight`                               | Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred` |`100`                          |
+
+### DocSpace Deployment* parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `Deployment.replicaCount`                                | Number of "Deployment" replicas to deploy                                                                       | `1`                                       |
+| `Deployment.updateStrategy.type`                         | "Deployment" Deployment update strategy type                                                                    | `RollingUpdate`                           |
+| `Deployment.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Deployment" Pods unavailable during the update process                                       | `25%`                                     |
+| `Deployment.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Deployment" Pods created over the desired number of Pods                                     | `25%`                                     |
+| `Deployment.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Deployment" Pods scheduling by nodes relative to other Pods | `{}` |
+| `Deployment.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Deployment" Pods scheduling by nodes | `{}` |
+| `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/4testing-docspace-Deployment` |
+| `Deployment.image.tag`                                   | "Deployment" container image tag. If set to, it takes priority over the `images.tag`                            | `""`                                      |
+| `Deployment.image.pullPolicy`                            | "Deployment" container image pull policy                                                                        | `IfNotPresent`                            |
+| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `proxy` deployment                                                     | `5050`                                    |
+| `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `false`                                   |
+| `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `false`                                   |
+| `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `false`                                   |
+| `Deployment.resources.requests`                          | The requested resources for the "Deployment" container                                                          | `memory, cpu`                             |
+| `Deployment.resources.limits`                            | The resources limits for the "Deployment" container                                                             | `memory, cpu`                             |
+
+* Deployment* Note: Since all available deployments have some identical parameters, a description for each of them has not been added to the table, but combined into one.
+Instead of `Deployment`, the parameter name should have the following values: `files`, `peopleServer`, `proxy` and `healthchecks`.
+
+### DocSpace Proxy Deployment additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `proxy.containerPorts.external`                          | Proxy container port                                                                                            | `8092`               |
+| `proxy.extraConf.customInitScripts.configMap`            | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
+| `proxy.extraConf.customInitScripts.fileName`             | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `proxy.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
+| `proxy.extraConf.templates.configMap`                    | The name of the ConfigMap containing configuration file templates containing environment variables. The values of these variables will be substituted when the container is started | `""` |
+| `proxy.extraConf.templates.fileName`                     | The names of the configuration file templates containing environment variables. Must be the same as the `key` names in `proxy.extraConf.templates.configMap`. May contain multiple values | `10.example.conf.template` |
+| `proxy.extraConf.confd.configMap`                        | The name of the ConfigMap containing additional custom configuration files. These files will be map in the `/etc/nginx/conf.d/` directory of the container | `""` |
+| `proxy.extraConf.confd.fileName`                         | The names of the configuration files containing custom configuration files. Must be the same as the `key` names in `proxy.extraConf.confd.configMap`. May contain multiple values | `example.conf` |
+| `proxy.service.existing`                                 | The name of an existing service for Proxy. If not set, a service named `proxy` will be created                  | `""`                 |
+| `proxy.service.annotations`                              | Map of annotations to add to the Proxy service                                                                  | `{}`                 |
+| `proxy.service.port.external`                            | Proxy service port                                                                                              | `8092`               |
+| `proxy.service.type`                                     | Proxy service type                                                                                              | `ClusterIP`          |
+| `proxy.service.sessionAffinity`                          | [Session Affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) for Proxy service. If not set, `None` will be set as the default value | `""` |
+| `proxy.service.sessionAffinityConfig`                    | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy service Session Affinity. Used if the `proxy.service.sessionAffinity` is set | `{}` |
+| `proxy.service.externalTrafficPolicy`                    | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
+
 
 ## Configuration and installation details
 
