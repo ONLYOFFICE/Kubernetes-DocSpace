@@ -2524,10 +2524,12 @@ docs:
     tag: 7.4.0
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
-  # docs.containerPorts Document Server container ports
   containerPorts:
+    # docs.containerPorts.http Document Server HTTP container port
     http: 80
+    # docs.containerPorts.https Document Server HTTPS container port
     https: 443
+    # docs.containerPorts.docservice Document Server docservice container port
     docservice: 8000
   # Probe used for the Document Server container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/

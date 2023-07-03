@@ -432,6 +432,16 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `docs.containerPorts.https`                              | Document Server HTTPS container port                                                                            | `443`                 |
 | `docs.containerPorts.docservice`                         | Document Server docservice container port                                                                       | `8000`                |
 
+### DocSpace Ingress parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                                                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `ingress.enabled`                                        | Enable the creation of an ingress for the DocSpace                                                              | `false`                                                                                   |
+| `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `kubernetes.io/ingress.class: nginx`, `nginx.ingress.kubernetes.io/proxy-body-size: 100m` |
+| `ingress.tls.enabled`                                    | Enable TLS for the DocSpace                                                                                     | `false`                                                                                   |
+| `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
+| `ingress.host`                                           | Ingress hostname for the DocSpace                                                                               | `""`                                                                                      |
+
 ## Configuration and installation details
 
 ### 1. Expose DocSpace
