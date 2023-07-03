@@ -78,7 +78,7 @@ Test the Elasticsearch cluster by running `helm test elasticsearch`, the output 
 Phase:          Succeeded
 ```
 
-See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/master/elasticsearch).
+See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/main/elasticsearch).
 
 ### 5. Install RabbitMQ
 
@@ -255,9 +255,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `serviceAccount.name`                                  | Name of the ServiceAccount to be used. If not set and `serviceAccount.create` is `true` the name will be taken from `.Release.Name` or `serviceAccount.create` is `false` the name will be "default" | `""` |
 | `serviceAccount.annotations`                           | Map of annotations to add to the ServiceAccount                                                                             | `{}`                          |
 | `serviceAccount.automountServiceAccountToken`          | Enable auto mount of ServiceAccountToken on the serviceAccount created. Used only if `serviceAccount.create` is `true`      | `true`                        |
-| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate | `false`                |
-| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods                                                                                               | `104`                         |
-| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods                                                                                              | `107`                         |
+| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for the `docs` StatefulSet | `false`                |
+| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods. Individual values for the `docs` StatefulSet                                                 | `104`                         |
+| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods. Individual values for the `docs` StatefulSet                                                | `107`                         |
 | `containerSecurityContext.enabled`                     | Enable security context for containers in pods                                                                              | `false`                       |
 | `containerSecurityContext.allowPrivilegeEscalation`    | Controls whether a process can gain more privileges than its parent process                                                 | `false`                       |
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
@@ -315,14 +315,14 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/4testing-docspace-Deployment` |
 | `Deployment.image.tag`                                   | "Deployment" container image tag. If set to, it takes priority over the `images.tag`                            | `""`                                      |
 | `Deployment.image.pullPolicy`                            | "Deployment" container image pull policy                                                                        | `IfNotPresent`                            |
-| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `proxy` deployment                                                     | `5050`                                    |
+| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `proxy` Deployment                                                     | `5050`                                    |
 | `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `false`                                   |
 | `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `false`                                   |
 | `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `false`                                   |
 | `Deployment.resources.requests`                          | The requested resources for the "Deployment" container                                                          | `memory, cpu`                             |
 | `Deployment.resources.limits`                            | The resources limits for the "Deployment" container                                                             | `memory, cpu`                             |
 
-* Deployment* Note: Since all available deployments have some identical parameters, a description for each of them has not been added to the table, but combined into one.
+* Deployment* Note: Since all available Deployments have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Deployment`, the parameter name should have the following values: `files`, `peopleServer`, `proxy` and `healthchecks`.
 
 ### DocSpace Proxy Deployment additional parameters
@@ -344,6 +344,93 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 | `proxy.service.sessionAffinityConfig`                    | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy service Session Affinity. Used if the `proxy.service.sessionAffinity` is set | `{}` |
 | `proxy.service.externalTrafficPolicy`                    | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
 
+### DocSpace StatefulSet* parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `StatefulSet.updateStrategy.type`                        | "StatefulSet" StatefulSet update strategy type                                                                  | `RollingUpdate`      |
+| `StatefulSet.podAffinity`                                | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "StatefulSet" Pods scheduling by nodes relative to other Pods | `{}` |
+| `StatefulSet.nodeAffinity`                               | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "StatefulSet" Pods scheduling by nodes | `{}` |
+| `StatefulSet.image.repository`                           | "StatefulSet" container image repository. Individual values for the `proxyFrontend` and `docs` StatefulSets      | `onlyoffice/4testing-docspace-StatefulSet` |
+| `StatefulSet.image.tag`                                  | "StatefulSet" container image tag. If set to, it takes priority over the `images.tag`. Individual values for the `proxyFrontend` and `docs` StatefulSets | `""`                                      |
+| `StatefulSet.image.pullPolicy`                           | "StatefulSet" container image pull policy.                                                                       | `IfNotPresent`                            |
+| `StatefulSet.containerPorts.app`                         | "StatefulSet" container port. Not used in `login` and `proxyFrontend` StatefulSet                                | `5050`                                    |
+| `StatefulSet.startupProbe.enabled`                       | Enable startupProbe for "StatefulSet" container                                                                  | `false`                                   |
+| `StatefulSet.readinessProbe.enabled`                     | Enable readinessProbe for "StatefulSet" container                                                                | `false`                                   |
+| `StatefulSet.livenessProbe.enabled`                      | Enable livenessProbe for "StatefulSet" container                                                                 | `false`                                   |
+| `StatefulSet.resources.requests`                         | The requested resources for the "StatefulSet" container                                                          | `memory, cpu`                             |
+| `StatefulSet.resources.limits`                           | The resources limits for the "StatefulSet" container                                                             | `memory, cpu`                             |
+
+* StatefulSet* Note: Since all available StatefulSets have some identical parameters, a description for each of them has not been added to the table, but combined into one.
+Instead of `StatefulSet`, the parameter name should have the following values: `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, `clearEvents`, `doceditor`, `filesServices`,
+`login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend` and `docs`.
+
+### DocSpace Api System StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `apiSystem.enabled`                                      | Enables Api System installation                                                                                 | `false`              |
+
+### DocSpace Doceditor StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `doceditor.containerPorts.doceditor`                     | Doceditor container port                                                                                        | `5013`               |
+
+### DocSpace Login StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `login.containerPorts.login`                             | Login container port                                                                                            | `5011`               |
+
+### DocSpace Socket StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `socket.containerPorts.socket`                           | Socket additional container port                                                                                | `9899`               |
+
+### DocSpace Ssoauth StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `ssoauth.containerPorts.sso`                             | Ssoauth additional container port                                                                               | `9834`               |
+
+### DocSpace Proxy Frontend StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `proxyFrontend.enabled`                                  | Enables Proxy Frontend installation                                                                             | `false`              |
+| `proxyFrontend.image.repository`                         | Proxy Frontend container image repository                                                                       | `nginx`              |
+| `proxyFrontend.image.tag`                                | Proxy Frontend container image tag                                                                              | `latest`             |
+| `proxyFrontend.containerPorts.http`                      | Proxy Frontend HTTP container port                                                                              | `80`                 |
+| `proxyFrontend.containerPorts.https`                     | Proxy Frontend HTTPS container port                                                                             | `443`                |
+| `proxyFrontend.extraConf.customConfd.configMap`          | The name of the ConfigMap containing additional custom configuration files. These files will be map in the `/etc/nginx/conf.d/` directory of the container | `""` |
+| `proxyFrontend.extraConf.customConfd.fileName`           | The names of the configuration files containing additional custom configuration files. Must be the same as the `key` names in `proxyFrontend.extraConf.customConfd.configMap`. May contain multiple values | `example.conf` |
+| `proxyFrontend.hostname`                                 | The hostname (domainname) by which the DocSpace will be available                                               | `""`                 |
+| `proxyFrontend.tls.secretName`                           | The name of the TLS secret containing the certificate and its associated key                                    | `tls`                |
+| `proxyFrontend.tls.mountPath`                            | The path where the certificate and key will be mounted                                                          | `/etc/nginx/ssl`     |
+| `proxyFrontend.tls.crtName`                              | Name of the key containing the certificate                                                                      | `cert.crt`           |
+| `proxyFrontend.tls.keyName`                              | Name of the key containing the key                                                                              | `cert.key`           |
+| `proxyFrontend.service.existing`                         | The name of an existing service for Proxy Frontend. If not set, a service named `proxy-frontend` will be created | `""`                |
+| `proxyFrontend.service.annotations`                      | Map of annotations to add to the Proxy Frontend service                                                         | `{}`                 |
+| `proxyFrontend.service.type`                             | Proxy Frontend service type                                                                                     | `LoadBalancer`       |
+| `proxyFrontend.service.sessionAffinity`                  | [Session Affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) for Proxy Frontend. service. If not set, `None` will be set as the default value | `""` |
+| `proxyFrontend.service.sessionAffinityConfig`            | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy Frontend service Session Affinity. Used if the `proxyFrontend.service.sessionAffinity` is set | `{}` |
+| `proxyFrontend.service.externalTrafficPolicy`            | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
+
+### DocSpace Document Server StatefulSet additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `false`               |
+| `docs.podSecurityContext.enabled`                        | Enable security context for the Document Server Pod                                                             | `false`               |
+| `docs.podSecurityContext.runAsUser`                      | User ID for the Document Server pod                                                                             | `101`                 |
+| `docs.podSecurityContext.runAsGroup`                     | Group ID for the Document Server pod                                                                            | `101`                 |
+| `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
+| `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
+| `docs.containerPorts.http`                               | Document Server HTTP container port                                                                             | `80`                  |
+| `docs.containerPorts.https`                              | Document Server HTTPS container port                                                                            | `443`                 |
+| `docs.containerPorts.docservice`                         | Document Server docservice container port                                                                       | `8000`                |
 
 ## Configuration and installation details
 

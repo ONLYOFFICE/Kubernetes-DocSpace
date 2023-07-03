@@ -1455,9 +1455,10 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
-  # doceditor.containerPorts Doceditor container ports
   containerPorts:
+    # doceditor.containerPorts.app Doceditor container port
     app: 5050
+    # doceditor.containerPorts.doceditor Socket additional container port
     doceditor: 5013
   # Probe used for the Doceditor container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -1680,7 +1681,7 @@ login:
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
-  # login.containerPorts.app Login container port
+  # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
   # Probe used for the Login container: startup, readiness and liveness probes
@@ -1904,9 +1905,10 @@ socket:
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
-  # socket.containerPorts.app Socket container port
   containerPorts:
+    # socket.containerPorts.app Socket container port
     app: 5050
+    # socket.containerPorts.socket Socket additional container port
     socket: 9899
   # Probe used for the Socket container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2017,9 +2019,10 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
-  # ssoauth.containerPorts ssoauth container ports
   containerPorts:
+    # ssoauth.containerPorts.app ssoauth container port
     app: 5050
+    # ssoauth.containerPorts.sso ssoauth additional container port
     sso: 9834
   # Probe used for the ssoauth container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2355,9 +2358,10 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
-  # proxyFrontend.containerPorts Proxy Frontend container ports
   containerPorts:
+    # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
+    # proxyFrontend.containerPorts.https Proxy Frontend HTTPS container port
     https: 443
   # Probe used for the proxyFrontend container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2431,7 +2435,7 @@ proxyFrontend:
       fileName:
         - default.conf
     customConfd:
-      # proxyFrontend.extraConf.confd.configMap The name of the ConfigMap containing additional custom configuration files
+      # proxyFrontend.extraConf.customConfd.configMap The name of the ConfigMap containing additional custom configuration files
       # These files will be map in the `/etc/nginx/conf.d/` directory of the container
       configMap: ""
       # proxyFrontend.extraConf.customConfd.fileName The names of the configuration files containing additional custom configuration files
@@ -2447,11 +2451,11 @@ proxyFrontend:
     # If not set, the parameters below are ignored
     secretName: tls
     # proxyFrontend.tls.mountPath The path where the certificate and key will be mounted
-    mountPath: /etc/godaddy/live
+    mountPath: /etc/nginx/ssl
     # proxyFrontend.tls.crtName Name of the key containing the certificate
     crtName: cert.crt
     # proxyFrontend.tls.keyName Name of the key containing the key
-    keyName: generated-private-key.key
+    keyName: cert.key
   # Proxy Frontend service parameters
   service:
     # proxyFrontend.service.existing The name of an existing service for Proxy Frontend. If not set, a service named `proxy-frontend` will be created
@@ -2475,11 +2479,11 @@ docs:
   # Document Server Pod Security Context parameters
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
-    # .docs.podSecurityContext.enabled Enable security context for the Document Server Pod
+    # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pods
+    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
     runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pods
+    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
     runAsGroup: 101
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
@@ -2517,7 +2521,7 @@ docs:
     # docs.image.repository Document Server container image repository
     repository: onlyoffice/documentserver
     # docs.image.tag Document Server container image tag
-    tag: 7.3.3
+    tag: 7.4.0
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
   # docs.containerPorts Document Server container ports
