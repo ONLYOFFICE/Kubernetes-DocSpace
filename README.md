@@ -47,32 +47,29 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 
 ### 3. Install MySQL
 
-#### 3.1 Creating MySQL Secrets
-
-Create a secret containing the `root` user password and the user password to be used by the DocSpace. 
-To do this, in the `./sources/secrets/mysql-password.yaml` file, change the values for the `mysql-root-password` and `mysql-password` keys.
-
-Next, create a secret by running the following command:
+To install MySQL to your cluster, run the following command:
 
 ```bash
-$ kubectl apply -f ./sources/secrets/mysql-password.yaml
-```
-
-#### 3.2 Installing MySQL:
-
-```bash
-$ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/mysql_values.yaml bitnami/mysql \
+  --set auth.database=onlyoffice \
+  --set auth.username=onlyoffice_user \
+  --set primary.persistence.size=PERSISTENT_SIZE \
+  --set metrics.enabled=false
 ```
 
 See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
 
-### 4. Install the Elasticsearch cluster
+Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
+
+### 4. Install Elasticsearch
+
+To install Elasticsearch to your cluster, run the following command:
 
 ```bash
-$ helm install elasticsearch --version 7.13.1 -f ./sources/elasticsearch_values.yaml elastic/elasticsearch
+$ helm install elasticsearch -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/elasticsearch_values.yaml elastic/elasticsearch
 ```
 
-Test the Elasticsearch cluster by running `helm test elasticsearch`, the output should have the following line:
+Test the Elasticsearch by running `helm test elasticsearch`, the output should have the following line:
 
 ```bash
 Phase:          Succeeded
@@ -86,9 +83,6 @@ To install RabbitMQ to your cluster, run the following command:
 
 ```bash
 $ helm install rabbitmq bitnami/rabbitmq \
-  --set persistence.size=9Gi \
-  --set auth.username=guest \
-  --set auth.password=guest \
   --set metrics.enabled=false
 ```
 
@@ -101,7 +95,6 @@ To install Redis to your cluster, run the following command:
 ```bash
 $ helm install redis bitnami/redis \
   --set architecture=standalone \
-  --set master.persistence.size=9Gi \
   --set metrics.enabled=false
 ```
 

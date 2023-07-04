@@ -1,3 +1,4 @@
+replicas: 1
 service:
   type: ClusterIP
 image: onlyoffice/elasticsearch

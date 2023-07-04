@@ -61,7 +61,7 @@ connections:
   # connections.brokerVhost The virtual host for the connection to Broker host
   brokerVhost: "/"
   # connections.brokerUser The username for the Broker account
-  brokerUser: guest
+  brokerUser: user
   # connections.brokerProto The protocol for the connection to Broker host
   brokerProto: amqp
   # connections.brokerUri A string containing the necessary connection parameters to Broker
