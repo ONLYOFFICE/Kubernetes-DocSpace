@@ -26,4 +26,16 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: proxy-frontend-0
   type: {{ .Values.proxyFrontend.service.type }}
+  {{- if .Values.proxyFrontend.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.proxyFrontend.service.sessionAffinity }}
+  {{- if .Values.proxyFrontend.service.sessionAffinityConfig }}
+  {{- with .Values.proxyFrontend.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.proxyFrontend.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.proxyFrontend.service.externalTrafficPolicy }}
+  {{- end }}
 {{- end }}

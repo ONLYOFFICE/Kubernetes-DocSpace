@@ -11,7 +11,7 @@ connections:
   mysqlDatabaseMigration: "false"
   # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
-  # connections.mysqlDatabase Name of the Database database the application will be connected with
+  # connections.mysqlDatabase Name of the Database the application will be connected with
   # Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml"
   mysqlDatabase: onlyoffice
   # connections.superuser Database user with root rights
@@ -32,7 +32,7 @@ connections:
   # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
   # If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyRootPassword: mysql-root-password
-  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database user password
+  # connections.mysqlSecretKeyPassword The name of the key that contains the Database user password
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
   # connections.redisHost The IP address or the name of the Redis host
@@ -100,6 +100,7 @@ connections:
   backupHost: backup
   # connections.ssoauthHost The name of the DocSpace SSO service
   ssoauthHost: ssoauth
+  # connections.clearEventsHost The name of the DocSpace Clear Events service
   clearEventsHost: clear-events
   # connections.doceditorHost The name of the DocSpace Doceditor service
   doceditorHost: doceditor
@@ -127,7 +128,7 @@ connections:
   countWorkerConnections: "1024"
   # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Proxy) service
   nginxSnvsubstTemplateSuffix: ".template"
-  # connections.appKnownProxies
+  # connections.appKnownProxies Defines the known proxies for DocSpace services
   appKnownProxies: ""
   # connections.appKnownNetworks List of intermediate proxy addresses
   appKnownNetworks: ""
@@ -264,7 +265,7 @@ persistence:
     # If not specified, a PVC named "app-data" will be created
     existingClaim: ""
     # persistence.appData.size PVC Storage Request for common files volume
-    size: 1Gi
+    size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
     # If not specified, a PVC named "files-data" will be created
@@ -282,7 +283,7 @@ persistence:
     # If not specified, a PVC named "proxy-log" will be created
     existingClaim: ""
     # persistence.proxyLog.size PVC Storage Request for Nginx logs volume
-    size: 1Gi
+    size: 5Gi
 
 # DocSpace common deployment parameters
 # This block defines common parameters for all deployments only
@@ -290,12 +291,12 @@ persistence:
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
-  # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `soft` or `hard` (soft=preferred, hard=required)
+  # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-  type: "soft"
+  type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
-  # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=soft`
+  # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
 # DocSpace Files Deployment parameters
@@ -1454,9 +1455,10 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
-  # doceditor.containerPorts Doceditor container ports
   containerPorts:
+    # doceditor.containerPorts.app Doceditor container port
     app: 5050
+    # doceditor.containerPorts.doceditor Socket additional container port
     doceditor: 5013
   # Probe used for the Doceditor container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -1679,7 +1681,7 @@ login:
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
-  # login.containerPorts.app Login container port
+  # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
   # Probe used for the Login container: startup, readiness and liveness probes
@@ -1903,9 +1905,10 @@ socket:
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
-  # socket.containerPorts.app Socket container port
   containerPorts:
+    # socket.containerPorts.app Socket container port
     app: 5050
+    # socket.containerPorts.socket Socket additional container port
     socket: 9899
   # Probe used for the Socket container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2016,9 +2019,10 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
-  # ssoauth.containerPorts ssoauth container ports
   containerPorts:
+    # ssoauth.containerPorts.app ssoauth container port
     app: 5050
+    # ssoauth.containerPorts.sso ssoauth additional container port
     sso: 9834
   # Probe used for the ssoauth container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2354,9 +2358,10 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
-  # proxyFrontend.containerPorts Proxy Frontend container ports
   containerPorts:
+    # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
+    # proxyFrontend.containerPorts.https Proxy Frontend HTTPS container port
     https: 443
   # Probe used for the proxyFrontend container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2430,7 +2435,7 @@ proxyFrontend:
       fileName:
         - default.conf
     customConfd:
-      # proxyFrontend.extraConf.confd.configMap The name of the ConfigMap containing additional custom configuration files
+      # proxyFrontend.extraConf.customConfd.configMap The name of the ConfigMap containing additional custom configuration files
       # These files will be map in the `/etc/nginx/conf.d/` directory of the container
       configMap: ""
       # proxyFrontend.extraConf.customConfd.fileName The names of the configuration files containing additional custom configuration files
@@ -2446,11 +2451,11 @@ proxyFrontend:
     # If not set, the parameters below are ignored
     secretName: tls
     # proxyFrontend.tls.mountPath The path where the certificate and key will be mounted
-    mountPath: /etc/godaddy/live
+    mountPath: /etc/nginx/ssl
     # proxyFrontend.tls.crtName Name of the key containing the certificate
     crtName: cert.crt
     # proxyFrontend.tls.keyName Name of the key containing the key
-    keyName: generated-private-key.key
+    keyName: cert.key
   # Proxy Frontend service parameters
   service:
     # proxyFrontend.service.existing The name of an existing service for Proxy Frontend. If not set, a service named `proxy-frontend` will be created
@@ -2474,11 +2479,11 @@ docs:
   # Document Server Pod Security Context parameters
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
-    # .docs.podSecurityContext.enabled Enable security context for the Document Server Pod
+    # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pods
+    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
     runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pods
+    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
     runAsGroup: 101
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
@@ -2516,13 +2521,15 @@ docs:
     # docs.image.repository Document Server container image repository
     repository: onlyoffice/documentserver
     # docs.image.tag Document Server container image tag
-    tag: 7.3.3
+    tag: 7.4.0
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
-  # docs.containerPorts Document Server container ports
   containerPorts:
+    # docs.containerPorts.http Document Server HTTP container port
     http: 80
+    # docs.containerPorts.https Document Server HTTPS container port
     https: 443
+    # docs.containerPorts.docservice Document Server docservice container port
     docservice: 8000
   # Probe used for the Document Server container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2715,13 +2722,13 @@ upgrade:
           repository: onlyoffice/4testing-docspace-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
-          tag: v1.0.0
+          tag: ""
           # upgrade.job.initContainers.migrationRunner.image.pullPolicy Job by pre-upgrade Migration Runner container image pull policy
           pullPolicy: IfNotPresent
         # Job pre-upgrade Migration Runner container resource requests and limits
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
-        # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
+        # upgrade.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
+        # upgrade.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
         resources:
           requests:
             memory: "256Mi"
@@ -2740,8 +2747,8 @@ upgrade:
           pullPolicy: IfNotPresent
         # Job pre-upgrade Clear Storage container resource requests and limits
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
-        # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
+        # upgrade.job.initContainers.clearStorage.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
+        # upgrade.job.initContainers.clearStorage.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
         resources:
           requests:
             memory: "256Mi"
