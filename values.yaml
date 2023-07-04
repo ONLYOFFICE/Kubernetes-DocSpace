@@ -2722,13 +2722,13 @@ upgrade:
           repository: onlyoffice/4testing-docspace-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
-          tag: v1.0.0
+          tag: ""
           # upgrade.job.initContainers.migrationRunner.image.pullPolicy Job by pre-upgrade Migration Runner container image pull policy
           pullPolicy: IfNotPresent
         # Job pre-upgrade Migration Runner container resource requests and limits
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
-        # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
+        # upgrade.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
+        # upgrade.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
         resources:
           requests:
             memory: "256Mi"
@@ -2747,8 +2747,8 @@ upgrade:
           pullPolicy: IfNotPresent
         # Job pre-upgrade Clear Storage container resource requests and limits
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
-        # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
+        # upgrade.job.initContainers.clearStorage.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
+        # upgrade.job.initContainers.clearStorage.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
         resources:
           requests:
             memory: "256Mi"
