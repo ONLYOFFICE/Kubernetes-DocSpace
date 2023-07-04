@@ -58,6 +58,8 @@ spec:
             secretKeyRef:
               name: {{ template "app.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: MIGRATION_TYPE
+          value: {{ .Values.connections.migrationType }}
         envFrom:
         - configMapRef:
             name: app-all

@@ -7,6 +7,10 @@
 connections:
   # connections.envExtension Defines whether an environment will be used
   envExtension: "none"
+  # connections.installationType Defines solution type
+  installationType: ENTERPRISE
+  # connections.migrationType Defines migration type
+  migrationType: STANDALONE
   # connections.mysqlDatabaseMigration Enables database migration
   mysqlDatabaseMigration: "false"
   # connections.mysqlHost The IP address or the name of the Database host
