@@ -91,7 +91,7 @@ connections:
   # connections.studioNotifyHost The name of the DocSpace Studio Notify service
   studioNotifyHost: studio-notify
   # connections.socketHost The name of the DocSpace Socket service
-  socketHost: socket
+  socketHost: onlyoffice-socket
   # connections.peopleServerHost The name of the DocSpace People Server service
   peopleServerHost: people-server
   # connections.filesHost The name of the DocSpace Files service
@@ -2474,7 +2474,7 @@ proxyFrontend:
 #
 docs:
   # docs.enabled Enables local installation of Document Server in k8s cluster
-  enabled: false
+  enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # docs.updateStrategy.type Document Server StatefulSet update strategy type

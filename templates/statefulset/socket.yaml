@@ -16,7 +16,7 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: socket
+  serviceName: onlyoffice-socket
   {{- if .Values.socket.updateStrategy }}
   updateStrategy: {{- toYaml .Values.socket.updateStrategy | nindent 4 }}
   {{- end }}
