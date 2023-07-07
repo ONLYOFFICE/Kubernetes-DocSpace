@@ -33,3 +33,4 @@ data:
   APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
   APP_KNOWN_NETWORKS: {{ .Values.connections.appKnownNetworks | quote }}
   INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
+  SOCKET_HOST: {{ .Values.connections.socketHost }}

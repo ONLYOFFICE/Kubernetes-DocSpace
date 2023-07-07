@@ -37,7 +37,7 @@ $ helm repo update
 Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created. When installing to an OpenShift cluster, the user must have a role that allows you to create Storage Classes in the cluster. Read more [here](https://docs.openshift.com/container-platform/4.7/storage/dynamic-provisioning.html).
 
 ```bash
-$ helm install nfs-server --version 1.5.0 nfs-server-provisioner/nfs-server-provisioner \
+$ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
@@ -66,16 +66,8 @@ Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example
 To install Elasticsearch to your cluster, run the following command:
 
 ```bash
-$ helm install elasticsearch -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/elasticsearch_values.yaml elastic/elasticsearch
+$ kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/elasticsearch.yaml
 ```
-
-Test the Elasticsearch by running `helm test elasticsearch`, the output should have the following line:
-
-```bash
-Phase:          Succeeded
-```
-
-See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/main/elasticsearch).
 
 ### 5. Install RabbitMQ
 
