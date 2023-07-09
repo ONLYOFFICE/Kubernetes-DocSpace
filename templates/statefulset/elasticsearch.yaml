@@ -1,0 +1,119 @@
+{{- if .Values.elasticsearch.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: {{ include "app.namespace" . | quote }}
+  labels:
+    app: elasticsearch
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+      {{- if .Values.commonLabels }}
+      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: elasticsearch
+  {{- if .Values.elasticsearch.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.elasticsearch.updateStrategy | nindent 4 }}
+  {{- end }}
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        {{- if .Values.commonLabels }}
+        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      {{- if .Values.elasticsearch.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.elasticsearch.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.elasticsearch.podAffinity .Values.elasticsearch.nodeAffinity }}
+      affinity:
+        {{- with .Values.elasticsearch.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.elasticsearch.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      - name: change-volume-owner
+        image: busybox:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/data']
+        volumeMounts:
+        - name: elasticsearch-data
+          mountPath: /usr/share/elasticsearch/data
+      containers:
+      - name: elasticsearch
+        image: {{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}
+        imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+        {{- if .Values.elasticsearch.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.elasticsearch.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        {{- if .Values.elasticsearch.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.elasticsearch.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.elasticsearch.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.elasticsearch.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.elasticsearch.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.elasticsearch.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.elasticsearch.resources | nindent 10 }}
+        env:
+        - name: discovery.type
+          value: "single-node"
+        - name: bootstrap.memory_lock
+          value: "true"
+        - name: ES_JAVA_OPTS
+          value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+        - name: indices.fielddata.cache.size
+          value: "30%"
+        - name: indices.memory.index_buffer_size
+          value: "30%"
+        volumeMounts:
+        - name: elasticsearch-data
+          mountPath: /usr/share/elasticsearch/data
+      volumes:
+      - name: elasticsearch-data
+        persistentVolumeClaim:
+          claimName: elasticsearch-data
+{{- end }}
