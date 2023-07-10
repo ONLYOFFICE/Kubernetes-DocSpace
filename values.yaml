@@ -2605,8 +2605,10 @@ ingress:
   enabled: false
   # ingress.annotations Map of annotations to add to the Ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
+  # ingress.ingressClassName Used to reference the IngressClass that should be used to implement this Ingress
+  # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource/
+  ingressClassName: nginx
   tls:
     # ingress.tls.enabled Enable TLS for the DocSpace
     enabled: false
