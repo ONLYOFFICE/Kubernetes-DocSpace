@@ -27,7 +27,6 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
-$ helm repo add elastic https://helm.elastic.co
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 $ helm repo update
 ```
@@ -37,7 +36,7 @@ $ helm repo update
 Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created. When installing to an OpenShift cluster, the user must have a role that allows you to create Storage Classes in the cluster. Read more [here](https://docs.openshift.com/container-platform/4.7/storage/dynamic-provisioning.html).
 
 ```bash
-$ helm install nfs-server --version 1.5.0 nfs-server-provisioner/nfs-server-provisioner \
+$ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
@@ -47,65 +46,46 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 
 ### 3. Install MySQL
 
-#### 3.1 Creating MySQL Secrets
-
-Create a secret containing the `root` user password and the user password to be used by the DocSpace. 
-To do this, in the `./sources/secrets/mysql-password.yaml` file, change the values for the `mysql-root-password` and `mysql-password` keys.
-
-Next, create a secret by running the following command:
+To install MySQL to your cluster, run the following command:
 
 ```bash
-$ kubectl apply -f ./sources/secrets/mysql-password.yaml
-```
-
-#### 3.2 Installing MySQL:
-
-```bash
-$ helm install mysql -f ./sources/mysql_values.yaml bitnami/mysql
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/mysql_values.yaml bitnami/mysql \
+  --set auth.database=docspace \
+  --set auth.username=onlyoffice_user \
+  --set primary.persistence.size=PERSISTENT_SIZE \
+  --set metrics.enabled=false
 ```
 
 See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
 
-### 4. Install the Elasticsearch cluster
+Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
 
-```bash
-$ helm install elasticsearch --version 7.13.1 -f ./sources/elasticsearch_values.yaml elastic/elasticsearch
-```
-
-Test the Elasticsearch cluster by running `helm test elasticsearch`, the output should have the following line:
-
-```bash
-Phase:          Succeeded
-```
-
-See more details about installing Elasticsearch via Helm [here](https://github.com/elastic/helm-charts/tree/main/elasticsearch).
-
-### 5. Install RabbitMQ
+### 4. Install RabbitMQ
 
 To install RabbitMQ to your cluster, run the following command:
 
 ```bash
 $ helm install rabbitmq bitnami/rabbitmq \
-  --set persistence.size=9Gi \
-  --set auth.username=guest \
-  --set auth.password=guest \
   --set metrics.enabled=false
 ```
 
 See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq#rabbitmq).
 
-### 6. Install Redis
+### 5. Install Redis
 
 To install Redis to your cluster, run the following command:
 
 ```bash
 $ helm install redis bitnami/redis \
   --set architecture=standalone \
-  --set master.persistence.size=9Gi \
   --set metrics.enabled=false
 ```
 
 See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/redis).
+
+### 6. Install Elasticsearch
+
+To install Elasticsearch to your cluster, set the `elasticsearch.enabled=true` parameter when installing DocSpace
 
 ## Deploy DocSpace
 
@@ -195,6 +175,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `none`                        |
+| `connections.installationType`                         | Defines solution type                                                                                                       | `ENTERPRISE`                  |
+| `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
 | `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml" | `onlyoffice` |
@@ -221,7 +203,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.brokerExistingSecret`                     | The name of existing secret to use for Broker password. Must contain the key specified in `connections.brokerSecretKeyName` | `rabbitmq`                    |
 | `connections.brokerSecretKeyName`                      | The name of the key that contains the Broker user password. If you set a password in `connections.brokerPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
 | `connections.brokerPassword`                           | Broker user password. If set to, it takes priority over the `connections.brokerExistingSecret`                              | `""`                          |
-| `connections.elkHost`                                  | The IP address or the name of the Elasticsearch host                                                                        | `elasticsearch-master`        |
+| `connections.elkHost`                                  | The IP address or the name of the Elasticsearch host                                                                        | `elasticsearch`               |
 | `connections.apiHost`                                  | The name of the DocSpace Api service                                                                                        | `api`                         |
 | `connections.apiSystemHost`                            | The name of the DocSpace Api System service                                                                                 | `api-system`                  |
 | `connections.notifyHost`                               | The name of the DocSpace Notify service                                                                                     | `notify`                      |
@@ -438,6 +420,7 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `ingress.enabled`                                        | Enable the creation of an ingress for the DocSpace                                                              | `false`                                                                                   |
 | `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `kubernetes.io/ingress.class: nginx`, `nginx.ingress.kubernetes.io/proxy-body-size: 100m` |
+| `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
 | `ingress.tls.enabled`                                    | Enable TLS for the DocSpace                                                                                     | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
 | `ingress.host`                                           | Ingress hostname for the DocSpace                                                                               | `""`                                                                                      |
@@ -469,6 +452,22 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.clearStorage.image.pullPolicy`      | Job by pre-upgrade Clear Storage container image pull policy                                                                                                                                               | `IfNotPresent`                                  |
 | `upgrade.job.initContainers.clearStorage.resources.requests`    | The requested resources for the Job pre-upgrade Clear Storage container                                                                                                                                    | `memory, cpu`                                   |
 | `upgrade.job.initContainers.clearStorage.resources.limits`      | The resources limits for the Job pre-upgrade Clear Storage container                                                                                                                                       | `memory, cpu`                                   |
+
+### DocSpace Elasticsearch parameters
+
+| Parameter                                                | Description                                                                                                     | Default                    |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
+| `elasticsearch.enabled`                                  | Enables Elasticsearch installation                                                                              | `true`                     |
+| `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
+| `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
+| `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
+| `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
+| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.10.0`                   |
+| `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
+| `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
+| `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `""`                       |
+| `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
+| `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
 
 ## Configuration and installation details
 
