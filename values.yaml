@@ -1,5 +1,5 @@
 # Default values for DocSpace
-
+#
 # DocSpace common parameters
 # This block defines common parameters for all deployments and statefulsets
 #

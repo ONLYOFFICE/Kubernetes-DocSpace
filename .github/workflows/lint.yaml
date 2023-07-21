@@ -17,3 +17,17 @@ jobs:
       ct_version: 3.8.0
       enable_yaml_lint: true
       enable_kube_lint: true
+
+  validate-manifests:
+    name: "k8s manifests api validation"
+    uses: ONLYOFFICE/ga-common/.github/workflows/deprecated-recources.yaml@feature/deprecated-recources
+    with:
+      manual_k8s: ${{ github.event.inputs.kubernetes_version }}
+      set_keys: |
+              "--set serviceAccount.create=true \
+               --set healthchecks.enabled=true \
+               --set ingress.enabled=true \
+               --set install.job.enabled=true \
+               --set elasticsearch.enabled=true \
+               --set serviceAccount.create=true \
+               --set apiSystem.enabled=true"
