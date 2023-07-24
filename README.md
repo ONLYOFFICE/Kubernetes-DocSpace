@@ -42,6 +42,10 @@ $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.size=PERSISTENT_SIZE
 ```
 
+- `PERSISTENT_STORAGE_CLASS` is a Persistent Storage Class available in your Kubernetes cluster.
+
+- `PERSISTENT_SIZE` is the total size of all Persistent Storages for the nfs Persistent Storage Class. Must be at least the sum of the values of the `persistence` parameters if `persistence.storageClass=nfs`. You can express the size as a plain integer with one of these suffixes: `T`, `G`, `M`, `Ti`, `Gi`, `Mi`. For example: `19Gi`.
+
 See more details about installing NFS Server Provisioner via Helm [here](https://github.com/kubernetes-sigs/nfs-ganesha-server-and-external-provisioner/tree/master/charts/nfs-server-provisioner).
 
 ### 3. Install MySQL
@@ -86,6 +90,32 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 ### 6. Install Elasticsearch
 
 To install Elasticsearch to your cluster, set the `elasticsearch.enabled=true` parameter when installing DocSpace
+
+### 7. Make changes to the configuration files (optional)
+
+#### 7.1 Create a Secret containing a json file
+
+To create a Secret containing configuration files for overriding default values and additional configuration files for DocSpace, you need to run the following command:
+
+```bash
+$ kubectl create secret generic docspace-custom-config \
+  --from-file=./appsettings.test.json \
+  --from-file=./notify.test.json
+```
+
+Note: Any name can be used instead of `docspace-custom-config`.
+
+Note: The example above shows two configuration files. You can use as many as you want, as well as only one file.
+
+Note: When using the `test` suffix in the file name, set the `connections.envExtension` parameter to `test`.
+
+#### 7.2 Specify parameters when installing DocSpace
+
+When installing DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
+
+Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [7.1](#71-create-a-secret-containing-a-json-file)
+and then run the `helm upgrade [RELEASE_NAME] ./ --set extraConf.secretName=docspace-custom-config --set extraConf.filename={appsettings.test.json,notify.test.json} --no-hooks` command or
+`helm upgrade [RELEASE_NAME] -f ./values.yaml ./ --no-hooks` if the parameters are specified in the `values.yaml` file.
 
 ## Deploy DocSpace
 
@@ -179,12 +209,12 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
-| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml" | `onlyoffice` |
+| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with                                                                 | `onlyoffice` |
 | `connections.superuser`                                | Database user with root rights                                                                                              | `root`                        |
 | `connections.mysqlRootPassword`                        | Database root password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
-| `connections.mysqlUser`                                | Database user. Must match the value of the `auth.username` parameter from the "sources/mysql_values.yaml"                   | `onlyoffice_user`             |
+| `connections.mysqlUser`                                | Database user                                                                                                               | `onlyoffice_user`             |
 | `connections.mysqlPassword`                            | Database user password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
-| `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must match the value of the `auth.existingSecret` parameter from the "sources/mysql_values.yaml". Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword` | `mysql` |
+| `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword` | `mysql` |
 | `connections.mysqlSecretKeyRootPassword`               | The name of the key that contains the Database root password. If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-root-password` |
 | `connections.mysqlSecretKeyPassword`                   | The name of the key that contains the Database user password. If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
 | `connections.redisHost`                                | The IP address or the name of the Redis host                                                                                | `redis-master`                |
