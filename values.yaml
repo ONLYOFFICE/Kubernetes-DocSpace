@@ -16,7 +16,6 @@ connections:
   # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
   # connections.mysqlDatabase Name of the Database the application will be connected with
-  # Must match the value of the `auth.database` parameter from the "sources/mysql_values.yaml"
   mysqlDatabase: docspace
   # connections.superuser Database user with root rights
   superuser: root
@@ -24,13 +23,11 @@ connections:
   # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlRootPassword: ""
   # connections.mysqlUser Database user
-  # Must match the value of the `auth.username` parameter from the "sources/mysql_values.yaml"
   mysqlUser: onlyoffice_user
   # connections.mysqlPassword Database user password
   # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlPassword: ""
   # connections.mysqlExistingSecret Name of existing secret to use for Database passwords
-  # Must match the value of the `auth.existingSecret` parameter from the "sources/mysql_values.yaml"
   # Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword`
   mysqlExistingSecret: mysql
   # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
