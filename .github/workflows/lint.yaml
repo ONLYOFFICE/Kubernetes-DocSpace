@@ -9,6 +9,13 @@ on:
       - '**/CHANGELOG.md'
       - '**/LICENSE'
 
+  workflow_dispatch:
+    inputs:
+      kubernetes_version:
+        description: 'Choose k8s version (example v1.22)'
+        type: string
+        required: true
+
 jobs:
   lint-chart:           
     name: lint chart ${{ github.event.repository.name }}
@@ -22,7 +29,7 @@ jobs:
     name: "k8s manifests api validation"
     uses: ONLYOFFICE/ga-common/.github/workflows/deprecated-recources.yaml@master
     with:
-      manual_k8s: ${{ github.event.inputs.kubernetes_version }}
+      manual_k8s: 1.27.4
       set_keys: |
               "--set serviceAccount.create=true \
                --set healthchecks.enabled=true \
