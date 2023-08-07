@@ -114,7 +114,7 @@ Note: When using the `test` suffix in the file name, set the `connections.envExt
 When installing DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
 Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [7.1](#71-create-a-secret-containing-a-json-file)
-and then run the `helm upgrade [RELEASE_NAME] ./ --set extraConf.secretName=docspace-custom-config --set extraConf.filename={appsettings.test.json,notify.test.json} --no-hooks` command or
+and then run the `helm upgrade [RELEASE_NAME] ./ --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
 `helm upgrade [RELEASE_NAME] -f ./values.yaml ./ --no-hooks` if the parameters are specified in the `values.yaml` file.
 
 ## Deploy DocSpace
