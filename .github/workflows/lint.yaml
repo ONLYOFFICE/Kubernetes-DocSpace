@@ -35,6 +35,5 @@ jobs:
                --set healthchecks.enabled=true \
                --set ingress.enabled=true \
                --set install.job.enabled=true \
-               --set serviceAccount.create=true \
                --set connections.brokerUser=guest \
                --set connections.brokerPassword=guest"
