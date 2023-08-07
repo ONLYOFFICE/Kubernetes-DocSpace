@@ -14,4 +14,7 @@ spec:
     targetPort: {{ .Values.files.containerPorts.app }}
   selector:
     app: files
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

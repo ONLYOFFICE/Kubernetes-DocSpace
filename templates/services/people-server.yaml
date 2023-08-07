@@ -14,4 +14,7 @@ spec:
     targetPort: {{ .Values.peopleServer.containerPorts.app }}
   selector:
     app: people-server
+    {{- if .Values.commonLabels }}
+    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP
