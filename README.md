@@ -45,7 +45,7 @@ $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
 
 - `PERSISTENT_STORAGE_CLASS` is a Persistent Storage Class available in your Kubernetes cluster.
 
-- `PERSISTENT_SIZE` is the total size of all Persistent Storages for the nfs Persistent Storage Class. Must be at least the sum of the values of the `persistence` parameters if `persistence.storageClass=nfs`. You can express the size as a plain integer with one of these suffixes: `T`, `G`, `M`, `Ti`, `Gi`, `Mi`. For example: `19Gi`.
+- `PERSISTENT_SIZE` is the total size of all Persistent Storages for the nfs Persistent Storage Class. Must be at least the sum of the values of the `persistence` and `elasticsearch.persistence.size` parameters if `persistence.storageClass=nfs` and `elasticsearch.persistence.storageClass=nfs`. You can express the size as a plain integer with one of these suffixes: `T`, `G`, `M`, `Ti`, `Gi`, `Mi`. For example: `19Gi`.
 
 See more details about installing NFS Server Provisioner via Helm [here](https://github.com/kubernetes-sigs/nfs-ganesha-server-and-external-provisioner/tree/master/charts/nfs-server-provisioner).
 
@@ -500,7 +500,7 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.10.0`                   |
 | `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
 | `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
-| `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `""`                       |
+| `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `"nfs"`                    |
 | `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
 | `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
 

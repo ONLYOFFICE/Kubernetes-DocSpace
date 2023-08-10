@@ -2893,7 +2893,7 @@ elasticsearch:
       cpu: "4000m"
   persistence:
     # elasticsearch.persistence.storageClass PVC Storage Class for Elasticsearch volume
-    storageClass: ""
+    storageClass: "nfs"
     # elasticsearch.persistence.accessModes Elasticsearch Persistent Volume access modes
     accessModes:
       - ReadWriteOnce
