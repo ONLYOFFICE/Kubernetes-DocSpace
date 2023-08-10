@@ -108,7 +108,7 @@ spec:
             name: jwt
         volumeMounts:
         - name: app-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /var/www/onlyoffice/Data
       volumes:
       - name: app-data
         persistentVolumeClaim:
