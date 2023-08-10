@@ -169,6 +169,26 @@ Get the App Url Portal
 {{- end -}}
 
 {{/*
+Get the jwt secret name
+*/}}
+{{- define "docspace.jwt.secretName" -}}
+{{- if .Values.jwt.existingSecret -}}
+    {{- printf "%s" (tpl .Values.jwt.existingSecret $) -}}
+{{- else }}
+    {{- printf "jwt" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for jwt
+*/}}
+{{- define "docspace.jwt.createSecret" -}}
+{{- if empty .Values.jwt.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for App Proxy
 */}}
 {{- define "app.svc.proxy.create" -}}
