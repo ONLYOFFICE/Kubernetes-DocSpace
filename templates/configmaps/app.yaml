@@ -18,6 +18,7 @@ data:
   MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   PROXY_HOST: {{ template "app.svc.proxy.name" . }}
+  SOCKET_HOST: {{ .Values.connections.socketHost }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
@@ -33,4 +34,6 @@ data:
   APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
   APP_KNOWN_NETWORKS: {{ .Values.connections.appKnownNetworks | quote }}
   INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
-  SOCKET_HOST: {{ .Values.connections.socketHost }}
+  OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
+  LOG_LEVEL: {{ .Values.log.level | quote }}
+  DEBUG_INFO: {{ .Values.debugInfo | quote }}
