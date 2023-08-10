@@ -85,27 +85,11 @@ spec:
         livenessProbe: {{- omit .Values.docs.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.docs.resources | nindent 10 }}
-        env:
-        - name: DOCUMENT_SERVER_JWT_ENABLED
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_ENABLED
-        - name: DOCUMENT_SERVER_JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_SECRET
-        - name: DOCUMENT_SERVER_JWT_HEADER
-          valueFrom:
-            secretKeyRef:
-              name: jwt
-              key: JWT_HEADER
         envFrom:
         - configMapRef:
             name: app-all
         - secretRef:
-            name: jwt
+            name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         - name: app-data
           mountPath: /var/www/onlyoffice/Data

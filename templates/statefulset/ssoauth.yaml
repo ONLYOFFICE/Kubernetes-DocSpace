@@ -111,23 +111,23 @@ spec:
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: jwt
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: jwt
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: jwt
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
         envFrom:
         - configMapRef:
             name: app-all
         - secretRef:
-            name: jwt
+            name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- range .Values.extraConf.fileName }}
