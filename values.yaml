@@ -133,7 +133,7 @@ connections:
   appKnownProxies: ""
   # connections.appKnownNetworks List of intermediate proxy addresses
   appKnownNetworks: ""
-  # connections.oauthRedirectURL
+  # connections.oauthRedirectURL Address of the oauth authorization server
   oauthRedirectURL: "https://service.example.com/oauth2.aspx"
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
 # If not set, the name will be taken from .Release.Namespace
@@ -218,8 +218,9 @@ extraConf:
 # log.level Defines the type and severity of a logged event
 log:
   level: "Warning"
-# debugInfo
-debugInfo: "false"
+# debug.enabled Enable debug
+debug:
+  enabled: "false"
 # DocSpace Init Containers parameters
 initContainers:
   # Parameters of the Wait Storage initContainers
