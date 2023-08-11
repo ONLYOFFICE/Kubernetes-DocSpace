@@ -2531,9 +2531,9 @@ docs:
   # docs container image parameters
   image:
     # docs.image.repository Document Server container image repository
-    repository: onlyoffice/documentserver
+    repository: onlyoffice/4testing-documentserver-ee
     # docs.image.tag Document Server container image tag
-    tag: 7.4.0
+    tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
   containerPorts:
