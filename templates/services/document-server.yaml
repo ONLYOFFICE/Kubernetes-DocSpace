@@ -1,3 +1,4 @@
+{{- if eq .Values.connections.documentServerHost "document-server" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -22,3 +23,4 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: document-server-0
   type: ClusterIP
+{{- end }}
