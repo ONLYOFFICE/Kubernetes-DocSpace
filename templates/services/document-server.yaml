@@ -1,4 +1,4 @@
-{{- if .Values.docs.enabled }}
+{{- if eq .Values.connections.documentServerHost "document-server" }}
 apiVersion: v1
 kind: Service
 metadata:
