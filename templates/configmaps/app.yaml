@@ -28,7 +28,6 @@ data:
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
   APP_URL_PORTAL: {{ include "app.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
-  APP_CORE_MACHINEKEY: {{ .Values.connections.appCoreMachinekey | quote }}
   DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
   DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}
   APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}

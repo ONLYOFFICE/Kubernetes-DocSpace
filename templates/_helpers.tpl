@@ -189,6 +189,37 @@ Return true if a secret object should be created for jwt
 {{- end -}}
 
 {{/*
+Get a secret name containing Core Machine Key
+*/}}
+{{- define "docspace.coreMachineKey.secretName" -}}
+{{- if .Values.connections.appCoreMachinekey.existingSecret -}}
+    {{- printf "%s" (tpl .Values.connections.appCoreMachinekey.existingSecret $) -}}
+{{- else }}
+    {{- printf "%s-core-machine-key" .Release.Name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for Core Machine Key
+*/}}
+{{- define "docspace.coreMachineKey.createSecret" -}}
+{{- if empty .Values.connections.appCoreMachinekey.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return Core Machine Key
+*/}}
+{{- define "docspace.secret.coreMachineKey" -}}
+{{- if not (empty .Values.connections.appCoreMachinekey.secretKey) }}
+    {{- .Values.connections.appCoreMachinekey.secretKey }}
+{{- else }}
+    {{- required "A Core Machine Key is required!" .Values.connections.appCoreMachinekey.secretKey }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for App Proxy
 */}}
 {{- define "app.svc.proxy.create" -}}
