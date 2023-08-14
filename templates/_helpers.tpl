@@ -175,7 +175,7 @@ Get the jwt secret name
 {{- if .Values.jwt.existingSecret -}}
     {{- printf "%s" (tpl .Values.jwt.existingSecret $) -}}
 {{- else }}
-    {{- printf "jwt" -}}
+    {{- printf "%s-jwt" .Release.Name -}}
 {{- end -}}
 {{- end -}}
 
