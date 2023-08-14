@@ -103,6 +103,8 @@ spec:
             name: app-all
         - configMapRef:
             name: app-proxy
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
         volumeMounts:
         {{- if .Values.proxy.extraConf.initScripts.configMap }}
         {{- range .Values.proxy.extraConf.initScripts.fileName }}

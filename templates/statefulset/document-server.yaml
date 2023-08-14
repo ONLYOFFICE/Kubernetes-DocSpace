@@ -88,6 +88,8 @@ spec:
         envFrom:
         - configMapRef:
             name: app-all
+        - secretRef: 
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
         - secretRef:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:

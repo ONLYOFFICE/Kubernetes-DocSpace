@@ -122,8 +122,13 @@ connections:
   appUrlPortal: "http://proxy:8092"
   # connections.appCoreBaseDomain The base domain on which the DocSpace will be available
   appCoreBaseDomain: localhost
-  # connections.appCoreMachinekey The key used in the DocSpace
-  appCoreMachinekey: "your_core_machinekey"
+  appCoreMachinekey:
+    # connections.appCoreMachinekey.secretKey The secret key used in the DocSpace
+    secretKey: "your_core_machinekey"
+    # connections.appCoreMachinekey.existingSecret The name of an existing secret containing Core Machine Key
+    # Must contain the `APP_CORE_MACHINEKEY` key
+    # If not specified, a secret will be created with the value set in `connections.appCoreMachinekey.secretKey`
+    existingSecret: ""
   # connections.countWorkerConnections Defines the nginx config worker_connections directive for routing (Proxy) service
   # ref: https://nginx.org/en/docs/ngx_core_module.html#worker_connections
   countWorkerConnections: "1024"
@@ -206,8 +211,8 @@ jwt:
   header: "AuthorizationJwt"
   # jwt.inBody Specifies the enabling the token validation in the request body to the DocSpace
   inBody: false
-  ## jwt.existingSecret The name of an existing secret containing variables for jwt
-  ## If not specified, a secret named `jwt` will be created
+  # jwt.existingSecret The name of an existing secret containing variables for jwt
+  # If not specified, a secret named `jwt` will be created
   existingSecret: ""
 # Configs for overriding default values and additional configuration files for DocSpace
 extraConf:
