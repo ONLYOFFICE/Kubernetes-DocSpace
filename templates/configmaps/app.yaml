@@ -35,4 +35,4 @@ data:
   INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
   OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
   LOG_LEVEL: {{ .Values.log.level | quote }}
-  DEBUG_INFO: {{ .Values.debugInfo | quote }}
+  DEBUG_INFO: {{ .Values.debug.enabled | quote }}
