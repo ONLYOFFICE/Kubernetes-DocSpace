@@ -77,8 +77,14 @@ connections:
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
+  # connections.elkSheme The protocol for the connection to Elasticsearch
+  elkSheme: http
   # connections.elkHost The IP address or the name of the Elasticsearch host
   elkHost: elasticsearch
+  # connections.elkPort The port for the connection to Elasticsearch
+  elkPort: "9200"
+  # connections.elkThreads Number of threads in Elasticsearch
+  elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
   # connections.apiSystemHost The name of the DocSpace Api System service

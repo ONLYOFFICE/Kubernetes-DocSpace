@@ -16,7 +16,10 @@ data:
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
   MYSQL_USER: {{ .Values.connections.mysqlUser }}
+  ELK_SHEME: {{ .Values.connections.elkSheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
+  ELK_PORT: {{ .Values.connections.elkPort | quote }}
+  ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
   PROXY_HOST: {{ template "app.svc.proxy.name" . }}
   SOCKET_HOST: {{ .Values.connections.socketHost }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
