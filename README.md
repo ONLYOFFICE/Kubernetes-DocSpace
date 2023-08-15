@@ -58,7 +58,7 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 To install MySQL to your cluster, run the following command:
 
 ```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/release/v1.0.0/sources/mysql_values.yaml bitnami/mysql \
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.size=PERSISTENT_SIZE \
