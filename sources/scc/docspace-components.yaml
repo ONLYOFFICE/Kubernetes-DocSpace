@@ -1,7 +1,7 @@
 kind: SecurityContextConstraints
 apiVersion: v1
 metadata:
-  name: scc-app-components
+  name: scc-docspace-components
 allowPrivilegedContainer: false
 runAsUser:
   type: MustRunAsRange

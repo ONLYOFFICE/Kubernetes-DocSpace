@@ -3,10 +3,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: pre-upgrade
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -16,7 +16,7 @@ spec:
   backoffLimit: 2
   template:
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -51,18 +51,18 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
         envFrom:
         - configMapRef:
-            name: app-all
+            name: docspace
       {{- end }}
       - name: app-clear-storage
         image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
@@ -72,12 +72,12 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: files-data
@@ -105,13 +105,13 @@ spec:
       volumes:
       - name: files-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.files.name" . }}
+          claimName: {{ template "docspace.pvc.files.name" . }}
       - name: people-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.people.name" . }}
+          claimName: {{ template "docspace.pvc.people.name" . }}
       - name: update-scripts
         configMap:
-          name: update-app
+          name: pre-upgrade
           defaultMode: 0755
       # - name: change-db-scripts
       #   configMap:

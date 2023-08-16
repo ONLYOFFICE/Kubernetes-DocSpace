@@ -283,11 +283,11 @@ initContainers:
 persistence:
   # persistence.storageClass PVC Storage Class for DocSpace data volume
   storageClass: "nfs"
-  appData:
-    # persistence.appData.existingClaim The name of the existing PVC for storing files common to all services
-    # If not specified, a PVC named "app-data" will be created
+  docspaceData:
+    # persistence.docspaceData.existingClaim The name of the existing PVC for storing files common to all services
+    # If not specified, a PVC named "docspace-data" will be created
     existingClaim: ""
-    # persistence.appData.size PVC Storage Request for common files volume
+    # persistence.docspaceData.size PVC Storage Request for common files volume
     size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service

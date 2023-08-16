@@ -1,12 +1,12 @@
-{{- if eq (include "app.svc.proxy.create" .) "true" }}
+{{- if eq (include "docspace.svc.proxy.create" .) "true" }}
 apiVersion: v1
 kind: Service
 metadata:
   name: proxy
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.proxy.service.annotations }}
   annotations:
@@ -22,7 +22,7 @@ spec:
   selector:
     app: proxy
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   type: {{ .Values.proxy.service.type }}
   {{- if .Values.proxy.service.sessionAffinity }}

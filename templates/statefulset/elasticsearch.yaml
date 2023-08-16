@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: elasticsearch
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: elasticsearch
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: elasticsearch
       {{- if .Values.commonLabels }}
-      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   serviceName: elasticsearch
   {{- if .Values.elasticsearch.updateStrategy }}
@@ -27,7 +27,7 @@ spec:
       labels:
         app: elasticsearch
         {{- if .Values.commonLabels }}
-        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
@@ -36,7 +36,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.elasticsearch.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.elasticsearch.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}

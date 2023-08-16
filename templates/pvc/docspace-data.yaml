@@ -1,12 +1,12 @@
-{{- if eq (include "app.pvc.data.create" .) "true" }}
+{{- if eq (include "docspace.pvc.data.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: app-data
-  namespace: {{ include "app.namespace" . | quote }}
+  name: docspace-data
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}
@@ -15,5 +15,5 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.persistence.appData.size }}
+      storage: {{ .Values.persistence.docspaceData.size }}
 {{- end }}

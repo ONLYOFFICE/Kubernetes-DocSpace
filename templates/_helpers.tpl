@@ -1,7 +1,7 @@
 {{/*
-Get the App Namespace
+Get the DocSpace Namespace
 */}}
-{{- define "app.namespace" -}}
+{{- define "docspace.namespace" -}}
 {{- if .Values.namespaceOverride -}}
     {{- .Values.namespaceOverride -}}
 {{- else -}}
@@ -10,18 +10,18 @@ Get the App Namespace
 {{- end -}}
 
 {{/*
-Get the App labels
+Get the DocSpace labels
 */}}
-{{- define "app.labels.commonLabels" -}}
+{{- define "docspace.labels.commonLabels" -}}
 {{- range $key, $value := .Values.commonLabels }}
 {{ $key }}: {{ tpl $value $ }}
 {{- end }}
 {{- end -}}
 
 {{/*
-Get the App Service Account name
+Get the DocSpace Service Account name
 */}}
-{{- define "app.serviceAccountName" -}}
+{{- define "docspace.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
     {{ default .Release.Name .Values.serviceAccount.name }}
 {{- else -}}
@@ -32,7 +32,7 @@ Get the App Service Account name
 {{/*
 Get the MySQL password secret
 */}}
-{{- define "app.mysql.secretName" -}}
+{{- define "docspace.mysql.secretName" -}}
 {{- if .Values.connections.mysqlPassword -}}
     {{- printf "%s-mysql" .Release.Name -}}
 {{- else if .Values.connections.mysqlExistingSecret -}}
@@ -43,7 +43,7 @@ Get the MySQL password secret
 {{/*
 Return true if a secret object should be created for MySQL
 */}}
-{{- define "app.mysql.createSecret" -}}
+{{- define "docspace.mysql.createSecret" -}}
 {{- if or .Values.connections.mysqlPassword .Values.connections.mysqlRootPassword (not .Values.connections.mysqlExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -52,7 +52,7 @@ Return true if a secret object should be created for MySQL
 {{/*
 Return MySQL password
 */}}
-{{- define "app.mysql.password" -}}
+{{- define "docspace.mysql.password" -}}
 {{- if not (empty .Values.connections.mysqlPassword) }}
     {{- .Values.connections.mysqlPassword }}
 {{- else -}}
@@ -63,7 +63,7 @@ Return MySQL password
 {{/*
 Return MySQL root password
 */}}
-{{- define "app.mysql.rootPassword" -}}
+{{- define "docspace.mysql.rootPassword" -}}
 {{- if not (empty .Values.connections.mysqlRootPassword) }}
     {{- .Values.connections.mysqlRootPassword }}
 {{- else -}}
@@ -74,7 +74,7 @@ Return MySQL root password
 {{/*
 Get the Redis password secret
 */}}
-{{- define "app.redis.secretName" -}}
+{{- define "docspace.redis.secretName" -}}
 {{- if or .Values.connections.redisPassword .Values.connections.redisNoPass -}}
     {{- printf "%s-redis" .Release.Name -}}
 {{- else if .Values.connections.redisExistingSecret -}}
@@ -85,7 +85,7 @@ Get the Redis password secret
 {{/*
 Return true if a secret object should be created for Redis
 */}}
-{{- define "app.redis.createSecret" -}}
+{{- define "docspace.redis.createSecret" -}}
 {{- if or .Values.connections.redisPassword .Values.connections.redisNoPass (not .Values.connections.redisExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -94,7 +94,7 @@ Return true if a secret object should be created for Redis
 {{/*
 Return Redis password
 */}}
-{{- define "app.redis.password" -}}
+{{- define "docspace.redis.password" -}}
 {{- if not (empty .Values.connections.redisPassword) }}
     {{- .Values.connections.redisPassword }}
 {{- else if .Values.connections.redisNoPass }}
@@ -107,7 +107,7 @@ Return Redis password
 {{/*
 Get the Broker password secret
 */}}
-{{- define "app.broker.secretName" -}}
+{{- define "docspace.broker.secretName" -}}
 {{- if .Values.connections.brokerPassword -}}
     {{- printf "%s-broker" .Release.Name -}}
 {{- else if .Values.connections.brokerExistingSecret -}}
@@ -118,7 +118,7 @@ Get the Broker password secret
 {{/*
 Return true if a secret object should be created for Broker
 */}}
-{{- define "app.broker.createSecret" -}}
+{{- define "docspace.broker.createSecret" -}}
 {{- if or .Values.connections.brokerPassword (not .Values.connections.brokerExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -127,7 +127,7 @@ Return true if a secret object should be created for Broker
 {{/*
 Return Broker password
 */}}
-{{- define "app.broker.password" -}}
+{{- define "docspace.broker.password" -}}
 {{- if not (empty .Values.connections.brokerPassword) }}
     {{- .Values.connections.brokerPassword }}
 {{- else }}
@@ -138,8 +138,8 @@ Return Broker password
 {{/*
 Get the Broker URI
 */}}
-{{- define "app.broker.uri" -}}
-{{- $brokerSecret := include "app.broker.secretName" . }}
+{{- define "docspace.broker.uri" -}}
+{{- $brokerSecret := include "docspace.broker.secretName" . }}
 {{- $secretKey := (lookup "v1" "Secret" .Release.Namespace $brokerSecret).data }}
 {{- $keyValue := (get $secretKey .Values.connections.brokerSecretKeyName) | b64dec }}
 {{- if .Values.connections.brokerUri -}}
@@ -154,9 +154,9 @@ Get the Broker URI
 {{- end -}}
 
 {{/*
-Get the App Url Portal
+Get the DocSpace Url Portal
 */}}
-{{- define "app.url.portal" -}}
+{{- define "docspace.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
     {{- printf "" -}}
 {{- else if .Values.proxy.service.existing -}}
@@ -220,18 +220,18 @@ Return Core Machine Key
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for App Proxy
+Return true if a service object should be created for DocSpace Proxy
 */}}
-{{- define "app.svc.proxy.create" -}}
+{{- define "docspace.svc.proxy.create" -}}
 {{- if empty .Values.proxy.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the service name for App Proxy
+Get the service name for DocSpace Proxy
 */}}
-{{- define "app.svc.proxy.name" -}}
+{{- define "docspace.svc.proxy.name" -}}
 {{- if .Values.proxy.service.existing -}}
     {{- printf "%s" (tpl .Values.proxy.service.existing $) -}}
 {{- else -}}
@@ -240,18 +240,18 @@ Get the service name for App Proxy
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for App Proxy Frontend
+Return true if a service object should be created for DocSpace Proxy Frontend
 */}}
-{{- define "app.svc.proxyFrontend.create" -}}
+{{- define "docspace.svc.proxyFrontend.create" -}}
 {{- if empty .Values.proxyFrontend.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the service name for App Proxy Frontend
+Get the service name for DocSpace Proxy Frontend
 */}}
-{{- define "app.svc.proxyFrontend.name" -}}
+{{- define "docspace.svc.proxyFrontend.name" -}}
 {{- if .Values.proxyFrontend.service.existing -}}
     {{- printf "%s" (tpl .Values.proxyFrontend.service.existing $) -}}
 {{- else -}}
@@ -260,29 +260,29 @@ Get the service name for App Proxy Frontend
 {{- end -}}
 
 {{/*
-Get the PVC name for App Data
+Get the PVC name for DocSpace Data
 */}}
-{{- define "app.pvc.data.name" -}}
-{{- if .Values.persistence.appData.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.appData.existingClaim $) -}}
+{{- define "docspace.pvc.data.name" -}}
+{{- if .Values.persistence.docspaceData.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.docspaceData.existingClaim $) -}}
 {{- else }}
-    {{- printf "app-data" -}}
+    {{- printf "docspace-data" -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for App Data
+Return true if a pvc object should be created for DocSpace Data
 */}}
-{{- define "app.pvc.data.create" -}}
-{{- if empty .Values.persistence.appData.existingClaim }}
+{{- define "docspace.pvc.data.create" -}}
+{{- if empty .Values.persistence.docspaceData.existingClaim }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the PVC name for App People
+Get the PVC name for DocSpace People
 */}}
-{{- define "app.pvc.people.name" -}}
+{{- define "docspace.pvc.people.name" -}}
 {{- if .Values.persistence.peopleData.existingClaim -}}
     {{- printf "%s" (tpl .Values.persistence.peopleData.existingClaim $) -}}
 {{- else }}
@@ -291,18 +291,18 @@ Get the PVC name for App People
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for App People
+Return true if a pvc object should be created for DocSpace People
 */}}
-{{- define "app.pvc.people.create" -}}
+{{- define "docspace.pvc.people.create" -}}
 {{- if empty .Values.persistence.peopleData.existingClaim }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the PVC name for App Files
+Get the PVC name for DocSpace Files
 */}}
-{{- define "app.pvc.files.name" -}}
+{{- define "docspace.pvc.files.name" -}}
 {{- if .Values.persistence.filesData.existingClaim -}}
     {{- printf "%s" (tpl .Values.persistence.filesData.existingClaim $) -}}
 {{- else }}
@@ -311,18 +311,18 @@ Get the PVC name for App Files
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for App Files
+Return true if a pvc object should be created for DocSpace Files
 */}}
-{{- define "app.pvc.files.create" -}}
+{{- define "docspace.pvc.files.create" -}}
 {{- if empty .Values.persistence.filesData.existingClaim }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the PVC name for App Proxy log
+Get the PVC name for DocSpace Proxy log
 */}}
-{{- define "app.pvc.proxy.name" -}}
+{{- define "docspace.pvc.proxy.name" -}}
 {{- if .Values.persistence.proxyLog.existingClaim -}}
     {{- printf "%s" (tpl .Values.persistence.proxyLog.existingClaim $) -}}
 {{- else }}
@@ -331,9 +331,9 @@ Get the PVC name for App Proxy log
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for App Proxy log
+Return true if a pvc object should be created for DocSpace Proxy log
 */}}
-{{- define "app.pvc.proxy.create" -}}
+{{- define "docspace.pvc.proxy.create" -}}
 {{- if empty .Values.persistence.proxyLog.existingClaim }}
     {{- true -}}
 {{- end -}}

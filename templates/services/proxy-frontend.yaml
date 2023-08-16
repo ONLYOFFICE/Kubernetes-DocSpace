@@ -1,13 +1,13 @@
-{{- if and .Values.proxyFrontend.enabled (eq (include "app.svc.proxyFrontend.create" .) "true") }}
+{{- if and .Values.proxyFrontend.enabled (eq (include "docspace.svc.proxyFrontend.create" .) "true") }}
 apiVersion: v1
 kind: Service
 metadata:
   name: proxy-frontend
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if .Values.proxyFrontend.service.annotations }}
   annotations:
