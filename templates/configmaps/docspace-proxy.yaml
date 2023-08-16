@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: app-proxy
-  namespace: {{ include "app.namespace" . | quote }}
+  name: docspace-proxy
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 data:
   COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}

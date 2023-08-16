@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: document-server
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: document-server
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: document-server
       {{- if .Values.commonLabels }}
-      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   serviceName: document-server
   {{- if .Values.docs.updateStrategy }}
@@ -27,7 +27,7 @@ spec:
       labels:
         app: document-server
         {{- if .Values.commonLabels }}
-        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
@@ -36,7 +36,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.docs.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.docs.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -87,16 +87,16 @@ spec:
         resources: {{- toYaml .Values.docs.resources | nindent 10 }}
         envFrom:
         - configMapRef:
-            name: app-all
+            name: docspace
         - secretRef: 
             name: {{ template "docspace.coreMachineKey.secretName" . }}
         - secretRef:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
-        - name: app-data
+        - name: docspace-data
           mountPath: /var/www/onlyoffice/Data
       volumes:
-      - name: app-data
+      - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.data.name" . }}
+          claimName: {{ template "docspace.pvc.data.name" . }}
 {{- end }}

@@ -3,11 +3,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: document-server
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: document-server
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   ports:

@@ -3,10 +3,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: default-conf
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 data:
   default.conf: |-
@@ -82,7 +82,7 @@ data:
 
     location / {
 
-            proxy_pass http://{{ template "app.svc.proxy.name" . }}:{{ .Values.proxy.service.port.external }};
+            proxy_pass http://{{ template "docspace.svc.proxy.name" . }}:{{ .Values.proxy.service.port.external }};
         }
     }
 {{- end }}

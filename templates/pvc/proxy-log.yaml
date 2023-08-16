@@ -1,12 +1,12 @@
-{{- if eq (include "app.pvc.proxy.create" .) "true" }}
+{{- if eq (include "docspace.pvc.proxy.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: proxy-log
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}

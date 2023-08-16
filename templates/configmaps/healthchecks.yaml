@@ -3,10 +3,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: healthchecks
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 data:
   API_HOST: {{ .Values.connections.apiHost }}:{{ .Values.api.containerPorts.app }}

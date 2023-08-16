@@ -129,8 +129,8 @@ Note: When installing to an OpenShift cluster, you must apply the `SecurityConte
 To do this, run the following commands:
 
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/app-components.yaml
-$ oc adm policy add-scc-to-group scc-app-components system:authenticated
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/docspace-components.yaml
+$ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 ```
 
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
@@ -310,8 +310,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                | `2Gi`                                                                                 |
 | `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                   | `1000m`                                                                               |
 | `persistence.storageClass`                             | PVC Storage Class for DocSpace data volume                                                                              | `nfs`                                                                                 |
-| `persistence.appData.existingClaim`                    | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "app-data" will be created | `""`                                                                          |
-| `persistence.appData.size`                             | PVC Storage Request for common files volume                                                                             | `8Gi`                                                                                 |
+| `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                                                                     |
+| `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                             | `8Gi`                                                                                 |
 | `persistence.filesData.existingClaim`                  | The name of the existing PVC for use in the Files service. If not specified, a PVC named "files-data" will be created   | `""`                                                                                  |
 | `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                    | `1Gi`                                                                                 |
 | `persistence.peopleData.existingClaim`                 | The name of the existing PVC for use in the People Server service. If not specified, a PVC named "people-data" will be created | `""`                                                                           |
@@ -576,7 +576,7 @@ $ helm install [RELEASE_NAME] ./ --set ingress.enabled=true
 Run the following command to get the `docspace` ingress IP:
 
 ```bash
-$ kubectl get ingress ingress-app -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+$ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
 After that, DocSpace will be available at `http://DOCSPACE-INGRESS-IP/`.
@@ -584,7 +584,7 @@ After that, DocSpace will be available at `http://DOCSPACE-INGRESS-IP/`.
 If the ingress IP is empty, try getting the `docspace` ingress hostname:
 
 ```bash
-$ kubectl get ingress ingress-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+$ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
 In this case, DocSpace will be available at `http://DOCSPACE-INGRESS-HOSTNAME/`.
@@ -611,13 +611,13 @@ $ helm install [RELEASE_NAME] ./ --set ingress.enabled=true,ingress.tls.enabled=
 Run the following command to get the `docspace` ingress IP:
 
 ```bash
-$ kubectl get ingress ingress-app -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+$ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
 If the ingress IP is empty, try getting the `docspace` ingress hostname:
 
 ```bash
-$ kubectl get ingress ingress-app -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+$ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
 Associate the `docspace` ingress IP or hostname with your domain name through your DNS provider.

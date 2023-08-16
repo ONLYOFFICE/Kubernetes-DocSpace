@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: api-system
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: api-system
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   replicas: 1
@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: api-system
       {{- if .Values.commonLabels }}
-      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   serviceName: api-system
   {{- if .Values.apiSystem.updateStrategy }}
@@ -27,7 +27,7 @@ spec:
       labels:
         app: api-system
         {{- if .Values.commonLabels }}
-        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
@@ -36,7 +36,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -93,20 +93,20 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.redis.secretName" . }}
+              name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
         - name: RABBIT_URI
-          value: {{ include "app.broker.uri" . | quote }}
+          value: {{ include "docspace.broker.uri" . | quote }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -124,7 +124,7 @@ spec:
               key: JWT_HEADER
         envFrom:
         - configMapRef:
-            name: app-all
+            name: docspace
         - secretRef: 
             name: {{ template "docspace.coreMachineKey.secretName" . }}
         - secretRef:
@@ -137,7 +137,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        - name: app-data
+        - name: docspace-data
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
@@ -149,13 +149,13 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      - name: app-data
+      - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.data.name" . }}
+          claimName: {{ template "docspace.pvc.data.name" . }}
       - name: files-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.files.name" . }}
+          claimName: {{ template "docspace.pvc.files.name" . }}
       - name: people-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.people.name" . }}
+          claimName: {{ template "docspace.pvc.people.name" . }}
 {{- end }}

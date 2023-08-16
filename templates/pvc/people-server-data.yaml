@@ -1,12 +1,12 @@
-{{- if eq (include "app.pvc.people.create" .) "true" }}
+{{- if eq (include "docspace.pvc.people.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: people-data
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   annotations:
     "helm.sh/hook": pre-install

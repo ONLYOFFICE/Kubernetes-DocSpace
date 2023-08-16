@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: healthchecks
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: healthchecks
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   replicas: {{ .Values.healthchecks.replicaCount }}
@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app: healthchecks
       {{- if .Values.commonLabels }}
-      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   {{- if .Values.healthchecks.updateStrategy }}
   strategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
@@ -25,7 +25,7 @@ spec:
       labels:
         app: healthchecks
         {{- if .Values.commonLabels }}
-        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
@@ -34,7 +34,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -111,20 +111,20 @@ spec:
         - configMapRef:
             name: healthchecks
         volumeMounts:
-        - name: app-data
+        - name: docspace-data
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
       volumes:
-      - name: app-data
+      - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.data.name" . }}
+          claimName: {{ template "docspace.pvc.data.name" . }}
       - name: files-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.files.name" . }}
+          claimName: {{ template "docspace.pvc.files.name" . }}
       - name: people-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.people.name" . }}
+          claimName: {{ template "docspace.pvc.people.name" . }}
 {{- end }}

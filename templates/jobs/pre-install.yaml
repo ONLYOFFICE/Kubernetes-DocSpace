@@ -3,10 +3,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: pre-install
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   annotations:
     "helm.sh/hook": pre-install
@@ -16,7 +16,7 @@ spec:
   backoffLimit: 2
   template:
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -51,18 +51,18 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "app.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
         envFrom:
         - configMapRef:
-            name: app-all
+            name: docspace
       {{- end }}
       containers:
       - name: app-init-storage
@@ -77,9 +77,9 @@ spec:
       volumes:
       - name: files-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.files.name" . }}
+          claimName: {{ template "docspace.pvc.files.name" . }}
       - name: people-data
         persistentVolumeClaim:
-          claimName: {{ template "app.pvc.people.name" . }}
+          claimName: {{ template "docspace.pvc.people.name" . }}
       restartPolicy: Never
 {{- end }}

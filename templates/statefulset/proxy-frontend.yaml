@@ -3,11 +3,11 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: proxy-frontend
-  namespace: {{ include "app.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
-    {{- include "app.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   replicas: 1
@@ -15,9 +15,9 @@ spec:
     matchLabels:
       app: proxy-frontend
       {{- if .Values.commonLabels }}
-      {{- include "app.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: {{ template "app.svc.proxyFrontend.name" . }}
+  serviceName: {{ template "docspace.svc.proxyFrontend.name" . }}
   {{- if .Values.proxyFrontend.updateStrategy }}
   updateStrategy: {{- toYaml .Values.proxyFrontend.updateStrategy | nindent 4 }}
   {{- end }}
@@ -27,7 +27,7 @@ spec:
       labels:
         app: proxy-frontend
         {{- if .Values.commonLabels }}
-        {{- include "app.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
@@ -36,7 +36,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
