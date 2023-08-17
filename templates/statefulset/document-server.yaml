@@ -88,7 +88,7 @@ spec:
         envFrom:
         - configMapRef:
             name: docspace
-        - secretRef: 
+        - secretRef:
             name: {{ template "docspace.coreMachineKey.secretName" . }}
         - secretRef:
             name: {{ template "docspace.jwt.secretName" . }}
