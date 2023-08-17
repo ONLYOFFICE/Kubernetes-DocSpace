@@ -1,19 +1,21 @@
-{{- if eq (include "docspace.pvc.proxy.create" .) "true" }}
+{{- if .Values.elasticsearch.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: proxy-log
+  name: elasticsearch-data
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 spec:
-  storageClassName: {{ .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.elasticsearch.persistence.storageClass }}
   accessModes:
-  - ReadWriteMany
+  {{- range .Values.elasticsearch.persistence.accessModes }}
+  - {{ . }}
+  {{- end }}
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.persistence.proxyLog.size }}
+      storage: {{ .Values.elasticsearch.persistence.size }}
 {{- end }}

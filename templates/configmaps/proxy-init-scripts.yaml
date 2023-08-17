@@ -2,6 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: proxy-init-scripts
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
 data:
   40-change-hosts.sh: |-
     #!/bin/bash
@@ -10,15 +15,24 @@ data:
     cp -f ~/hosts.new /etc/hosts
   50-change-proxy-onlyoffice-conf.sh: |-
     #!/bin/sh
-    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.containerPorts.doceditor }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.containerPorts.login }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/http\:\/\/$document_server/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    {{- if contains "https://" .Values.connections.documentServerHost }}
+    sed -i 's/http\:\/\/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    {{- else if contains "http://" .Values.connections.documentServerHost }}
+    sed -i 's/$document_server/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    {{- else if empty .Values.connections.documentServerHost }}
+    {{- fail "You specified an empty value in the Document Server Host parameter!" }}
+    {{- else }}
+    sed -i 's/$document_server/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    {{- end }}
     rm -rf /etc/nginx/conf.d/upstream.conf

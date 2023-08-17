@@ -1,15 +1,7 @@
-auth:
-  database: onlyoffice
-  username: onlyoffice_user
-  existingSecret: mysql
-
 primary:
-  persistence:
-    size: 9Gi
-
   configuration: |-
     [mysqld]
-    default_authentication_plugin=mysql_native_password
+    default_authentication_plugin=caching_sha2_password
     sql_mode = 'NO_ENGINE_SUBSTITUTION'
     skip-name-resolve
     explicit_defaults_for_timestamp

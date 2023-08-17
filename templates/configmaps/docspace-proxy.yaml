@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docspace-proxy
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+data:
+  COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
+  NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
+  SERVICE_API: {{ .Values.connections.apiHost }}:{{ .Values.api.containerPorts.app }}
+  SERVICE_API_SYSTEM: {{ .Values.connections.apiSystemHost }}:{{ .Values.apiSystem.containerPorts.app }}
+  SERVICE_NOTIFY: {{ .Values.connections.notifyHost }}:{{ .Values.notify.containerPorts.app }}
+  SERVICE_STUDIO_NOTIFY: {{ .Values.connections.studioNotifyHost }}:{{ .Values.studioNotify.containerPorts.app }}
+  SERVICE_SOCKET: {{ .Values.connections.socketHost }}:{{ .Values.socket.containerPorts.app }}
+  SERVICE_PEOPLE_SERVER: {{ .Values.connections.peopleServerHost }}:{{ .Values.peopleServer.containerPorts.app }}
+  SERVICE_FILES: {{ .Values.connections.filesHost }}:{{ .Values.files.containerPorts.app }}
+  SERVICE_FILES_SERVICES: {{ .Values.connections.filesServicesHost }}:{{ .Values.filesServices.containerPorts.app }}
+  SERVICE_STUDIO: {{ .Values.connections.studioHost }}:{{ .Values.studio.containerPorts.app }}
+  SERVICE_BACKUP: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
+  SERVICE_SSOAUTH: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
+  SERVICE_CLEAR_EVENTS: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
+  SERVICE_DOCEDITOR: {{ .Values.connections.doceditorHost }}:{{ .Values.doceditor.containerPorts.doceditor }}
+  SERVICE_BACKUP_BACKGRUOND_TASKS: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+  SERVICE_LOGIN: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
+  DOCUMENT_SERVER: {{ .Values.connections.documentServerHost }}
+  SERVICE_HELTHCHECKS: {{ .Values.connections.healthchecksHost }}:{{ .Values.healthchecks.containerPorts.healthcheck }}

@@ -1,13 +1,16 @@
-{{- if eq (include "docspace.pvc.proxy.create" .) "true" }}
+{{- if eq (include "docspace.pvc.people.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: proxy-log
+  name: people-data
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
@@ -15,5 +18,5 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.persistence.proxyLog.size }}
+      storage: {{ .Values.persistence.peopleData.size }}
 {{- end }}

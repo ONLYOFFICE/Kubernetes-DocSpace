@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthchecks
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.healthchecks.containerPorts.healthcheck }}
+    name: healthcheck
+    targetPort: {{ .Values.healthchecks.containerPorts.healthcheck }}
+  selector:
+    app: healthchecks
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: ClusterIP

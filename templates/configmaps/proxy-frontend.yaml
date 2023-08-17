@@ -3,6 +3,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: default-conf
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
 data:
   default.conf: |-
     map $http_host $this_host {
@@ -77,7 +82,7 @@ data:
 
     location / {
 
-            proxy_pass http://onlyoffice-proxy:8092;
+            proxy_pass http://{{ template "docspace.svc.proxy.name" . }}:{{ .Values.proxy.service.port.external }};
         }
     }
 {{- end }}

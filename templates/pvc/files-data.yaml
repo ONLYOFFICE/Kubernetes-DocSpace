@@ -1,8 +1,13 @@
-{{- if eq (include "app.pvc.files.create" .) "true" }}
+{{- if eq (include "docspace.pvc.files.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: files-data
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "2"
@@ -10,6 +15,7 @@ spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
   - ReadWriteMany
+  volumeMode: Filesystem
   resources:
     requests:
       storage: {{ .Values.persistence.filesData.size }}

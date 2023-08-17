@@ -1,0 +1,26 @@
+{{- if eq .Values.connections.documentServerHost "document-server" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-server
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: document-server
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.docs.containerPorts.http }}
+    name: http
+    targetPort: {{ .Values.docs.containerPorts.http }}
+  - port: {{ .Values.docs.containerPorts.https }}
+    name: https
+    targetPort: {{ .Values.docs.containerPorts.https }}
+  - port: {{ .Values.docs.containerPorts.docservice }}
+    name: docservice
+    targetPort: {{ .Values.docs.containerPorts.docservice }}
+  selector:
+    statefulset.kubernetes.io/pod-name: document-server-0
+  type: ClusterIP
+{{- end }}

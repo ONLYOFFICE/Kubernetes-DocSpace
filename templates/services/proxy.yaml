@@ -1,0 +1,40 @@
+{{- if eq (include "docspace.svc.proxy.create" .) "true" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.proxy.service.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.proxy.service.annotations }}
+    {{ $key }}: {{ tpl $value $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.proxy.service.port.external }}
+    name: external
+    targetPort: {{ .Values.proxy.containerPorts.external }}
+  selector:
+    app: proxy
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: {{ .Values.proxy.service.type }}
+  {{- if .Values.proxy.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.proxy.service.sessionAffinity }}
+  {{- if .Values.proxy.service.sessionAffinityConfig }}
+  {{- with .Values.proxy.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.proxy.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.proxy.service.externalTrafficPolicy }}
+  {{- end }}
+{{- end }}
