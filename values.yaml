@@ -744,6 +744,7 @@ proxy:
     # Not supported for service type - `ClusterIP`
     # ref: https://kubernetes.io/docs/tutorials/services/source-ip/
     externalTrafficPolicy: ""
+  DNSResolver: "10.245.0.10"
 
 # DocSpace Healthchecks Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
