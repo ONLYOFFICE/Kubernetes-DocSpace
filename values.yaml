@@ -37,7 +37,7 @@ connections:
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
   # connections.redisHost The IP address or the name of the Redis host
-  # If Redis is deployed inside the cluster, then you need to specify the FQDN name of the service
+  # If Redis is deployed inside a k8s cluster, then you need to specify the FQDN name of the service
   # ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services
   redisHost: redis-master.default.svc.cluster.local
   # connections.redisPort The Redis server port number
