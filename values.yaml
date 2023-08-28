@@ -37,7 +37,9 @@ connections:
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
   # connections.redisHost The IP address or the name of the Redis host
-  redisHost: redis-master
+  # If Redis is deployed inside a k8s cluster, then you need to specify the FQDN name of the service
+  # ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services
+  redisHost: redis-master.default.svc.cluster.local
   # connections.redisPort The Redis server port number
   redisPort: "6379"
   # connections.redisUser The Redis user name
@@ -744,6 +746,17 @@ proxy:
     # Not supported for service type - `ClusterIP`
     # ref: https://kubernetes.io/docs/tutorials/services/source-ip/
     externalTrafficPolicy: ""
+  # Proxy openresty resolver
+  # ref: https://github.com/openresty/openresty/#resolvconf-parsing
+  resolver:
+    # proxy.resolver.dns Configures name server used to resolve names of upstream servers into addresses
+    # If set to, it takes priority over the `proxy.resolver.local`
+    dns: ""
+    # proxy.resolver.local Allows you to use the DNS configuration of the container
+    # If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path
+    # Example:
+    # local: "/tmp/resolv.conf"
+    local: "on"
 
 # DocSpace Healthchecks Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
