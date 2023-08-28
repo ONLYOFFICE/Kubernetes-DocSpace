@@ -368,6 +368,8 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 | `proxy.service.sessionAffinity`                          | [Session Affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) for Proxy service. If not set, `None` will be set as the default value | `""` |
 | `proxy.service.sessionAffinityConfig`                    | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy service Session Affinity. Used if the `proxy.service.sessionAffinity` is set | `{}` |
 | `proxy.service.externalTrafficPolicy`                    | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
+| `proxy.resolver.dns`                                     | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `proxy.resolver.local` | `""` |
+| `proxy.resolver.local`                                   | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
 
 ### DocSpace StatefulSet* parameters
 

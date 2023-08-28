@@ -35,5 +35,5 @@ data:
     {{- else }}
     sed -i 's/$document_server/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- end }}
-    sed '/8092\;/a\        resolver {{ .Values.proxy.DNSResolver }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
+    sed '/8092\;/a\        resolver {{ template "docspace.proxy.resolver" . }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
     rm -rf /etc/nginx/conf.d/upstream.conf

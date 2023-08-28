@@ -220,6 +220,17 @@ Return Core Machine Key
 {{- end -}}
 
 {{/*
+Return resolver for proxy
+*/}}
+{{- define "docspace.proxy.resolver" -}}
+{{- if .Values.proxy.resolver.dns -}}
+    {{- .Values.proxy.resolver.dns -}}
+{{- else -}}
+    {{- printf "local=%s" (toString .Values.proxy.resolver.local) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for DocSpace Proxy
 */}}
 {{- define "docspace.svc.proxy.create" -}}

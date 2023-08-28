@@ -744,7 +744,17 @@ proxy:
     # Not supported for service type - `ClusterIP`
     # ref: https://kubernetes.io/docs/tutorials/services/source-ip/
     externalTrafficPolicy: ""
-  DNSResolver: "10.245.0.10"
+  # Proxy openresty resolver
+  # ref: https://github.com/openresty/openresty/#resolvconf-parsing
+  resolver:
+    # proxy.resolver.dns Configures name server used to resolve names of upstream servers into addresses
+    # If set to, it takes priority over the `proxy.resolver.local`
+    dns: ""
+    # proxy.resolver.local Allows you to use the DNS configuration of the container
+    # If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path
+    # Example:
+    # local: "/tmp/resolv.conf"
+    local: "on"
 
 # DocSpace Healthchecks Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
