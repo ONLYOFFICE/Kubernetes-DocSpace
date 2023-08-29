@@ -15,6 +15,8 @@ connections:
   mysqlDatabaseMigration: "false"
   # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
+  # connections.mysqlPort Database server port number
+  mysqlPort: "3306"
   # connections.mysqlDatabase Name of the Database the application will be connected with
   mysqlDatabase: docspace
   # connections.superuser Database user with root rights
