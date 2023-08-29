@@ -14,6 +14,7 @@ data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
+  MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
   MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_SHEME: {{ .Values.connections.elkSheme }}
