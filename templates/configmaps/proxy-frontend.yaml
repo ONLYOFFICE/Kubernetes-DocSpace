@@ -82,7 +82,7 @@ data:
 
     location / {
 
-            proxy_pass http://{{ template "docspace.svc.proxy.name" . }}:{{ .Values.proxy.service.port.external }};
+            proxy_pass http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }};
         }
     }
 {{- end }}

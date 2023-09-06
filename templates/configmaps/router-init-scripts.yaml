@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: proxy-init-scripts
+  name: router-init-scripts
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
@@ -13,7 +13,7 @@ data:
     cp /etc/hosts ~/hosts.new
     sed -i '/^::1/s/^/#/' ~/hosts.new
     cp -f ~/hosts.new /etc/hosts
-  50-change-proxy-onlyoffice-conf.sh: |-
+  50-change-router-onlyoffice-conf.sh: |-
     #!/bin/sh
     sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
     sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
@@ -35,5 +35,5 @@ data:
     {{- else }}
     sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- end }}
-    sed '/8092\;/a\        resolver {{ template "docspace.proxy.resolver" . }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
+    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
     rm -rf /etc/nginx/conf.d/upstream.conf

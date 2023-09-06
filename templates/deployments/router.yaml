@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: proxy
+  name: router
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: proxy
+    app: router
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .Values.proxy.replicaCount }}
+  replicas: {{ .Values.router.replicaCount }}
   selector:
     matchLabels:
-      app: proxy
+      app: router
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if .Values.proxy.updateStrategy }}
-  strategy: {{- toYaml .Values.proxy.updateStrategy | nindent 4 }}
+  {{- if .Values.router.updateStrategy }}
+  strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: proxy
+        app: router
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -47,7 +47,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - proxy
+                  - router
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
         {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -57,14 +57,14 @@ spec:
               - key: app
                 operator: In
                 values:
-                - proxy
+                - router
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
         {{- end }}
-        {{- with .Values.proxy.podAffinity }}
+        {{- with .Values.router.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.proxy.nodeAffinity }}
+        {{- with .Values.router.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -79,86 +79,86 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       containers:
-      - name: proxy
-        image: {{ .Values.proxy.image.repository }}:{{ default .Values.images.tag .Values.proxy.image.tag }}
-        imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
+      - name: router
+        image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
+        imagePullPolicy: {{ .Values.router.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.proxy.containerPorts.external }}
+        - containerPort: {{ .Values.router.containerPorts.external }}
           name: external
-        {{- if .Values.proxy.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.proxy.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.router.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.router.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.proxy.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.proxy.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.router.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.router.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.proxy.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.proxy.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.router.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.router.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.proxy.resources | nindent 10 }}
+        resources: {{- toYaml .Values.router.resources | nindent 10 }}
         envFrom:
         - configMapRef:
             name: docspace
         - configMapRef:
-            name: docspace-proxy
+            name: docspace-router
         - secretRef:
             name: {{ template "docspace.coreMachineKey.secretName" . }}
         volumeMounts:
-        {{- if .Values.proxy.extraConf.initScripts.configMap }}
-        {{- range .Values.proxy.extraConf.initScripts.fileName }}
+        {{- if .Values.router.extraConf.initScripts.configMap }}
+        {{- range .Values.router.extraConf.initScripts.fileName }}
         - name: init-scripts
           mountPath: /docker-entrypoint.d/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- if .Values.proxy.extraConf.customInitScripts.configMap }}
-        {{- range .Values.proxy.extraConf.customInitScripts.fileName }}
+        {{- if .Values.router.extraConf.customInitScripts.configMap }}
+        {{- range .Values.router.extraConf.customInitScripts.fileName }}
         - name: custom-init-scripts
           mountPath: /docker-entrypoint.d/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- if .Values.proxy.extraConf.templates.configMap }}
-        {{- range .Values.proxy.extraConf.templates.fileName }}
+        {{- if .Values.router.extraConf.templates.configMap }}
+        {{- range .Values.router.extraConf.templates.fileName }}
         - name: template-files
           mountPath: /etc/nginx/templates/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- if .Values.proxy.extraConf.confd.configMap }}
-        {{- range .Values.proxy.extraConf.confd.fileName }}
+        {{- if .Values.router.extraConf.confd.configMap }}
+        {{- range .Values.router.extraConf.confd.fileName }}
         - name: confd-file
           mountPath: /etc/nginx/conf.d/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        - name: proxy-log
+        - name: router-log
           mountPath: /var/log/nginx
       volumes:
-      {{- if .Values.proxy.extraConf.initScripts.configMap }}
+      {{- if .Values.router.extraConf.initScripts.configMap }}
       - name: init-scripts
         configMap:
-          name: {{ .Values.proxy.extraConf.initScripts.configMap }}
+          name: {{ .Values.router.extraConf.initScripts.configMap }}
           defaultMode: 0755
       {{- end }}
-      {{- if .Values.proxy.extraConf.customInitScripts.configMap }}
+      {{- if .Values.router.extraConf.customInitScripts.configMap }}
       - name: custom-init-scripts
         configMap:
-          name: {{ .Values.proxy.extraConf.customInitScripts.configMap }}
+          name: {{ .Values.router.extraConf.customInitScripts.configMap }}
           defaultMode: 0755
       {{- end }}
-      {{- if .Values.proxy.extraConf.templates.configMap }}
+      {{- if .Values.router.extraConf.templates.configMap }}
       - name: template-files
         configMap:
-          name: {{ .Values.proxy.extraConf.templates.configMap }}
+          name: {{ .Values.router.extraConf.templates.configMap }}
       {{- end }}
-      {{- if .Values.proxy.extraConf.confd.configMap }}
+      {{- if .Values.router.extraConf.confd.configMap }}
       - name: confd-file
         configMap:
-          name: {{ .Values.proxy.extraConf.confd.configMap }}
+          name: {{ .Values.router.extraConf.confd.configMap }}
       {{- end }}
-      - name: proxy-log
+      - name: router-log
         persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.proxy.name" . }}
+          claimName: {{ template "docspace.pvc.router.name" . }}
