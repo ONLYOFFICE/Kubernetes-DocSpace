@@ -1,8 +1,8 @@
-{{- if eq (include "docspace.pvc.proxy.create" .) "true" }}
+{{- if eq (include "docspace.pvc.router.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: proxy-log
+  name: router-log
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
@@ -15,5 +15,5 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.persistence.proxyLog.size }}
+      storage: {{ .Values.persistence.routerLog.size }}
 {{- end }}
