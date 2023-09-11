@@ -8,7 +8,7 @@ connections:
   # connections.envExtension Defines whether an environment will be used
   envExtension: "none"
   # connections.installationType Defines solution type
-  installationType: ENTERPRISE
+  installationType: COMMUNITY
   # connections.migrationType Defines migration type
   migrationType: STANDALONE
   # connections.mysqlDatabaseMigration Enables database migration
@@ -2557,7 +2557,7 @@ docs:
   # docs container image parameters
   image:
     # docs.image.repository Document Server container image repository
-    repository: onlyoffice/4testing-documentserver-ee
+    repository: onlyoffice/documentserver
     # docs.image.tag Document Server container image tag
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
