@@ -8,13 +8,15 @@ connections:
   # connections.envExtension Defines whether an environment will be used
   envExtension: "none"
   # connections.installationType Defines solution type
-  installationType: ENTERPRISE
+  installationType: COMMUNITY
   # connections.migrationType Defines migration type
   migrationType: STANDALONE
   # connections.mysqlDatabaseMigration Enables database migration
   mysqlDatabaseMigration: "false"
   # connections.mysqlHost The IP address or the name of the Database host
   mysqlHost: mysql
+  # connections.mysqlPort Database server port number
+  mysqlPort: "3306"
   # connections.mysqlDatabase Name of the Database the application will be connected with
   mysqlDatabase: docspace
   # connections.superuser Database user with root rights
@@ -37,7 +39,9 @@ connections:
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
   # connections.redisHost The IP address or the name of the Redis host
-  redisHost: redis-master
+  # If Redis is deployed inside a k8s cluster, then you need to specify the FQDN name of the service
+  # ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services
+  redisHost: redis-master.default.svc.cluster.local
   # connections.redisPort The Redis server port number
   redisPort: "6379"
   # connections.redisUser The Redis user name
@@ -124,8 +128,8 @@ connections:
   # connections.documentServerUrlInternal The name of the Document Server service for internal requests
   documentServerUrlInternal: "http://document-server/"
   # connections.appUrlPortal URL for DocSpace requests
-  # By default, the name of the routing (Proxy) service and the port on which it accepts requests are used
-  appUrlPortal: "http://proxy:8092"
+  # By default, the name of the routing (Router) service and the port on which it accepts requests are used
+  appUrlPortal: "http://router:8092"
   # connections.appCoreBaseDomain The base domain on which the DocSpace will be available
   appCoreBaseDomain: localhost
   appCoreMachinekey:
@@ -135,10 +139,10 @@ connections:
     # Must contain the `APP_CORE_MACHINEKEY` key
     # If not specified, a secret will be created with the value set in `connections.appCoreMachinekey.secretKey`
     existingSecret: ""
-  # connections.countWorkerConnections Defines the nginx config worker_connections directive for routing (Proxy) service
+  # connections.countWorkerConnections Defines the nginx config worker_connections directive for routing (Router) service
   # ref: https://nginx.org/en/docs/ngx_core_module.html#worker_connections
   countWorkerConnections: "1024"
-  # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Proxy) service
+  # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Router) service
   nginxSnvsubstTemplateSuffix: ".template"
   # connections.appKnownProxies Defines the known proxies for DocSpace services
   appKnownProxies: ""
@@ -206,7 +210,7 @@ imagePullSecrets: ""
 # images.tag Global image tag for all services
 # Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
 images:
-  tag: v1.1.1
+  tag: 1.1.2.2487
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -301,11 +305,11 @@ persistence:
     existingClaim: ""
     # persistence.peopleData.size PVC Storage Request for People Server volume
     size: 1Gi
-  proxyLog:
-    # persistence.proxyLog.existingClaim The name of the existing PVC for storing Nginx logs of the Proxy service
-    # If not specified, a PVC named "proxy-log" will be created
+  routerLog:
+    # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
+    # If not specified, a PVC named "router-log" will be created
     existingClaim: ""
-    # persistence.proxyLog.size PVC Storage Request for Nginx logs volume
+    # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
 
 # DocSpace common deployment parameters
@@ -560,26 +564,26 @@ peopleServer:
       memory: "2Gi"
       cpu: "2000m"
 
-# DocSpace Proxy Deployment parameters
+# DocSpace Router Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
 #
-proxy:
-  # proxy.replicaCount Number of proxy replicas to deploy
-  # If the `proxy.autoscaling.enabled` parameter is enabled, it is ignored
+router:
+  # router.replicaCount Number of Router replicas to deploy
+  # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # proxy.updateStrategy.type proxy Deployment update strategy type
+    # router.updateStrategy.type Router Deployment update strategy type
     # Allowed values: `RollingUpdate` or `Recreate`
     type: RollingUpdate
-    # proxy.updateStrategy.rollingUpdate Used only when `proxy.updateStrategy.type=RollingUpdate`
+    # router.updateStrategy.rollingUpdate Used only when `router.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # proxy.updateStrategy.rollingUpdate.maxUnavailable Maximum number of proxy Pods unavailable during the update process
+      # router.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Router Pods unavailable during the update process
       maxUnavailable: 25%
-      # proxy.updateStrategy.rollingUpdate.maxSurge Maximum number of proxy Pods created over the desired number of Pods
+      # router.updateStrategy.rollingUpdate.maxSurge Maximum number of Router Pods created over the desired number of Pods
       maxSurge: 25%
-  # Pod affinity rules for proxy Pods scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes proxy Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -592,8 +596,8 @@ proxy:
   #         - store
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
-  # Node affinity rules for proxy Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes proxy Pod can be scheduled on based on node labels
+  # Node affinity rules for Router Pods scheduling by nodes
+  # Node affinity allow you to constrain which nodes Router Pod can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -606,71 +610,71 @@ proxy:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
-  # proxy container image parameters
+  # Router container image parameters
   image:
-    # proxy.image.repository proxy container image repository
-    repository: onlyoffice/4testing-docspace-proxy
-    # proxy.image.tag proxy container image tag
+    # router.image.repository Router container image repository
+    repository: onlyoffice/4testing-docspace-router
+    # router.image.tag Router container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
-    # proxy.image.pullPolicy proxy container image pull policy
+    # router.image.pullPolicy Router container image pull policy
     pullPolicy: IfNotPresent
-  # proxy.containerPorts.external proxy container port
+  # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
-  # Probe used for the proxy container: startup, readiness and liveness probes
+  # Probe used for the Router container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `proxy.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `router.startupProbe.enabled=true`
   startupProbe:
-    # proxy.startupProbe.enabled Enable startupProbe for proxy container
+    # router.startupProbe.enabled Enable startupProbe for Router container
     enabled: false
     httpGet:
-      # proxy.startupProbe.httpGet.path Checking the path for startupProbe
+      # router.startupProbe.httpGet.path Checking the path for startupProbe
       path: /
-      # proxy.startupProbe.httpGet.port Checking the port for startupProbe
+      # router.startupProbe.httpGet.port Checking the port for startupProbe
       port: 8092
-    # proxy.startupProbe.failureThreshold Failure threshold for startupProbe
+    # router.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # proxy.startupProbe.periodSeconds Period seconds for startupProbe
+    # router.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `proxy.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `router.readinessProbe.enabled=true`
   readinessProbe:
-    # proxy.readinessProbe.enabled Enable readinessProbe for proxy container
+    # router.readinessProbe.enabled Enable readinessProbe for Router container
     enabled: false
-    # proxy.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # router.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # proxy.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # router.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /
-      # proxy.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # router.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 8092
-    # proxy.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # router.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
-    # proxy.readinessProbe.successThreshold Success threshold for readinessProbe
+    # router.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # proxy.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # router.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 3
-  # The parameters below for liveness probes are used only when `proxy.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `router.livenessProbe.enabled=true`
   livenessProbe:
-    # proxy.livenessProbe.enabled Enable livenessProbe for proxy container
+    # router.livenessProbe.enabled Enable livenessProbe for Router container
     enabled: false
-    # proxy.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # router.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 5
     httpGet:
-      # proxy.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # router.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /
-      # proxy.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # router.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 8092
-    # proxy.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # router.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
-    # proxy.livenessProbe.successThreshold Success threshold for livenessProbe
+    # router.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # proxy.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # router.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # proxy container resource requests and limits
+  # Router container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # proxy.resources.requests The requested resources for the proxy container
-  # proxy.resources.limits The resources limits for the proxy container
+  # router.resources.requests The requested resources for the Router container
+  # router.resources.limits The resources limits for the Router container
   resources:
     requests:
       memory: "256Mi"
@@ -678,72 +682,83 @@ proxy:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # Additional configuration files for Proxy
+  # Additional configuration files for Router
   extraConf:
     initScripts:
-      # proxy.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
-      configMap: proxy-init-scripts
-      # proxy.extraConf.initScripts.fileName The names of scripts containing initialization scripts
-      # The values set here are necessary for correct proxy configuration. You don't need to change it
+      # router.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
+      configMap: router-init-scripts
+      # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
+      # The values set here are necessary for correct Router configuration. You don't need to change it
       fileName:
         - 40-change-hosts.sh
-        - 50-change-proxy-onlyoffice-conf.sh
+        - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
-      # proxy.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
+      # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
       configMap: ""
-      # proxy.extraConf.customInitScripts.fileName The names of scripts containing custom initialization scripts
-      # Must be the same as the `key` names in `proxy.extraConf.customInitScripts.configMap`
+      # router.extraConf.customInitScripts.fileName The names of scripts containing custom initialization scripts
+      # Must be the same as the `key` names in `router.extraConf.customInitScripts.configMap`
       # May contain multiple values
       fileName:
         - 60-custom-init-scripts.sh
     templates:
-      # proxy.extraConf.templates.configMap The name of the ConfigMap containing configuration file templates containing environment variables
+      # router.extraConf.templates.configMap The name of the ConfigMap containing configuration file templates containing environment variables
       # The values of these variables will be substituted when the container is started
       configMap: ""
-      # proxy.extraConf.templates.fileName The names of the configuration file templates containing environment variables
-      # Must be the same as the `key` names in `proxy.extraConf.templates.configMap`
+      # router.extraConf.templates.fileName The names of the configuration file templates containing environment variables
+      # Must be the same as the `key` names in `router.extraConf.templates.configMap`
       # May contain multiple values
       fileName:
         - 10.example.conf.template
     confd:
-      # proxy.extraConf.confd.configMap The name of the ConfigMap containing additional custom configuration files
+      # router.extraConf.confd.configMap The name of the ConfigMap containing additional custom configuration files
       # These files will be map in the `/etc/nginx/conf.d/` directory of the container
       configMap: ""
-      # proxy.extraConf.confd.fileName The names of the configuration files containing custom configuration files
-      # Must be the same as the `key` names in `proxy.extraConf.confd.configMap`
+      # router.extraConf.confd.fileName The names of the configuration files containing custom configuration files
+      # Must be the same as the `key` names in `router.extraConf.confd.configMap`
       # May contain multiple values
       fileName:
         - example.conf
-  # Proxy service parameters
+  # Router service parameters
   service:
-    # proxy.service.existing The name of an existing service for Proxy. If not set, a service named `proxy` will be created
-    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/proxy.yaml
+    # router.service.existing The name of an existing service for Router. If not set, a service named `router` will be created
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/router.yaml
     existing: ""
-    # proxy.service.annotations Map of annotations to add to the Proxy service
+    # router.service.annotations Map of annotations to add to the Router service
     annotations: {}
     port:
-      # proxy.service.port.external Proxy service port
+      # router.service.port.external Router service port
       external: 8092
-    # proxy.service.type Proxy service type
+    # router.service.type Router service type
     type: ClusterIP
-    # proxy.service.sessionAffinity Session Affinity for Proxy service
+    # router.service.sessionAffinity Session Affinity for Router service
     # If not set, `None` will be set as the default value
     # ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity
     sessionAffinity: ""
-    # proxy.service.sessionAffinityConfig Configuration for Proxy service Session Affinity
-    # Used if the `proxy.service.sessionAffinity` is set
+    # router.service.sessionAffinityConfig Configuration for Router service Session Affinity
+    # Used if the `router.service.sessionAffinity` is set
     # ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout
     # Example:
     # sessionAffinityConfig:
     #   clientIP:
     #     timeoutSeconds: 900
     sessionAffinityConfig: {}
-    # proxy.service.externalTrafficPolicy Enable preservation of the client source IP
+    # router.service.externalTrafficPolicy Enable preservation of the client source IP
     # There are two available options: `Cluster` (default) and `Local`
     # ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
     # Not supported for service type - `ClusterIP`
     # ref: https://kubernetes.io/docs/tutorials/services/source-ip/
     externalTrafficPolicy: ""
+  # Router openresty resolver
+  # ref: https://github.com/openresty/openresty/#resolvconf-parsing
+  resolver:
+    # router.resolver.dns Configures name server used to resolve names of upstream servers into addresses
+    # If set to, it takes priority over the `router.resolver.local`
+    dns: ""
+    # router.resolver.local Allows you to use the DNS configuration of the container
+    # If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path
+    # Example:
+    # local: "/tmp/resolv.conf"
+    local: "on"
 
 # DocSpace Healthchecks Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
@@ -2542,7 +2557,7 @@ docs:
   # docs container image parameters
   image:
     # docs.image.repository Document Server container image repository
-    repository: onlyoffice/4testing-documentserver-ee
+    repository: onlyoffice/documentserver
     # docs.image.tag Document Server container image tag
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy

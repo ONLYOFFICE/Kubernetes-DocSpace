@@ -1,0 +1,40 @@
+{{- if eq (include "docspace.svc.router.create" .) "true" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: router
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.router.service.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.router.service.annotations }}
+    {{ $key }}: {{ tpl $value $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.router.service.port.external }}
+    name: external
+    targetPort: {{ .Values.router.containerPorts.external }}
+  selector:
+    app: router
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: {{ .Values.router.service.type }}
+  {{- if .Values.router.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.router.service.sessionAffinity }}
+  {{- if .Values.router.service.sessionAffinityConfig }}
+  {{- with .Values.router.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.router.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.router.service.externalTrafficPolicy }}
+  {{- end }}
+{{- end }}

@@ -14,13 +14,14 @@ data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
+  MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
   MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_SHEME: {{ .Values.connections.elkSheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
   ELK_THREADS: {{ .Values.connections.elkThreads | quote }}
-  PROXY_HOST: {{ template "docspace.svc.proxy.name" . }}
+  ROUTER_HOST: {{ template "docspace.svc.router.name" . }}
   SOCKET_HOST: {{ .Values.connections.socketHost }}
   REDIS_HOST: {{ .Values.connections.redisHost }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}

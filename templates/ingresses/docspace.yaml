@@ -36,7 +36,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ template "docspace.svc.proxy.name" . }}
+            name: {{ template "docspace.svc.router.name" . }}
             port:
-              number: {{ .Values.proxy.service.port.external }}
+              number: {{ .Values.router.service.port.external }}
 {{- end }}

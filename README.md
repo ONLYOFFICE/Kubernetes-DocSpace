@@ -214,6 +214,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
+| `connections.mysqlPort`                                | Database server port number                                                                                                 | `3306`                        |
 | `connections.mysqlDatabase`                            | Name of the Database the application will be connected with                                                                 | `onlyoffice` |
 | `connections.superuser`                                | Database user with root rights                                                                                              | `root`                        |
 | `connections.mysqlRootPassword`                        | Database root password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
@@ -222,7 +223,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword` | `mysql` |
 | `connections.mysqlSecretKeyRootPassword`               | The name of the key that contains the Database root password. If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-root-password` |
 | `connections.mysqlSecretKeyPassword`                   | The name of the key that contains the Database user password. If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
-| `connections.redisHost`                                | The IP address or the name of the Redis host                                                                                | `redis-master`                |
+| `connections.redisHost`                                | The IP address or the name of the Redis host. If Redis is deployed inside a k8s cluster, then you need to specify the [FQDN](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services) name of the service | `redis-master.default.svc.cluster.local` |
 | `connections.redisPort`                                | The Redis server port number                                                                                                | `6379`                        |
 | `connections.redisUser`                                | The Redis [user](https://redis.io/docs/management/security/acl/) name                                                       | `default`                     |
 | `connections.redisExistingSecret`                      | Name of existing secret to use for Redis password. Must contain the key specified in `connections.redisSecretKeyName`       | `redis`                       |
@@ -261,12 +262,12 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.documentServerHost`                       | The name of the Document Server service                                                                                     | `document-server`             |
 | `connections.documentServerUrlPublic`                  | The name of the Document Server service                                                                                     | `/ds-vpath/`                  |
 | `connections.documentServerUrlInternal`                | The name of the Document Server service for internal requests                                                               | `http://document-server/`     |
-| `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Proxy) service and the port on which it accepts requests are used | `http://proxy:8092`     |
+| `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`     |
 | `connections.appCoreBaseDomain`                        | The base domain on which the DocSpace will be available                                                                     | `localhost`                   |
 | `connections.appCoreMachinekey.secretKey`              | The secret key used in the DocSpace                                                                                         | `your_core_machinekey`        |
 | `connections.appCoreMachinekey.existingSecret`         | The name of an existing secret containing Core Machine Key. Must contain the `APP_CORE_MACHINEKEY` key. If not specified, a secret will be created with the value set in `connections.appCoreMachinekey.secretKey` | `""` |
-| `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Proxy) service | `1024` |
-| `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Proxy) service                                           | `.template`                   |
+| `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Router) service | `1024` |
+| `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Router) service                                          | `.template`                   |
 | `connections.appKnownProxies`                          | Defines the known proxies for DocSpace services                                                                             | `""`                          |
 | `connections.appKnownNetworks`                         | List of intermediate proxy addresses                                                                                        | `""`                          |
 | `connections.oauthRedirectURL`                         | Address of the oauth authorization server                                                                                   | `https://service.example.com/oauth2.aspx` |
@@ -285,7 +286,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
 | `tolerations`                                          | Tolerations for pods assignment                                                                                             | `[]`                          |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend StatefulSets                    | `v1.1.1`                      |
+| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend StatefulSets                    | `1.1.2.2487`                  |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -316,8 +317,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                    | `1Gi`                                                                                 |
 | `persistence.peopleData.existingClaim`                 | The name of the existing PVC for use in the People Server service. If not specified, a PVC named "people-data" will be created | `""`                                                                           |
 | `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                            | `1Gi`                                                                                 |
-| `persistence.proxyLog.existingClaim`                   | The name of the existing PVC for storing Nginx logs of the Proxy service. If not specified, a PVC named "proxy-log" will be created | `""`                                                                      |
-| `persistence.proxyLog.size`                            | PVC Storage Request for Nginx logs volume                                                                               | `5Gi`                                                                                 |
+| `persistence.routerLog.existingClaim`                  | The name of the existing PVC for storing Nginx logs of the Router service. If not specified, a PVC named "router-log" will be created | `""`                                                                      |
+| `persistence.routerLog.size`                           | PVC Storage Request for Nginx logs volume                                                                               | `5Gi`                                                                                 |
 
 ### DocSpace common Deployments parameters
 
@@ -340,7 +341,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/4testing-docspace-Deployment` |
 | `Deployment.image.tag`                                   | "Deployment" container image tag. If set to, it takes priority over the `images.tag`                            | `""`                                      |
 | `Deployment.image.pullPolicy`                            | "Deployment" container image pull policy                                                                        | `IfNotPresent`                            |
-| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `proxy` Deployment                                                     | `5050`                                    |
+| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `router` Deployment                                                    | `5050`                                    |
 | `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `false`                                   |
 | `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `false`                                   |
 | `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `false`                                   |
@@ -348,26 +349,28 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Deployment.resources.limits`                            | The resources limits for the "Deployment" container                                                             | `memory, cpu`                             |
 
 * Deployment* Note: Since all available Deployments have some identical parameters, a description for each of them has not been added to the table, but combined into one.
-Instead of `Deployment`, the parameter name should have the following values: `files`, `peopleServer`, `proxy` and `healthchecks`.
+Instead of `Deployment`, the parameter name should have the following values: `files`, `peopleServer`, `router` and `healthchecks`.
 
-### DocSpace Proxy Deployment additional parameters
+### DocSpace Router Deployment additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `proxy.containerPorts.external`                          | Proxy container port                                                                                            | `8092`               |
-| `proxy.extraConf.customInitScripts.configMap`            | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
-| `proxy.extraConf.customInitScripts.fileName`             | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `proxy.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
-| `proxy.extraConf.templates.configMap`                    | The name of the ConfigMap containing configuration file templates containing environment variables. The values of these variables will be substituted when the container is started | `""` |
-| `proxy.extraConf.templates.fileName`                     | The names of the configuration file templates containing environment variables. Must be the same as the `key` names in `proxy.extraConf.templates.configMap`. May contain multiple values | `10.example.conf.template` |
-| `proxy.extraConf.confd.configMap`                        | The name of the ConfigMap containing additional custom configuration files. These files will be map in the `/etc/nginx/conf.d/` directory of the container | `""` |
-| `proxy.extraConf.confd.fileName`                         | The names of the configuration files containing custom configuration files. Must be the same as the `key` names in `proxy.extraConf.confd.configMap`. May contain multiple values | `example.conf` |
-| `proxy.service.existing`                                 | The name of an existing service for Proxy. If not set, a service named `proxy` will be created                  | `""`                 |
-| `proxy.service.annotations`                              | Map of annotations to add to the Proxy service                                                                  | `{}`                 |
-| `proxy.service.port.external`                            | Proxy service port                                                                                              | `8092`               |
-| `proxy.service.type`                                     | Proxy service type                                                                                              | `ClusterIP`          |
-| `proxy.service.sessionAffinity`                          | [Session Affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) for Proxy service. If not set, `None` will be set as the default value | `""` |
-| `proxy.service.sessionAffinityConfig`                    | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy service Session Affinity. Used if the `proxy.service.sessionAffinity` is set | `{}` |
-| `proxy.service.externalTrafficPolicy`                    | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
+| `router.containerPorts.external`                         | Router container port                                                                                           | `8092`               |
+| `router.extraConf.customInitScripts.configMap`           | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
+| `router.extraConf.customInitScripts.fileName`            | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `router.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
+| `router.extraConf.templates.configMap`                   | The name of the ConfigMap containing configuration file templates containing environment variables. The values of these variables will be substituted when the container is started | `""` |
+| `router.extraConf.templates.fileName`                    | The names of the configuration file templates containing environment variables. Must be the same as the `key` names in `router.extraConf.templates.configMap`. May contain multiple values | `10.example.conf.template` |
+| `router.extraConf.confd.configMap`                       | The name of the ConfigMap containing additional custom configuration files. These files will be map in the `/etc/nginx/conf.d/` directory of the container | `""` |
+| `router.extraConf.confd.fileName`                        | The names of the configuration files containing custom configuration files. Must be the same as the `key` names in `router.extraConf.confd.configMap`. May contain multiple values | `example.conf` |
+| `router.service.existing`                                | The name of an existing service for Router. If not set, a service named `router` will be created                | `""`                 |
+| `router.service.annotations`                             | Map of annotations to add to the Router service                                                                 | `{}`                 |
+| `router.service.port.external`                           | Router service port                                                                                             | `8092`               |
+| `router.service.type`                                    | Router service type                                                                                             | `ClusterIP`          |
+| `router.service.sessionAffinity`                         | [Session Affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) for Router service. If not set, `None` will be set as the default value | `""` |
+| `router.service.sessionAffinityConfig`                   | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Router service Session Affinity. Used if the `router.service.sessionAffinity` is set | `{}` |
+| `router.service.externalTrafficPolicy`                   | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
+| `router.resolver.dns`                                    | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `router.resolver.local` | `""` |
+| `router.resolver.local`                                  | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
 
 ### DocSpace StatefulSet* parameters
 
@@ -523,17 +526,17 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 This type of exposure has the least overheads of performance, it creates a loadbalancer to get access to DocSpace.
 Use this type of exposure if you use external TLS termination, and don't have another WEB application in the k8s cluster.
 
-To expose DocSpace via service, set the `proxy.service.type` parameter to `LoadBalancer`:
+To expose DocSpace via service, set the `router.service.type` parameter to `LoadBalancer`:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set proxy.service.type=LoadBalancer,proxy.service.port.external=8092
+$ helm install [RELEASE_NAME] ./ --set router.service.type=LoadBalancer,router.service.port.external=8092
 
 ```
 
 Run the following command to get the `DocSpace` service IP:
 
 ```bash
-$ kubectl get service proxy -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
+$ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
 After that, DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
@@ -541,7 +544,7 @@ After that, DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
 If the service IP is empty, try getting the `DocSpace` service hostname:
 
 ```bash
-$ kubectl get service proxy -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+$ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
 In this case, DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.

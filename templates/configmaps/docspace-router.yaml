@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docspace-router
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+data:
+  COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
+  NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}

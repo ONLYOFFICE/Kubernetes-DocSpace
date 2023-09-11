@@ -159,10 +159,10 @@ Get the DocSpace Url Portal
 {{- define "docspace.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
     {{- printf "" -}}
-{{- else if .Values.proxy.service.existing -}}
-    {{- printf "http://%s:%s" (tpl .Values.proxy.service.existing $) (toString .Values.proxy.service.port.external) -}}
-{{- else if empty .Values.proxy.service.existing -}}
-    {{- printf "http://proxy:%s" (toString .Values.proxy.service.port.external) -}}
+{{- else if .Values.router.service.existing -}}
+    {{- printf "http://%s:%s" (tpl .Values.router.service.existing $) (toString .Values.router.service.port.external) -}}
+{{- else if empty .Values.router.service.existing -}}
+    {{- printf "http://router:%s" (toString .Values.router.service.port.external) -}}
 {{- else -}}
     {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
 {{- end -}}
@@ -220,22 +220,33 @@ Return Core Machine Key
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for DocSpace Proxy
+Return resolver for DocSpace Router
 */}}
-{{- define "docspace.svc.proxy.create" -}}
-{{- if empty .Values.proxy.service.existing }}
+{{- define "docspace.router.resolver" -}}
+{{- if .Values.router.resolver.dns -}}
+    {{- .Values.router.resolver.dns -}}
+{{- else -}}
+    {{- printf "local=%s" (toString .Values.router.resolver.local) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a service object should be created for DocSpace Router
+*/}}
+{{- define "docspace.svc.router.create" -}}
+{{- if empty .Values.router.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the service name for DocSpace Proxy
+Get the service name for DocSpace Router
 */}}
-{{- define "docspace.svc.proxy.name" -}}
-{{- if .Values.proxy.service.existing -}}
-    {{- printf "%s" (tpl .Values.proxy.service.existing $) -}}
+{{- define "docspace.svc.router.name" -}}
+{{- if .Values.router.service.existing -}}
+    {{- printf "%s" (tpl .Values.router.service.existing $) -}}
 {{- else -}}
-    {{- printf "proxy" -}}
+    {{- printf "router" -}}
 {{- end -}}
 {{- end -}}
 
@@ -320,21 +331,21 @@ Return true if a pvc object should be created for DocSpace Files
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace Proxy log
+Get the PVC name for DocSpace Router log
 */}}
-{{- define "docspace.pvc.proxy.name" -}}
-{{- if .Values.persistence.proxyLog.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.proxyLog.existingClaim $) -}}
+{{- define "docspace.pvc.router.name" -}}
+{{- if .Values.persistence.routerLog.existingClaim -}}
+    {{- printf "%s" (tpl .Values.persistence.routerLog.existingClaim $) -}}
 {{- else }}
-    {{- printf "proxy-log" -}}
+    {{- printf "router-log" -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for DocSpace Proxy log
+Return true if a pvc object should be created for DocSpace Router log
 */}}
-{{- define "docspace.pvc.proxy.create" -}}
-{{- if empty .Values.persistence.proxyLog.existingClaim }}
+{{- define "docspace.pvc.router.create" -}}
+{{- if empty .Values.persistence.routerLog.existingClaim }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
