@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0
+
+### New Features
+
+* Uses OpenResty as a routing service
+
+### Changes
+
+* Changes the name of the routing service
+
+### Fixes
+
+* Fixed services run errors
+
 ## 1.1.0
 
 ### New Features
