@@ -144,9 +144,15 @@ connections:
   countWorkerConnections: "1024"
   # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Router) service
   nginxSnvsubstTemplateSuffix: ".template"
-  # connections.appKnownProxies Defines the known proxies for DocSpace services
-  appKnownProxies: ""
-  # connections.appKnownNetworks List of intermediate proxy addresses
+  # connections.appKnownProxies Defines the addresses of known proxies to accept forwarded headers from for DocSpace services
+  # Use to specify exact IP address matches
+  # Example:
+  # appKnownProxies: ""
+  appKnownProxies: "10.244.0.5,10.245.1.6"
+  # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for DocSpace services
+  # Use to specify networks
+  # Example:
+  # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
   appKnownNetworks: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
   oauthRedirectURL: "https://service.example.com/oauth2.aspx"
