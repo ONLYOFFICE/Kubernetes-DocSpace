@@ -247,7 +247,7 @@ initContainers:
   waitStorage:
     image:
       # initContainers.waitStorage.image.repository app-wait-storage initContainer image repository
-      repository: onlyoffice/4testing-docspace-wait-bin-share
+      repository: onlyoffice/docspace-wait-bin-share
       # initContainers.waitStorage.image.tag app-wait-storage initContainer image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -268,7 +268,7 @@ initContainers:
   initStorage:
     image:
       # initContainers.initStorage.image.repository app-init-storage initContainer image repository
-      repository: onlyoffice/4testing-docspace-bin-share
+      repository: onlyoffice/docspace-bin-share
       # initContainers.initStorage.image.tag app-init-storage initContainer image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -377,7 +377,7 @@ files:
   # Files container image parameters
   image:
     # files.image.repository files container image repository
-    repository: onlyoffice/4testing-docspace-files
+    repository: onlyoffice/docspace-files
     # files.image.tag files container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -496,7 +496,7 @@ peopleServer:
   # People Server container image parameters
   image:
     # peopleServer.image.repository People Server container image repository
-    repository: onlyoffice/4testing-docspace-people-server
+    repository: onlyoffice/docspace-people-server
     # peopleServer.image.tag People Server container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -615,7 +615,7 @@ router:
   # Router container image parameters
   image:
     # router.image.repository Router container image repository
-    repository: onlyoffice/4testing-docspace-router
+    repository: onlyoffice/docspace-router
     # router.image.tag Router container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -813,7 +813,7 @@ healthchecks:
   # Healthchecks container image parameters
   image:
     # healthchecks.image.repository Healthchecks container image repository
-    repository: onlyoffice/4testing-docspace-healthchecks
+    repository: onlyoffice/docspace-healthchecks
     # healthchecks.image.tag Healthchecks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -929,7 +929,7 @@ apiSystem:
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
-    repository: onlyoffice/4testing-docspace-api-system
+    repository: onlyoffice/docspace-api-system
     # apiSystem.image.tag Api System container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1041,7 +1041,7 @@ api:
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
-    repository: onlyoffice/4testing-docspace-api
+    repository: onlyoffice/docspace-api
     # api.image.tag Api container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1153,7 +1153,7 @@ backup:
   # Backup container image parameters
   image:
     # backup.image.repository Backup container image repository
-    repository: onlyoffice/4testing-docspace-backup
+    repository: onlyoffice/docspace-backup
     # backup.image.tag Backup container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1265,7 +1265,7 @@ backupBackgroundTasks:
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
-    repository: onlyoffice/4testing-docspace-backup-background
+    repository: onlyoffice/docspace-backup-background
     # backupBackgroundTasks.image.tag Backup Background Tasks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1377,7 +1377,7 @@ clearEvents:
   # Clear Events container image parameters
   image:
     # clearEvents.image.repository Clear Events container image repository
-    repository: onlyoffice/4testing-docspace-clear-events
+    repository: onlyoffice/docspace-clear-events
     # clearEvents.image.tag Clear Events container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1489,7 +1489,7 @@ doceditor:
   # Doceditor container image parameters
   image:
     # doceditor.image.repository Doceditor container image repository
-    repository: onlyoffice/4testing-docspace-doceditor
+    repository: onlyoffice/docspace-doceditor
     # doceditor.image.tag Doceditor container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1603,7 +1603,7 @@ filesServices:
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
-    repository: onlyoffice/4testing-docspace-files-services
+    repository: onlyoffice/docspace-files-services
     # filesServices.image.tag Files Services container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1715,7 +1715,7 @@ login:
   # Login container image parameters
   image:
     # login.image.repository Login container image repository
-    repository: onlyoffice/4testing-docspace-login
+    repository: onlyoffice/docspace-login
     # login.image.tag Login container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1827,7 +1827,7 @@ notify:
   # Notify container image parameters
   image:
     # notify.image.repository Notify container image repository
-    repository: onlyoffice/4testing-docspace-notify
+    repository: onlyoffice/docspace-notify
     # notify.image.tag Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1939,7 +1939,7 @@ socket:
   # Socket container image parameters
   image:
     # socket.image.repository Socket container image repository
-    repository: onlyoffice/4testing-docspace-socket
+    repository: onlyoffice/docspace-socket
     # socket.image.tag Socket container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2053,7 +2053,7 @@ ssoauth:
   # ssoauth container image parameters
   image:
     # ssoauth.image.repository ssoauth container image repository
-    repository: onlyoffice/4testing-docspace-ssoauth
+    repository: onlyoffice/docspace-ssoauth
     # ssoauth.image.tag ssoauth container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2167,7 +2167,7 @@ studio:
   # Studio container image parameters
   image:
     # studio.image.repository Studio container image repository
-    repository: onlyoffice/4testing-docspace-studio
+    repository: onlyoffice/docspace-studio
     # studio.image.tag Studio container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2279,7 +2279,7 @@ studioNotify:
   # Studio Notify container image parameters
   image:
     # studioNotify.image.repository Studio Notify container image repository
-    repository: onlyoffice/4testing-docspace-studio-notify
+    repository: onlyoffice/docspace-studio-notify
     # studioNotify.image.tag Studio Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2700,7 +2700,7 @@ install:
         enabled: true
         image:
           # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
-          repository: onlyoffice/4testing-docspace-migration-runner
+          repository: onlyoffice/docspace-migration-runner
           # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -2761,7 +2761,7 @@ upgrade:
         enabled: true
         image:
           # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
-          repository: onlyoffice/4testing-docspace-migration-runner
+          repository: onlyoffice/docspace-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
