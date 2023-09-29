@@ -3,14 +3,13 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 {{- if .Values.connections.appKnownNetworks }}
 
-You have specified the following addresses of known networks to accept forwarded headers from for DocSpace services:
-  "{{ .Values.connections.appKnownNetworks }}"
-Note: Make sure that you have specified all the networks in which the Proxies that you are using in front of DocSpace services are located. This is necessary for the application to work correctly.
+You have specified the following addresses of known networks from which forwarded headers will be accepted by DocSpace services:
+    "{{ .Values.connections.appKnownNetworks }}"
+  Note: Make sure that you have specified all the networks in which the Proxies that you are using in front of DocSpace services are located. This is necessary for the application to work correctly.
 
 {{- else }}
 
-You have not specified the addresses of known networks to accept forwarded headers from for DocSpace services.
-The application may not work correctly.
+WARNING: You haven’t specified the addresses of known networks from which forwarded headers will be accepted by DocSpace services.. The application may not work correctly.
 
 {{- end }}
 
