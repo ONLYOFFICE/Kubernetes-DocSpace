@@ -78,6 +78,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- with .Values.router.initContainers }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: router
         image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
