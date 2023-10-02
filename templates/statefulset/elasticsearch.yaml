@@ -76,6 +76,9 @@ spec:
         volumeMounts:
         - name: elasticsearch-data
           mountPath: /usr/share/elasticsearch/data
+      {{- with .Values.elasticsearch.initContainers }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: elasticsearch
         image: {{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}

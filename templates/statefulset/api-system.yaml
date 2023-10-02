@@ -69,6 +69,9 @@ spec:
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: api-system
         image: {{ .Values.apiSystem.image.repository }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}

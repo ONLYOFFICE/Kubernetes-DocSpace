@@ -87,6 +87,9 @@ spec:
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: healthchecks
         image: {{ .Values.healthchecks.image.repository }}:{{ default .Values.images.tag .Values.healthchecks.image.tag }}

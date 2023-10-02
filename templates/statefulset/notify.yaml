@@ -68,6 +68,9 @@ spec:
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: notify
         image: {{ .Values.notify.image.repository }}:{{ default .Values.images.tag .Values.notify.image.tag }}

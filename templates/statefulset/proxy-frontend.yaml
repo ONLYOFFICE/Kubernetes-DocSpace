@@ -61,6 +61,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- with .Values.proxyFrontend.initContainers }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: proxy-frontend
         image: {{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}

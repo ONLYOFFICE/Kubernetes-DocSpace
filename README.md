@@ -309,6 +309,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.initStorage.resources.requests.cpu`    | The requested CPU for the app-init-storage initContainer                                                                | `100m`                                                                                |
 | `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                | `2Gi`                                                                                 |
 | `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                   | `1000m`                                                                               |
+| `initContainers.custom`                                | Defines custom containers that run before DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume | `[]`                                                         |
 | `persistence.storageClass`                             | PVC Storage Class for DocSpace data volume                                                                              | `nfs`                                                                                 |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                                                                     |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                             | `8Gi`                                                                                 |
@@ -354,6 +355,7 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `router.initContainers`                                  | Defines containers that run before Router container in the Router Deployment pod                                | `[]`                 |
 | `router.containerPorts.external`                         | Router container port                                                                                           | `8092`               |
 | `router.extraConf.customInitScripts.configMap`           | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
 | `router.extraConf.customInitScripts.fileName`            | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `router.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
@@ -427,6 +429,7 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `proxyFrontend.enabled`                                  | Enables Proxy Frontend installation                                                                             | `false`              |
+| `proxyFrontend.initContainers`                           | Defines containers that run before Proxy Frontend container in the Proxy Frontend StatefulSet pod               | `[]`                 |
 | `proxyFrontend.image.repository`                         | Proxy Frontend container image repository                                                                       | `nginx`              |
 | `proxyFrontend.image.tag`                                | Proxy Frontend container image tag                                                                              | `latest`             |
 | `proxyFrontend.containerPorts.http`                      | Proxy Frontend HTTP container port                                                                              | `80`                 |
@@ -447,12 +450,15 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 
 ### DocSpace Document Server StatefulSet additional parameters
 
+NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs)
+
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `false`               |
+| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `true`                |
 | `docs.podSecurityContext.enabled`                        | Enable security context for the Document Server Pod                                                             | `false`               |
 | `docs.podSecurityContext.runAsUser`                      | User ID for the Document Server pod                                                                             | `101`                 |
 | `docs.podSecurityContext.runAsGroup`                     | Group ID for the Document Server pod                                                                            | `101`                 |
+| `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server StatefulSet pod             | `[]`                  |
 | `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
 | `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
 | `docs.containerPorts.http`                               | Document Server HTTP container port                                                                             | `80`                  |
@@ -506,8 +512,9 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
 | `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
 | `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
+| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch StatefulSet pod                 | `[]`                       |
 | `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
-| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.10.0`                   |
+| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.16.3`                   |
 | `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
 | `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
 | `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `"nfs"`                    |
