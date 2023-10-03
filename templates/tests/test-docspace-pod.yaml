@@ -1,0 +1,72 @@
+{{- if .Values.tests.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-docspace
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+  {{- if .Values.podSecurityContext.enabled }}
+  securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if .Values.nodeSelector }}
+  nodeSelector: {{ toYaml .Values.nodeSelector | nindent 4 }}
+  {{- end }}
+  {{- if .Values.tolerations }}
+  tolerations: {{ toYaml .Values.tolerations | nindent 4 }}
+  {{- end }}
+  {{- if .Values.imagePullSecrets }}
+  imagePullSecrets:
+  - name: {{ .Values.imagePullSecrets }}
+  {{- end }}
+  containers:
+  - image: python:3.11
+    name: test-docspace
+    resources: {{ toYaml .Values.tests.resources | nindent 6 }}
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.mysql.secretName" . }}
+          key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.mysql.secretName" . }}
+          key: {{ .Values.connections.mysqlSecretKeyPassword }}
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.redis.secretName" . }}
+          key: {{ .Values.connections.redisSecretKeyName }}
+    - name: RABBIT_PROTO
+      value: {{ .Values.connections.brokerProto }}
+    - name: RABBIT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.broker.secretName" . }}
+          key: {{ .Values.connections.brokerSecretKeyName }}
+    envFrom:
+    - configMapRef:
+        name: docspace
+    volumeMounts:
+    - name: test-docspace
+      mountPath: /scripts/test_docspace.py
+      subPath: test_docspace.py
+    command: ['python', '/scripts/test_docspace.py']
+    {{- end }}
+  volumes:
+  - name: test-docspace
+    configMap:
+      name: test-docspace
+      defaultMode: 0755
+  restartPolicy: Never
+{{- end }}

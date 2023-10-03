@@ -2982,3 +2982,21 @@ elasticsearch:
       - ReadWriteOnce
     # elasticsearch.persistence.size PVC Storage Request for Elasticsearch volume
     size: 30Gi
+
+# DocSpace tests parameters
+#
+tests:
+  # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
+  # These resources will be used when running the `helm test` command
+  enabled: true
+  # test container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # tests.resources.requests The requested resources for the test container
+  # tests.resources.limits The resources limits for the test container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
