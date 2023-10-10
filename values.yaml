@@ -1522,7 +1522,7 @@ doceditor:
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
-    # doceditor.containerPorts.doceditor Socket additional container port
+    # doceditor.containerPorts.doceditor Doceditor additional container port
     doceditor: 5013
   # Probe used for the Doceditor container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
@@ -2989,6 +2989,15 @@ tests:
   # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
   # These resources will be used when running the `helm test` command
   enabled: true
+  # Configure a Security Context for the Test Pod
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  podSecurityContext:
+    # tests.podSecurityContext.enabled Enable security context for the Test pod
+    enabled: false
+    # tests.podSecurityContext.runAsUser User ID for the Test pod
+    runAsUser: 0
+    # tests.podSecurityContext.runAsGroup Group ID for the Test pod
+    runAsGroup: 0
   # test container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # tests.resources.requests The requested resources for the test container

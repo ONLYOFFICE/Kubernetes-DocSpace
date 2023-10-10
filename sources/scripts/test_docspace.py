@@ -4,6 +4,31 @@ import subprocess
 import time
 import logging
 
+router = os.environ.get('ROUTER_SERVICE')
+backup = os.environ.get('BACKUP_SERVICE')
+backupBackgroundTasks = os.environ.get('BACKUPBACKGROUNDTASKS_SERVICE')
+files = os.environ.get('FILES_SERVICE')
+filesServices = os.environ.get('FILESSERVICES_SERVICE')
+people = os.environ.get('PEOPLE_SERVICE')
+api = os.environ.get('API_SERVICE')
+studio = os.environ.get('STUDIO_SERVICE')
+studioNotify = os.environ.get('STUDIONOTIFY_SERVICE')
+notify = os.environ.get('NOTIFY_SERVICE')
+socket = os.environ.get('SOCKET_SERVICE')
+sso = os.environ.get('SSO_SERVICE')
+doceditor = os.environ.get('DOCEDITOR_SERVICE')
+clearEvents = os.environ.get('CLEAREVENTS_SERVICE')
+login = os.environ.get('LOGIN_SERVICE')
+docs = os.environ.get('DOCS_SERVICE')
+proxyFrontend = os.environ.get('PROXYFRONTEND_SERVICE')
+apiSystem = os.environ.get('APISYSTEM_SERVICE')
+
+docspace_services = [backup, backupBackgroundTasks, files, filesServices, people, api, studio, studioNotify, notify, doceditor, clearEvents, login]
+docspace_proxy = [router]
+
+if apiSystem:
+    docspace_services.append(apiSystem)
+
 redisConnectorName = 'redis'
 redisHost = os.environ.get('REDIS_HOST')
 redisPort = os.environ.get('REDIS_PORT')
@@ -27,7 +52,7 @@ brokerHost = os.environ.get('RABBIT_HOST')
 brokerPort = os.environ.get('RABBIT_PORT')
 brokerUser = os.environ.get('RABBIT_USER_NAME')
 brokerPassword = os.environ.get('RABBIT_PASSWORD')
-brokerVhost = os.environ.get('AMQP_VHOST')
+brokerVhost = os.environ.get('RABBIT_VIRTUAL_HOST')
 
 total_result = {}
 
@@ -173,10 +198,60 @@ def check_mq():
     if brokerType == 'rabbitmq':
         check_mq_rabbitmq()
 
+
+def get_docspace_status():
+    install_module('requests')
+    import requests
+    from requests.adapters import HTTPAdapter
+    logger_test_docspace.info('Checking DocSpace availability...')
+    docspace_adapter = HTTPAdapter(max_retries=2)
+    docspace_session = requests.Session()
+    for i in docspace_services:
+        if i.split(":")[0] == 'socket':
+            url = f'http://{i}/'
+        else:
+            url = f'http://{i}/health'
+        docspace_session.mount(url, docspace_adapter)
+        try:
+            response = docspace_session.get(url, timeout=5)
+            i = i.split(":")[0]
+            if i == 'socket':
+                code = response.status_code
+                if code == 200:
+                    total_result[i] = 'Healthy'
+                else:
+                    total_result[i] = 'NotHealthy'
+            else:
+                docspace_keys = response.json()
+                key = docspace_keys['status']
+                total_result[i] = key
+        except Exception as msg_url:
+            logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
+            i = i.split(":")[0]
+            total_result[i] = 'NotHealthy'
+    for i in docspace_proxy:
+        url = f'http://{i}/'
+        docspace_session.mount(url, docspace_adapter)
+        try:
+            response = docspace_session.get(url, timeout=5)
+            i = i.split(":")[0]
+            code_proxy = response.status_code
+            if code_proxy == 200:
+                total_result[i] = 'Healthy'
+            else:
+                total_result[i] = 'NotHealthy'
+        except Exception as msg_url:
+            logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
+            i = i.split(":")[0]
+            total_result[i] = 'NotHealthy'
+
+
 def total_status():
     logger_test_docspace.info('As a result of the check, the following results were obtained:')
     for key, value in total_result.items():
         logger_test_docspace.info(f'{key} = {value}')
+    if 'NotHealthy' in total_result.values():
+        sys.exit(1)
 
 
 init_logger('test')
@@ -184,4 +259,5 @@ logger_test_docspace = logging.getLogger('test.docspace')
 check_redis()
 check_db()
 check_mq()
+get_docspace_status()
 total_status()
