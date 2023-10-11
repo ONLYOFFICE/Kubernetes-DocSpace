@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+### New Features
+
+* Added the ability set up custom Init Containers
+* Added `helm test` for DocSpace launch testing and connected dependencies availability testing
+* Added `NOTES.txt`
+
+### Changes
+
+* Released v2.0.0 of ONLYOFFICE DocSpace
+
 ## 1.2.0
 
 ### New Features
