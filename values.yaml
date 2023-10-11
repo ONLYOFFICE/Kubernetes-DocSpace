@@ -152,6 +152,8 @@ connections:
   # Example:
   # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
   appKnownNetworks: "10.244.0.0/16"
+  # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
+  appKnownProxies: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
   oauthRedirectURL: "https://service.example.com/oauth2.aspx"
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
