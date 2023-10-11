@@ -23,7 +23,7 @@ docs = os.environ.get('DOCS_SERVICE')
 proxyFrontend = os.environ.get('PROXYFRONTEND_SERVICE')
 apiSystem = os.environ.get('APISYSTEM_SERVICE')
 
-docspace_services = [backup, backupBackgroundTasks, files, filesServices, people, api, studio, studioNotify, notify, doceditor, clearEvents, login]
+docspace_services = [backup, backupBackgroundTasks, files, filesServices, people, api, studio, studioNotify, notify, socket, doceditor, clearEvents, login]
 docspace_proxy = [router]
 
 if apiSystem:
@@ -220,7 +220,7 @@ def get_docspace_status():
                 if code == 200:
                     total_result[i] = 'Healthy'
                 else:
-                    total_result[i] = 'NotHealthy'
+                    total_result[i] = 'Unhealthy'
             else:
                 docspace_keys = response.json()
                 key = docspace_keys['status']
@@ -228,7 +228,7 @@ def get_docspace_status():
         except Exception as msg_url:
             logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
             i = i.split(":")[0]
-            total_result[i] = 'NotHealthy'
+            total_result[i] = 'Unhealthy'
     for i in docspace_proxy:
         url = f'http://{i}/'
         docspace_session.mount(url, docspace_adapter)
@@ -239,18 +239,18 @@ def get_docspace_status():
             if code_proxy == 200:
                 total_result[i] = 'Healthy'
             else:
-                total_result[i] = 'NotHealthy'
+                total_result[i] = 'Unhealthy'
         except Exception as msg_url:
             logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
             i = i.split(":")[0]
-            total_result[i] = 'NotHealthy'
+            total_result[i] = 'Unhealthy'
 
 
 def total_status():
     logger_test_docspace.info('As a result of the check, the following results were obtained:')
     for key, value in total_result.items():
         logger_test_docspace.info(f'{key} = {value}')
-    if 'NotHealthy' in total_result.values():
+    if 'Unhealthy' in total_result.values():
         sys.exit(1)
 
 
