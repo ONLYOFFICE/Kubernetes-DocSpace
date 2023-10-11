@@ -521,6 +521,17 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
 | `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
 
+### DocSpace Test parameters
+
+| Parameter                                                | Description                                                                                                     | Default                    |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
+| `tests.enabled`                                          | Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing. These resources will be used when running the `helm test` command | `true`                           |
+| `tests.podSecurityContext.enabled`                       | Enable security context for the Test pod                                                                                                                                               | `false`                          |
+| `tests.podSecurityContext.runAsUser`                     | User ID for the Test pod                                                                                                                                                               | `0`                              |
+| `tests.podSecurityContext.runAsGroup`                    | Group ID for the Test pod                                                                                                                                                              | `0`                              |
+| `tests.resources.requests`                               | The requested resources for the test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
+| `tests.resources.limits`                                 | The resources limits for the test container                                                                                                                                            | `memory: "1Gi"`, `cpu: "1000m"`  |
+
 ## Configuration and installation details
 
 ### 1. Expose DocSpace
@@ -632,3 +643,35 @@ $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hos
 Associate the `docspace` ingress IP or hostname with your domain name through your DNS provider.
 
 After that, DocSpace will be available at `https://your-domain-name/`.
+
+## DocSpace installation test (optional)
+
+You can test DocSpace services availability and access to connected dependencies by running the following command:
+
+```bash
+$ helm test [RELEASE_NAME] -n <NAMESPACE>
+```
+
+The output should have the following line:
+
+```bash
+Phase: Succeeded
+```
+
+To view the log of the Pod running as a result of the `helm test` command, run the following command:
+
+```bash
+$ kubectl logs -f test-docspace -n <NAMESPACE>
+```
+
+The DocSpace services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
+
+After this, you can delete the `test-docspace` Pod by running the following command:
+
+```bash
+$ kubectl delete pod test-docspace -n <NAMESPACE>
+```
+
+Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
+It may be that even though all checks are completed successfully, an error occurs in the application.
+In this case, more detailed information can be found in the application logs.

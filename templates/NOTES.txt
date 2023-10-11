@@ -19,3 +19,13 @@ You can view the status of application services and dependencies at:
   http(s)://DOCSPACE-ADDRESS/healthchecks/hc-ui#/healthchecks
 
 {{- end }}
+
+{{- if .Values.tests.enabled }}
+
+You can test DocSpace services availability and access to connected dependencies using Helm test:
+    $ helm test {{ .Release.Name }} --namespace={{ .Release.Namespace }}
+  To view the log of the Pod, run the following command:
+    $ kubectl logs -f test-docspace --namespace={{ .Release.Namespace }}
+  Note: This testing is for informational purposes only and cannot guarantee 100% availability results
+
+{{- end }}
