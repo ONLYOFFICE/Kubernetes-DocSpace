@@ -16,7 +16,6 @@ data:
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
-  MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_SHEME: {{ .Values.connections.elkSheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
