@@ -15,6 +15,7 @@ data:
   checkdb.sh: |-
     #!/bin/bash
     mysql -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
       -p$MYSQL_PASSWORD \
       -e "show databases;" > /dev/null

@@ -246,9 +246,9 @@ initContainers:
   checkDB:
     image:
       # initContainers.checkDB.image.repository check-db initContainer image repository
-      repository: onlyoffice/docs-utils
+      repository: mysql
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: 7.5.1-2
+      tag: latest
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits

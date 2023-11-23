@@ -47,8 +47,6 @@ spec:
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
         resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
         env:
-        - name: MYSQL_USER
-          value: {{ .Values.connections.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
