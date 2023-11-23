@@ -463,6 +463,10 @@ files:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  # files.mysqlUser Database user who will be used by the Files service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace People Server Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
@@ -582,6 +586,10 @@ peopleServer:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # peopleServer.mysqlUser Database user who will be used by the People Server service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Router Deployment parameters
 # This block defines the parameters common to all the Pods of this deployment
@@ -1024,6 +1032,10 @@ apiSystem:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # apiSystem.mysqlUser Database user who will be used by the Api System service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Api StatefulSet parameters
 #
@@ -1136,6 +1148,10 @@ api:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  # api.mysqlUser Database user who will be used by the Api service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Backup StatefulSet parameters
 #
@@ -1248,6 +1264,10 @@ backup:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # backup.mysqlUser Database user who will be used by the Backup service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Backup Background Tasks StatefulSet parameters
 #
@@ -1360,6 +1380,10 @@ backupBackgroundTasks:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # backupBackgroundTasks.mysqlUser Database user who will be used by the Backup Background Tasks service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Clear Events StatefulSet parameters
 #
@@ -1472,6 +1496,10 @@ clearEvents:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # clearEvents.mysqlUser Database user who will be used by the Clear Events service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Doceditor StatefulSet parameters
 #
@@ -1586,6 +1614,10 @@ doceditor:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # doceditor.mysqlUser Database user who will be used by the Doceditor service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Files Services StatefulSet parameters
 #
@@ -1698,6 +1730,10 @@ filesServices:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # filesServices.mysqlUser Database user who will be used by the Files Services service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Login StatefulSet parameters
 #
@@ -1810,6 +1846,10 @@ login:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # login.mysqlUser Database user who will be used by the Login service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Notify StatefulSet parameters
 #
@@ -1922,6 +1962,10 @@ notify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # notify.mysqlUser Database user who will be used by the Notify service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Socket StatefulSet parameters
 #
@@ -2036,6 +2080,10 @@ socket:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # socket.mysqlUser Database user who will be used by the Socket service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace ssoauth StatefulSet parameters
 #
@@ -2150,6 +2198,10 @@ ssoauth:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # ssoauth.mysqlUser Database user who will be used by the ssoauth service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Studio StatefulSet parameters
 #
@@ -2262,6 +2314,10 @@ studio:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # studio.mysqlUser Database user who will be used by the Studio service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Studio Notify StatefulSet parameters
 #
@@ -2374,6 +2430,10 @@ studioNotify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # studioNotify.mysqlUser Database user who will be used by the Studio Notify service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
 # DocSpace Proxy Frontend StatefulSet parameters
 #
