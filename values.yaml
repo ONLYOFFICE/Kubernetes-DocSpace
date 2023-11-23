@@ -2899,9 +2899,9 @@ upgrade:
       clearStorage:
         image:
           # upgrade.job.initContainers.clearStorage.image.repository Job by pre-upgrade Clear Storage container image repository
-          repository: mysql
+          repository: onlyoffice/docs-utils
           # upgrade.job.initContainers.clearStorage.image.tag Job by pre-upgrade Clear Storage container image tag
-          tag: latest
+          tag: 7.5.1-2
           # upgrade.job.initContainers.clearStorage.image.pullPolicy Job by pre-upgrade Clear Storage container image pull policy
           pullPolicy: IfNotPresent
         # Job pre-upgrade Clear Storage container resource requests and limits

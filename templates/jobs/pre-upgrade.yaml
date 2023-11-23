@@ -83,24 +83,16 @@ spec:
         image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.clearStorage.image.pullPolicy }}
         resources: {{- toYaml .Values.upgrade.job.initContainers.clearStorage.resources | nindent 10 }}
-        env:
-        - name: MYSQL_USER
-          value: {{ .Values.connections.mysqlUser }}
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
         - name: update-scripts
-          mountPath: /sql/update.sh
+          mountPath: /scripts/update.sh
           subPath: update.sh
         command: ["/bin/sh", "-c"]
-        args: ["/sql/update.sh"]
+        args: ["/scripts/update.sh"]
       containers:
       - name: app-init-storage
         image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
