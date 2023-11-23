@@ -5,6 +5,7 @@
 ### New Features
 
 * Added the ability set up custom Init Containers
+* Added an Init Container that checks the availability of the database
 * Added `helm test` for DocSpace launch testing and connected dependencies availability testing
 * Added `NOTES.txt`
 

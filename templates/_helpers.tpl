@@ -44,7 +44,7 @@ Get the MySQL password secret
 Return true if a secret object should be created for MySQL
 */}}
 {{- define "docspace.mysql.createSecret" -}}
-{{- if or .Values.connections.mysqlPassword .Values.connections.mysqlRootPassword (not .Values.connections.mysqlExistingSecret) -}}
+{{- if or .Values.connections.mysqlPassword (not .Values.connections.mysqlExistingSecret) -}}
     {{- true -}}
 {{- end -}}
 {{- end -}}
@@ -57,17 +57,6 @@ Return MySQL password
     {{- .Values.connections.mysqlPassword }}
 {{- else -}}
     {{- required "A MySQL Password is required!" .Values.connections.mysqlPassword }}
-{{- end }}
-{{- end -}}
-
-{{/*
-Return MySQL root password
-*/}}
-{{- define "docspace.mysql.rootPassword" -}}
-{{- if not (empty .Values.connections.mysqlRootPassword) }}
-    {{- .Values.connections.mysqlRootPassword }}
-{{- else -}}
-    {{- required "A MySQL root Password is required!" .Values.connections.mysqlRootPassword }}
 {{- end }}
 {{- end -}}
 
