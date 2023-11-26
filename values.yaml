@@ -2895,26 +2895,6 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
-      # clearStorage is a container that cleans a set of service files in the DocSpace storage
-      clearStorage:
-        image:
-          # upgrade.job.initContainers.clearStorage.image.repository Job by pre-upgrade Clear Storage container image repository
-          repository: onlyoffice/docs-utils
-          # upgrade.job.initContainers.clearStorage.image.tag Job by pre-upgrade Clear Storage container image tag
-          tag: 7.5.1-2
-          # upgrade.job.initContainers.clearStorage.image.pullPolicy Job by pre-upgrade Clear Storage container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-upgrade Clear Storage container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # upgrade.job.initContainers.clearStorage.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
-        # upgrade.job.initContainers.clearStorage.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
 
 # DocSpace Elasticsearch parameters
 #

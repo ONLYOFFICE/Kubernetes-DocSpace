@@ -13,7 +13,9 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 data:
   update.sh: |-
-    #!/bin/bash
+    #!/bin/sh
+    echo "Running deleting service files of the previous release"
     rm -rf /var/www/products/ASC.Files/server/*
     rm -rf /var/www/products/ASC.People/server/*
-    echo Work done
+    echo "The service files of the previous release have been deleted"
+    /app/docker-entrypoint.sh

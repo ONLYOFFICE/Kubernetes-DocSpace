@@ -77,20 +77,6 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
-      - name: app-clear-storage
-        image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
-        imagePullPolicy: {{ .Values.upgrade.job.initContainers.clearStorage.image.pullPolicy }}
-        resources: {{- toYaml .Values.upgrade.job.initContainers.clearStorage.resources | nindent 10 }}
-        volumeMounts:
-        - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
-        - name: update-scripts
-          mountPath: /scripts/update.sh
-          subPath: update.sh
-        command: ["/bin/sh", "-c"]
-        args: ["/scripts/update.sh"]
       containers:
       - name: app-init-storage
         image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
@@ -101,6 +87,11 @@ spec:
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
+        - name: update-scripts
+          mountPath: /scripts/update.sh
+          subPath: update.sh
+        command: ["/bin/sh", "-c"]
+        args: ["/scripts/update.sh"]
       volumes:
       - name: files-data
         persistentVolumeClaim:
