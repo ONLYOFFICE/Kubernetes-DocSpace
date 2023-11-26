@@ -18,23 +18,16 @@ connections:
   # connections.mysqlPort Database server port number
   mysqlPort: "3306"
   # connections.mysqlDatabase Name of the Database the application will be connected with
+  # The database must already exist
   mysqlDatabase: docspace
-  # connections.superuser Database user with root rights
-  superuser: root
-  # connections.mysqlRootPassword Database root password
-  # If set to, it takes priority over the `connections.mysqlExistingSecret`
-  mysqlRootPassword: ""
   # connections.mysqlUser Database user
   mysqlUser: onlyoffice_user
   # connections.mysqlPassword Database user password
   # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlPassword: ""
   # connections.mysqlExistingSecret Name of existing secret to use for Database passwords
-  # Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword`
+  # Must contain the key specified in `connections.mysqlSecretKeyPassword`
   mysqlExistingSecret: mysql
-  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
-  # If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here
-  mysqlSecretKeyRootPassword: mysql-root-password
   # connections.mysqlSecretKeyPassword The name of the key that contains the Database user password
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
@@ -249,6 +242,26 @@ debug:
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 initContainers:
+  # Parameters of the Check DB initContainers
+  checkDB:
+    image:
+      # initContainers.checkDB.image.repository check-db initContainer image repository
+      repository: mysql
+      # initContainers.checkDB.image.tag check-db initContainer image tag
+      tag: latest
+      # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
+      pullPolicy: IfNotPresent
+    # check-db initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # initContainers.checkDB.resources.requests The requested resources for the check-db initContainer
+    # initContainers.checkDB.resources.limits The resources limits for the check-db initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
   # Parameters of the Wait Storage initContainers
   waitStorage:
     image:
@@ -2875,26 +2888,6 @@ upgrade:
         # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         # upgrade.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
         # upgrade.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
-      # clearStorage is a container that cleans a set of service files in the DocSpace storage
-      clearStorage:
-        image:
-          # upgrade.job.initContainers.clearStorage.image.repository Job by pre-upgrade Clear Storage container image repository
-          repository: mysql
-          # upgrade.job.initContainers.clearStorage.image.tag Job by pre-upgrade Clear Storage container image tag
-          tag: latest
-          # upgrade.job.initContainers.clearStorage.image.pullPolicy Job by pre-upgrade Clear Storage container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-upgrade Clear Storage container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # upgrade.job.initContainers.clearStorage.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
-        # upgrade.job.initContainers.clearStorage.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
         resources:
           requests:
             memory: "256Mi"

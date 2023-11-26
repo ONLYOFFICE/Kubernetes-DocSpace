@@ -42,17 +42,30 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
+      - name: check-db
+        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
+        env:
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        volumeMounts:
+        - name: check-db
+          mountPath: /scripts/checkdb.sh
+          subPath: checkdb.sh
+        command: ["/bin/sh", "-c"]
+        args: ["/scripts/checkdb.sh"]
       {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
         image: {{ .Values.upgrade.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
         resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_USER
+          value: {{ .Values.connections.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -64,34 +77,6 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
-      - name: app-clear-storage
-        image: {{ .Values.upgrade.job.initContainers.clearStorage.image.repository }}:{{ .Values.upgrade.job.initContainers.clearStorage.image.tag }}
-        imagePullPolicy: {{ .Values.upgrade.job.initContainers.clearStorage.image.pullPolicy }}
-        resources: {{- toYaml .Values.upgrade.job.initContainers.clearStorage.resources | nindent 10 }}
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyPassword }}
-        volumeMounts:
-        - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
-        - name: update-scripts
-          mountPath: /sql/update.sh
-          subPath: update.sh
-        # - name: change-db-scripts
-        #   mountPath: /sql/changedb.sql
-        #   subPath: changedb.sql
-        command: ["/bin/sh", "-c"]
-        args: ["/sql/update.sh"]
       containers:
       - name: app-init-storage
         image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
@@ -102,6 +87,11 @@ spec:
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
+        - name: update-scripts
+          mountPath: /scripts/update.sh
+          subPath: update.sh
+        command: ["/bin/sh", "-c"]
+        args: ["/scripts/update.sh"]
       volumes:
       - name: files-data
         persistentVolumeClaim:
@@ -109,12 +99,13 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+      - name: check-db
+        configMap:
+          name: check-db
+          defaultMode: 0755
       - name: update-scripts
         configMap:
           name: pre-upgrade
           defaultMode: 0755
-      # - name: change-db-scripts
-      #   configMap:
-      #     name: change-db-scripts
       restartPolicy: Never
 {{- end }}
