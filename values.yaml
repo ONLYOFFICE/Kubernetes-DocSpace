@@ -363,7 +363,6 @@ podAntiAffinity:
 #
 files:
   # files.replicaCount Number of Files replicas to deploy
-  # If the `files.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -486,7 +485,6 @@ files:
 #
 peopleServer:
   # peopleServer.replicaCount Number of People Server replicas to deploy
-  # If the `peopleServer.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -609,7 +607,6 @@ peopleServer:
 #
 router:
   # router.replicaCount Number of Router replicas to deploy
-  # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -816,7 +813,6 @@ healthchecks:
   # healthchecks.enabled Enables Healthchecks installation
   enabled: true
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
-  # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
