@@ -1,6 +1,48 @@
 # DocSpace for Kubernetes
 The following guide covers the installation process of the ‘DocSpace’ into a Kubernetes cluster or OpenShift cluster.
 
+## Contents
+- [Requirements](#requirements)
+- [Deploy prerequisites](#deploy-prerequisites)
+  * [1. Add Helm repositories](#1-add-helm-repositories)
+  * [2. Install NFS Provisioner](#2-install-nfs-provisioner)
+  * [3. Install MySQL](#3-install-mysql)
+  * [4. Install RabbitMQ](#4-install-rabbitmq)
+  * [5. Install Redis](#5-install-redis)
+  * [6. Install Elasticsearch](#6-install-elasticsearch)
+  * [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
+    + [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
+    + [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
+- [Deploy DocSpace](#deploy-docspace)
+  * [1. Install DocSpace](#1-install-docspace)
+  * [2. Uninstall DocSpace](#2-uninstall-docspace)
+  * [3. Upgrade DocSpace](#3-upgrade-docspace)
+- [Parameters](#parameters)
+  * [Common parameters](#common-parameters)
+  * [DocSpace common Deployments parameters](#docspace-common-deployments-parameters)
+  * [DocSpace Deployment parameters](#docspace-deployment-parameters)
+  * [DocSpace Router Deployment additional parameters](#docspace-router-deployment-additional-parameters)
+  * [DocSpace StatefulSet parameters](#docspace-statefulset-parameters)
+  * [DocSpace Api System StatefulSet additional parameters](#docspace-api-system-statefulset-additional-parameters)
+  * [DocSpace Doceditor StatefulSet additional parameters](#docspace-doceditor-statefulset-additional-parameters)
+  * [DocSpace Login StatefulSet additional parameters](#docspace-login-statefulset-additional-parameters)
+  * [DocSpace Socket StatefulSet additional parameters](#docspace-socket-statefulset-additional-parameters)
+  * [DocSpace Ssoauth StatefulSet additional parameters](#docspace-ssoauth-statefulset-additional-parameters)
+  * [DocSpace Proxy Frontend StatefulSet additional parameters](#docspace-proxy-frontend-statefulset-additional-parameters)
+  * [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
+  * [DocSpace Ingress parameters](#docspace-ingress-parameters)
+  * [DocSpace Jobs parameters](#docspace-jobs-parameters)
+  * [DocSpace Elasticsearch parameters](#docspace-elasticsearch-parameters)
+  * [DocSpace Test parameters](#docspace-test-parameters)
+- [Configuration and installation details](#configuration-and-installation-details)
+  * [1. Expose DocSpace](#1-expose-docspace)
+    + [1.1 Expose DocSpace via Service (HTTP Only)](#11-expose-docspace-via-service-http-only)
+    + [1.2 Expose DocumentServer via Ingress](#12-expose-documentserver-via-ingress)
+    + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
+    + [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
+    + [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
+- [DocSpace installation test (optional)](#docspace-installation-test-optional)
+
 ## Requirements
 
   - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
