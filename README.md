@@ -37,7 +37,7 @@ The following guide covers the installation process of the ‘DocSpace’ into a
 - [Configuration and installation details](#configuration-and-installation-details)
   * [1. Expose DocSpace](#1-expose-docspace)
     + [1.1 Expose DocSpace via Service (HTTP Only)](#11-expose-docspace-via-service-http-only)
-    + [1.2 Expose DocumentServer via Ingress](#12-expose-documentserver-via-ingress)
+    + [1.2 Expose DocSpace via Ingress](#12-expose-docspace-via-ingress)
     + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
     + [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
     + [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
@@ -608,7 +608,7 @@ $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].hostn
 In this case, DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
 
 
-#### 1.2 Expose DocumentServer via Ingress
+#### 1.2 Expose DocSpace via Ingress
 
 #### 1.2.1 Installing the Kubernetes Nginx Ingress Controller
 
