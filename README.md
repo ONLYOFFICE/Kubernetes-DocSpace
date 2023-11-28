@@ -70,6 +70,7 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+$ helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
 $ helm repo update
 ```
 
@@ -161,8 +162,8 @@ Note: When using the `test` suffix in the file name, set the `connections.envExt
 When installing DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
 Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [7.1](#71-create-a-secret-containing-a-json-file)
-and then run the `helm upgrade [RELEASE_NAME] ./ --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
-`helm upgrade [RELEASE_NAME] -f ./values.yaml ./ --no-hooks` if the parameters are specified in the `values.yaml` file.
+and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
+`helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
 
 ## Deploy DocSpace
 
@@ -178,7 +179,7 @@ $ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 
 ```
-$ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext=true
 ```
 
 ### 1. Install DocSpace
@@ -186,7 +187,7 @@ $ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
 To install DocSpace to your cluster, run the following command:
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml ./
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace
 ```
 
 The command deploys DocSpace on the Kubernetes cluster in the default configuration. The [Parameters] section lists the parameters that can be configured during installation.
@@ -210,7 +211,7 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 It's necessary to set the parameters for updating. For example,
 
 ```bash
-$ helm upgrade [RELEASE_NAME] ./ \
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace \
   --set images.tag=[tag]
 ```
 
@@ -219,20 +220,20 @@ $ helm upgrade [RELEASE_NAME] ./ \
 Or modify the `values.yaml` file and run the command:
 
   ```bash
-  $ helm upgrade [RELEASE_NAME] -f values.yaml ./
+  $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace
   ```
 
 Running the `helm upgrade` command runs a hook that cleans up the directory with libraries and then fills with new ones. This is needed when updating the version of DocSpace. The default hook execution time is 300s.
 The execution time can be changed using `--timeout [time]`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] -f values.yaml ./ --timeout 15m
+$ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace --timeout 15m
 ```
 
 If you want to update any parameter other than the version of the DocSpace, then run the `helm upgrade` command without `hooks`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] ./ --set jwt.enabled=false --no-hooks
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set jwt.enabled=false --no-hooks
 ```
 
 _See [helm upgrade](https://helm.sh/docs/helm/helm_upgrade/) for command documentation._
@@ -587,7 +588,7 @@ Use this type of exposure if you use external TLS termination, and don't have an
 To expose DocSpace via service, set the `router.service.type` parameter to `LoadBalancer`:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set router.service.type=LoadBalancer,router.service.port.external=8092
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set router.service.type=LoadBalancer,router.service.port.external=8092
 
 ```
 
@@ -630,7 +631,7 @@ Use this type if you use external TLS termination and when you have several WEB 
 To expose DocSpace via ingress HTTP, set the `ingress.enabled` parameter to true:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true
 
 ```
 
@@ -665,7 +666,7 @@ $ kubectl create secret generic tls \
 ```
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
 
 ```
 
