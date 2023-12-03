@@ -1,0 +1,178 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: files
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: files
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.files.replicaCount }}
+  selector:
+    matchLabels:
+      app: files
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if .Values.files.updateStrategy }}
+  strategy: {{- toYaml .Values.files.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: files
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - files
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - files
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+        {{- end }}
+        {{- with .Values.files.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.files.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      - name: app-wait-storage
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/
+      containers:
+      - name: files
+        image: {{ .Values.files.image.repository }}:{{ default .Values.images.tag .Values.files.image.tag }}
+        imagePullPolicy: {{ .Values.files.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.files.containerPorts.app }}
+          name: app
+        {{- if .Values.files.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.files.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.files.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.files.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.files.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.files.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.files.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_HEADER
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.jwt.secretName" . }}
+        volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        {{- range .Values.extraConf.fileName }}
+        - name: custom-file
+          mountPath: /app/onlyoffice/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        - name: docspace-data
+          mountPath: /app/onlyoffice/data
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+      volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+      - name: files-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.files.name" . }}
+      - name: people-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.people.name" . }}

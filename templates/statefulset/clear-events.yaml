@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: clear-events
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: clear-events
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clear-events
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: clear-events
+  {{- if .Values.clearEvents.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.clearEvents.updateStrategy | nindent 4 }}
+  {{- end }}
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: clear-events
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.clearEvents.podAffinity .Values.clearEvents.nodeAffinity }}
+      affinity:
+        {{- with .Values.clearEvents.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.clearEvents.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      - name: app-wait-storage
+        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/
+      containers:
+      - name: clear-events
+        image: {{ .Values.clearEvents.image.repository }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
+        imagePullPolicy: {{ .Values.clearEvents.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.clearEvents.containerPorts.app }}
+          name: app
+        {{- if .Values.clearEvents.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.clearEvents.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.clearEvents.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.clearEvents.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.clearEvents.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.clearEvents.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.clearEvents.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_HEADER
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.jwt.secretName" . }}
+        volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        {{- range .Values.extraConf.fileName }}
+        - name: custom-file
+          mountPath: /app/onlyoffice/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        - name: docspace-data
+          mountPath: /app/onlyoffice/data
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+      volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+      - name: files-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.files.name" . }}
+      - name: people-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.people.name" . }}

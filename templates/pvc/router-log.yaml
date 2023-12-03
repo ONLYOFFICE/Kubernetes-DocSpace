@@ -1,0 +1,19 @@
+{{- if eq (include "docspace.pvc.router.create" .) "true" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: router-log
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+  - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.persistence.routerLog.size }}
+{{- end }}

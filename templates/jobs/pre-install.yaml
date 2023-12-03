@@ -1,0 +1,85 @@
+{{- if .Values.install.job.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-install
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "4"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
+      affinity:
+        {{- with .Values.install.job.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.install.job.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
+      initContainers:
+      - name: migration-runner
+        image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
+        imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
+        resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: MIGRATION_TYPE
+          value: {{ .Values.connections.migrationType }}
+        envFrom:
+        - configMapRef:
+            name: docspace
+      {{- end }}
+      containers:
+      - name: app-init-storage
+        image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.initStorage.resources | nindent 10 }}
+        volumeMounts:
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
+      volumes:
+      - name: files-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.files.name" . }}
+      - name: people-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.people.name" . }}
+      restartPolicy: Never
+{{- end }}

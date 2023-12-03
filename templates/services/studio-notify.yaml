@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: studio-notify
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: studio-notify
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.studioNotify.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.studioNotify.containerPorts.app }}
+  selector:
+    statefulset.kubernetes.io/pod-name: studio-notify-0
+  type: ClusterIP

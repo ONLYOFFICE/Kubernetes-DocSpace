@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssoauth
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: ssoauth
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.ssoauth.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.ssoauth.containerPorts.app }}
+  - port: {{ .Values.ssoauth.containerPorts.sso }}
+    name: sso
+    targetPort: {{ .Values.ssoauth.containerPorts.sso }}
+  selector:
+    statefulset.kubernetes.io/pod-name: ssoauth-0
+  type: ClusterIP

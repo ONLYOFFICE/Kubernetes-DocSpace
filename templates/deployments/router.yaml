@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: router
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.router.replicaCount }}
+  selector:
+    matchLabels:
+      app: router
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if .Values.router.updateStrategy }}
+  strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: router
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - router
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - router
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+        {{- end }}
+        {{- with .Values.router.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.router.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+      - name: router
+        image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
+        imagePullPolicy: {{ .Values.router.image.pullPolicy }}
+        {{- if .Values.containerSecurityContext.enabled }}
+        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.router.containerPorts.external }}
+          name: external
+        {{- if .Values.router.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.router.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.router.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.router.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.router.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.router.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.router.resources | nindent 10 }}
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - configMapRef:
+            name: docspace-router
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        volumeMounts:
+        {{- if .Values.router.extraConf.initScripts.configMap }}
+        {{- range .Values.router.extraConf.initScripts.fileName }}
+        - name: init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.router.extraConf.customInitScripts.configMap }}
+        {{- range .Values.router.extraConf.customInitScripts.fileName }}
+        - name: custom-init-scripts
+          mountPath: /docker-entrypoint.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.router.extraConf.templates.configMap }}
+        {{- range .Values.router.extraConf.templates.fileName }}
+        - name: template-files
+          mountPath: /etc/nginx/templates/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.router.extraConf.confd.configMap }}
+        {{- range .Values.router.extraConf.confd.fileName }}
+        - name: confd-file
+          mountPath: /etc/nginx/conf.d/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        - name: router-log
+          mountPath: /var/log/nginx
+      volumes:
+      {{- if .Values.router.extraConf.initScripts.configMap }}
+      - name: init-scripts
+        configMap:
+          name: {{ .Values.router.extraConf.initScripts.configMap }}
+          defaultMode: 0755
+      {{- end }}
+      {{- if .Values.router.extraConf.customInitScripts.configMap }}
+      - name: custom-init-scripts
+        configMap:
+          name: {{ .Values.router.extraConf.customInitScripts.configMap }}
+          defaultMode: 0755
+      {{- end }}
+      {{- if .Values.router.extraConf.templates.configMap }}
+      - name: template-files
+        configMap:
+          name: {{ .Values.router.extraConf.templates.configMap }}
+      {{- end }}
+      {{- if .Values.router.extraConf.confd.configMap }}
+      - name: confd-file
+        configMap:
+          name: {{ .Values.router.extraConf.confd.configMap }}
+      {{- end }}
+      - name: router-log
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.router.name" . }}

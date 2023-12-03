@@ -1,0 +1,41 @@
+{{- if and .Values.proxyFrontend.enabled (eq (include "docspace.svc.proxyFrontend.create" .) "true") }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-frontend
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: proxy-frontend
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.proxyFrontend.service.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.proxyFrontend.service.annotations }}
+    {{ $key }}: {{ tpl $value $ }}
+    {{- end }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.proxyFrontend.containerPorts.http }}
+    name: http
+    targetPort: {{ .Values.proxyFrontend.containerPorts.http }}
+  - port: {{ .Values.proxyFrontend.containerPorts.https }}
+    name: https
+    targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
+  selector:
+    statefulset.kubernetes.io/pod-name: proxy-frontend-0
+  type: {{ .Values.proxyFrontend.service.type }}
+  {{- if .Values.proxyFrontend.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.proxyFrontend.service.sessionAffinity }}
+  {{- if .Values.proxyFrontend.service.sessionAffinityConfig }}
+  {{- with .Values.proxyFrontend.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.proxyFrontend.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.proxyFrontend.service.externalTrafficPolicy }}
+  {{- end }}
+{{- end }}
