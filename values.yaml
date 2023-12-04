@@ -330,13 +330,13 @@ persistence:
     # If not specified, a PVC named "files-data" will be created
     existingClaim: ""
     # persistence.filesData.size PVC Storage Request for Files volume
-    size: 1Gi
+    size: 2Gi
   peopleData:
     # persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
     # If not specified, a PVC named "people-data" will be created
     existingClaim: ""
     # persistence.peopleData.size PVC Storage Request for People Server volume
-    size: 1Gi
+    size: 2Gi
   routerLog:
     # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
     # If not specified, a PVC named "router-log" will be created
@@ -420,7 +420,7 @@ files:
   # The parameters below for startup probes are used only when `files.startupProbe.enabled=true`
   startupProbe:
     # files.startupProbe.enabled Enable startupProbe for files container
-    enabled: false
+    enabled: true
     httpGet:
       # files.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -433,7 +433,7 @@ files:
   # The parameters below for readiness probes are used only when `files.readinessProbe.enabled=true`
   readinessProbe:
     # files.readinessProbe.enabled Enable readinessProbe for files container
-    enabled: false
+    enabled: true
     # files.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -442,15 +442,15 @@ files:
       # files.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # files.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # files.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # files.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `files.livenessProbe.enabled=true`
   livenessProbe:
     # files.livenessProbe.enabled Enable livenessProbe for files container
-    enabled: false
+    enabled: true
     # files.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -459,7 +459,7 @@ files:
       # files.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # files.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # files.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # files.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -542,7 +542,7 @@ peopleServer:
   # The parameters below for startup probes are used only when `peopleServer.startupProbe.enabled=true`
   startupProbe:
     # peopleServer.startupProbe.enabled Enable startupProbe for People Server container
-    enabled: false
+    enabled: true
     httpGet:
       # peopleServer.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -555,7 +555,7 @@ peopleServer:
   # The parameters below for readiness probes are used only when `peopleServer.readinessProbe.enabled=true`
   readinessProbe:
     # peopleServer.readinessProbe.enabled Enable readinessProbe for People Server container
-    enabled: false
+    enabled: true
     # peopleServer.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -568,11 +568,11 @@ peopleServer:
     # peopleServer.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # peopleServer.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `peopleServer.livenessProbe.enabled=true`
   livenessProbe:
     # peopleServer.livenessProbe.enabled Enable livenessProbe for People Server container
-    enabled: false
+    enabled: true
     # peopleServer.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -673,7 +673,7 @@ router:
   # The parameters below for startup probes are used only when `router.startupProbe.enabled=true`
   startupProbe:
     # router.startupProbe.enabled Enable startupProbe for Router container
-    enabled: false
+    enabled: true
     httpGet:
       # router.startupProbe.httpGet.path Checking the path for startupProbe
       path: /
@@ -686,7 +686,7 @@ router:
   # The parameters below for readiness probes are used only when `router.readinessProbe.enabled=true`
   readinessProbe:
     # router.readinessProbe.enabled Enable readinessProbe for Router container
-    enabled: false
+    enabled: true
     # router.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -695,15 +695,15 @@ router:
       # router.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 8092
     # router.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # router.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # router.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `router.livenessProbe.enabled=true`
   livenessProbe:
     # router.livenessProbe.enabled Enable livenessProbe for Router container
-    enabled: false
+    enabled: true
     # router.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 5
     httpGet:
@@ -712,7 +712,7 @@ router:
       # router.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 8092
     # router.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # router.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # router.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -870,11 +870,9 @@ healthchecks:
   # The parameters below for startup probes are used only when `healthchecks.startupProbe.enabled=true`
   startupProbe:
     # healthchecks.startupProbe.enabled Enable startupProbe for Healthchecks container
-    enabled: false
-    httpGet:
-      # healthchecks.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # healthchecks.startupProbe.httpGet.port Checking the port for startupProbe
+    enabled: true
+    tcpSocket:
+      # healthchecks.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 5050
     # healthchecks.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -883,33 +881,29 @@ healthchecks:
   # The parameters below for readiness probes are used only when `healthchecks.readinessProbe.enabled=true`
   readinessProbe:
     # healthchecks.readinessProbe.enabled Enable readinessProbe for Healthchecks container
-    enabled: false
+    enabled: true
     # healthchecks.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # healthchecks.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # healthchecks.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # healthchecks.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 5050
     # healthchecks.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # healthchecks.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # healthchecks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `healthchecks.livenessProbe.enabled=true`
   livenessProbe:
     # healthchecks.livenessProbe.enabled Enable livenessProbe for Healthchecks container
-    enabled: false
+    enabled: true
     # healthchecks.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # healthchecks.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # healthchecks.livenessProbe.httpGet.port Checking the port for livenessProbe
+    tcpSocket:
+      # healthchecks.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 5050
     # healthchecks.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # healthchecks.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # healthchecks.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -986,7 +980,7 @@ apiSystem:
   # The parameters below for startup probes are used only when `apiSystem.startupProbe.enabled=true`
   startupProbe:
     # apiSystem.startupProbe.enabled Enable startupProbe for Api System container
-    enabled: false
+    enabled: true
     httpGet:
       # apiSystem.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -999,7 +993,7 @@ apiSystem:
   # The parameters below for readiness probes are used only when `apiSystem.readinessProbe.enabled=true`
   readinessProbe:
     # apiSystem.readinessProbe.enabled Enable readinessProbe for Api System container
-    enabled: false
+    enabled: true
     # apiSystem.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1012,11 +1006,11 @@ apiSystem:
     # apiSystem.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # apiSystem.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `apiSystem.livenessProbe.enabled=true`
   livenessProbe:
     # apiSystem.livenessProbe.enabled Enable livenessProbe for Api System container
-    enabled: false
+    enabled: true
     # apiSystem.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1102,7 +1096,7 @@ api:
   # The parameters below for startup probes are used only when `api.startupProbe.enabled=true`
   startupProbe:
     # api.startupProbe.enabled Enable startupProbe for Api container
-    enabled: false
+    enabled: true
     httpGet:
       # api.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1115,7 +1109,7 @@ api:
   # The parameters below for readiness probes are used only when `Api.readinessProbe.enabled=true`
   readinessProbe:
     # api.readinessProbe.enabled Enable readinessProbe for Api container
-    enabled: false
+    enabled: true
     # api.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1124,15 +1118,15 @@ api:
       # api.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # api.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # api.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # api.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `Api.livenessProbe.enabled=true`
   livenessProbe:
     # api.livenessProbe.enabled Enable livenessProbe for Api container
-    enabled: false
+    enabled: true
     # api.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1141,7 +1135,7 @@ api:
       # api.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # api.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # api.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # api.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -1218,7 +1212,7 @@ backup:
   # The parameters below for startup probes are used only when `backup.startupProbe.enabled=true`
   startupProbe:
     # backup.startupProbe.enabled Enable startupProbe for Backup container
-    enabled: false
+    enabled: true
     httpGet:
       # backup.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1231,7 +1225,7 @@ backup:
   # The parameters below for readiness probes are used only when `backup.readinessProbe.enabled=true`
   readinessProbe:
     # backup.readinessProbe.enabled Enable readinessProbe for Backup container
-    enabled: false
+    enabled: true
     # backup.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1244,11 +1238,11 @@ backup:
     # backup.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # backup.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `backup.livenessProbe.enabled=true`
   livenessProbe:
     # backup.livenessProbe.enabled Enable livenessProbe for Backup container
-    enabled: false
+    enabled: true
     # backup.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1334,7 +1328,7 @@ backupBackgroundTasks:
   # The parameters below for startup probes are used only when `backupBackgroundTasks.startupProbe.enabled=true`
   startupProbe:
     # backupBackgroundTasks.startupProbe.enabled Enable startupProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     httpGet:
       # backupBackgroundTasks.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1347,7 +1341,7 @@ backupBackgroundTasks:
   # The parameters below for readiness probes are used only when `backupBackgroundTasks.readinessProbe.enabled=true`
   readinessProbe:
     # backupBackgroundTasks.readinessProbe.enabled Enable readinessProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     # backupBackgroundTasks.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1360,11 +1354,11 @@ backupBackgroundTasks:
     # backupBackgroundTasks.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # backupBackgroundTasks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `backupBackgroundTasks.livenessProbe.enabled=true`
   livenessProbe:
     # backupBackgroundTasks.livenessProbe.enabled Enable livenessProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     # backupBackgroundTasks.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1450,7 +1444,7 @@ clearEvents:
   # The parameters below for startup probes are used only when `clearEvents.startupProbe.enabled=true`
   startupProbe:
     # clearEvents.startupProbe.enabled Enable startupProbe for Clear Events container
-    enabled: false
+    enabled: true
     httpGet:
       # clearEvents.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1463,7 +1457,7 @@ clearEvents:
   # The parameters below for readiness probes are used only when `clearEvents.readinessProbe.enabled=true`
   readinessProbe:
     # clearEvents.readinessProbe.enabled Enable readinessProbe for Clear Events container
-    enabled: false
+    enabled: true
     # clearEvents.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1476,11 +1470,11 @@ clearEvents:
     # clearEvents.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # clearEvents.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `clearEvents.livenessProbe.enabled=true`
   livenessProbe:
     # clearEvents.livenessProbe.enabled Enable livenessProbe for Clear Events container
-    enabled: false
+    enabled: true
     # clearEvents.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1568,7 +1562,7 @@ doceditor:
   # The parameters below for startup probes are used only when `doceditor.startupProbe.enabled=true`
   startupProbe:
     # doceditor.startupProbe.enabled Enable startupProbe for Doceditor container
-    enabled: false
+    enabled: true
     httpGet:
       # doceditor.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1581,7 +1575,7 @@ doceditor:
   # The parameters below for readiness probes are used only when `doceditor.readinessProbe.enabled=true`
   readinessProbe:
     # doceditor.readinessProbe.enabled Enable readinessProbe for Doceditor container
-    enabled: false
+    enabled: true
     # doceditor.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1594,11 +1588,11 @@ doceditor:
     # doceditor.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # doceditor.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `doceditor.livenessProbe.enabled=true`
   livenessProbe:
     # doceditor.livenessProbe.enabled Enable livenessProbe for Doceditor container
-    enabled: false
+    enabled: true
     # doceditor.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1684,7 +1678,7 @@ filesServices:
   # The parameters below for startup probes are used only when `filesServices.startupProbe.enabled=true`
   startupProbe:
     # filesServices.startupProbe.enabled Enable startupProbe for Files Services container
-    enabled: false
+    enabled: true
     httpGet:
       # filesServices.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1697,7 +1691,7 @@ filesServices:
   # The parameters below for readiness probes are used only when `filesServices.readinessProbe.enabled=true`
   readinessProbe:
     # filesServices.readinessProbe.enabled Enable readinessProbe for Files Services container
-    enabled: false
+    enabled: true
     # filesServices.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1706,15 +1700,15 @@ filesServices:
       # filesServices.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # filesServices.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # filesServices.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # filesServices.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `filesServices.livenessProbe.enabled=true`
   livenessProbe:
     # filesServices.livenessProbe.enabled Enable livenessProbe for Files Services container
-    enabled: false
+    enabled: true
     # filesServices.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1723,7 +1717,7 @@ filesServices:
       # filesServices.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # filesServices.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # filesServices.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # filesServices.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -1800,7 +1794,7 @@ login:
   # The parameters below for startup probes are used only when `login.startupProbe.enabled=true`
   startupProbe:
     # login.startupProbe.enabled Enable startupProbe for Login container
-    enabled: false
+    enabled: true
     httpGet:
       # login.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1813,7 +1807,7 @@ login:
   # The parameters below for readiness probes are used only when `login.readinessProbe.enabled=true`
   readinessProbe:
     # login.readinessProbe.enabled Enable readinessProbe for Login container
-    enabled: false
+    enabled: true
     # login.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1826,11 +1820,11 @@ login:
     # login.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # login.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `login.livenessProbe.enabled=true`
   livenessProbe:
     # login.livenessProbe.enabled Enable livenessProbe for Login container
-    enabled: false
+    enabled: true
     # login.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1916,7 +1910,7 @@ notify:
   # The parameters below for startup probes are used only when `notify.startupProbe.enabled=true`
   startupProbe:
     # notify.startupProbe.enabled Enable startupProbe for Notify container
-    enabled: false
+    enabled: true
     httpGet:
       # notify.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1929,7 +1923,7 @@ notify:
   # The parameters below for readiness probes are used only when `notify.readinessProbe.enabled=true`
   readinessProbe:
     # notify.readinessProbe.enabled Enable readinessProbe for Notify container
-    enabled: false
+    enabled: true
     # notify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1942,11 +1936,11 @@ notify:
     # notify.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # notify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `notify.livenessProbe.enabled=true`
   livenessProbe:
     # notify.livenessProbe.enabled Enable livenessProbe for Notify container
-    enabled: false
+    enabled: true
     # notify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2034,10 +2028,10 @@ socket:
   # The parameters below for startup probes are used only when `socket.startupProbe.enabled=true`
   startupProbe:
     # socket.startupProbe.enabled Enable startupProbe for Socket container
-    enabled: false
+    enabled: true
     httpGet:
       # socket.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /
       # socket.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # socket.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -2047,12 +2041,12 @@ socket:
   # The parameters below for readiness probes are used only when `socket.readinessProbe.enabled=true`
   readinessProbe:
     # socket.readinessProbe.enabled Enable readinessProbe for Socket container
-    enabled: false
+    enabled: true
     # socket.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
       # socket.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /
       # socket.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # socket.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -2060,16 +2054,16 @@ socket:
     # socket.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # socket.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `socket.livenessProbe.enabled=true`
   livenessProbe:
     # socket.livenessProbe.enabled Enable livenessProbe for Socket container
-    enabled: false
+    enabled: true
     # socket.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
       # socket.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /
       # socket.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # socket.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -2152,11 +2146,9 @@ ssoauth:
   # The parameters below for startup probes are used only when `ssoauth.startupProbe.enabled=true`
   startupProbe:
     # ssoauth.startupProbe.enabled Enable startupProbe for ssoauth container
-    enabled: false
-    httpGet:
-      # ssoauth.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # ssoauth.startupProbe.httpGet.port Checking the port for startupProbe
+    enabled: true
+    tcpSocket:
+      # ssoauth.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 5050
     # ssoauth.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -2165,30 +2157,26 @@ ssoauth:
   # The parameters below for readiness probes are used only when `ssoauth.readinessProbe.enabled=true`
   readinessProbe:
     # ssoauth.readinessProbe.enabled Enable readinessProbe for ssoauth container
-    enabled: false
+    enabled: true
     # ssoauth.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # ssoauth.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # ssoauth.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # ssoauth.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 5050
     # ssoauth.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # ssoauth.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # ssoauth.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `ssoauth.livenessProbe.enabled=true`
   livenessProbe:
     # ssoauth.livenessProbe.enabled Enable livenessProbe for ssoauth container
-    enabled: false
+    enabled: true
     # ssoauth.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # ssoauth.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # ssoauth.livenessProbe.httpGet.port Checking the port for livenessProbe
+    tcpSocket:
+      # ssoauth.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 5050
     # ssoauth.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
@@ -2268,7 +2256,7 @@ studio:
   # The parameters below for startup probes are used only when `studio.startupProbe.enabled=true`
   startupProbe:
     # studio.startupProbe.enabled Enable startupProbe for Studio container
-    enabled: false
+    enabled: true
     httpGet:
       # studio.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -2281,7 +2269,7 @@ studio:
   # The parameters below for readiness probes are used only when `studio.readinessProbe.enabled=true`
   readinessProbe:
     # studio.readinessProbe.enabled Enable readinessProbe for Studio container
-    enabled: false
+    enabled: true
     # studio.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2294,11 +2282,11 @@ studio:
     # studio.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # studio.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `studio.livenessProbe.enabled=true`
   livenessProbe:
     # studio.livenessProbe.enabled Enable livenessProbe for Studio container
-    enabled: false
+    enabled: true
     # studio.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2384,7 +2372,7 @@ studioNotify:
   # The parameters below for startup probes are used only when `studioNotify.startupProbe.enabled=true`
   startupProbe:
     # studioNotify.startupProbe.enabled Enable Startup Probe for studioNotify container
-    enabled: false
+    enabled: true
     httpGet:
       # studioNotify.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -2397,7 +2385,7 @@ studioNotify:
   # The parameters below for readiness probes are used only when `studioNotify.readinessProbe.enabled=true`
   readinessProbe:
     # studioNotify.readinessProbe.enabled Enable readinessProbe for Studio Notify container
-    enabled: false
+    enabled: true
     # studioNotify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2410,11 +2398,11 @@ studioNotify:
     # studioNotify.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # studioNotify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `studioNotify.livenessProbe.enabled=true`
   livenessProbe:
     # studioNotify.livenessProbe.enabled Enable livenessProbe for Studio Notify container
-    enabled: false
+    enabled: true
     # studioNotify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2512,7 +2500,7 @@ proxyFrontend:
   # The parameters below for startup probes are used only when `proxyFrontend.startupProbe.enabled=true`
   startupProbe:
     # proxyFrontend.startupProbe.enabled Enable startupProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     httpGet:
       # proxyFrontend.startupProbe.httpGet.path Checking the path for startupProbe
       path: /
@@ -2525,7 +2513,7 @@ proxyFrontend:
   # The parameters below for readiness probes are used only when `proxyFrontend.readinessProbe.enabled=true`
   readinessProbe:
     # proxyFrontend.readinessProbe.enabled Enable readinessProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     # proxyFrontend.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2534,15 +2522,15 @@ proxyFrontend:
       # proxyFrontend.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 80
     # proxyFrontend.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # proxyFrontend.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # proxyFrontend.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `proxyFrontend.livenessProbe.enabled=true`
   livenessProbe:
     # proxyFrontend.livenessProbe.enabled Enable livenessProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     # proxyFrontend.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2551,7 +2539,7 @@ proxyFrontend:
       # proxyFrontend.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 80
     # proxyFrontend.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # proxyFrontend.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # proxyFrontend.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -2689,7 +2677,7 @@ docs:
   # The parameters below for startup probes are used only when `docs.startupProbe.enabled=true`
   startupProbe:
     # docs.startupProbe.enabled Enable startupProbe for Document Server container
-    enabled: false
+    enabled: true
     httpGet:
       # docs.startupProbe.httpGet.path Checking the path for startupProbe
       path: /index.html
@@ -2698,11 +2686,11 @@ docs:
     # docs.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # docs.startupProbe.periodSeconds Period seconds for startupProbe
-    periodSeconds: 10
+    periodSeconds: 20
   # The parameters below for readiness probes are used only when `docs.readinessProbe.enabled=true`
   readinessProbe:
     # docs.readinessProbe.enabled Enable readinessProbe for Document Server container
-    enabled: false
+    enabled: true
     # docs.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2711,15 +2699,15 @@ docs:
       # docs.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 80
     # docs.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # docs.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # docs.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `docs.livenessProbe.enabled=true`
   livenessProbe:
     # docs.livenessProbe.enabled Enable livenessProbe for Document Server container
-    enabled: false
+    enabled: true
     # docs.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2728,7 +2716,7 @@ docs:
       # docs.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 80
     # docs.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # docs.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # docs.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -2971,10 +2959,8 @@ elasticsearch:
   startupProbe:
     # elasticsearch.startupProbe.enabled Enable startupProbe for Elasticsearch container
     enabled: false
-    httpGet:
-      # elasticsearch.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
-      # elasticsearch.startupProbe.httpGet.port Checking the port for startupProbe
+    tcpSocket:
+      # elasticsearch.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 9200
     # elasticsearch.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -2986,27 +2972,23 @@ elasticsearch:
     enabled: false
     # elasticsearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # elasticsearch.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
-      # elasticsearch.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # elasticsearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 9200
     # elasticsearch.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # elasticsearch.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # elasticsearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `elasticsearch.livenessProbe.enabled=true`
   livenessProbe:
     # elasticsearch.livenessProbe.enabled Enable livenessProbe for Elasticsearch container
     enabled: false
     # elasticsearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # elasticsearch.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
-      # elasticsearch.livenessProbe.httpGet.port Checking the port for livenessProbe
+    tcpSocket:
+      # elasticsearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 9200
     # elasticsearch.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
