@@ -104,6 +104,7 @@ To install MySQL to your cluster, run the following command:
 $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
+  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set primary.persistence.size=PERSISTENT_SIZE \
   --set metrics.enabled=false
 ```
@@ -118,6 +119,7 @@ To install RabbitMQ to your cluster, run the following command:
 
 ```bash
 $ helm install rabbitmq bitnami/rabbitmq \
+  --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
 
@@ -130,6 +132,7 @@ To install Redis to your cluster, run the following command:
 ```bash
 $ helm install redis bitnami/redis \
   --set architecture=standalone \
+  --set master.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
 
