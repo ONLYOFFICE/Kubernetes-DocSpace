@@ -68,6 +68,9 @@ spec:
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: doceditor
         image: {{ .Values.doceditor.image.repository }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
@@ -91,11 +94,8 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.doceditor.resources | nindent 10 }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.doceditor.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:

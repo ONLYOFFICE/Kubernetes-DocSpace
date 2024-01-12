@@ -78,6 +78,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- with .Values.router.initContainers }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: router
         image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
@@ -98,6 +102,12 @@ spec:
         livenessProbe: {{- omit .Values.router.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.router.resources | nindent 10 }}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
         envFrom:
         - configMapRef:
             name: docspace

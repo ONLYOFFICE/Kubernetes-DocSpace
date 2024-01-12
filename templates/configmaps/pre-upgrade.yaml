@@ -13,16 +13,9 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 data:
   update.sh: |-
-    #!/bin/bash
-    mysql -h {{ .Values.connections.mysqlHost }} \
-      -u {{ .Values.connections.mysqlUser }} \
-      -p$MYSQL_PASSWORD \
-      -e "show databases;" > /dev/null
-    if [ $? -ne 0 ]; then
-      echo -e "\e[0;31m DB is not available \e[0m"
-      exit 1
-    fi
+    #!/bin/sh
+    echo "Running deleting service files of the previous release"
     rm -rf /var/www/products/ASC.Files/server/*
     rm -rf /var/www/products/ASC.People/server/*
-    # mysql -h mysql -u root -p$MYSQL_PASSWORD onlyoffice < /sql/changedb.sql
-    echo work done
+    echo "The service files of the previous release have been deleted"
+    /app/docker-entrypoint.sh

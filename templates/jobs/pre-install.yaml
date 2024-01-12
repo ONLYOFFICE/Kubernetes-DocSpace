@@ -41,18 +41,31 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
-      {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       initContainers:
+      - name: check-db
+        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
+        resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
+        env:
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        volumeMounts:
+        - name: check-db
+          mountPath: /scripts/checkdb.sh
+          subPath: checkdb.sh
+        command: ["/bin/sh", "-c"]
+        args: ["/scripts/checkdb.sh"]
+      {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
         image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
         resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_USER
+          value: {{ .Values.connections.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -81,5 +94,9 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+      - name: check-db
+        configMap:
+          name: check-db
+          defaultMode: 0755
       restartPolicy: Never
 {{- end }}

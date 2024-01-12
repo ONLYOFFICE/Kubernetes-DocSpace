@@ -16,7 +16,6 @@ data:
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
-  MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_SHEME: {{ .Values.connections.elkSheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
@@ -34,8 +33,12 @@ data:
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
   DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
   DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}
-  APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
   APP_KNOWN_NETWORKS: {{ .Values.connections.appKnownNetworks | quote }}
+  {{- if .Values.connections.appKnownProxies }}
+  APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
+  {{- else }}
+  APP_KNOWN_PROXIES: ""
+  {{- end }}
   INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
   OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
   LOG_LEVEL: {{ .Values.log.level | quote }}

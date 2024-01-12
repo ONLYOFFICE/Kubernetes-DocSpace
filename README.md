@@ -1,13 +1,55 @@
 # DocSpace for Kubernetes
 The following guide covers the installation process of the ‘DocSpace’ into a Kubernetes cluster or OpenShift cluster.
 
+## Contents
+- [Requirements](#requirements)
+- [Deploy prerequisites](#deploy-prerequisites)
+  * [1. Add Helm repositories](#1-add-helm-repositories)
+  * [2. Install NFS Provisioner](#2-install-nfs-provisioner)
+  * [3. Install MySQL](#3-install-mysql)
+  * [4. Install RabbitMQ](#4-install-rabbitmq)
+  * [5. Install Redis](#5-install-redis)
+  * [6. Install Elasticsearch](#6-install-elasticsearch)
+  * [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
+    + [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
+    + [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
+- [Deploy DocSpace](#deploy-docspace)
+  * [1. Install DocSpace](#1-install-docspace)
+  * [2. Uninstall DocSpace](#2-uninstall-docspace)
+  * [3. Upgrade DocSpace](#3-upgrade-docspace)
+- [Parameters](#parameters)
+  * [Common parameters](#common-parameters)
+  * [DocSpace common Deployments parameters](#docspace-common-deployments-parameters)
+  * [DocSpace Deployment parameters](#docspace-deployment-parameters)
+  * [DocSpace Router Deployment additional parameters](#docspace-router-deployment-additional-parameters)
+  * [DocSpace StatefulSet parameters](#docspace-statefulset-parameters)
+  * [DocSpace Api System StatefulSet additional parameters](#docspace-api-system-statefulset-additional-parameters)
+  * [DocSpace Doceditor StatefulSet additional parameters](#docspace-doceditor-statefulset-additional-parameters)
+  * [DocSpace Login StatefulSet additional parameters](#docspace-login-statefulset-additional-parameters)
+  * [DocSpace Socket StatefulSet additional parameters](#docspace-socket-statefulset-additional-parameters)
+  * [DocSpace Ssoauth StatefulSet additional parameters](#docspace-ssoauth-statefulset-additional-parameters)
+  * [DocSpace Proxy Frontend StatefulSet additional parameters](#docspace-proxy-frontend-statefulset-additional-parameters)
+  * [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
+  * [DocSpace Ingress parameters](#docspace-ingress-parameters)
+  * [DocSpace Jobs parameters](#docspace-jobs-parameters)
+  * [DocSpace Elasticsearch parameters](#docspace-elasticsearch-parameters)
+  * [DocSpace Test parameters](#docspace-test-parameters)
+- [Configuration and installation details](#configuration-and-installation-details)
+  * [1. Expose DocSpace](#1-expose-docspace)
+    + [1.1 Expose DocSpace via Service (HTTP Only)](#11-expose-docspace-via-service-http-only)
+    + [1.2 Expose DocSpace via Ingress](#12-expose-docspace-via-ingress)
+    + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
+    + [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
+    + [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
+- [DocSpace installation test (optional)](#docspace-installation-test-optional)
+
 ## Requirements
 
   - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
-  - A minimum of three hosts is required for the Kubernetes cluster
+  - A minimum of two hosts is required for the Kubernetes cluster
   - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-  - Helm is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
+  - Helm v3.7+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
   - If the installation of components external to ‘DocSpace’ is performed from Helm Chart in an OpenShift cluster, then it is recommended to install them from a user who has the `cluster-admin` role, in order to avoid possible problems with access rights. See [this](https://docs.openshift.com/container-platform/4.7/authentication/using-rbac.html) guide to add the necessary roles to the user.
 
@@ -28,6 +70,7 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
 $ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+$ helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
 $ helm repo update
 ```
 
@@ -61,6 +104,7 @@ To install MySQL to your cluster, run the following command:
 $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
+  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set primary.persistence.size=PERSISTENT_SIZE \
   --set metrics.enabled=false
 ```
@@ -75,6 +119,7 @@ To install RabbitMQ to your cluster, run the following command:
 
 ```bash
 $ helm install rabbitmq bitnami/rabbitmq \
+  --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
 
@@ -87,6 +132,7 @@ To install Redis to your cluster, run the following command:
 ```bash
 $ helm install redis bitnami/redis \
   --set architecture=standalone \
+  --set master.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
 
@@ -119,8 +165,8 @@ Note: When using the `test` suffix in the file name, set the `connections.envExt
 When installing DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
 Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [7.1](#71-create-a-secret-containing-a-json-file)
-and then run the `helm upgrade [RELEASE_NAME] ./ --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
-`helm upgrade [RELEASE_NAME] -f ./values.yaml ./ --no-hooks` if the parameters are specified in the `values.yaml` file.
+and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
+`helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
 
 ## Deploy DocSpace
 
@@ -136,7 +182,7 @@ $ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 
 ```
-$ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext=true
 ```
 
 ### 1. Install DocSpace
@@ -144,7 +190,7 @@ $ helm install [RELEASE_NAME] ./ --set podSecurityContext=true
 To install DocSpace to your cluster, run the following command:
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml ./
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace
 ```
 
 The command deploys DocSpace on the Kubernetes cluster in the default configuration. The [Parameters] section lists the parameters that can be configured during installation.
@@ -168,7 +214,7 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 It's necessary to set the parameters for updating. For example,
 
 ```bash
-$ helm upgrade [RELEASE_NAME] ./ \
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace \
   --set images.tag=[tag]
 ```
 
@@ -177,20 +223,20 @@ $ helm upgrade [RELEASE_NAME] ./ \
 Or modify the `values.yaml` file and run the command:
 
   ```bash
-  $ helm upgrade [RELEASE_NAME] -f values.yaml ./
+  $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace
   ```
 
 Running the `helm upgrade` command runs a hook that cleans up the directory with libraries and then fills with new ones. This is needed when updating the version of DocSpace. The default hook execution time is 300s.
 The execution time can be changed using `--timeout [time]`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] -f values.yaml ./ --timeout 15m
+$ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace --timeout 15m
 ```
 
 If you want to update any parameter other than the version of the DocSpace, then run the `helm upgrade` command without `hooks`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] ./ --set jwt.enabled=false --no-hooks
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set jwt.enabled=false --no-hooks
 ```
 
 _See [helm upgrade](https://helm.sh/docs/helm/helm_upgrade/) for command documentation._
@@ -215,13 +261,10 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
 | `connections.mysqlPort`                                | Database server port number                                                                                                 | `3306`                        |
-| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with                                                                 | `onlyoffice` |
-| `connections.superuser`                                | Database user with root rights                                                                                              | `root`                        |
-| `connections.mysqlRootPassword`                        | Database root password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
+| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. The database must already exist                                | `docspace`                    |
 | `connections.mysqlUser`                                | Database user                                                                                                               | `onlyoffice_user`             |
 | `connections.mysqlPassword`                            | Database user password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
-| `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword` | `mysql` |
-| `connections.mysqlSecretKeyRootPassword`               | The name of the key that contains the Database root password. If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-root-password` |
+| `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must contain the key specified in `connections.mysqlSecretKeyPassword` | `mysql`                     |
 | `connections.mysqlSecretKeyPassword`                   | The name of the key that contains the Database user password. If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
 | `connections.redisHost`                                | The IP address or the name of the Redis host. If Redis is deployed inside a k8s cluster, then you need to specify the [FQDN](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services) name of the service | `redis-master.default.svc.cluster.local` |
 | `connections.redisPort`                                | The Redis server port number                                                                                                | `6379`                        |
@@ -262,14 +305,13 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.documentServerHost`                       | The name of the Document Server service                                                                                     | `document-server`             |
 | `connections.documentServerUrlPublic`                  | The name of the Document Server service                                                                                     | `/ds-vpath/`                  |
 | `connections.documentServerUrlInternal`                | The name of the Document Server service for internal requests                                                               | `http://document-server/`     |
-| `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`     |
+| `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
 | `connections.appCoreBaseDomain`                        | The base domain on which the DocSpace will be available                                                                     | `localhost`                   |
 | `connections.appCoreMachinekey.secretKey`              | The secret key used in the DocSpace                                                                                         | `your_core_machinekey`        |
 | `connections.appCoreMachinekey.existingSecret`         | The name of an existing secret containing Core Machine Key. Must contain the `APP_CORE_MACHINEKEY` key. If not specified, a secret will be created with the value set in `connections.appCoreMachinekey.secretKey` | `""` |
 | `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Router) service | `1024` |
 | `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Router) service                                          | `.template`                   |
-| `connections.appKnownProxies`                          | Defines the known proxies for DocSpace services                                                                             | `""`                          |
-| `connections.appKnownNetworks`                         | List of intermediate proxy addresses                                                                                        | `""`                          |
+| `connections.appKnownNetworks`                         | Defines the address ranges of known networks to accept forwarded headers from for DocSpace services. In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here. Provide IP ranges using CIDR notation | `10.244.0.0/16` |
 | `connections.oauthRedirectURL`                         | Address of the oauth authorization server                                                                                   | `https://service.example.com/oauth2.aspx` |
 | `namespaceOverride`                                    | The name of the namespace in which DocSpace will be deployed. If not set, the name will be taken from `.Release.Namespace`  | `""`                          |
 | `commonLabels`                                         | Defines labels that will be additionally added to all the deployed resources. You can also use `tpl` as the value for the key | `{}`                        |
@@ -286,7 +328,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
 | `tolerations`                                          | Tolerations for pods assignment                                                                                             | `[]`                          |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend StatefulSets                    | `1.1.2.2487`                  |
+| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend StatefulSets                    | `2.0.0`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -296,27 +338,35 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `extraConf.filename`                                   | The name of the json files that contains custom values and name additional configuration files. Must be the same as the `key` name in `extraConf.secretName`. May contain multiple values | `appsettings.test.json` |
 | `log.level`                                            | Defines the type and severity of a logged event                                                                             | `Warning`                     |
 | `debug.enabled`                                        | Enable debug                                                                                                                | `false`                       |
-| `initContainers.waitStorage.image.repository`          | app-wait-storage initContainer image repository                                                                             | `onlyoffice/4testing-docspace-wait-bin-share`                                         |
+| `initContainers.checkDB.image.repository`              | check-db initContainer image repository                                                                                     | `onlyoffice/docs-utils`                                                               |
+| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `7.5.1-2`                                                                             |
+| `initContainers.checkDB.image.pullPolicy`              | check-db initContainer image pull policy                                                                                    | `IfNotPresent`                                                                        |
+| `initContainers.checkDB.resources.requests.memory`     | The requested Memory for the check-db initContainer                                                                         | `256Mi`                                                                               |
+| `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                                                                                |
+| `initContainers.checkDB.resources.limits.memory`       | The Memory limits for the check-db initContainer                                                                            | `1Gi`                                                                                 |
+| `initContainers.checkDB.resources.limits.cpu`          | The CPU limits for the check-db initContainer                                                                               | `1000m`                                                                               |
+| `initContainers.waitStorage.image.repository`          | app-wait-storage initContainer image repository                                                                             | `onlyoffice/docspace-wait-bin-share`                                                  |
 | `initContainers.waitStorage.image.tag`                 | app-wait-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                                                                                  |
 | `initContainers.waitStorage.image.pullPolicy`          | app-wait-storage initContainer image pull policy                                                                            | `IfNotPresent`                                                                        |
 | `initContainers.waitStorage.resources.requests.memory` | The requested Memory for the app-wait-storage initContainer                                                             | `256Mi`                                                                               |
 | `initContainers.waitStorage.resources.requests.cpu`    | The requested CPU for the app-wait-storage initContainer                                                                | `100m`                                                                                |
 | `initContainers.waitStorage.resources.limits.memory`   | The Memory limits for the app-wait-storage initContainer                                                                | `1Gi`                                                                                 |
 | `initContainers.waitStorage.resources.limits.cpu`      | The CPU limits for the app-wait-storage initContainer                                                                   | `1000m`                                                                               |
-| `initContainers.initStorage.image.repository`          | app-init-storage initContainer image repository                                                                             | `onlyoffice/4testing-docspace-bin-share`                                              |
+| `initContainers.initStorage.image.repository`          | app-init-storage initContainer image repository                                                                             | `onlyoffice/docspace-bin-share`                                                       |
 | `initContainers.initStorage.image.tag`                 | app-init-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                                                                                  |
 | `initContainers.initStorage.image.pullPolicy`          | app-init-storage initContainer image pull policy                                                                            | `IfNotPresent`                                                                        |
 | `initContainers.initStorage.resources.requests.memory` | The requested Memory for the app-init-storage initContainer                                                             | `256Mi`                                                                               |
 | `initContainers.initStorage.resources.requests.cpu`    | The requested CPU for the app-init-storage initContainer                                                                | `100m`                                                                                |
 | `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                | `2Gi`                                                                                 |
 | `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                   | `1000m`                                                                               |
+| `initContainers.custom`                                | Defines custom containers that run before DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Document Server`, `Router`, `Elasticsearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
 | `persistence.storageClass`                             | PVC Storage Class for DocSpace data volume                                                                              | `nfs`                                                                                 |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                                                                     |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                             | `8Gi`                                                                                 |
 | `persistence.filesData.existingClaim`                  | The name of the existing PVC for use in the Files service. If not specified, a PVC named "files-data" will be created   | `""`                                                                                  |
-| `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                    | `1Gi`                                                                                 |
+| `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                    | `2Gi`                                                                                 |
 | `persistence.peopleData.existingClaim`                 | The name of the existing PVC for use in the People Server service. If not specified, a PVC named "people-data" will be created | `""`                                                                           |
-| `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                            | `1Gi`                                                                                 |
+| `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                            | `2Gi`                                                                                 |
 | `persistence.routerLog.existingClaim`                  | The name of the existing PVC for storing Nginx logs of the Router service. If not specified, a PVC named "router-log" will be created | `""`                                                                      |
 | `persistence.routerLog.size`                           | PVC Storage Request for Nginx logs volume                                                                               | `5Gi`                                                                                 |
 
@@ -338,13 +388,13 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Deployment.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Deployment" Pods created over the desired number of Pods                                     | `25%`                                     |
 | `Deployment.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Deployment" Pods scheduling by nodes relative to other Pods | `{}` |
 | `Deployment.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Deployment" Pods scheduling by nodes | `{}` |
-| `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/4testing-docspace-Deployment` |
+| `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/docspace-Deployment`          |
 | `Deployment.image.tag`                                   | "Deployment" container image tag. If set to, it takes priority over the `images.tag`                            | `""`                                      |
 | `Deployment.image.pullPolicy`                            | "Deployment" container image pull policy                                                                        | `IfNotPresent`                            |
 | `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `router` Deployment                                                    | `5050`                                    |
-| `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `false`                                   |
-| `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `false`                                   |
-| `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `false`                                   |
+| `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `true`                                    |
+| `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `true`                                    |
+| `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `true`                                    |
 | `Deployment.resources.requests`                          | The requested resources for the "Deployment" container                                                          | `memory, cpu`                             |
 | `Deployment.resources.limits`                            | The resources limits for the "Deployment" container                                                             | `memory, cpu`                             |
 
@@ -355,6 +405,7 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `router.initContainers`                                  | Defines containers that run before Router container in the Router Deployment pod                                | `[]`                 |
 | `router.containerPorts.external`                         | Router container port                                                                                           | `8092`               |
 | `router.extraConf.customInitScripts.configMap`           | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
 | `router.extraConf.customInitScripts.fileName`            | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `router.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
@@ -379,13 +430,13 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 | `StatefulSet.updateStrategy.type`                        | "StatefulSet" StatefulSet update strategy type                                                                  | `RollingUpdate`      |
 | `StatefulSet.podAffinity`                                | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "StatefulSet" Pods scheduling by nodes relative to other Pods | `{}` |
 | `StatefulSet.nodeAffinity`                               | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "StatefulSet" Pods scheduling by nodes | `{}` |
-| `StatefulSet.image.repository`                           | "StatefulSet" container image repository. Individual values for the `proxyFrontend` and `docs` StatefulSets      | `onlyoffice/4testing-docspace-StatefulSet` |
+| `StatefulSet.image.repository`                           | "StatefulSet" container image repository. Individual values for the `proxyFrontend` and `docs` StatefulSets      | `onlyoffice/docspace-StatefulSet` |
 | `StatefulSet.image.tag`                                  | "StatefulSet" container image tag. If set to, it takes priority over the `images.tag`. Individual values for the `proxyFrontend` and `docs` StatefulSets | `""`                                      |
 | `StatefulSet.image.pullPolicy`                           | "StatefulSet" container image pull policy.                                                                       | `IfNotPresent`                            |
 | `StatefulSet.containerPorts.app`                         | "StatefulSet" container port. Not used in `login` and `proxyFrontend` StatefulSet                                | `5050`                                    |
-| `StatefulSet.startupProbe.enabled`                       | Enable startupProbe for "StatefulSet" container                                                                  | `false`                                   |
-| `StatefulSet.readinessProbe.enabled`                     | Enable readinessProbe for "StatefulSet" container                                                                | `false`                                   |
-| `StatefulSet.livenessProbe.enabled`                      | Enable livenessProbe for "StatefulSet" container                                                                 | `false`                                   |
+| `StatefulSet.startupProbe.enabled`                       | Enable startupProbe for "StatefulSet" container                                                                  | `true`                                    |
+| `StatefulSet.readinessProbe.enabled`                     | Enable readinessProbe for "StatefulSet" container                                                                | `true`                                    |
+| `StatefulSet.livenessProbe.enabled`                      | Enable livenessProbe for "StatefulSet" container                                                                 | `true`                                    |
 | `StatefulSet.resources.requests`                         | The requested resources for the "StatefulSet" container                                                          | `memory, cpu`                             |
 | `StatefulSet.resources.limits`                           | The resources limits for the "StatefulSet" container                                                             | `memory, cpu`                             |
 
@@ -428,6 +479,7 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `proxyFrontend.enabled`                                  | Enables Proxy Frontend installation                                                                             | `false`              |
+| `proxyFrontend.initContainers`                           | Defines containers that run before Proxy Frontend container in the Proxy Frontend StatefulSet pod               | `[]`                 |
 | `proxyFrontend.image.repository`                         | Proxy Frontend container image repository                                                                       | `nginx`              |
 | `proxyFrontend.image.tag`                                | Proxy Frontend container image tag                                                                              | `latest`             |
 | `proxyFrontend.containerPorts.http`                      | Proxy Frontend HTTP container port                                                                              | `80`                 |
@@ -448,12 +500,15 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 
 ### DocSpace Document Server StatefulSet additional parameters
 
+NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs)
+
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `false`               |
+| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `true`                |
 | `docs.podSecurityContext.enabled`                        | Enable security context for the Document Server Pod                                                             | `false`               |
 | `docs.podSecurityContext.runAsUser`                      | User ID for the Document Server pod                                                                             | `101`                 |
 | `docs.podSecurityContext.runAsGroup`                     | Group ID for the Document Server pod                                                                            | `101`                 |
+| `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server StatefulSet pod             | `[]`                  |
 | `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
 | `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
 | `docs.containerPorts.http`                               | Document Server HTTP container port                                                                             | `80`                  |
@@ -479,7 +534,7 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `install.job.podAffinity`                                       | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for Install Job Pod scheduling by nodes relative to other Pods | `{}`                                            |
 | `install.job.nodeAffinity`                                      | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for Install Job Pod scheduling by nodes                                              | `{}`                                            |
 | `install.job.initContainers.migrationRunner.enabled`            | Enable database initialization                                                                                                                                                                             | `true`                                          |
-| `install.job.initContainers.migrationRunner.image.repository`   | Job by pre-install Migration Runner container image repository                                                                                                                                             | `onlyoffice/4testing-docspace-migration-runner` |
+| `install.job.initContainers.migrationRunner.image.repository`   | Job by pre-install Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
 | `install.job.initContainers.migrationRunner.image.tag`          | Job by pre-install Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `install.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-install Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
 | `install.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-install Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
@@ -488,16 +543,11 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `upgrade.job.podAffinity`                                       | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for Upgrade Job Pod scheduling by nodes relative to other Pods | `{}`                                            |
 | `upgrade.job.nodeAffinity`                                      | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for Upgrade Job Pod scheduling by nodes                                              | `{}`                                            |
 | `upgrade.job.initContainers.migrationRunner.enabled`            | Enable database update                                                                                                                                                                                     | `true`                                          |
-| `upgrade.job.initContainers.migrationRunner.image.repository`   | Job by pre-upgrade Migration Runner container image repository                                                                                                                                             | `onlyoffice/4testing-docspace-migration-runner` |
+| `upgrade.job.initContainers.migrationRunner.image.repository`   | Job by pre-upgrade Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
 | `upgrade.job.initContainers.migrationRunner.image.tag`          | Job by pre-upgrade Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `upgrade.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-upgrade Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
 | `upgrade.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-upgrade Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
 | `upgrade.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-upgrade Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
-| `upgrade.job.initContainers.clearStorage.image.repository`      | Job by pre-upgrade Clear Storage container image repository                                                                                                                                                | `mysql`                                         |
-| `upgrade.job.initContainers.clearStorage.image.tag`             | Job by pre-upgrade Clear Storage container image tag                                                                                                                                                       | `latest`                                        |
-| `upgrade.job.initContainers.clearStorage.image.pullPolicy`      | Job by pre-upgrade Clear Storage container image pull policy                                                                                                                                               | `IfNotPresent`                                  |
-| `upgrade.job.initContainers.clearStorage.resources.requests`    | The requested resources for the Job pre-upgrade Clear Storage container                                                                                                                                    | `memory, cpu`                                   |
-| `upgrade.job.initContainers.clearStorage.resources.limits`      | The resources limits for the Job pre-upgrade Clear Storage container                                                                                                                                       | `memory, cpu`                                   |
 
 ### DocSpace Elasticsearch parameters
 
@@ -507,13 +557,25 @@ Instead of `StatefulSet`, the parameter name should have the following values: `
 | `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
 | `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
 | `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
+| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch StatefulSet pod                 | `[]`                       |
 | `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
-| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.10.0`                   |
+| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.16.3`                   |
 | `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
 | `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
 | `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `"nfs"`                    |
 | `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
 | `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
+
+### DocSpace Test parameters
+
+| Parameter                                                | Description                                                                                                     | Default                    |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
+| `tests.enabled`                                          | Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing. These resources will be used when running the `helm test` command | `true`                           |
+| `tests.podSecurityContext.enabled`                       | Enable security context for the Test pod                                                                                                                                               | `false`                          |
+| `tests.podSecurityContext.runAsUser`                     | User ID for the Test pod                                                                                                                                                               | `0`                              |
+| `tests.podSecurityContext.runAsGroup`                    | Group ID for the Test pod                                                                                                                                                              | `0`                              |
+| `tests.resources.requests`                               | The requested resources for the test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
+| `tests.resources.limits`                                 | The resources limits for the test container                                                                                                                                            | `memory: "1Gi"`, `cpu: "1000m"`  |
 
 ## Configuration and installation details
 
@@ -529,7 +591,7 @@ Use this type of exposure if you use external TLS termination, and don't have an
 To expose DocSpace via service, set the `router.service.type` parameter to `LoadBalancer`:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set router.service.type=LoadBalancer,router.service.port.external=8092
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set router.service.type=LoadBalancer,router.service.port.external=8092
 
 ```
 
@@ -550,7 +612,7 @@ $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].hostn
 In this case, DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
 
 
-#### 1.2 Expose DocumentServer via Ingress
+#### 1.2 Expose DocSpace via Ingress
 
 #### 1.2.1 Installing the Kubernetes Nginx Ingress Controller
 
@@ -572,7 +634,7 @@ Use this type if you use external TLS termination and when you have several WEB 
 To expose DocSpace via ingress HTTP, set the `ingress.enabled` parameter to true:
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true
 
 ```
 
@@ -607,7 +669,7 @@ $ kubectl create secret generic tls \
 ```
 
 ```bash
-$ helm install [RELEASE_NAME] ./ --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
 
 ```
 
@@ -626,3 +688,35 @@ $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hos
 Associate the `docspace` ingress IP or hostname with your domain name through your DNS provider.
 
 After that, DocSpace will be available at `https://your-domain-name/`.
+
+## DocSpace installation test (optional)
+
+You can test DocSpace services availability and access to connected dependencies by running the following command:
+
+```bash
+$ helm test [RELEASE_NAME] -n <NAMESPACE>
+```
+
+The output should have the following line:
+
+```bash
+Phase: Succeeded
+```
+
+To view the log of the Pod running as a result of the `helm test` command, run the following command:
+
+```bash
+$ kubectl logs -f test-docspace -n <NAMESPACE>
+```
+
+The DocSpace services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
+
+After this, you can delete the `test-docspace` Pod by running the following command:
+
+```bash
+$ kubectl delete pod test-docspace -n <NAMESPACE>
+```
+
+Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
+It may be that even though all checks are completed successfully, an error occurs in the application.
+In this case, more detailed information can be found in the application logs.

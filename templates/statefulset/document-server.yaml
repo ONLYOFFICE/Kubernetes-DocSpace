@@ -61,6 +61,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- with .Values.docs.initContainers }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: document-server
         image: {{ .Values.docs.image.repository }}:{{ .Values.docs.image.tag }}
