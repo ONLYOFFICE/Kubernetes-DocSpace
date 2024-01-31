@@ -25,6 +25,9 @@ spec:
     targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
   selector:
     statefulset.kubernetes.io/pod-name: proxy-frontend-0
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: {{ .Values.proxyFrontend.service.type }}
   {{- if .Values.proxyFrontend.service.sessionAffinity }}
   sessionAffinity: {{ .Values.proxyFrontend.service.sessionAffinity }}

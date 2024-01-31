@@ -358,8 +358,8 @@ podAntiAffinity:
   # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
-# DocSpace Files Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Files application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 files:
   # files.replicaCount Number of Files replicas to deploy
@@ -480,8 +480,8 @@ files:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace People Server Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace People Server application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
   # peopleServer.replicaCount Number of People Server replicas to deploy
@@ -602,8 +602,8 @@ peopleServer:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Router Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Router application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 router:
   # router.replicaCount Number of Router replicas to deploy
@@ -806,8 +806,8 @@ router:
     # local: "/tmp/resolv.conf"
     local: "on"
 
-# DocSpace Healthchecks Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Healthchecks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 healthchecks:
   # healthchecks.enabled Enables Healthchecks installation
@@ -922,11 +922,14 @@ healthchecks:
 
 # DocSpace statefulsets
 #
-# DocSpace Api System StatefulSet parameters
+# DocSpace Api System application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 apiSystem:
   # apiSystem.enabled Enables Api System installation
   enabled: false
+  # apiSystem.replicaCount Number of Api System replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # apiSystem.updateStrategy.type Api System StatefulSet update strategy type
@@ -1040,9 +1043,12 @@ apiSystem:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Api StatefulSet parameters
+# DocSpace Api application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.replicaCount Number of Api replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # api.updateStrategy.type Api StatefulSet update strategy type
@@ -1156,9 +1162,12 @@ api:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup StatefulSet parameters
+# DocSpace Backup application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backup:
+  # backup.replicaCount Number of Backup replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backup.updateStrategy.type Backup StatefulSet update strategy type
@@ -1272,9 +1281,12 @@ backup:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup Background Tasks StatefulSet parameters
+# DocSpace Backup Background Tasks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backupBackgroundTasks.updateStrategy.type Backup Background Tasks StatefulSet update strategy type
@@ -1388,9 +1400,12 @@ backupBackgroundTasks:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Clear Events StatefulSet parameters
+# DocSpace Clear Events application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
+  # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # clearEvents.updateStrategy.type Clear Events StatefulSet update strategy type
@@ -1504,9 +1519,12 @@ clearEvents:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Doceditor StatefulSet parameters
+# DocSpace Doceditor application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 doceditor:
+  # doceditor.replicaCount Number of Doceditor replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
@@ -1622,9 +1640,12 @@ doceditor:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Files Services StatefulSet parameters
+# DocSpace Files Services application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 filesServices:
+  # filesServices.replicaCount Number of Files Services replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
@@ -1738,9 +1759,12 @@ filesServices:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Login StatefulSet parameters
+# DocSpace Login application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 login:
+  # login.replicaCount Number of Login replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # login.updateStrategy.type Login StatefulSet update strategy type
@@ -1854,9 +1878,12 @@ login:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Notify StatefulSet parameters
+# DocSpace Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 notify:
+  # notify.replicaCount Number of Notify replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # notify.updateStrategy.type Notify StatefulSet update strategy type
@@ -1970,9 +1997,12 @@ notify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Socket StatefulSet parameters
+# DocSpace Socket application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 socket:
+  # socket.replicaCount Number of Socket replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # socket.updateStrategy.type Socket StatefulSet update strategy type
@@ -2088,9 +2118,12 @@ socket:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace ssoauth StatefulSet parameters
+# DocSpace ssoauth application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
+  # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
@@ -2200,9 +2233,12 @@ ssoauth:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio StatefulSet parameters
+# DocSpace Studio application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studio:
+  # studio.replicaCount Number of Studio replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studio.updateStrategy.type Studio StatefulSet update strategy type
@@ -2316,9 +2352,12 @@ studio:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio Notify StatefulSet parameters
+# DocSpace Studio Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
+  # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type

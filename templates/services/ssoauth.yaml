@@ -17,5 +17,8 @@ spec:
     name: sso
     targetPort: {{ .Values.ssoauth.containerPorts.sso }}
   selector:
-    statefulset.kubernetes.io/pod-name: ssoauth-0
+    app: ssoauth
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

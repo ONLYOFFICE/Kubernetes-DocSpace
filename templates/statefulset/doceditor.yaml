@@ -9,7 +9,7 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.doceditor.replicaCount }}
   selector:
     matchLabels:
       app: doceditor

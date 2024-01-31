@@ -19,5 +19,8 @@ spec:
     targetPort: 9300
   selector:
     statefulset.kubernetes.io/pod-name: elasticsearch-0
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP
 {{- end }}

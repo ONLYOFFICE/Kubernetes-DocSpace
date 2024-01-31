@@ -4,10 +4,11 @@ kind: Service
 metadata:
   name: router
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app: router
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
+    {{- end }}
   {{- if .Values.router.service.annotations }}
   annotations:
     {{- range $key, $value := .Values.router.service.annotations }}

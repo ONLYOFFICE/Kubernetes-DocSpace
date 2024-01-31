@@ -9,7 +9,7 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backupBackgroundTasks.replicaCount }}
   selector:
     matchLabels:
       app: backup-background-tasks

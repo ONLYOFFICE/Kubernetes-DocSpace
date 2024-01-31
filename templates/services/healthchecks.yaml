@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: healthchecks
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app: healthchecks
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   ports:
   - port: {{ .Values.healthchecks.containerPorts.healthcheck }}
