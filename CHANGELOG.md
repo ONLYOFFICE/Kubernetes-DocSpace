@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+### Changes
+
+* Released v2.0.2 of ONLYOFFICE DocSpace
+
 ## 2.0.1
 
 ### Changes

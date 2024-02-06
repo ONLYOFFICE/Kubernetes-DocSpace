@@ -209,7 +209,7 @@ imagePullSecrets: ""
 # images.tag Global image tag for all services
 # Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
 images:
-  tag: 2.0.0
+  tag: 2.0.2
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
