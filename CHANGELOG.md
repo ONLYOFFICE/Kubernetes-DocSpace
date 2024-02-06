@@ -5,7 +5,6 @@
 ### Changes
 
 * Updated the Security Context Constraints policy for OpenShift
-* Released v2.0.1 of ONLYOFFICE DocSpace
 
 ## 2.0.0
 
