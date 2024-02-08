@@ -148,7 +148,7 @@ connections:
   # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
   appKnownProxies: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
-  oauthRedirectURL: "https://service.example.com/oauth2.aspx"
+  oauthRedirectURL: "https://service.onlyoffice.com/oauth2.aspx"
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
 # If not set, the name will be taken from .Release.Namespace
 namespaceOverride: ""
