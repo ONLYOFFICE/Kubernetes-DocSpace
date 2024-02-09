@@ -427,6 +427,7 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `StatefulSet.replicaCount`                               | Number of "StatefulSet" replicas to deploy                                                                      | `1`                  |
 | `StatefulSet.updateStrategy.type`                        | "StatefulSet" StatefulSet update strategy type                                                                  | `RollingUpdate`      |
 | `StatefulSet.podAffinity`                                | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "StatefulSet" Pods scheduling by nodes relative to other Pods | `{}` |
 | `StatefulSet.nodeAffinity`                               | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "StatefulSet" Pods scheduling by nodes | `{}` |
