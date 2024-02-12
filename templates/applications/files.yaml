@@ -19,10 +19,12 @@ spec:
   {{- if eq .Values.files.kind "StatefulSet" }}
   serviceName: files
   {{- end }}
+  {{- if .Values.files.updateStrategy }}
   {{- if eq .Values.files.kind "Deployment" }}
   strategy: {{- toYaml .Values.files.updateStrategy | nindent 4 }}
   {{- else }}
   updateStrategy: {{- toYaml .Values.files.updateStrategy | nindent 4 }}
+  {{- end }}
   {{- end }}
   {{- if eq .Values.files.kind "StatefulSet" }}
   podManagementPolicy: {{ .Values.files.podManagementPolicy }}
