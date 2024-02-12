@@ -362,6 +362,9 @@ podAntiAffinity:
 # This block defines the parameters common to all the Pods of this application
 #
 files:
+  # files.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # files.replicaCount Number of Files replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
@@ -375,6 +378,10 @@ files:
       maxUnavailable: 25%
       # files.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Pods created over the desired number of Pods
       maxSurge: 25%
+  # files.podManagementPolicy The Files Pods scaling operations policy
+  # Used if `files.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
