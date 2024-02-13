@@ -491,6 +491,9 @@ files:
 # This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
+  # peopleServer.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # peopleServer.replicaCount Number of People Server replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
@@ -504,6 +507,10 @@ peopleServer:
       maxUnavailable: 25%
       # peopleServer.updateStrategy.rollingUpdate.maxSurge Maximum number of People Server Pods created over the desired number of Pods
       maxSurge: 25%
+  # peopleServer.podManagementPolicy The People Server Pods scaling operations policy
+  # Used if `peopleServer.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
