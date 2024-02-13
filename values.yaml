@@ -620,6 +620,9 @@ peopleServer:
 # This block defines the parameters common to all the Pods of this application
 #
 router:
+  # router.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # router.replicaCount Number of Router replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
@@ -633,6 +636,10 @@ router:
       maxUnavailable: 25%
       # router.updateStrategy.rollingUpdate.maxSurge Maximum number of Router Pods created over the desired number of Pods
       maxSurge: 25%
+  # router.podManagementPolicy The Router Pods scaling operations policy
+  # Used if `router.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
