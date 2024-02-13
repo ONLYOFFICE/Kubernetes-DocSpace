@@ -1,6 +1,6 @@
 {{- if .Values.healthchecks.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.healthchecks.kind }}
 metadata:
   name: healthchecks
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -17,8 +17,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.healthchecks.kind "StatefulSet" }}
+  serviceName: healthchecks
+  {{- end }}
   {{- if .Values.healthchecks.updateStrategy }}
+  {{- if eq .Values.healthchecks.kind "Deployment" }}
   strategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
+  {{- else }}
+  updateStrategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.healthchecks.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.healthchecks.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
