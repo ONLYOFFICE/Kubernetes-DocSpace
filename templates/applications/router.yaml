@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.router.kind }}
 metadata:
   name: router
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,8 +16,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  serviceName: {{ template "docspace.svc.router.name" . }}
+  {{- end }}
   {{- if .Values.router.updateStrategy }}
+  {{- if eq .Values.router.kind "Deployment" }}
   strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  {{- else }}
+  updateStrategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.router.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
