@@ -4,7 +4,10 @@ name: Release Chart on S3 repo
 on:    
   push:
     branches:
-      - master
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - '.github/**'
       
 jobs:
   build:
