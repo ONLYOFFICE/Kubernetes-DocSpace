@@ -55,7 +55,7 @@ The following guide covers the installation process of the ‘DocSpace’ into a
 
 ## Deploy prerequisites
 
-Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 1000` and `ID = 1001`.
+Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 1000` and `ID = 1001`.
 
 To do this, run the following commands:
 
@@ -170,7 +170,7 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraCon
 
 ## Deploy DocSpace
 
-Note: When installing to an OpenShift cluster, you must apply the `SecurityContextConstraints` policy, which adds permission to run containers from a user whose `ID = 104`.
+Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
 
 To do this, run the following commands:
 

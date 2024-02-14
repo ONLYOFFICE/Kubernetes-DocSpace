@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+### Changes
+
+* Updated the Security Context Constraints policy for OpenShift
+
 ## 2.0.0
 
 ### New Features
