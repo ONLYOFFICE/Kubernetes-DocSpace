@@ -16,7 +16,7 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.files.kind "StatefulSet" }}
+  {{- if eq .Values.api.kind "StatefulSet" }}
   serviceName: api
   {{- end }}
   {{- if .Values.api.updateStrategy }}
