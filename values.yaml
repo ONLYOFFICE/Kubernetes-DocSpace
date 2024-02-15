@@ -1088,13 +1088,26 @@ apiSystem:
 # This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # api.replicaCount Number of Api replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # api.updateStrategy.type Api StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # api.updateStrategy.type Api update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `api.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `api.kind` is set to `Deployment`
     type: RollingUpdate
+    # api.updateStrategy.rollingUpdate Used only when `api.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # api.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api Pods unavailable during the update process
+      maxUnavailable: 25%
+      # api.updateStrategy.rollingUpdate.maxSurge Maximum number of Api Pods created over the desired number of Pods
+      maxSurge: 25%
+  # api.podManagementPolicy The Api Pods scaling operations policy
+  # Used if `api.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
