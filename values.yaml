@@ -369,8 +369,8 @@ files:
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # files.updateStrategy.type Files Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # files.updateStrategy.type Files update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `files.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `files.kind` is set to `Deployment`
     type: RollingUpdate
     # files.updateStrategy.rollingUpdate Used only when `files.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -498,8 +498,8 @@ peopleServer:
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # peopleServer.updateStrategy.type People Server Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # peopleServer.updateStrategy.type People Server update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `peopleServer.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `peopleServer.kind` is set to `Deployment`
     type: RollingUpdate
     # peopleServer.updateStrategy.rollingUpdate Used only when `peopleServer.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -627,8 +627,8 @@ router:
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # router.updateStrategy.type Router Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # router.updateStrategy.type Router update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `router.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `router.kind` is set to `Deployment`
     type: RollingUpdate
     # router.updateStrategy.rollingUpdate Used only when `router.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -840,8 +840,8 @@ healthchecks:
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # healthchecks.updateStrategy.type Healthchecks Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # healthchecks.updateStrategy.type Healthchecks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `healthchecks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `healthchecks.kind` is set to `Deployment`
     type: RollingUpdate
     # healthchecks.updateStrategy.rollingUpdate Used only when `healthchecks.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -956,13 +956,26 @@ healthchecks:
 apiSystem:
   # apiSystem.enabled Enables Api System installation
   enabled: false
+  # apiSystem.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # apiSystem.replicaCount Number of Api System replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # apiSystem.updateStrategy.type Api System StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # apiSystem.updateStrategy.type Api System update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `apiSystem.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `apiSystem.kind` is set to `Deployment`
     type: RollingUpdate
+    # apiSystem.updateStrategy.rollingUpdate Used only when `apiSystem.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # apiSystem.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api System Pods unavailable during the update process
+      maxUnavailable: 25%
+      # apiSystem.updateStrategy.rollingUpdate.maxSurge Maximum number of Api System Pods created over the desired number of Pods
+      maxSurge: 25%
+  # apiSystem.podManagementPolicy The Api System Pods scaling operations policy
+  # Used if `apiSystem.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

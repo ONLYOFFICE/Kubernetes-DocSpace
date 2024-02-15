@@ -1,38 +1,39 @@
+{{- if .Values.apiSystem.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.files.kind }}
+kind: {{ .Values.apiSystem.kind }}
 metadata:
-  name: files
+  name: api-system
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: files
+    app: api-system
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .Values.files.replicaCount }}
+  replicas: {{ .Values.apiSystem.replicaCount }}
   selector:
     matchLabels:
-      app: files
+      app: api-system
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.files.kind "StatefulSet" }}
-  serviceName: files
+  {{- if eq .Values.apiSystem.kind "StatefulSet" }}
+  serviceName: api-system
   {{- end }}
-  {{- if .Values.files.updateStrategy }}
-  {{- if eq .Values.files.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.files.updateStrategy }}
+  {{- if .Values.apiSystem.updateStrategy }}
+  {{- if eq .Values.apiSystem.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.apiSystem.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.files.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.apiSystem.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.files.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.files.podManagementPolicy }}
+  {{- if eq .Values.apiSystem.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.apiSystem.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: files
+        app: api-system
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -47,37 +48,17 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
+      {{- if or .Values.apiSystem.podAffinity .Values.apiSystem.nodeAffinity }}
       affinity:
-        podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - files
-              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-            weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - files
-            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
-        {{- with .Values.files.podAffinity }}
+        {{- with .Values.apiSystem.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.files.nodeAffinity }}
+        {{- with .Values.apiSystem.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -100,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: files
-        image: {{ .Values.files.image.repository }}:{{ default .Values.images.tag .Values.files.image.tag }}
-        imagePullPolicy: {{ .Values.files.image.pullPolicy }}
+      - name: api-system
+        image: {{ .Values.apiSystem.image.repository }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}
+        imagePullPolicy: {{ .Values.apiSystem.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.files.containerPorts.app }}
+        - containerPort: {{ .Values.apiSystem.containerPorts.app }}
           name: app
-        {{- if .Values.files.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.files.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.apiSystem.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.files.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.files.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.apiSystem.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.files.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.files.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.apiSystem.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.files.resources | nindent 10 }}
+        resources: {{- toYaml .Values.apiSystem.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.files.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.apiSystem.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -169,6 +150,8 @@ spec:
         {{- end }}
         - name: docspace-data
           mountPath: /app/onlyoffice/data
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
       volumes:
@@ -186,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
