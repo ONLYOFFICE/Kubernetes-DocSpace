@@ -1339,13 +1339,26 @@ backup:
 # This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backupBackgroundTasks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupBackgroundTasks.kind` is set to `Deployment`
     type: RollingUpdate
+    # backupBackgroundTasks.updateStrategy.rollingUpdate Used only when `backupBackgroundTasks.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Background Tasks Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Background Tasks Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backupBackgroundTasks.podManagementPolicy The Backup Background Tasks Pods scaling operations policy
+  # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

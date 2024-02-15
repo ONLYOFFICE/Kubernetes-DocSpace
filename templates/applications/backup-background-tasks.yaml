@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.backupBackgroundTasks.kind }}
 metadata:
   name: backup-background-tasks
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +16,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.backupBackgroundTasks.kind "StatefulSet" }}
   serviceName: backup-background-tasks
-  {{- if .Values.backupBackgroundTasks.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.backupBackgroundTasks.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.backupBackgroundTasks.updateStrategy }}
+  {{- if eq .Values.backupBackgroundTasks.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.backupBackgroundTasks.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.backupBackgroundTasks.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.backupBackgroundTasks.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.backupBackgroundTasks.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
