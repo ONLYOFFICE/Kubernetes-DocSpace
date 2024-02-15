@@ -22,9 +22,9 @@ spec:
   {{- end }}
   {{- if .Values.healthchecks.updateStrategy }}
   {{- if eq .Values.healthchecks.kind "Deployment" }}
-  strategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
+  strategy: {{- include "docspace.update.strategyType" .Values.healthchecks.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.healthchecks.updateStrategy }}
   {{- end }}
   {{- end }}
   {{- if eq .Values.healthchecks.kind "StatefulSet" }}

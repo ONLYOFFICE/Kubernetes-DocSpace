@@ -21,9 +21,9 @@ spec:
   {{- end }}
   {{- if .Values.peopleServer.updateStrategy }}
   {{- if eq .Values.peopleServer.kind "Deployment" }}
-  strategy: {{- toYaml .Values.peopleServer.updateStrategy | nindent 4 }}
+  strategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- toYaml .Values.peopleServer.updateStrategy | nindent 4 }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
   {{- end }}
   {{- end }}
   {{- if eq .Values.peopleServer.kind "StatefulSet" }}

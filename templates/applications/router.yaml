@@ -21,9 +21,9 @@ spec:
   {{- end }}
   {{- if .Values.router.updateStrategy }}
   {{- if eq .Values.router.kind "Deployment" }}
-  strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  strategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
   {{- end }}
   {{- end }}
   {{- if eq .Values.router.kind "StatefulSet" }}

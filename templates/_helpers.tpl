@@ -19,6 +19,17 @@ Get the DocSpace labels
 {{- end -}}
 
 {{/*
+Get the update strategy type for DocSpace Apps
+*/}}
+{{- define "docspace.update.strategyType" -}}
+{{- if eq .type "RollingUpdate" -}}
+    {{- toYaml . | nindent 4 -}}
+{{- else -}}
+    {{- omit . "rollingUpdate" | toYaml | nindent 4 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the DocSpace Service Account name
 */}}
 {{- define "docspace.serviceAccountName" -}}
