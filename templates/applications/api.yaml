@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.api.kind }}
 metadata:
   name: api
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +16,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.api.kind "StatefulSet" }}
   serviceName: api
-  {{- if .Values.api.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.api.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.api.updateStrategy }}
+  {{- if eq .Values.api.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.api.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.api.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.api.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.api.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
