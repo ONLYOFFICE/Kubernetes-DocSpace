@@ -362,6 +362,8 @@ podAntiAffinity:
 # This block defines the parameters common to all the Pods of this application
 #
 files:
+  # files.enabled Enables Files installation
+  enabled: true
   # files.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -491,6 +493,8 @@ files:
 # This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
+  # peopleServer.enabled Enables People Server installation
+  enabled: true
   # peopleServer.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -620,6 +624,8 @@ peopleServer:
 # This block defines the parameters common to all the Pods of this application
 #
 router:
+  # router.enabled Enables Router installation
+  enabled: true
   # router.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -1088,6 +1094,8 @@ apiSystem:
 # This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.enabled Enables Api installation
+  enabled: true
   # api.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -1354,6 +1362,8 @@ backup:
 # This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.enabled Enables Backup Background Tasks installation
+  enabled: true
   # backupBackgroundTasks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -1486,13 +1496,28 @@ backupBackgroundTasks:
 # This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
+  # clearEvents.enabled Enables Clear Events installation
+  enabled: true
+  # clearEvents.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # clearEvents.updateStrategy.type Clear Events StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # clearEvents.updateStrategy.type Clear Events update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `clearEvents.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `clearEvents.kind` is set to `Deployment`
     type: RollingUpdate
+    # clearEvents.updateStrategy.rollingUpdate Used only when `clearEvents.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # clearEvents.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Clear Events Pods unavailable during the update process
+      maxUnavailable: 25%
+      # clearEvents.updateStrategy.rollingUpdate.maxSurge Maximum number of Clear Events Pods created over the desired number of Pods
+      maxSurge: 25%
+  # clearEvents.podManagementPolicy The Clear Events Pods scaling operations policy
+  # Used if `clearEvents.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
