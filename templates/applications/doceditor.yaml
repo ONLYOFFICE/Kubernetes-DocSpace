@@ -1,5 +1,6 @@
+{{- if .Values.doceditor.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.doceditor.kind }}
 metadata:
   name: doceditor
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.doceditor.kind "StatefulSet" }}
   serviceName: doceditor
-  {{- if .Values.doceditor.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.doceditor.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.doceditor.updateStrategy }}
+  {{- if eq .Values.doceditor.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.doceditor.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.doceditor.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.doceditor.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.doceditor.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -162,3 +171,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
