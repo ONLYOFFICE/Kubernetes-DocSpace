@@ -1630,13 +1630,28 @@ clearEvents:
 # This block defines the parameters common to all the Pods of this application
 #
 doceditor:
+  # doceditor.enabled Enables Doceditor installation
+  enabled: true
+  # doceditor.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # doceditor.replicaCount Number of Doceditor replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # doceditor.updateStrategy.type Doceditor update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `doceditor.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `doceditor.kind` is set to `Deployment`
     type: RollingUpdate
+    # doceditor.updateStrategy.rollingUpdate Used only when `doceditor.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # doceditor.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Doceditor Pods unavailable during the update process
+      maxUnavailable: 25%
+      # doceditor.updateStrategy.rollingUpdate.maxSurge Maximum number of Doceditor Pods created over the desired number of Pods
+      maxSurge: 25%
+  # doceditor.podManagementPolicy The Doceditor Pods scaling operations policy
+  # Used if `doceditor.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
