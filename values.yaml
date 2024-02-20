@@ -1766,13 +1766,28 @@ doceditor:
 # This block defines the parameters common to all the Pods of this application
 #
 filesServices:
+  # filesServices.enabled Enables Files Services installation
+  enabled: true
+  # filesServices.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # filesServices.replicaCount Number of Files Services replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # filesServices.updateStrategy.type Files Services update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `filesServices.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesServices.kind` is set to `Deployment`
     type: RollingUpdate
+    # filesServices.updateStrategy.rollingUpdate Used only when `filesServices.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # filesServices.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Services Pods unavailable during the update process
+      maxUnavailable: 25%
+      # filesServices.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Services Pods created over the desired number of Pods
+      maxSurge: 25%
+  # filesServices.podManagementPolicy The Files Services Pods scaling operations policy
+  # Used if `filesServices.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

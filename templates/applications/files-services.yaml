@@ -1,5 +1,6 @@
+{{- if .Values.filesServices.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.filesServices.kind }}
 metadata:
   name: files-services
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
   serviceName: files-services
-  {{- if .Values.filesServices.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.filesServices.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.filesServices.updateStrategy }}
+  {{- if eq .Values.filesServices.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.filesServices.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
