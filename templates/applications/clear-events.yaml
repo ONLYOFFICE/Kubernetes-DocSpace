@@ -1,5 +1,6 @@
+{{- if .Values.clearEvents.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.clearEvents.kind }}
 metadata:
   name: clear-events
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
   serviceName: clear-events
-  {{- if .Values.clearEvents.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.clearEvents.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.clearEvents.updateStrategy }}
+  {{- if eq .Values.clearEvents.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.clearEvents.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

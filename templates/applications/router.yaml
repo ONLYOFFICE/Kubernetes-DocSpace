@@ -1,3 +1,4 @@
+{{- if .Values.router.enabled }}
 apiVersion: apps/v1
 kind: {{ .Values.router.kind }}
 metadata:
@@ -182,3 +183,4 @@ spec:
       - name: router-log
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.router.name" . }}
+{{- end }}
