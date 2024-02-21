@@ -2168,13 +2168,28 @@ notify:
 # This block defines the parameters common to all the Pods of this application
 #
 socket:
+  # socket.enabled Enables Socket installation
+  enabled: true
+  # socket.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # socket.replicaCount Number of Socket replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # socket.updateStrategy.type Socket StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # socket.updateStrategy.type Socket update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `socket.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `socket.kind` is set to `Deployment`
     type: RollingUpdate
+    # socket.updateStrategy.rollingUpdate Used only when `socket.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # socket.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Socket Pods unavailable during the update process
+      maxUnavailable: 25%
+      # socket.updateStrategy.rollingUpdate.maxSurge Maximum number of Socket Pods created over the desired number of Pods
+      maxSurge: 25%
+  # socket.podManagementPolicy The Socket Pods scaling operations policy
+  # Used if `socket.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
