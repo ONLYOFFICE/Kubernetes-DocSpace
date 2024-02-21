@@ -1900,13 +1900,28 @@ filesServices:
 # This block defines the parameters common to all the Pods of this application
 #
 login:
+  # login.enabled Enables Login installation
+  enabled: true
+  # login.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # login.replicaCount Number of Login replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # login.updateStrategy.type Login update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
     type: RollingUpdate
+    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      maxUnavailable: 25%
+      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      maxSurge: 25%
+  # login.podManagementPolicy The Login Pods scaling operations policy
+  # Used if `login.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
