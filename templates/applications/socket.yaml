@@ -1,5 +1,6 @@
+{{- if .Values.socket.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.socket.kind }}
 metadata:
   name: socket
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.socket.kind "StatefulSet" }}
   serviceName: socket
-  {{- if .Values.socket.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.socket.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.socket.updateStrategy }}
+  {{- if eq .Values.socket.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.socket.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.socket.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.socket.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.socket.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -162,3 +171,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
