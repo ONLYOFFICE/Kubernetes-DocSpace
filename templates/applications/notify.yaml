@@ -1,5 +1,6 @@
+{{- if .Values.notify.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.notify.kind }}
 metadata:
   name: notify
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.notify.kind "StatefulSet" }}
   serviceName: notify
-  {{- if .Values.notify.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.notify.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.notify.updateStrategy }}
+  {{- if eq .Values.notify.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.notify.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.notify.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.notify.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.notify.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

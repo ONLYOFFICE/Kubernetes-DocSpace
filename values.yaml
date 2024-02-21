@@ -2034,13 +2034,28 @@ login:
 # This block defines the parameters common to all the Pods of this application
 #
 notify:
+  # notify.enabled Enables Notify installation
+  enabled: true
+  # notify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # notify.replicaCount Number of Notify replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # notify.updateStrategy.type Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # notify.updateStrategy.type Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `notify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `notify.kind` is set to `Deployment`
     type: RollingUpdate
+    # notify.updateStrategy.rollingUpdate Used only when `notify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # notify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # notify.updateStrategy.rollingUpdate.maxSurge Maximum number of Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # notify.podManagementPolicy The Notify Pods scaling operations policy
+  # Used if `notify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
