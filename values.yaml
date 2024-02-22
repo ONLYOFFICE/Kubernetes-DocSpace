@@ -2304,13 +2304,28 @@ socket:
 # This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
+  # ssoauth.enabled Enables ssoauth installation
+  enabled: true
+  # ssoauth.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # ssoauth.updateStrategy.type ssoauth update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `ssoauth.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `ssoauth.kind` is set to `Deployment`
     type: RollingUpdate
+    # ssoauth.updateStrategy.rollingUpdate Used only when `ssoauth.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # ssoauth.updateStrategy.rollingUpdate.maxUnavailable Maximum number of ssoauth Pods unavailable during the update process
+      maxUnavailable: 25%
+      # ssoauth.updateStrategy.rollingUpdate.maxSurge Maximum number of ssoauth Pods created over the desired number of Pods
+      maxSurge: 25%
+  # ssoauth.podManagementPolicy The ssoauth Pods scaling operations policy
+  # Used if `ssoauth.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

@@ -1,5 +1,6 @@
+{{- if .Values.ssoauth.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.ssoauth.kind }}
 metadata:
   name: ssoauth
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.ssoauth.kind "StatefulSet" }}
   serviceName: ssoauth
-  {{- if .Values.ssoauth.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.ssoauth.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.ssoauth.updateStrategy }}
+  {{- if eq .Values.ssoauth.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.ssoauth.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.ssoauth.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.ssoauth.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.ssoauth.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -162,3 +171,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
