@@ -2553,13 +2553,28 @@ studio:
 # This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
+  # studioNotify.enabled Enables Studio Notify installation
+  enabled: true
+  # studioNotify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studioNotify.updateStrategy.type Studio Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studioNotify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studioNotify.kind` is set to `Deployment`
     type: RollingUpdate
+    # studioNotify.updateStrategy.rollingUpdate Used only when `studioNotify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studioNotify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studioNotify.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studioNotify.podManagementPolicy The Studio Notify Pods scaling operations policy
+  # Used if `studioNotify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
