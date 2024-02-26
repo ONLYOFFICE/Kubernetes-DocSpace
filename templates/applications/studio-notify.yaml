@@ -1,5 +1,6 @@
+{{- if .Values.studioNotify.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.studioNotify.kind }}
 metadata:
   name: studio-notify
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
   serviceName: studio-notify
-  {{- if .Values.studioNotify.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.studioNotify.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.studioNotify.updateStrategy }}
+  {{- if eq .Values.studioNotify.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.studioNotify.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
