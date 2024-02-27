@@ -1,7 +1,7 @@
 # Default values for DocSpace
 
 # DocSpace common parameters
-# This block defines common parameters for all deployments and statefulsets
+# This block defines common parameters for all DocSpace Apps services
 #
 # Connection parameters to services
 connections:
@@ -343,10 +343,6 @@ persistence:
     existingClaim: ""
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
-
-# DocSpace common deployment parameters
-# This block defines common parameters for all deployments only
-#
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
@@ -2698,7 +2694,8 @@ studioNotify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Proxy Frontend StatefulSet parameters
+# DocSpace Proxy Frontend application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
@@ -2886,7 +2883,7 @@ docs:
   enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # docs.updateStrategy.type Document Server StatefulSet update strategy type
+    # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
   # Document Server Pod Security Context parameters
@@ -3161,7 +3158,7 @@ upgrade:
             memory: "1Gi"
             cpu: "1000m"
 
-# DocSpace Elasticsearch parameters
+# DocSpace Elasticsearch StatefulSet parameters
 #
 elasticsearch:
   # elasticsearch.enabled Enables Elasticsearch installation
