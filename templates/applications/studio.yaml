@@ -1,5 +1,6 @@
+{{- if .Values.studio.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.studio.kind }}
 metadata:
   name: studio
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,11 +17,19 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.studio.kind "StatefulSet" }}
   serviceName: studio
-  {{- if .Values.studio.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.studio.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.studio.updateStrategy }}
+  {{- if eq .Values.studio.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.studio.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.studio.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.studio.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.studio.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
