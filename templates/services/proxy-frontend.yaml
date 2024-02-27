@@ -24,7 +24,7 @@ spec:
     name: https
     targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
   selector:
-    statefulset.kubernetes.io/pod-name: proxy-frontend-0
+    app: proxy-frontend
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
