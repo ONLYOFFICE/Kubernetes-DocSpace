@@ -2703,11 +2703,26 @@ studioNotify:
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
   enabled: false
+  # proxyFrontend.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # proxyFrontend.updateStrategy.type Proxy Frontend StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `proxyFrontend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `proxyFrontend.kind` is set to `Deployment`
     type: RollingUpdate
+    # proxyFrontend.updateStrategy.rollingUpdate Used only when `proxyFrontend.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # proxyFrontend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Proxy Frontend Pods unavailable during the update process
+      maxUnavailable: 25%
+      # proxyFrontend.updateStrategy.rollingUpdate.maxSurge Maximum number of Proxy Frontend Pods created over the desired number of Pods
+      maxSurge: 25%
+  # proxyFrontend.podManagementPolicy The Proxy Frontend Pods scaling operations policy
+  # Used if `proxyFrontend.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity

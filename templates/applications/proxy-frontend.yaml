@@ -1,6 +1,6 @@
 {{- if .Values.proxyFrontend.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.proxyFrontend.kind }}
 metadata:
   name: proxy-frontend
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -10,16 +10,25 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.proxyFrontend.replicaCount }}
   selector:
     matchLabels:
       app: proxy-frontend
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
   serviceName: {{ template "docspace.svc.proxyFrontend.name" . }}
+  {{- end }}
   {{- if .Values.proxyFrontend.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.proxyFrontend.updateStrategy | nindent 4 }}
+  {{- if eq .Values.proxyFrontend.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.proxyFrontend.podManagementPolicy }}
   {{- end }}
   podManagementPolicy: OrderedReady
   template:
