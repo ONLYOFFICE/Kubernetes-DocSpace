@@ -1,30 +1,39 @@
+{{- if .Values.apiSystem.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.apiSystem.kind }}
 metadata:
-  name: files-services
+  name: api-system
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: files-services
+    app: api-system
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.apiSystem.replicaCount }}
   selector:
     matchLabels:
-      app: files-services
+      app: api-system
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: files-services
-  {{- if .Values.filesServices.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.filesServices.updateStrategy | nindent 4 }}
+  {{- if eq .Values.apiSystem.kind "StatefulSet" }}
+  serviceName: api-system
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.apiSystem.updateStrategy }}
+  {{- if eq .Values.apiSystem.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.apiSystem.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.apiSystem.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.apiSystem.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.apiSystem.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: files-services
+        app: api-system
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,13 +48,13 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.filesServices.podAffinity .Values.filesServices.nodeAffinity }}
+      {{- if or .Values.apiSystem.podAffinity .Values.apiSystem.nodeAffinity }}
       affinity:
-        {{- with .Values.filesServices.podAffinity }}
+        {{- with .Values.apiSystem.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.filesServices.nodeAffinity }}
+        {{- with .Values.apiSystem.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -72,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: files-services
-        image: {{ .Values.filesServices.image.repository }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
-        imagePullPolicy: {{ .Values.filesServices.image.pullPolicy }}
+      - name: api-system
+        image: {{ .Values.apiSystem.image.repository }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}
+        imagePullPolicy: {{ .Values.apiSystem.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.filesServices.containerPorts.app }}
+        - containerPort: {{ .Values.apiSystem.containerPorts.app }}
           name: app
-        {{- if .Values.filesServices.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.filesServices.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.apiSystem.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.filesServices.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.filesServices.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.apiSystem.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.filesServices.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.filesServices.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.apiSystem.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.apiSystem.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.filesServices.resources | nindent 10 }}
+        resources: {{- toYaml .Values.apiSystem.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.filesServices.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.apiSystem.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

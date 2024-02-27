@@ -1,5 +1,6 @@
+{{- if .Values.backup.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.backup.kind }}
 metadata:
   name: backup
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backup.replicaCount }}
   selector:
     matchLabels:
       app: backup
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.backup.kind "StatefulSet" }}
   serviceName: backup
-  {{- if .Values.backup.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.backup.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.backup.updateStrategy }}
+  {{- if eq .Values.backup.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.backup.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.backup.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.backup.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.backup.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

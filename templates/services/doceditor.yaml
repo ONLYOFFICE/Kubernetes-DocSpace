@@ -17,5 +17,8 @@ spec:
     name: doceditor
     targetPort: {{ .Values.doceditor.containerPorts.doceditor }}
   selector:
-    statefulset.kubernetes.io/pod-name: doceditor-0
+    app: doceditor
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

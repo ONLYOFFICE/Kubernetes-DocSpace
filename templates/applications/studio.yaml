@@ -1,30 +1,39 @@
+{{- if .Values.studio.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.studio.kind }}
 metadata:
-  name: backup-background-tasks
+  name: studio
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: backup-background-tasks
+    app: studio
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.studio.replicaCount }}
   selector:
     matchLabels:
-      app: backup-background-tasks
+      app: studio
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: backup-background-tasks
-  {{- if .Values.backupBackgroundTasks.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.backupBackgroundTasks.updateStrategy | nindent 4 }}
+  {{- if eq .Values.studio.kind "StatefulSet" }}
+  serviceName: studio
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.studio.updateStrategy }}
+  {{- if eq .Values.studio.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.studio.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.studio.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.studio.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.studio.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: backup-background-tasks
+        app: studio
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,13 +48,13 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.backupBackgroundTasks.podAffinity .Values.backupBackgroundTasks.nodeAffinity }}
+      {{- if or .Values.studio.podAffinity .Values.studio.nodeAffinity }}
       affinity:
-        {{- with .Values.backupBackgroundTasks.podAffinity }}
+        {{- with .Values.studio.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.backupBackgroundTasks.nodeAffinity }}
+        {{- with .Values.studio.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -72,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: backup-background-tasks
-        image: {{ .Values.backupBackgroundTasks.image.repository }}:{{ default .Values.images.tag .Values.backupBackgroundTasks.image.tag }}
-        imagePullPolicy: {{ .Values.backupBackgroundTasks.image.pullPolicy }}
+      - name: studio
+        image: {{ .Values.studio.image.repository }}:{{ default .Values.images.tag .Values.studio.image.tag }}
+        imagePullPolicy: {{ .Values.studio.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.backupBackgroundTasks.containerPorts.app }}
+        - containerPort: {{ .Values.studio.containerPorts.app }}
           name: app
-        {{- if .Values.backupBackgroundTasks.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.backupBackgroundTasks.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studio.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.studio.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.backupBackgroundTasks.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.backupBackgroundTasks.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studio.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.studio.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.backupBackgroundTasks.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.backupBackgroundTasks.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studio.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.studio.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.backupBackgroundTasks.resources | nindent 10 }}
+        resources: {{- toYaml .Values.studio.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.backupBackgroundTasks.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.studio.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

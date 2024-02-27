@@ -1,30 +1,39 @@
+{{- if .Values.notify.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.notify.kind }}
 metadata:
-  name: socket
+  name: notify
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: socket
+    app: notify
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.notify.replicaCount }}
   selector:
     matchLabels:
-      app: socket
+      app: notify
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: socket
-  {{- if .Values.socket.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.socket.updateStrategy | nindent 4 }}
+  {{- if eq .Values.notify.kind "StatefulSet" }}
+  serviceName: notify
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.notify.updateStrategy }}
+  {{- if eq .Values.notify.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.notify.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.notify.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.notify.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.notify.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: socket
+        app: notify
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,13 +48,13 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.socket.podAffinity .Values.socket.nodeAffinity }}
+      {{- if or .Values.notify.podAffinity .Values.notify.nodeAffinity }}
       affinity:
-        {{- with .Values.socket.podAffinity }}
+        {{- with .Values.notify.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.socket.nodeAffinity }}
+        {{- with .Values.notify.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -72,30 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: socket
-        image: {{ .Values.socket.image.repository }}:{{ default .Values.images.tag .Values.socket.image.tag }}
-        imagePullPolicy: {{ .Values.socket.image.pullPolicy }}
+      - name: notify
+        image: {{ .Values.notify.image.repository }}:{{ default .Values.images.tag .Values.notify.image.tag }}
+        imagePullPolicy: {{ .Values.notify.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.socket.containerPorts.app }}
+        - containerPort: {{ .Values.notify.containerPorts.app }}
           name: app
-        - containerPort: {{ .Values.socket.containerPorts.socket }}
-          name: socket
-        {{- if .Values.socket.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.socket.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.notify.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.notify.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.socket.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.socket.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.notify.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.notify.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.socket.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.socket.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.notify.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.notify.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.socket.resources | nindent 10 }}
+        resources: {{- toYaml .Values.notify.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.socket.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.notify.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -162,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

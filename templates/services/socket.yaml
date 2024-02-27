@@ -17,5 +17,8 @@ spec:
     name: socket
     targetPort: {{ .Values.socket.containerPorts.socket }}
   selector:
-    statefulset.kubernetes.io/pod-name: socket-0
+    app: socket
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

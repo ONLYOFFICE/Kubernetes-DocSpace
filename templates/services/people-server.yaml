@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: people-server
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app: people-server
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   ports:
   - port: {{ .Values.peopleServer.containerPorts.app }}

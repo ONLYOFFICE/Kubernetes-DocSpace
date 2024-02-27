@@ -1,30 +1,39 @@
+{{- if .Values.files.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.files.kind }}
 metadata:
-  name: doceditor
+  name: files
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: doceditor
+    app: files
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.files.replicaCount }}
   selector:
     matchLabels:
-      app: doceditor
+      app: files
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: doceditor
-  {{- if .Values.doceditor.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.doceditor.updateStrategy | nindent 4 }}
+  {{- if eq .Values.files.kind "StatefulSet" }}
+  serviceName: files
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.files.updateStrategy }}
+  {{- if eq .Values.files.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.files.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.files.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.files.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.files.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: doceditor
+        app: files
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,17 +48,37 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.doceditor.podAffinity .Values.doceditor.nodeAffinity }}
       affinity:
-        {{- with .Values.doceditor.podAffinity }}
+        podAntiAffinity:
+        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - files
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - files
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+        {{- end }}
+        {{- with .Values.files.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.doceditor.nodeAffinity }}
+        {{- with .Values.files.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -72,30 +101,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: doceditor
-        image: {{ .Values.doceditor.image.repository }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
-        imagePullPolicy: {{ .Values.doceditor.image.pullPolicy }}
+      - name: files
+        image: {{ .Values.files.image.repository }}:{{ default .Values.images.tag .Values.files.image.tag }}
+        imagePullPolicy: {{ .Values.files.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.doceditor.containerPorts.app }}
+        - containerPort: {{ .Values.files.containerPorts.app }}
           name: app
-        - containerPort: {{ .Values.doceditor.containerPorts.doceditor }}
-          name: doceditor
-        {{- if .Values.doceditor.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.doceditor.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.files.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.files.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.doceditor.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.doceditor.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.files.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.files.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.doceditor.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.doceditor.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.files.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.files.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.doceditor.resources | nindent 10 }}
+        resources: {{- toYaml .Values.files.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.doceditor.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.files.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -143,8 +170,6 @@ spec:
         {{- end }}
         - name: docspace-data
           mountPath: /app/onlyoffice/data
-        - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
       volumes:
@@ -162,3 +187,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

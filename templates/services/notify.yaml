@@ -14,5 +14,8 @@ spec:
     name: app
     targetPort: {{ .Values.notify.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: notify-0
+    app: notify
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

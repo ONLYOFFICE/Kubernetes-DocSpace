@@ -14,5 +14,8 @@ spec:
     name: app
     targetPort: {{ .Values.clearEvents.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: clear-events-0
+    app: clear-events
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

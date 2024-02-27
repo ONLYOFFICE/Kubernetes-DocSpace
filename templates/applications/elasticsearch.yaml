@@ -19,9 +19,8 @@ spec:
       {{- end }}
   serviceName: elasticsearch
   {{- if .Values.elasticsearch.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.elasticsearch.updateStrategy | nindent 4 }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.elasticsearch.updateStrategy }}
   {{- end }}
-  podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:

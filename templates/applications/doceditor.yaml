@@ -1,30 +1,39 @@
+{{- if .Values.doceditor.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.doceditor.kind }}
 metadata:
-  name: notify
+  name: doceditor
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: notify
+    app: doceditor
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.doceditor.replicaCount }}
   selector:
     matchLabels:
-      app: notify
+      app: doceditor
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: notify
-  {{- if .Values.notify.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.notify.updateStrategy | nindent 4 }}
+  {{- if eq .Values.doceditor.kind "StatefulSet" }}
+  serviceName: doceditor
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.doceditor.updateStrategy }}
+  {{- if eq .Values.doceditor.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.doceditor.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.doceditor.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.doceditor.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.doceditor.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: notify
+        app: doceditor
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,13 +48,13 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.notify.podAffinity .Values.notify.nodeAffinity }}
+      {{- if or .Values.doceditor.podAffinity .Values.doceditor.nodeAffinity }}
       affinity:
-        {{- with .Values.notify.podAffinity }}
+        {{- with .Values.doceditor.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.notify.nodeAffinity }}
+        {{- with .Values.doceditor.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -72,28 +81,30 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: notify
-        image: {{ .Values.notify.image.repository }}:{{ default .Values.images.tag .Values.notify.image.tag }}
-        imagePullPolicy: {{ .Values.notify.image.pullPolicy }}
+      - name: doceditor
+        image: {{ .Values.doceditor.image.repository }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
+        imagePullPolicy: {{ .Values.doceditor.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.notify.containerPorts.app }}
+        - containerPort: {{ .Values.doceditor.containerPorts.app }}
           name: app
-        {{- if .Values.notify.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.notify.startupProbe "enabled" | toYaml | nindent 10 }}
+        - containerPort: {{ .Values.doceditor.containerPorts.doceditor }}
+          name: doceditor
+        {{- if .Values.doceditor.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.doceditor.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.notify.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.notify.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.doceditor.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.doceditor.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.notify.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.notify.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.doceditor.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.doceditor.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.notify.resources | nindent 10 }}
+        resources: {{- toYaml .Values.doceditor.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.notify.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.doceditor.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -160,3 +171,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

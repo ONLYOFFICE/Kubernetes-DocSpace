@@ -1,7 +1,7 @@
 # Default values for DocSpace
 
 # DocSpace common parameters
-# This block defines common parameters for all deployments and statefulsets
+# This block defines common parameters for all DocSpace Apps services
 #
 # Connection parameters to services
 connections:
@@ -343,10 +343,6 @@ persistence:
     existingClaim: ""
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
-
-# DocSpace common deployment parameters
-# This block defines common parameters for all deployments only
-#
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
@@ -358,16 +354,21 @@ podAntiAffinity:
   # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
-# DocSpace Files Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Files application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 files:
+  # files.enabled Enables Files installation
+  enabled: true
+  # files.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # files.replicaCount Number of Files replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # files.updateStrategy.type Files Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # files.updateStrategy.type Files update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `files.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `files.kind` is set to `Deployment`
     type: RollingUpdate
     # files.updateStrategy.rollingUpdate Used only when `files.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -375,6 +376,10 @@ files:
       maxUnavailable: 25%
       # files.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Pods created over the desired number of Pods
       maxSurge: 25%
+  # files.podManagementPolicy The Files Pods scaling operations policy
+  # Used if `files.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -480,16 +485,21 @@ files:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace People Server Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace People Server application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
+  # peopleServer.enabled Enables People Server installation
+  enabled: true
+  # peopleServer.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # peopleServer.replicaCount Number of People Server replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # peopleServer.updateStrategy.type People Server Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # peopleServer.updateStrategy.type People Server update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `peopleServer.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `peopleServer.kind` is set to `Deployment`
     type: RollingUpdate
     # peopleServer.updateStrategy.rollingUpdate Used only when `peopleServer.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -497,6 +507,10 @@ peopleServer:
       maxUnavailable: 25%
       # peopleServer.updateStrategy.rollingUpdate.maxSurge Maximum number of People Server Pods created over the desired number of Pods
       maxSurge: 25%
+  # peopleServer.podManagementPolicy The People Server Pods scaling operations policy
+  # Used if `peopleServer.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -602,16 +616,21 @@ peopleServer:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Router Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Router application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 router:
+  # router.enabled Enables Router installation
+  enabled: true
+  # router.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # router.replicaCount Number of Router replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # router.updateStrategy.type Router Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # router.updateStrategy.type Router update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `router.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `router.kind` is set to `Deployment`
     type: RollingUpdate
     # router.updateStrategy.rollingUpdate Used only when `router.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -619,6 +638,10 @@ router:
       maxUnavailable: 25%
       # router.updateStrategy.rollingUpdate.maxSurge Maximum number of Router Pods created over the desired number of Pods
       maxSurge: 25%
+  # router.podManagementPolicy The Router Pods scaling operations policy
+  # Used if `router.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -806,18 +829,21 @@ router:
     # local: "/tmp/resolv.conf"
     local: "on"
 
-# DocSpace Healthchecks Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Healthchecks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 healthchecks:
   # healthchecks.enabled Enables Healthchecks installation
   enabled: true
+  # healthchecks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
   replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # healthchecks.updateStrategy.type Healthchecks Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # healthchecks.updateStrategy.type Healthchecks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `healthchecks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `healthchecks.kind` is set to `Deployment`
     type: RollingUpdate
     # healthchecks.updateStrategy.rollingUpdate Used only when `healthchecks.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -825,6 +851,10 @@ healthchecks:
       maxUnavailable: 25%
       # healthchecks.updateStrategy.rollingUpdate.maxSurge Maximum number of Healthchecks Pods created over the desired number of Pods
       maxSurge: 25%
+  # healthchecks.podManagementPolicy The Healthchecks Pods scaling operations policy
+  # Used if `healthchecks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -922,16 +952,32 @@ healthchecks:
 
 # DocSpace statefulsets
 #
-# DocSpace Api System StatefulSet parameters
+# DocSpace Api System application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 apiSystem:
   # apiSystem.enabled Enables Api System installation
   enabled: false
+  # apiSystem.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # apiSystem.replicaCount Number of Api System replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # apiSystem.updateStrategy.type Api System StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # apiSystem.updateStrategy.type Api System update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `apiSystem.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `apiSystem.kind` is set to `Deployment`
     type: RollingUpdate
+    # apiSystem.updateStrategy.rollingUpdate Used only when `apiSystem.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # apiSystem.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api System Pods unavailable during the update process
+      maxUnavailable: 25%
+      # apiSystem.updateStrategy.rollingUpdate.maxSurge Maximum number of Api System Pods created over the desired number of Pods
+      maxSurge: 25%
+  # apiSystem.podManagementPolicy The Api System Pods scaling operations policy
+  # Used if `apiSystem.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1040,14 +1086,32 @@ apiSystem:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Api StatefulSet parameters
+# DocSpace Api application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.enabled Enables Api installation
+  enabled: true
+  # api.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # api.replicaCount Number of Api replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # api.updateStrategy.type Api StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # api.updateStrategy.type Api update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `api.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `api.kind` is set to `Deployment`
     type: RollingUpdate
+    # api.updateStrategy.rollingUpdate Used only when `api.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # api.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api Pods unavailable during the update process
+      maxUnavailable: 25%
+      # api.updateStrategy.rollingUpdate.maxSurge Maximum number of Api Pods created over the desired number of Pods
+      maxSurge: 25%
+  # api.podManagementPolicy The Api Pods scaling operations policy
+  # Used if `api.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1156,14 +1220,32 @@ api:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup StatefulSet parameters
+# DocSpace Backup application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backup:
+  # backup.enabled Enables Backup installation
+  enabled: true
+  # backup.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backup.replicaCount Number of Backup replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backup.updateStrategy.type Backup StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backup.updateStrategy.type Backup update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backup.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backup.kind` is set to `Deployment`
     type: RollingUpdate
+    # backup.updateStrategy.rollingUpdate Used only when `backup.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backup.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backup.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backup.podManagementPolicy The Backup Pods scaling operations policy
+  # Used if `backup.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1272,14 +1354,32 @@ backup:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup Background Tasks StatefulSet parameters
+# DocSpace Backup Background Tasks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.enabled Enables Backup Background Tasks installation
+  enabled: true
+  # backupBackgroundTasks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backupBackgroundTasks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupBackgroundTasks.kind` is set to `Deployment`
     type: RollingUpdate
+    # backupBackgroundTasks.updateStrategy.rollingUpdate Used only when `backupBackgroundTasks.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Background Tasks Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Background Tasks Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backupBackgroundTasks.podManagementPolicy The Backup Background Tasks Pods scaling operations policy
+  # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1388,14 +1488,32 @@ backupBackgroundTasks:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Clear Events StatefulSet parameters
+# DocSpace Clear Events application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
+  # clearEvents.enabled Enables Clear Events installation
+  enabled: true
+  # clearEvents.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # clearEvents.updateStrategy.type Clear Events StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # clearEvents.updateStrategy.type Clear Events update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `clearEvents.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `clearEvents.kind` is set to `Deployment`
     type: RollingUpdate
+    # clearEvents.updateStrategy.rollingUpdate Used only when `clearEvents.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # clearEvents.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Clear Events Pods unavailable during the update process
+      maxUnavailable: 25%
+      # clearEvents.updateStrategy.rollingUpdate.maxSurge Maximum number of Clear Events Pods created over the desired number of Pods
+      maxSurge: 25%
+  # clearEvents.podManagementPolicy The Clear Events Pods scaling operations policy
+  # Used if `clearEvents.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1504,14 +1622,32 @@ clearEvents:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Doceditor StatefulSet parameters
+# DocSpace Doceditor application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 doceditor:
+  # doceditor.enabled Enables Doceditor installation
+  enabled: true
+  # doceditor.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # doceditor.replicaCount Number of Doceditor replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # doceditor.updateStrategy.type Doceditor update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `doceditor.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `doceditor.kind` is set to `Deployment`
     type: RollingUpdate
+    # doceditor.updateStrategy.rollingUpdate Used only when `doceditor.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # doceditor.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Doceditor Pods unavailable during the update process
+      maxUnavailable: 25%
+      # doceditor.updateStrategy.rollingUpdate.maxSurge Maximum number of Doceditor Pods created over the desired number of Pods
+      maxSurge: 25%
+  # doceditor.podManagementPolicy The Doceditor Pods scaling operations policy
+  # Used if `doceditor.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1622,14 +1758,32 @@ doceditor:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Files Services StatefulSet parameters
+# DocSpace Files Services application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 filesServices:
+  # filesServices.enabled Enables Files Services installation
+  enabled: true
+  # filesServices.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # filesServices.replicaCount Number of Files Services replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # filesServices.updateStrategy.type Files Services update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `filesServices.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesServices.kind` is set to `Deployment`
     type: RollingUpdate
+    # filesServices.updateStrategy.rollingUpdate Used only when `filesServices.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # filesServices.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Services Pods unavailable during the update process
+      maxUnavailable: 25%
+      # filesServices.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Services Pods created over the desired number of Pods
+      maxSurge: 25%
+  # filesServices.podManagementPolicy The Files Services Pods scaling operations policy
+  # Used if `filesServices.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1738,14 +1892,32 @@ filesServices:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Login StatefulSet parameters
+# DocSpace Login application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 login:
+  # login.enabled Enables Login installation
+  enabled: true
+  # login.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # login.replicaCount Number of Login replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # login.updateStrategy.type Login update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
     type: RollingUpdate
+    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      maxUnavailable: 25%
+      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      maxSurge: 25%
+  # login.podManagementPolicy The Login Pods scaling operations policy
+  # Used if `login.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1854,14 +2026,32 @@ login:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Notify StatefulSet parameters
+# DocSpace Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 notify:
+  # notify.enabled Enables Notify installation
+  enabled: true
+  # notify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # notify.replicaCount Number of Notify replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # notify.updateStrategy.type Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # notify.updateStrategy.type Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `notify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `notify.kind` is set to `Deployment`
     type: RollingUpdate
+    # notify.updateStrategy.rollingUpdate Used only when `notify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # notify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # notify.updateStrategy.rollingUpdate.maxSurge Maximum number of Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # notify.podManagementPolicy The Notify Pods scaling operations policy
+  # Used if `notify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1970,14 +2160,32 @@ notify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Socket StatefulSet parameters
+# DocSpace Socket application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 socket:
+  # socket.enabled Enables Socket installation
+  enabled: true
+  # socket.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # socket.replicaCount Number of Socket replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # socket.updateStrategy.type Socket StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # socket.updateStrategy.type Socket update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `socket.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `socket.kind` is set to `Deployment`
     type: RollingUpdate
+    # socket.updateStrategy.rollingUpdate Used only when `socket.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # socket.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Socket Pods unavailable during the update process
+      maxUnavailable: 25%
+      # socket.updateStrategy.rollingUpdate.maxSurge Maximum number of Socket Pods created over the desired number of Pods
+      maxSurge: 25%
+  # socket.podManagementPolicy The Socket Pods scaling operations policy
+  # Used if `socket.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2088,14 +2296,32 @@ socket:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace ssoauth StatefulSet parameters
+# DocSpace ssoauth application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
+  # ssoauth.enabled Enables ssoauth installation
+  enabled: true
+  # ssoauth.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # ssoauth.updateStrategy.type ssoauth update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `ssoauth.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `ssoauth.kind` is set to `Deployment`
     type: RollingUpdate
+    # ssoauth.updateStrategy.rollingUpdate Used only when `ssoauth.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # ssoauth.updateStrategy.rollingUpdate.maxUnavailable Maximum number of ssoauth Pods unavailable during the update process
+      maxUnavailable: 25%
+      # ssoauth.updateStrategy.rollingUpdate.maxSurge Maximum number of ssoauth Pods created over the desired number of Pods
+      maxSurge: 25%
+  # ssoauth.podManagementPolicy The ssoauth Pods scaling operations policy
+  # Used if `ssoauth.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2200,14 +2426,32 @@ ssoauth:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio StatefulSet parameters
+# DocSpace Studio application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studio:
+  # studio.enabled Enables Studio installation
+  enabled: true
+  # studio.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studio.replicaCount Number of Studio replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studio.updateStrategy.type Studio StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studio.updateStrategy.type Studio update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studio.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studio.kind` is set to `Deployment`
     type: RollingUpdate
+    # studio.updateStrategy.rollingUpdate Used only when `studio.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studio.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studio.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studio.podManagementPolicy The Studio Pods scaling operations policy
+  # Used if `studio.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2316,14 +2560,32 @@ studio:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio Notify StatefulSet parameters
+# DocSpace Studio Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
+  # studioNotify.enabled Enables Studio Notify installation
+  enabled: true
+  # studioNotify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studioNotify.updateStrategy.type Studio Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studioNotify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studioNotify.kind` is set to `Deployment`
     type: RollingUpdate
+    # studioNotify.updateStrategy.rollingUpdate Used only when `studioNotify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studioNotify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studioNotify.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studioNotify.podManagementPolicy The Studio Notify Pods scaling operations policy
+  # Used if `studioNotify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2432,16 +2694,32 @@ studioNotify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Proxy Frontend StatefulSet parameters
+# DocSpace Proxy Frontend application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
   enabled: false
+  # proxyFrontend.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  replicaCount: 1
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # proxyFrontend.updateStrategy.type Proxy Frontend StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `proxyFrontend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `proxyFrontend.kind` is set to `Deployment`
     type: RollingUpdate
+    # proxyFrontend.updateStrategy.rollingUpdate Used only when `proxyFrontend.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # proxyFrontend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Proxy Frontend Pods unavailable during the update process
+      maxUnavailable: 25%
+      # proxyFrontend.updateStrategy.rollingUpdate.maxSurge Maximum number of Proxy Frontend Pods created over the desired number of Pods
+      maxSurge: 25%
+  # proxyFrontend.podManagementPolicy The Proxy Frontend Pods scaling operations policy
+  # Used if `proxyFrontend.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2605,7 +2883,7 @@ docs:
   enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # docs.updateStrategy.type Document Server StatefulSet update strategy type
+    # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
   # Document Server Pod Security Context parameters
@@ -2880,7 +3158,7 @@ upgrade:
             memory: "1Gi"
             cpu: "1000m"
 
-# DocSpace Elasticsearch parameters
+# DocSpace Elasticsearch StatefulSet parameters
 #
 elasticsearch:
   # elasticsearch.enabled Enables Elasticsearch installation

@@ -19,9 +19,8 @@ spec:
       {{- end }}
   serviceName: document-server
   {{- if .Values.docs.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.docs.updateStrategy | nindent 4 }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.docs.updateStrategy }}
   {{- end }}
-  podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:

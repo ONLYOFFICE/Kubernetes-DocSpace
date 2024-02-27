@@ -1,28 +1,39 @@
+{{- if .Values.studioNotify.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.studioNotify.kind }}
 metadata:
-  name: files
+  name: studio-notify
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: files
+    app: studio-notify
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .Values.files.replicaCount }}
+  replicas: {{ .Values.studioNotify.replicaCount }}
   selector:
     matchLabels:
-      app: files
+      app: studio-notify
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if .Values.files.updateStrategy }}
-  strategy: {{- toYaml .Values.files.updateStrategy | nindent 4 }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
+  serviceName: studio-notify
+  {{- end }}
+  {{- if .Values.studioNotify.updateStrategy }}
+  {{- if eq .Values.studioNotify.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.studioNotify.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: files
+        app: studio-notify
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -37,37 +48,17 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
+      {{- if or .Values.studioNotify.podAffinity .Values.studioNotify.nodeAffinity }}
       affinity:
-        podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - files
-              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-            weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - files
-            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
-        {{- with .Values.files.podAffinity }}
+        {{- with .Values.studioNotify.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.files.nodeAffinity }}
+        {{- with .Values.studioNotify.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -90,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: files
-        image: {{ .Values.files.image.repository }}:{{ default .Values.images.tag .Values.files.image.tag }}
-        imagePullPolicy: {{ .Values.files.image.pullPolicy }}
+      - name: studio-notify
+        image: {{ .Values.studioNotify.image.repository }}:{{ default .Values.images.tag .Values.studioNotify.image.tag }}
+        imagePullPolicy: {{ .Values.studioNotify.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.files.containerPorts.app }}
+        - containerPort: {{ .Values.studioNotify.containerPorts.app }}
           name: app
-        {{- if .Values.files.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.files.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studioNotify.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.studioNotify.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.files.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.files.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studioNotify.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.studioNotify.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.files.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.files.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.studioNotify.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.studioNotify.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.files.resources | nindent 10 }}
+        resources: {{- toYaml .Values.studioNotify.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.files.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.studioNotify.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -159,6 +150,8 @@ spec:
         {{- end }}
         - name: docspace-data
           mountPath: /app/onlyoffice/data
+        - name: files-data
+          mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
           mountPath: /var/www/products/ASC.People/server/
       volumes:
@@ -176,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

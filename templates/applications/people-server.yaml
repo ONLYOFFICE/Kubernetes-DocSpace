@@ -1,31 +1,39 @@
-{{- if .Values.apiSystem.enabled }}
+{{- if .Values.peopleServer.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.peopleServer.kind }}
 metadata:
-  name: api-system
+  name: people-server
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: api-system
+    app: people-server
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.peopleServer.replicaCount }}
   selector:
     matchLabels:
-      app: api-system
+      app: people-server
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: api-system
-  {{- if .Values.apiSystem.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.apiSystem.updateStrategy | nindent 4 }}
+  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
+  serviceName: people-server
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.peopleServer.updateStrategy }}
+  {{- if eq .Values.peopleServer.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.peopleServer.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: api-system
+        app: people-server
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -40,17 +48,37 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.apiSystem.podAffinity .Values.apiSystem.nodeAffinity }}
       affinity:
-        {{- with .Values.apiSystem.podAffinity }}
+        podAntiAffinity:
+        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - people-server
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - people-server
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+        {{- end }}
+        {{- with .Values.peopleServer.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.apiSystem.nodeAffinity }}
+        {{- with .Values.peopleServer.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -73,28 +101,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: api-system
-        image: {{ .Values.apiSystem.image.repository }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}
-        imagePullPolicy: {{ .Values.apiSystem.image.pullPolicy }}
+      - name: people-server
+        image: {{ .Values.peopleServer.image.repository }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
+        imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.apiSystem.containerPorts.app }}
+        - containerPort: {{ .Values.peopleServer.containerPorts.app }}
           name: app
-        {{- if .Values.apiSystem.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.apiSystem.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.peopleServer.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.peopleServer.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.apiSystem.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.apiSystem.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.peopleServer.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.peopleServer.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.apiSystem.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.apiSystem.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.peopleServer.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.peopleServer.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.apiSystem.resources | nindent 10 }}
+        resources: {{- toYaml .Values.peopleServer.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.apiSystem.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.peopleServer.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -144,8 +172,6 @@ spec:
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
       volumes:
       {{- if .Values.extraConf.secretName }}
       - name: custom-file

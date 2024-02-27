@@ -1,30 +1,39 @@
+{{- if .Values.clearEvents.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.clearEvents.kind }}
 metadata:
-  name: api
+  name: clear-events
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: api
+    app: clear-events
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.clearEvents.replicaCount }}
   selector:
     matchLabels:
-      app: api
+      app: clear-events
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  serviceName: api
-  {{- if .Values.api.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.api.updateStrategy | nindent 4 }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
+  serviceName: clear-events
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.clearEvents.updateStrategy }}
+  {{- if eq .Values.clearEvents.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.clearEvents.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: api
+        app: clear-events
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -39,13 +48,13 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if or .Values.api.podAffinity .Values.api.nodeAffinity }}
+      {{- if or .Values.clearEvents.podAffinity .Values.clearEvents.nodeAffinity }}
       affinity:
-        {{- with .Values.api.podAffinity }}
+        {{- with .Values.clearEvents.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.api.nodeAffinity }}
+        {{- with .Values.clearEvents.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -72,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: api
-        image: {{ .Values.api.image.repository }}:{{ default .Values.images.tag .Values.api.image.tag }}
-        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+      - name: clear-events
+        image: {{ .Values.clearEvents.image.repository }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
+        imagePullPolicy: {{ .Values.clearEvents.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.api.containerPorts.app }}
+        - containerPort: {{ .Values.clearEvents.containerPorts.app }}
           name: app
-        {{- if .Values.api.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.api.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.clearEvents.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.clearEvents.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.api.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.api.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.clearEvents.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.clearEvents.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.api.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.api.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.clearEvents.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.clearEvents.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.api.resources | nindent 10 }}
+        resources: {{- toYaml .Values.clearEvents.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.api.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.clearEvents.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -160,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

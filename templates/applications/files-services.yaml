@@ -1,28 +1,39 @@
+{{- if .Values.filesServices.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.filesServices.kind }}
 metadata:
-  name: people-server
+  name: files-services
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: people-server
+    app: files-services
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .Values.peopleServer.replicaCount }}
+  replicas: {{ .Values.filesServices.replicaCount }}
   selector:
     matchLabels:
-      app: people-server
+      app: files-services
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if .Values.peopleServer.updateStrategy }}
-  strategy: {{- toYaml .Values.peopleServer.updateStrategy | nindent 4 }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
+  serviceName: files-services
+  {{- end }}
+  {{- if .Values.filesServices.updateStrategy }}
+  {{- if eq .Values.filesServices.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.filesServices.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: people-server
+        app: files-services
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -37,37 +48,17 @@ spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
+      {{- if or .Values.filesServices.podAffinity .Values.filesServices.nodeAffinity }}
       affinity:
-        podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - people-server
-              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-            weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - people-server
-            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
-        {{- with .Values.peopleServer.podAffinity }}
+        {{- with .Values.filesServices.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.peopleServer.nodeAffinity }}
+        {{- with .Values.filesServices.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
@@ -90,28 +81,28 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: people-server
-        image: {{ .Values.peopleServer.image.repository }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
-        imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
+      - name: files-services
+        image: {{ .Values.filesServices.image.repository }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
+        imagePullPolicy: {{ .Values.filesServices.image.pullPolicy }}
         {{- if .Values.containerSecurityContext.enabled }}
         securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.peopleServer.containerPorts.app }}
+        - containerPort: {{ .Values.filesServices.containerPorts.app }}
           name: app
-        {{- if .Values.peopleServer.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.peopleServer.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesServices.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.filesServices.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.peopleServer.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesServices.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.filesServices.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.peopleServer.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesServices.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.filesServices.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.peopleServer.resources | nindent 10 }}
+        resources: {{- toYaml .Values.filesServices.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.peopleServer.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.filesServices.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -161,6 +152,8 @@ spec:
           mountPath: /app/onlyoffice/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
+        - name: people-data
+          mountPath: /var/www/products/ASC.People/server/
       volumes:
       {{- if .Values.extraConf.secretName }}
       - name: custom-file
@@ -176,3 +169,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}
