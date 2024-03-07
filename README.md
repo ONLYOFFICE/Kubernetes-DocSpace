@@ -19,16 +19,14 @@ The following guide covers the installation process of the ‘DocSpace’ into a
   * [3. Upgrade DocSpace](#3-upgrade-docspace)
 - [Parameters](#parameters)
   * [Common parameters](#common-parameters)
-  * [DocSpace common Deployments parameters](#docspace-common-deployments-parameters)
-  * [DocSpace Deployment parameters](#docspace-deployment-parameters)
-  * [DocSpace Router Deployment additional parameters](#docspace-router-deployment-additional-parameters)
-  * [DocSpace StatefulSet parameters](#docspace-statefulset-parameters)
-  * [DocSpace Api System StatefulSet additional parameters](#docspace-api-system-statefulset-additional-parameters)
-  * [DocSpace Doceditor StatefulSet additional parameters](#docspace-doceditor-statefulset-additional-parameters)
-  * [DocSpace Login StatefulSet additional parameters](#docspace-login-statefulset-additional-parameters)
-  * [DocSpace Socket StatefulSet additional parameters](#docspace-socket-statefulset-additional-parameters)
-  * [DocSpace Ssoauth StatefulSet additional parameters](#docspace-ssoauth-statefulset-additional-parameters)
-  * [DocSpace Proxy Frontend StatefulSet additional parameters](#docspace-proxy-frontend-statefulset-additional-parameters)
+  * [DocSpace Application parameters](#docspace-application-parameters)
+  * [DocSpace Router Application additional parameters](#docspace-router-application-additional-parameters)
+  * [DocSpace Api System Application additional parameters](#docspace-api-system-application-additional-parameters)
+  * [DocSpace Doceditor Application additional parameters](#docspace-doceditor-application-additional-parameters)
+  * [DocSpace Login Application additional parameters](#docspace-login-application-additional-parameters)
+  * [DocSpace Socket Application additional parameters](#docspace-socket-application-additional-parameters)
+  * [DocSpace Ssoauth Application additional parameters](#docspace-ssoauth-application-additional-parameters)
+  * [DocSpace Proxy Frontend Application additional parameters](#docspace-proxy-frontend-application-additional-parameters)
   * [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
   * [DocSpace Ingress parameters](#docspace-ingress-parameters)
   * [DocSpace Jobs parameters](#docspace-jobs-parameters)
@@ -320,15 +318,15 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `serviceAccount.name`                                  | Name of the ServiceAccount to be used. If not set and `serviceAccount.create` is `true` the name will be taken from `.Release.Name` or `serviceAccount.create` is `false` the name will be "default" | `""` |
 | `serviceAccount.annotations`                           | Map of annotations to add to the ServiceAccount                                                                             | `{}`                          |
 | `serviceAccount.automountServiceAccountToken`          | Enable auto mount of ServiceAccountToken on the serviceAccount created. Used only if `serviceAccount.create` is `true`      | `true`                        |
-| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for the `docs` StatefulSet | `false`                |
-| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods. Individual values for the `docs` StatefulSet                                                 | `104`                         |
-| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods. Individual values for the `docs` StatefulSet                                                | `107`                         |
+| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for `docs` and `elasticsearch` | `false`                |
+| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods. Individual values for `docs` and `elasticsearch`                                             | `104`                         |
+| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods. Individual values for `docs` and `elasticsearch`                                                            | `107`                         |
 | `containerSecurityContext.enabled`                     | Enable security context for containers in pods                                                                              | `false`                       |
 | `containerSecurityContext.allowPrivilegeEscalation`    | Controls whether a process can gain more privileges than its parent process                                                 | `false`                       |
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
 | `tolerations`                                          | Tolerations for pods assignment                                                                                             | `[]`                          |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend StatefulSets                    | `2.0.3`                       |
+| `images.tag`                                           | Global image tag for all services. Does not apply to the Document Server and Proxy Frontend                                 | `2.0.3`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -369,43 +367,42 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                            | `2Gi`                                                                                 |
 | `persistence.routerLog.existingClaim`                  | The name of the existing PVC for storing Nginx logs of the Router service. If not specified, a PVC named "router-log" will be created | `""`                                                                      |
 | `persistence.routerLog.size`                           | PVC Storage Request for Nginx logs volume                                                                               | `5Gi`                                                                                 |
+| `podAntiAffinity.type`                                 | Types of Pod antiaffinity. Allowed values: `preferred` or `required`                                                    | `preferred`                                                                           |
+| `podAntiAffinity.topologyKey`                          | Node label key to match                                                                                                 | `kubernetes.io/hostname`                                                              |
+| `podAntiAffinity.weight`                               | Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`         |`100`                                                                                  |
 
-### DocSpace common Deployments parameters
+### DocSpace Application* parameters
 
-| Parameter                                              | Description                                                                                                     | Default                       |
-|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `podAntiAffinity.type`                                 | Types of Pod antiaffinity. Allowed values: `preferred` or `required`                                            | `preferred`                   |
-| `podAntiAffinity.topologyKey`                          | Node label key to match                                                                                         | `kubernetes.io/hostname`      |
-| `podAntiAffinity.weight`                               | Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred` |`100`                          |
+| Parameter                                                 | Description                                                                                                     | Default                                   |
+|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `Application.enabled`                                     | Enables Application installation. Individual value for the `apiSystem`                                          | `true`                                    |
+| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `elasticsearch` | `Deployment`          |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy                                                                      | `1`                                       |
+| `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
+| `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
+| `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
+| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `elasticsearch` | `OrderedReady` |
+| `Application.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Application" Pods scheduling by nodes relative to other Pods | `{}` |
+| `Application.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Application" Pods scheduling by nodes | `{}` |
+| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `elasticsearch`     | `onlyoffice/docspace-Application`         |
+| `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `elasticsearch` | `""`          |
+| `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`                                 | `5050`                                    |
+| `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
+| `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
+| `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
+| `Application.resources.requests`                          | The requested resources for the "Application" container                                                         | `memory, cpu`                             |
+| `Application.resources.limits`                            | The resources limits for the "Application" container                                                            | `memory, cpu`                             |
 
-### DocSpace Deployment* parameters
+* Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
+Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs` and `elasticsearch`.
 
-| Parameter                                                | Description                                                                                                     | Default                                   |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Deployment.replicaCount`                                | Number of "Deployment" replicas to deploy                                                                       | `1`                                       |
-| `Deployment.updateStrategy.type`                         | "Deployment" Deployment update strategy type                                                                    | `RollingUpdate`                           |
-| `Deployment.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Deployment" Pods unavailable during the update process                                       | `25%`                                     |
-| `Deployment.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Deployment" Pods created over the desired number of Pods                                     | `25%`                                     |
-| `Deployment.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Deployment" Pods scheduling by nodes relative to other Pods | `{}` |
-| `Deployment.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Deployment" Pods scheduling by nodes | `{}` |
-| `Deployment.image.repository`                            | "Deployment" container image repository                                                                         | `onlyoffice/docspace-Deployment`          |
-| `Deployment.image.tag`                                   | "Deployment" container image tag. If set to, it takes priority over the `images.tag`                            | `""`                                      |
-| `Deployment.image.pullPolicy`                            | "Deployment" container image pull policy                                                                        | `IfNotPresent`                            |
-| `Deployment.containerPorts.app`                          | "Deployment" container port. Not used in `router` Deployment                                                    | `5050`                                    |
-| `Deployment.startupProbe.enabled`                        | Enable startupProbe for "Deployment" container                                                                  | `true`                                    |
-| `Deployment.readinessProbe.enabled`                      | Enable readinessProbe for "Deployment" container                                                                | `true`                                    |
-| `Deployment.livenessProbe.enabled`                       | Enable livenessProbe for "Deployment" container                                                                 | `true`                                    |
-| `Deployment.resources.requests`                          | The requested resources for the "Deployment" container                                                          | `memory, cpu`                             |
-| `Deployment.resources.limits`                            | The resources limits for the "Deployment" container                                                             | `memory, cpu`                             |
-
-* Deployment* Note: Since all available Deployments have some identical parameters, a description for each of them has not been added to the table, but combined into one.
-Instead of `Deployment`, the parameter name should have the following values: `files`, `peopleServer`, `router` and `healthchecks`.
-
-### DocSpace Router Deployment additional parameters
+### DocSpace Router Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `router.initContainers`                                  | Defines containers that run before Router container in the Router Deployment pod                                | `[]`                 |
+| `router.initContainers`                                  | Defines containers that run before Router container in the Router pod                                           | `[]`                 |
 | `router.containerPorts.external`                         | Router container port                                                                                           | `8092`               |
 | `router.extraConf.customInitScripts.configMap`           | The name of the ConfigMap containing custom initialization scripts                                              | `""`                 |
 | `router.extraConf.customInitScripts.fileName`            | The names of scripts containing custom initialization scripts. Must be the same as the `key` names in `router.extraConf.customInitScripts.configMap`. May contain multiple values | `60-custom-init-scripts.sh` |
@@ -423,64 +420,42 @@ Instead of `Deployment`, the parameter name should have the following values: `f
 | `router.resolver.dns`                                    | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `router.resolver.local` | `""` |
 | `router.resolver.local`                                  | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
 
-### DocSpace StatefulSet* parameters
-
-| Parameter                                                | Description                                                                                                     | Default              |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `StatefulSet.replicaCount`                               | Number of "StatefulSet" replicas to deploy                                                                      | `1`                  |
-| `StatefulSet.updateStrategy.type`                        | "StatefulSet" StatefulSet update strategy type                                                                  | `RollingUpdate`      |
-| `StatefulSet.podAffinity`                                | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "StatefulSet" Pods scheduling by nodes relative to other Pods | `{}` |
-| `StatefulSet.nodeAffinity`                               | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "StatefulSet" Pods scheduling by nodes | `{}` |
-| `StatefulSet.image.repository`                           | "StatefulSet" container image repository. Individual values for the `proxyFrontend` and `docs` StatefulSets      | `onlyoffice/docspace-StatefulSet` |
-| `StatefulSet.image.tag`                                  | "StatefulSet" container image tag. If set to, it takes priority over the `images.tag`. Individual values for the `proxyFrontend` and `docs` StatefulSets | `""`                                      |
-| `StatefulSet.image.pullPolicy`                           | "StatefulSet" container image pull policy.                                                                       | `IfNotPresent`                            |
-| `StatefulSet.containerPorts.app`                         | "StatefulSet" container port. Not used in `login` and `proxyFrontend` StatefulSet                                | `5050`                                    |
-| `StatefulSet.startupProbe.enabled`                       | Enable startupProbe for "StatefulSet" container                                                                  | `true`                                    |
-| `StatefulSet.readinessProbe.enabled`                     | Enable readinessProbe for "StatefulSet" container                                                                | `true`                                    |
-| `StatefulSet.livenessProbe.enabled`                      | Enable livenessProbe for "StatefulSet" container                                                                 | `true`                                    |
-| `StatefulSet.resources.requests`                         | The requested resources for the "StatefulSet" container                                                          | `memory, cpu`                             |
-| `StatefulSet.resources.limits`                           | The resources limits for the "StatefulSet" container                                                             | `memory, cpu`                             |
-
-* StatefulSet* Note: Since all available StatefulSets have some identical parameters, a description for each of them has not been added to the table, but combined into one.
-Instead of `StatefulSet`, the parameter name should have the following values: `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, `clearEvents`, `doceditor`, `filesServices`,
-`login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend` and `docs`.
-
-### DocSpace Api System StatefulSet additional parameters
+### DocSpace Api System Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `apiSystem.enabled`                                      | Enables Api System installation                                                                                 | `false`              |
 
-### DocSpace Doceditor StatefulSet additional parameters
+### DocSpace Doceditor Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `doceditor.containerPorts.doceditor`                     | Doceditor container port                                                                                        | `5013`               |
 
-### DocSpace Login StatefulSet additional parameters
+### DocSpace Login Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `login.containerPorts.login`                             | Login container port                                                                                            | `5011`               |
 
-### DocSpace Socket StatefulSet additional parameters
+### DocSpace Socket Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `socket.containerPorts.socket`                           | Socket additional container port                                                                                | `9899`               |
 
-### DocSpace Ssoauth StatefulSet additional parameters
+### DocSpace Ssoauth Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `ssoauth.containerPorts.sso`                             | Ssoauth additional container port                                                                               | `9834`               |
 
-### DocSpace Proxy Frontend StatefulSet additional parameters
+### DocSpace Proxy Frontend Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `proxyFrontend.enabled`                                  | Enables Proxy Frontend installation                                                                             | `false`              |
-| `proxyFrontend.initContainers`                           | Defines containers that run before Proxy Frontend container in the Proxy Frontend StatefulSet pod               | `[]`                 |
+| `proxyFrontend.initContainers`                           | Defines containers that run before Proxy Frontend container in the Proxy Frontend pod                           | `[]`                 |
 | `proxyFrontend.image.repository`                         | Proxy Frontend container image repository                                                                       | `nginx`              |
 | `proxyFrontend.image.tag`                                | Proxy Frontend container image tag                                                                              | `latest`             |
 | `proxyFrontend.containerPorts.http`                      | Proxy Frontend HTTP container port                                                                              | `80`                 |
@@ -509,7 +484,7 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `docs.podSecurityContext.enabled`                        | Enable security context for the Document Server Pod                                                             | `false`               |
 | `docs.podSecurityContext.runAsUser`                      | User ID for the Document Server pod                                                                             | `101`                 |
 | `docs.podSecurityContext.runAsGroup`                     | Group ID for the Document Server pod                                                                            | `101`                 |
-| `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server StatefulSet pod             | `[]`                  |
+| `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server pod                         | `[]`                  |
 | `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
 | `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
 | `docs.containerPorts.http`                               | Document Server HTTP container port                                                                             | `80`                  |
@@ -558,7 +533,7 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
 | `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
 | `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
-| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch StatefulSet pod                 | `[]`                       |
+| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch pod                             | `[]`                       |
 | `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
 | `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.16.3`                   |
 | `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
