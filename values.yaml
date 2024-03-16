@@ -77,7 +77,7 @@ connections:
   # connections.elkSheme The protocol for the connection to Elasticsearch
   elkSheme: http
   # connections.elkHost The IP address or the name of the Elasticsearch host
-  elkHost: elasticsearch
+  elkHost: opensearch
   # connections.elkPort The port for the connection to Elasticsearch
   elkPort: "9200"
   # connections.elkThreads Number of threads in Elasticsearch
@@ -3160,7 +3160,7 @@ upgrade:
 
 # DocSpace Elasticsearch StatefulSet parameters
 #
-elasticsearch:
+opensearch:
   # elasticsearch.enabled Enables Elasticsearch installation
   enabled: true
   # Update strategy used to replace old Pods by new ones
@@ -3220,9 +3220,9 @@ elasticsearch:
   # Elasticsearch container image parameters
   image:
     # elasticsearch.image.repository Elasticsearch container image repository
-    repository: onlyoffice/elasticsearch
+    repository: onlyoffice/opensearch
     # elasticsearch.image.tag Elasticsearch container image tag
-    tag: 7.16.3
+    tag: 2.11.1
     # elasticsearch.image.pullPolicy Elasticsearch container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for Elasticsearch container in Pod

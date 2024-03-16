@@ -1,21 +1,21 @@
-{{- if .Values.elasticsearch.enabled }}
+{{- if .Values.opensearch.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: elasticsearch-data
+  name: opensearch-data
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 spec:
-  storageClassName: {{ .Values.elasticsearch.persistence.storageClass }}
+  storageClassName: {{ .Values.opensearch.persistence.storageClass }}
   accessModes:
-  {{- range .Values.elasticsearch.persistence.accessModes }}
+  {{- range .Values.opensearch.persistence.accessModes }}
   - {{ . }}
   {{- end }}
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.elasticsearch.persistence.size }}
+      storage: {{ .Values.opensearch.persistence.size }}
 {{- end }}
