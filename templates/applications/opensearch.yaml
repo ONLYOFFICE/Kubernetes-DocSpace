@@ -108,7 +108,7 @@ spec:
         - name: bootstrap.memory_lock
           value: "true"
         - name: ES_JAVA_OPTS
-          value: "-Xms3g -Xmx3  g -Dlog4j2.formatMsgNoLookups=true"
+          value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
         - name: indices.fielddata.cache.size
           value: "30%"
         - name: indices.memory.index_buffer_size
