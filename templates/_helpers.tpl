@@ -41,6 +41,17 @@ Get the DocSpace Service Account name
 {{- end -}}
 
 {{/*
+Get the DocSpace Security Context
+*/}}
+{{- define "docspace.securityContext" -}}
+{{- if not .seLinuxOptions -}}
+    {{- omit . "enabled" "seLinuxOptions" | toYaml }}
+{{- else -}}
+    {{- omit . "enabled" | toYaml }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the MySQL password secret
 */}}
 {{- define "docspace.mysql.secretName" -}}

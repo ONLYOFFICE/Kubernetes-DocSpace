@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.api.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.api.podSecurityContext.enabled }}
+      {{- $psc = .Values.api.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.api.podAffinity .Values.api.nodeAffinity }}
       affinity:
@@ -71,7 +77,7 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ tpl .Values.initContainers.waitStorage.image.repository . }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
@@ -82,10 +88,16 @@ spec:
       {{- end }}
       containers:
       - name: api
-        image: {{ .Values.api.image.repository }}:{{ default .Values.images.tag .Values.api.image.tag }}
+        image: {{ tpl .Values.api.image.repository . }}:{{ default .Values.images.tag .Values.api.image.tag }}
         imagePullPolicy: {{ .Values.api.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.api.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.api.containerSecurityContext.enabled }}
+        {{- $csc = .Values.api.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.api.containerPorts.app }}
