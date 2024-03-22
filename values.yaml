@@ -1171,7 +1171,7 @@ api:
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
-    repository: onlyoffice/{{ .Values.images.repoPrefix }}docspace-api
+    repository: onlyoffice/docspace-api
     # api.image.tag Api container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""

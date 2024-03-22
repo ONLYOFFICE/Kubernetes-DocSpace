@@ -77,8 +77,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ tpl .Values.initContainers.waitStorage.image.repository . }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.api.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.api.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.api.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -88,7 +97,7 @@ spec:
       {{- end }}
       containers:
       - name: api
-        image: {{ tpl .Values.api.image.repository . }}:{{ default .Values.images.tag .Values.api.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.api.image.repository) }}:{{ default .Values.images.tag .Values.api.image.tag }}
         imagePullPolicy: {{ .Values.api.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.api.containerSecurityContext.enabled }}
         {{- $csc := dict }}
