@@ -998,6 +998,11 @@ apiSystem:
   # Used if `apiSystem.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api System Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
+    enabled: false
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1038,6 +1043,11 @@ apiSystem:
     tag: ""
     # apiSystem.image.pullPolicy Api System container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api System Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
+    enabled: false
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
