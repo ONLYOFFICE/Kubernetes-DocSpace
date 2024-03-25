@@ -41,6 +41,31 @@ Get the DocSpace Service Account name
 {{- end -}}
 
 {{/*
+Get the DocSpace Security Context
+*/}}
+{{- define "docspace.securityContext" -}}
+{{- if not .seLinuxOptions -}}
+    {{- omit . "enabled" "seLinuxOptions" | toYaml }}
+{{- else -}}
+    {{- omit . "enabled" | toYaml }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the DocSpace image repository
+*/}}
+{{- define "docspace.imageRepository" -}}
+{{- $context := index . 0 -}}
+{{- $repo := index . 1 -}}
+{{- $repoPrefix := $context.Values.images.repoPrefix -}}
+{{- if and $repoPrefix (contains "onlyoffice/" $repo) -}}
+    {{- $repo | replace "onlyoffice/" (printf "onlyoffice/%s-" $repoPrefix) -}}
+{{- else -}}
+    {{- $repo -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the MySQL password secret
 */}}
 {{- define "docspace.mysql.secretName" -}}

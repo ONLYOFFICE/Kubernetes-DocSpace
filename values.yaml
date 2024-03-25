@@ -181,22 +181,38 @@ serviceAccount:
   # Used only if `serviceAccount.create` is `true`
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
   automountServiceAccountToken: true
-# Configure a Security Context for a Pods
+# Configure a Security Context for the DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs`, `elasticsearch` and `Jobs`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
   # If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
   enabled: false
-  # podSecurityContext.runAsUser User ID for the DocSpace pods
-  runAsUser: 104
-  # podSecurityContext.runAsGroup Group ID for the DocSpace pods
-  runAsGroup: 107
-# Configure a Security Context for containers in Pods
+  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the DocSpace application Pods
+  fsGroup: 107
+# Configure a Security Context for containers in DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs`, `elasticsearch` and `Jobs`
 containerSecurityContext:
-  # containerSecurityContext.enabled Enable security context for containers in pods
+  # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
+  ## containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  runAsUser: 104
+  ## containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  runAsGroup: 107
+  ## containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+  runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
+  ## containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  seLinuxOptions: {}
+  ## containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  seccompProfile:
+    type: RuntimeDefault
+  ## containerSecurityContext.capabilities Defines the privileges granted to the process
+  capabilities:
+    drop: ["ALL"]
 # nodeSelector Node labels for pods assignment
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
@@ -206,9 +222,13 @@ tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
-# images.tag Global image tag for all services
-# Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
+# Global image parameters for for all DocSpace applications
+# Does not apply to the Document Server, Elasticsearch and Proxy Frontend
 images:
+  # images.repoPrefix Global repository prefix for all DocSpace applications
+  repoPrefix: ""
+  # images.tag Global image tag for all DocSpace applications
+  # Does not apply to the Document Server and Elasticsearch
   tag: 2.0.3
 # JSON Web Token parameters
 jwt:
@@ -1112,6 +1132,11 @@ api:
   # Used if `api.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # api.podSecurityContext.enabled Enable security context for the Api pods
+    enabled: false
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1152,6 +1177,11 @@ api:
     tag: ""
     # api.image.pullPolicy Api container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # api.containerSecurityContext.enabled Enable security context for containers in Api pods
+    enabled: false
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
