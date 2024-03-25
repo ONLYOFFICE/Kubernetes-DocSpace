@@ -1286,6 +1286,11 @@ backup:
   # Used if `backup.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backup.podSecurityContext.enabled Enable security context for the Backup pods
+    enabled: false
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1326,6 +1331,11 @@ backup:
     tag: ""
     # backup.image.pullPolicy Backup container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
+    enabled: false
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1564,6 +1574,11 @@ clearEvents:
   # Used if `clearEvents.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Clear Events Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # clearEvents.podSecurityContext.enabled Enable security context for the Clear Events pods
+    enabled: false
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1604,6 +1619,11 @@ clearEvents:
     tag: ""
     # clearEvents.image.pullPolicy Clear Events container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Clear Events Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
+    enabled: false
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
