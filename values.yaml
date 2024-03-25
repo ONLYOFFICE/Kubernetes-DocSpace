@@ -1420,6 +1420,11 @@ backupBackgroundTasks:
   # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Background Tasks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
+    enabled: false
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1460,6 +1465,11 @@ backupBackgroundTasks:
     tag: ""
     # backupBackgroundTasks.image.pullPolicy Backup Background Tasks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Background Tasks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
+    enabled: false
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
