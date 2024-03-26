@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.router.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.router.podSecurityContext.enabled }}
+      {{- $psc = .Values.router.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -95,10 +101,16 @@ spec:
       {{- end }}
       containers:
       - name: router
-        image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.router.image.repository) }}:{{ default .Values.images.tag .Values.router.image.tag }}
         imagePullPolicy: {{ .Values.router.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.router.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.router.containerSecurityContext.enabled }}
+        {{- $csc = .Values.router.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.router.containerPorts.external }}
