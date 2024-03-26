@@ -45,7 +45,7 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {- if or .Values.podSecurityContext.enabled .Values.files.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.files.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.files.podSecurityContext.enabled }}
       {{- $psc = .Values.files.podSecurityContext }}

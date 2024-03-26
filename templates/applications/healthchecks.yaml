@@ -45,7 +45,7 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {- if or .Values.podSecurityContext.enabled .Values.healthchecks.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.healthchecks.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.healthchecks.podSecurityContext.enabled }}
       {{- $psc = .Values.healthchecks.podSecurityContext }}

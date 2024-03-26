@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.login.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.login.podSecurityContext.enabled }}
+      {{- $psc = .Values.login.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.login.podAffinity .Values.login.nodeAffinity }}
       affinity:
@@ -71,8 +77,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.login.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.login.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.login.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -82,10 +97,16 @@ spec:
       {{- end }}
       containers:
       - name: login
-        image: {{ .Values.login.image.repository }}:{{ default .Values.images.tag .Values.login.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.login.image.repository) }}:{{ default .Values.images.tag .Values.login.image.tag }}
         imagePullPolicy: {{ .Values.login.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.login.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.login.containerSecurityContext.enabled }}
+        {{- $csc = .Values.login.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.login.containerPorts.login }}
