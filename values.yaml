@@ -541,6 +541,11 @@ peopleServer:
   # Used if `peopleServer.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the People Server Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # peopleServer.podSecurityContext.enabled Enable security context for the People Server pods
+    enabled: false
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -578,6 +583,11 @@ peopleServer:
     tag: ""
     # peopleServer.image.pullPolicy People Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in People Server Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
+    enabled: false
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -672,6 +682,11 @@ router:
   # Used if `router.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Router Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # router.podSecurityContext.enabled Enable security context for the Router pods
+    enabled: false
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -718,6 +733,11 @@ router:
     tag: ""
     # router.image.pullPolicy Router container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Router Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # router.containerSecurityContext.enabled Enable security context for containers in Router pods
+    enabled: false
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
