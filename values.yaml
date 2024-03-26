@@ -400,6 +400,11 @@ files:
   # Used if `files.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # files.podSecurityContext.enabled Enable security context for the Files pods
+    enabled: false
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -437,6 +442,11 @@ files:
     tag: ""
     # files.image.pullPolicy files container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # files.containerSecurityContext.enabled Enable security context for containers in Files pods
+    enabled: false
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -875,6 +885,11 @@ healthchecks:
   # Used if `healthchecks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Healthchecks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # healthchecks.podSecurityContext.enabled Enable security context for the Healthchecks pods
+    enabled: false
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -912,6 +927,11 @@ healthchecks:
     tag: ""
     # healthchecks.image.pullPolicy Healthchecks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Healthchecks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
+    enabled: false
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
