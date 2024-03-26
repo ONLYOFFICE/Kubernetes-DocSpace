@@ -2028,6 +2028,11 @@ login:
   # Used if `login.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Login Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # login.podSecurityContext.enabled Enable security context for the Login pods
+    enabled: false
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2068,6 +2073,11 @@ login:
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Login Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    enabled: false
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -2162,6 +2172,11 @@ notify:
   # Used if `notify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # notify.podSecurityContext.enabled Enable security context for the Notify pods
+    enabled: false
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2202,6 +2217,11 @@ notify:
     tag: ""
     # notify.image.pullPolicy Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
+    enabled: false
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
