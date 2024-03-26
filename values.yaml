@@ -1718,6 +1718,11 @@ doceditor:
   # Used if `doceditor.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Doceditor Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # doceditor.podSecurityContext.enabled Enable security context for the Doceditor pods
+    enabled: false
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1758,6 +1763,11 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Doceditor Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
+    enabled: false
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
@@ -1854,6 +1864,11 @@ filesServices:
   # Used if `filesServices.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Services Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
+    enabled: false
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1894,6 +1909,11 @@ filesServices:
     tag: ""
     # filesServices.image.pullPolicy Files Services container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Services Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
+    enabled: false
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
