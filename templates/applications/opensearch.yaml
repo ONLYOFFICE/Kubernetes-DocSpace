@@ -102,17 +102,19 @@ spec:
         resources: {{- toYaml .Values.opensearch.resources | nindent 10 }}
         env:
         - name: discovery.type
-          value: "single-node"
+          value: {{ .Values.opensearch.env.discoveryType | quote}}
         - name: DISABLE_SECURITY_PLUGIN
-          value: "true"
+          value: {{ .Values.opensearch.env.disableSecurityPlugin | quote}}
+        - name: DISABLE_INSTALL_DEMO_CONFIG
+          value: {{ .Values.opensearch.env.disableInstallDemoConfig | quote}}
         - name: bootstrap.memory_lock
-          value: "true"
+          value: {{ .Values.opensearch.env.bootstrapMemoryLock | quote}}
         - name: ES_JAVA_OPTS
-          value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+          value: {{ .Values.opensearch.env.ESJAVAOPTS | quote}}
         - name: indices.fielddata.cache.size
-          value: "30%"
+          value: {{ .Values.opensearch.env.indicesFieldDataCacheSize | quote }}
         - name: indices.memory.index_buffer_size
-          value: "30%"
+          value: {{ .Values.opensearch.env.indicesMemoryIndexBufferSize | quote }}
         volumeMounts:
         - name: opensearch-data
           mountPath: /usr/share/opensearch/data

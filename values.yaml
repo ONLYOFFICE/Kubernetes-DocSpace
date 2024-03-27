@@ -234,10 +234,10 @@ extraConf:
     - appsettings.test.json
 # log.level Defines the type and severity of a logged event
 log:
-  level: "Warning"
+  level: "Debug"
 # debug.enabled Enable debug
 debug:
-  enabled: "false"
+  enabled: "true"
 # DocSpace Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -3285,6 +3285,14 @@ opensearch:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  env:
+    discoveryType: "single-node"
+    disableSecurityPlugin: true
+    disableInstallDemoConfig: true
+    bootstrapMemoryLock: true
+    ESJAVAOPTS: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+    indicesFieldDataCacheSize: "30%"
+    indicesMemoryIndexBufferSize: "30%"
   persistence:
     # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
