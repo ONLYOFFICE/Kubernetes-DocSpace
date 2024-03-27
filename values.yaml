@@ -2622,6 +2622,11 @@ studio:
   # Used if `studio.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studio.podSecurityContext.enabled Enable security context for the Studio pods
+    enabled: false
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2662,6 +2667,11 @@ studio:
     tag: ""
     # studio.image.pullPolicy Studio container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
+    enabled: false
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -2756,6 +2766,11 @@ studioNotify:
   # Used if `studioNotify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studioNotify.podSecurityContext.enabled Enable security context for the Studio Notify pods
+    enabled: false
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2796,6 +2811,11 @@ studioNotify:
     tag: ""
     # studioNotify.image.pullPolicy Studio Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
+    enabled: false
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
