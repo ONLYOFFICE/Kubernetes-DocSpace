@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.ssoauth.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.ssoauth.podSecurityContext.enabled }}
+      {{- $psc = .Values.ssoauth.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.ssoauth.podAffinity .Values.ssoauth.nodeAffinity }}
       affinity:
@@ -71,8 +77,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.ssoauth.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.ssoauth.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.ssoauth.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -82,10 +97,16 @@ spec:
       {{- end }}
       containers:
       - name: ssoauth
-        image: {{ .Values.ssoauth.image.repository }}:{{ default .Values.images.tag .Values.ssoauth.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.ssoauth.image.repository) }}:{{ default .Values.images.tag .Values.ssoauth.image.tag }}
         imagePullPolicy: {{ .Values.ssoauth.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.ssoauth.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.ssoauth.containerSecurityContext.enabled }}
+        {{- $csc = .Values.ssoauth.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.ssoauth.containerPorts.app }}

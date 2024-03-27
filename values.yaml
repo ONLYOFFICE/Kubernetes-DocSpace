@@ -2336,6 +2336,11 @@ socket:
   # Used if `socket.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Socket Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # socket.podSecurityContext.enabled Enable security context for the Socket pods
+    enabled: false
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2376,6 +2381,11 @@ socket:
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Socket Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
+    enabled: false
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -2472,6 +2482,11 @@ ssoauth:
   # Used if `ssoauth.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the ssoauth Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # ssoauth.podSecurityContext.enabled Enable security context for the ssoauth pods
+    enabled: false
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2512,6 +2527,11 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in ssoauth Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
+    enabled: false
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
