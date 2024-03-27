@@ -2,44 +2,46 @@
 The following guide covers the installation process of the ‘DocSpace’ into a Kubernetes cluster or OpenShift cluster.
 
 ## Contents
-- [Requirements](#requirements)
-- [Deploy prerequisites](#deploy-prerequisites)
-  * [1. Add Helm repositories](#1-add-helm-repositories)
-  * [2. Install NFS Provisioner](#2-install-nfs-provisioner)
-  * [3. Install MySQL](#3-install-mysql)
-  * [4. Install RabbitMQ](#4-install-rabbitmq)
-  * [5. Install Redis](#5-install-redis)
-  * [6. Install Opensearch](#6-install-opensearch)
-  * [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
-    + [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
-    + [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
-- [Deploy DocSpace](#deploy-docspace)
-  * [1. Install DocSpace](#1-install-docspace)
-  * [2. Uninstall DocSpace](#2-uninstall-docspace)
-  * [3. Upgrade DocSpace](#3-upgrade-docspace)
-- [Parameters](#parameters)
-  * [Common parameters](#common-parameters)
-  * [DocSpace Application parameters](#docspace-application-parameters)
-  * [DocSpace Router Application additional parameters](#docspace-router-application-additional-parameters)
-  * [DocSpace Api System Application additional parameters](#docspace-api-system-application-additional-parameters)
-  * [DocSpace Doceditor Application additional parameters](#docspace-doceditor-application-additional-parameters)
-  * [DocSpace Login Application additional parameters](#docspace-login-application-additional-parameters)
-  * [DocSpace Socket Application additional parameters](#docspace-socket-application-additional-parameters)
-  * [DocSpace Ssoauth Application additional parameters](#docspace-ssoauth-application-additional-parameters)
-  * [DocSpace Proxy Frontend Application additional parameters](#docspace-proxy-frontend-application-additional-parameters)
-  * [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
-  * [DocSpace Ingress parameters](#docspace-ingress-parameters)
-  * [DocSpace Jobs parameters](#docspace-jobs-parameters)
-  * [DocSpace Opensearch parameters](#docspace-opensearch-parameters)
-  * [DocSpace Test parameters](#docspace-test-parameters)
-- [Configuration and installation details](#configuration-and-installation-details)
-  * [1. Expose DocSpace](#1-expose-docspace)
-    + [1.1 Expose DocSpace via Service (HTTP Only)](#11-expose-docspace-via-service-http-only)
-    + [1.2 Expose DocSpace via Ingress](#12-expose-docspace-via-ingress)
-    + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
-    + [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
-    + [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
-- [DocSpace installation test (optional)](#docspace-installation-test-optional)
+- [DocSpace for Kubernetes](#docspace-for-kubernetes)
+  - [Contents](#contents)
+  - [Requirements](#requirements)
+  - [Deploy prerequisites](#deploy-prerequisites)
+    - [1. Add Helm repositories](#1-add-helm-repositories)
+    - [2. Install NFS Provisioner](#2-install-nfs-provisioner)
+    - [3. Install MySQL](#3-install-mysql)
+    - [4. Install RabbitMQ](#4-install-rabbitmq)
+    - [5. Install Redis](#5-install-redis)
+    - [6. Install Opensearch](#6-install-opensearch)
+    - [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
+      - [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
+      - [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
+  - [Deploy DocSpace](#deploy-docspace)
+    - [1. Install DocSpace](#1-install-docspace)
+    - [2. Uninstall DocSpace](#2-uninstall-docspace)
+    - [3. Upgrade DocSpace](#3-upgrade-docspace)
+  - [Parameters](#parameters)
+    - [Common parameters](#common-parameters)
+    - [DocSpace Application\* parameters](#docspace-application-parameters)
+    - [DocSpace Router Application additional parameters](#docspace-router-application-additional-parameters)
+    - [DocSpace Api System Application additional parameters](#docspace-api-system-application-additional-parameters)
+    - [DocSpace Doceditor Application additional parameters](#docspace-doceditor-application-additional-parameters)
+    - [DocSpace Login Application additional parameters](#docspace-login-application-additional-parameters)
+    - [DocSpace Socket Application additional parameters](#docspace-socket-application-additional-parameters)
+    - [DocSpace Ssoauth Application additional parameters](#docspace-ssoauth-application-additional-parameters)
+    - [DocSpace Proxy Frontend Application additional parameters](#docspace-proxy-frontend-application-additional-parameters)
+    - [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
+    - [DocSpace Ingress parameters](#docspace-ingress-parameters)
+    - [DocSpace Jobs parameters](#docspace-jobs-parameters)
+    - [DocSpace Opensearch parameters](#docspace-opensearch-parameters)
+    - [DocSpace Test parameters](#docspace-test-parameters)
+  - [Configuration and installation details](#configuration-and-installation-details)
+    - [1. Expose DocSpace](#1-expose-docspace)
+      - [1.1 Expose DocSpace via Service (HTTP Only)](#11-expose-docspace-via-service-http-only)
+      - [1.2 Expose DocSpace via Ingress](#12-expose-docspace-via-ingress)
+      - [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
+      - [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
+      - [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
+  - [DocSpace installation test (optional)](#docspace-installation-test-optional)
 
 ## Requirements
 
@@ -208,6 +210,21 @@ The `helm uninstall` command removes all the Kubernetes components associated wi
 _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command documentation._
 
 ### 3. Upgrade DocSpace
+
+Note: 
+
+In DocSpace version 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
+
+For proper reindexing before updating DocSpace to version 2.5.0, execute the following command:
+- If `file-services` is deployed as a StatefulSet:
+  ```
+  kubectl scale statefulset files-services --replicas=0
+  ```
+- Otherwise, if deployed as a Deployment:
+  ```
+  kubectl scale deployment files-services --replicas=0
+  ```
+Then proceed with the DocSpace update.
 
 It's necessary to set the parameters for updating. For example,
 
