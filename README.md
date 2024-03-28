@@ -9,7 +9,7 @@ The following guide covers the installation process of the ‘DocSpace’ into a
   * [3. Install MySQL](#3-install-mysql)
   * [4. Install RabbitMQ](#4-install-rabbitmq)
   * [5. Install Redis](#5-install-redis)
-  * [6. Install Elasticsearch](#6-install-elasticsearch)
+  * [6. Install Elasticsearch](#6-install-opensearch)
   * [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
     + [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
     + [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
@@ -30,7 +30,7 @@ The following guide covers the installation process of the ‘DocSpace’ into a
   * [DocSpace Document Server StatefulSet additional parameters](#docspace-document-server-statefulset-additional-parameters)
   * [DocSpace Ingress parameters](#docspace-ingress-parameters)
   * [DocSpace Jobs parameters](#docspace-jobs-parameters)
-  * [DocSpace Elasticsearch parameters](#docspace-elasticsearch-parameters)
+  * [DocSpace Elasticsearch parameters](#docspace-opensearch-parameters)
   * [DocSpace Test parameters](#docspace-test-parameters)
 - [Configuration and installation details](#configuration-and-installation-details)
   * [1. Expose DocSpace](#1-expose-docspace)
@@ -548,7 +548,7 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `opensearch.podSecurityContext.enabled`               | Enable security context for the Opensearch Pod                                                               | `false`                    |
 | `opensearch.podSecurityContext.runAsUser`             | User ID for the Opensearch pod                                                                               | `1000`                     |
 | `opensearch.podSecurityContext.runAsGroup`            | Group ID for the Opensearch pod                                                                              | `1000`                     |
-| `opensearch.initContainers`                           | Defines containers that run before Opensearch container in the Opensearch pod                             | `[]`                       |
+| `opensearch.initContainers`                           | Defines containers that run before Opensearch container in the Opensearch pod                                | `[]`                       |
 | `opensearch.image.repository`                         | Opensearch container image repository                                                                        | `onlyoffice/opensearch` |
 | `opensearch.image.tag`                                | Opensearch container image tag                                                                               | `7.16.3`                   |
 | `opensearch.containerSecurityContext.enabled`         | Enable security context for Opensearch container in pod                                                      | `false`                    |
@@ -556,6 +556,13 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `opensearch.persistence.storageClass`                 | PVC Storage Class for Opensearch volume                                                                      | `"nfs"`                    |
 | `opensearch.persistence.accessModes`                  | Opensearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
 | `opensearch.persistence.size`                         | PVC Storage Request for Opensearch volume                                                                    | `30Gi`                     |
+| `opensearch.env.discoveryType`                        | Determines the cluster discovery type. Set to "single-node" for a single-node cluster                        | `single-node               |
+| `opensearch.env.disableSecurityPlugin`                | disables the security plugin                                                                                 | `true`                     |
+| `opensearch.env.disableInstallDemoConfig`             | disables the installation of demo configuration                                                              | `true`                     |
+| `opensearch.env.bootstrapMemoryLock`                  | determines whether JVM should lock memory                                                                    | `true`                     |
+| `opensearch.env.ESJAVAOPTS`                           | defines JVM options                                                                                          | `-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true`               |
+| `opensearch.env.indicesFieldDataCacheSize`            | sets the size of the index field data cache                                                                  | `30%`                      |
+| `opensearch.env.indicesMemoryIndexBufferSize`         | sets the size of the in-memory index buffer                                                                  | `30%`                      |
 
 ### DocSpace Test parameters
 
