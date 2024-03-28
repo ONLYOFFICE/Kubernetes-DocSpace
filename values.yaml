@@ -3286,12 +3286,19 @@ opensearch:
       memory: "4Gi"
       cpu: "4000m"
   env:
+    # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
     discoveryType: "single-node"
+    # opensearch.env.disableSecurityPlugin disables the security plugin
     disableSecurityPlugin: true
+    # opensearch.env.disableInstallDemoConfig disables the installation of demo configuration
     disableInstallDemoConfig: true
+    # opensearch.env.bootstrapMemoryLock determines whether JVM should lock memory
     bootstrapMemoryLock: true
+    # opensearch.env.ESJAVAOPTS defines JVM options
     ESJAVAOPTS: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+    # opensearch.env.indicesFieldDataCacheSize sets the size of the index field data cache
     indicesFieldDataCacheSize: "30%"
+    # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
     indicesMemoryIndexBufferSize: "30%"
   persistence:
     # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
