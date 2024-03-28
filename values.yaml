@@ -3556,14 +3556,29 @@ tests:
   # These resources will be used when running the `helm test` command
   enabled: true
   # Configure a Security Context for the Test Pod
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
     # tests.podSecurityContext.enabled Enable security context for the Test pod
     enabled: false
-    # tests.podSecurityContext.runAsUser User ID for the Test pod
-    runAsUser: 0
-    # tests.podSecurityContext.runAsGroup Group ID for the Test pod
-    runAsGroup: 0
+    # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
+    fsGroup: 101
+  ## Configure a Security Context for the Test container
+  containerSecurityContext:
+    ## tests.containerSecurityContext.enabled Enable security context for the Test container
+    enabled: false
+    ## tests.containerSecurityContext.runAsUser User ID for the Test container
+    runAsUser: 101
+    ## tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    runAsGroup: 101
+    ## tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    ## tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    ## tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    seccompProfile:
+      type: RuntimeDefault
+    ## tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   # test container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # tests.resources.requests The requested resources for the test container
