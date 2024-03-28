@@ -3455,7 +3455,7 @@ elasticsearch:
     # Example:
     # custom:
     #   - name: additional-init-container
-    #     image: busybox:latest 
+    #     image: busybox:latest
     #     command: ['sh', '-c', 'sleep 180']
     custom: []
   # Elasticsearch container image parameters
