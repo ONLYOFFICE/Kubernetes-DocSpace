@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remove-indexes
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      containers:
+        - name: remove-indexes
+          image: mysql:8.0.36-debian
+          command:
+            - "/bin/bash"
+            - "-c"
+            - |
+              source /remove-indexes/remove-indexes.sh
+          env:
+            - name: ELK_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_HOST
+            - name: mysqlPassword
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "docspace.mysql.secretName" . }}
+                  key: {{ .Values.connections.mysqlSecretKeyPassword }}
+          volumeMounts:
+            - name: remove-indexes
+              mountPath: /remove-indexes
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: remove-indexes
+          configMap:
+            name: remove-indexes
