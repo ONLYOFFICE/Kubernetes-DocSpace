@@ -86,7 +86,7 @@ $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
 
 - `PERSISTENT_STORAGE_CLASS` is a Persistent Storage Class available in your Kubernetes cluster.
 
-- `PERSISTENT_SIZE` is the total size of all Persistent Storages for the nfs Persistent Storage Class. Must be at least the sum of the values of the `persistence` and `elasticsearch.persistence.size` parameters if `persistence.storageClass=nfs` and `elasticsearch.persistence.storageClass=nfs`. You can express the size as a plain integer with one of these suffixes: `T`, `G`, `M`, `Ti`, `Gi`, `Mi`. For example: `19Gi`.
+- `PERSISTENT_SIZE` is the total size of all Persistent Storages for the nfs Persistent Storage Class. Must be at least the sum of the values of the `persistence` and `opensearch.persistence.size` parameters if `persistence.storageClass=nfs` and `opensearch.persistence.storageClass=nfs`. You can express the size as a plain integer with one of these suffixes: `T`, `G`, `M`, `Ti`, `Gi`, `Mi`. For example: `19Gi`.
 
 See more details about installing NFS Server Provisioner via Helm [here](https://github.com/kubernetes-sigs/nfs-ganesha-server-and-external-provisioner/tree/master/charts/nfs-server-provisioner).
 
@@ -136,9 +136,9 @@ $ helm install redis bitnami/redis \
 
 See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/redis).
 
-### 6. Install Elasticsearch
+### 6. Install Opensearch
 
-To install Elasticsearch to your cluster, set the `elasticsearch.enabled=true` parameter when installing DocSpace
+To install Opensearch to your cluster, set the `opensearch.enabled=true` parameter when installing DocSpace
 
 ### 7. Make changes to the configuration files (optional)
 
@@ -208,6 +208,21 @@ The `helm uninstall` command removes all the Kubernetes components associated wi
 _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command documentation._
 
 ### 3. Upgrade DocSpace
+
+Note: 
+
+In DocSpace version 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
+
+For proper reindexing before updating DocSpace to version 2.5.0, execute the following command:
+- If `file-services` is deployed as a StatefulSet:
+  ```
+  kubectl scale statefulset files-services --replicas=0
+  ```
+- Otherwise, if deployed as a Deployment:
+  ```
+  kubectl scale deployment files-services --replicas=0
+  ```
+Then proceed with the DocSpace update.
 
 It's necessary to set the parameters for updating. For example,
 
@@ -280,10 +295,10 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.brokerExistingSecret`                     | The name of existing secret to use for Broker password. Must contain the key specified in `connections.brokerSecretKeyName` | `rabbitmq`                    |
 | `connections.brokerSecretKeyName`                      | The name of the key that contains the Broker user password. If you set a password in `connections.brokerPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
 | `connections.brokerPassword`                           | Broker user password. If set to, it takes priority over the `connections.brokerExistingSecret`                              | `""`                          |
-| `connections.elkSheme`                                 | The protocol for the connection to Elasticsearch                                                                            | `http`                        |
-| `connections.elkHost`                                  | The IP address or the name of the Elasticsearch host                                                                        | `elasticsearch`               |
-| `connections.elkPort`                                  | The port for the connection to Elasticsearch                                                                                | `9200`                        |
-| `connections.elkThreads`                               | Number of threads in Elasticsearch                                                                                          | `1`                           |
+| `connections.elkSheme`                                 | The protocol for the connection to Opensearch                                                                            | `http`                        |
+| `connections.elkHost`                                  | The IP address or the name of the Opensearch host                                                                        | `opensearch`               |
+| `connections.elkPort`                                  | The port for the connection to Opensearch                                                                                | `9200`                        |
+| `connections.elkThreads`                               | Number of threads in Opensearch                                                                                          | `1`                           |
 | `connections.apiHost`                                  | The name of the DocSpace Api service                                                                                        | `api`                         |
 | `connections.apiSystemHost`                            | The name of the DocSpace Api System service                                                                                 | `api-system`                  |
 | `connections.notifyHost`                               | The name of the DocSpace Notify service                                                                                     | `notify`                      |
@@ -318,9 +333,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `serviceAccount.name`                                  | Name of the ServiceAccount to be used. If not set and `serviceAccount.create` is `true` the name will be taken from `.Release.Name` or `serviceAccount.create` is `false` the name will be "default" | `""` |
 | `serviceAccount.annotations`                           | Map of annotations to add to the ServiceAccount                                                                             | `{}`                          |
 | `serviceAccount.automountServiceAccountToken`          | Enable auto mount of ServiceAccountToken on the serviceAccount created. Used only if `serviceAccount.create` is `true`      | `true`                        |
-| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for `docs` and `elasticsearch` | `false`                |
-| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods. Individual values for `docs` and `elasticsearch`                                             | `104`                         |
-| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods. Individual values for `docs` and `elasticsearch`                                                            | `107`                         |
+| `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for `docs` and `opensearch` | `false`                |
+| `podSecurityContext.runAsUser`                         | User ID for the DocSpace pods. Individual values for `docs` and `opensearch`                                             | `104`                         |
+| `podSecurityContext.runAsGroup`                        | Group ID for the DocSpace pods. Individual values for `docs` and `opensearch`                                                            | `107`                         |
 | `containerSecurityContext.enabled`                     | Enable security context for containers in pods                                                                              | `false`                       |
 | `containerSecurityContext.allowPrivilegeEscalation`    | Controls whether a process can gain more privileges than its parent process                                                 | `false`                       |
 | `nodeSelector`                                         | Node labels for pods assignment                                                                                             | `{}`                          |
@@ -357,7 +372,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.initStorage.resources.requests.cpu`    | The requested CPU for the app-init-storage initContainer                                                                | `100m`                                                                                |
 | `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                | `2Gi`                                                                                 |
 | `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                   | `1000m`                                                                               |
-| `initContainers.custom`                                | Defines custom containers that run before DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Document Server`, `Router`, `Elasticsearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
+| `initContainers.custom`                                | Defines custom containers that run before DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Document Server`, `Router`, `Opensearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
 | `persistence.storageClass`                             | PVC Storage Class for DocSpace data volume                                                                              | `nfs`                                                                                 |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                                                                     |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                             | `8Gi`                                                                                 |
@@ -376,16 +391,16 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | `Application.enabled`                                     | Enables Application installation. Individual value for the `apiSystem`                                          | `true`                                    |
-| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `elasticsearch` | `Deployment`          |
+| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`          |
 | `Application.replicaCount`                                | Number of "Application" replicas to deploy                                                                      | `1`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
-| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `elasticsearch` | `OrderedReady` |
+| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `opensearch` | `OrderedReady` |
 | `Application.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Application" Pods scheduling by nodes relative to other Pods | `{}` |
 | `Application.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Application" Pods scheduling by nodes | `{}` |
-| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `elasticsearch`     | `onlyoffice/docspace-Application`         |
-| `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `elasticsearch` | `""`          |
+| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`     | `onlyoffice/docspace-Application`         |
+| `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""`          |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`                                 | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
@@ -396,7 +411,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs` and `elasticsearch`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs` and `opensearch`.
 
 ### DocSpace Router Application additional parameters
 
@@ -525,22 +540,22 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | `upgrade.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-upgrade Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
 | `upgrade.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-upgrade Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
 
-### DocSpace Elasticsearch parameters
+### DocSpace Opensearch parameters
 
 | Parameter                                                | Description                                                                                                     | Default                    |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
-| `elasticsearch.enabled`                                  | Enables Elasticsearch installation                                                                              | `true`                     |
-| `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
-| `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
-| `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
-| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch pod                             | `[]`                       |
-| `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
-| `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.16.3`                   |
-| `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
-| `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
-| `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `"nfs"`                    |
-| `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
-| `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
+| `opensearch.enabled`                                  | Enables Opensearch installation                                                                              | `true`                     |
+| `opensearch.podSecurityContext.enabled`               | Enable security context for the Opensearch Pod                                                               | `false`                    |
+| `opensearch.podSecurityContext.runAsUser`             | User ID for the Opensearch pod                                                                               | `1000`                     |
+| `opensearch.podSecurityContext.runAsGroup`            | Group ID for the Opensearch pod                                                                              | `1000`                     |
+| `opensearch.initContainers`                           | Defines containers that run before Opensearch container in the Opensearch pod                             | `[]`                       |
+| `opensearch.image.repository`                         | Opensearch container image repository                                                                        | `onlyoffice/opensearch` |
+| `opensearch.image.tag`                                | Opensearch container image tag                                                                               | `7.16.3`                   |
+| `opensearch.containerSecurityContext.enabled`         | Enable security context for Opensearch container in pod                                                      | `false`                    |
+| `opensearch.containerSecurityContext.privileged`      | Granting a privileged status to the Opensearch container                                                     | `false`                    |
+| `opensearch.persistence.storageClass`                 | PVC Storage Class for Opensearch volume                                                                      | `"nfs"`                    |
+| `opensearch.persistence.accessModes`                  | Opensearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
+| `opensearch.persistence.size`                         | PVC Storage Request for Opensearch volume                                                                    | `30Gi`                     |
 
 ### DocSpace Test parameters
 
