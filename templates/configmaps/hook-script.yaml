@@ -14,25 +14,11 @@ data:
     response=$(curl -s http://$ELK_HOST:{{ .Values.connections.elkPort }})
     name=$(echo $response | jq -r ".name")
     if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
-      echo "name"
-      echo $name
-
-      echo "mysqlHost"
       mysqlHost={{ .Values.connections.mysqlHost }}
-      echo $mysqlHost
-
-      echo "mysqlUser"
       mysqlUser={{ .Values.connections.mysqlUser }}
-      echo $mysqlUser
-
-      echo "mysqlPassword"
-      echo $mysqlPassword
-      mysqlDatabase=docspace
-      mysql -h "${MYSQL_HOST:-$mysqlHost}" -P "${MYSQL_PORT:-3306}" -u "$mysqlUser" -p"$mysqlPassword" "$mysqlDatabase" -e "SELECT * FROM webstudio_index;"
-      mysql -h "${MYSQL_HOST:-$mysqlHost}" -P "${MYSQL_PORT:-3306}" -u "$mysqlUser" -p"$mysqlPassword" "$mysqlDatabase" -e "TRUNCATE webstudio_index;"
-      echo "XDELETE files_folder"
+      mysqlDatabase={{ .Values.connections.mysqlDatabase }}
+      mysqlPort={{ .Values.connections.mysqlPort }}
+      mysql -h "$mysqlHost" -P "$mysqlPort" -u "$mysqlUser" -p"$mysqlPassword" "$mysqlDatabase" -e "TRUNCATE webstudio_index;"
       curl -XDELETE http://$ELK_HOST:{{ .Values.connections.elkPort }}/files_folder
-      echo "XDELETE files_file"
       curl -XDELETE http://$ELK_HOST:{{ .Values.connections.elkPort }}/files_file
-      echo "finish"
     fi
