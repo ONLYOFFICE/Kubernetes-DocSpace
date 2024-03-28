@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.proxyFrontend.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.proxyFrontend.podSecurityContext.enabled }}
+      {{- $psc = .Values.proxyFrontend.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.proxyFrontend.podAffinity .Values.proxyFrontend.nodeAffinity }}
       affinity:
@@ -77,8 +83,14 @@ spec:
       - name: proxy-frontend
         image: {{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
         imagePullPolicy: {{ .Values.proxyFrontend.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.proxyFrontend.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.proxyFrontend.containerSecurityContext.enabled }}
+        {{- $csc = .Values.proxyFrontend.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.proxyFrontend.containerPorts.http }}

@@ -481,9 +481,6 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `true`                |
-| `docs.podSecurityContext.enabled`                        | Enable security context for the Document Server Pod                                                             | `false`               |
-| `docs.podSecurityContext.runAsUser`                      | User ID for the Document Server pod                                                                             | `101`                 |
-| `docs.podSecurityContext.runAsGroup`                     | Group ID for the Document Server pod                                                                            | `101`                 |
 | `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server pod                         | `[]`                  |
 | `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
 | `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
@@ -530,14 +527,12 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 | Parameter                                                | Description                                                                                                     | Default                    |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
 | `elasticsearch.enabled`                                  | Enables Elasticsearch installation                                                                              | `true`                     |
-| `elasticsearch.podSecurityContext.enabled`               | Enable security context for the Elasticsearch Pod                                                               | `false`                    |
-| `elasticsearch.podSecurityContext.runAsUser`             | User ID for the Elasticsearch pod                                                                               | `1000`                     |
-| `elasticsearch.podSecurityContext.runAsGroup`            | Group ID for the Elasticsearch pod                                                                              | `1000`                     |
-| `elasticsearch.initContainers`                           | Defines containers that run before Elasticsearch container in the Elasticsearch pod                             | `[]`                       |
+| `elasticsearch.initContainers.securityContext.enabled`   | Enable security context for Elasticsearch change-volume-owner initContainer container in pod                    | `false`                    |
+| `elasticsearch.initContainers.resources.requests`        | The requested resources for the Elasticsearch change-volume-owner initContainer                                 | `memory, cpu`              |
+| `elasticsearch.initContainers.resources.limits`          | The resources limits for the Elasticsearch change-volume-owner initContainer                                    | `memory, cpu`              |
+| `elasticsearch.initContainers.custom`                    | Custom Elasticsearch initContainers parameters. Additional containers that run before Elasticsearch container in a Pod | `[]`                |
 | `elasticsearch.image.repository`                         | Elasticsearch container image repository                                                                        | `onlyoffice/elasticsearch` |
 | `elasticsearch.image.tag`                                | Elasticsearch container image tag                                                                               | `7.16.3`                   |
-| `elasticsearch.containerSecurityContext.enabled`         | Enable security context for Elasticsearch container in pod                                                      | `false`                    |
-| `elasticsearch.containerSecurityContext.privileged`      | Granting a privileged status to the Elasticsearch container                                                     | `false`                    |
 | `elasticsearch.persistence.storageClass`                 | PVC Storage Class for Elasticsearch volume                                                                      | `"nfs"`                    |
 | `elasticsearch.persistence.accessModes`                  | Elasticsearch Persistent Volume access modes                                                                    | `ReadWriteOnce`            |
 | `elasticsearch.persistence.size`                         | PVC Storage Request for Elasticsearch volume                                                                    | `30Gi`                     |
