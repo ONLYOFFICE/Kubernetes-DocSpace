@@ -9,8 +9,6 @@ metadata:
 spec:
   backoffLimit: 2
   template:
-    metadata:
-      name: {{ .Release.Name }}
     spec:
       containers:
         - name: remove-indexes
