@@ -13,11 +13,8 @@ spec:
       containers:
         - name: remove-indexes
           image: mysql:8.0.36-debian
-          command:
-            - "/bin/bash"
-            - "-c"
-            - |
-              source /remove-indexes/remove-indexes.sh
+          command: ["/bin/sh", "-c"]
+          args: ["/remove-indexes.sh"]
           env:
             - name: ELK_HOST
               valueFrom:
@@ -33,6 +30,7 @@ spec:
             - name: remove-indexes
               mountPath: /remove-indexes
               readOnly: true
+              subPath: remove-indexes.sh
       restartPolicy: Never
       volumes:
         - name: remove-indexes
