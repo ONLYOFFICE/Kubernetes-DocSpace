@@ -15,7 +15,7 @@ metadata:
 spec:
   serviceAccountName: {{ include "docspace.serviceAccountName" . }}
   {{- if .Values.tests.podSecurityContext.enabled }}
-  securityContext: {{- omit .Values.tests.podSecurityContext "enabled" | toYaml | nindent 4 }}
+  securityContext: {{- include "docspace.securityContext" .Values.tests.podSecurityContext | nindent 4 }}
   {{- end }}
   {{- if .Values.nodeSelector }}
   nodeSelector: {{ toYaml .Values.nodeSelector | nindent 4 }}
@@ -30,6 +30,9 @@ spec:
   containers:
   - image: python:3.11
     name: test-docspace
+    {{- if .Values.tests.containerSecurityContext.enabled }}
+    securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
+    {{- end }}
     resources: {{ toYaml .Values.tests.resources | nindent 6 }}
     env:
     - name: MYSQL_USER
