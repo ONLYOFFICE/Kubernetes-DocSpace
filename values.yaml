@@ -234,10 +234,10 @@ extraConf:
     - appsettings.test.json
 # log.level Defines the type and severity of a logged event
 log:
-  level: "Debug"
+  level: "Warning"
 # debug.enabled Enable debug
 debug:
-  enabled: "true"
+  enabled: "false"
 # DocSpace Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
