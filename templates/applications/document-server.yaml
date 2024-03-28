@@ -37,7 +37,7 @@ spec:
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.docs.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.docs.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" .Values.docs.podSecurityContext | nindent 8 }}
       {{- end }}
       {{- if or .Values.docs.podAffinity .Values.docs.nodeAffinity }}
       affinity:
@@ -68,8 +68,8 @@ spec:
       - name: document-server
         image: {{ .Values.docs.image.repository }}:{{ .Values.docs.image.tag }}
         imagePullPolicy: {{ .Values.docs.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.docs.containerSecurityContext.enabled }}
+        securityContext: {{- include "docspace.securityContext" .Values.docs.containerSecurityContext | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.docs.containerPorts.http }}

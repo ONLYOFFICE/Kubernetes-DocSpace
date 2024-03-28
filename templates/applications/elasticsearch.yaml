@@ -37,7 +37,7 @@ spec:
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.elasticsearch.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.elasticsearch.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" .Values.elasticsearch.podSecurityContext | nindent 8 }}
       {{- end }}
       {{- if or .Values.elasticsearch.podAffinity .Values.elasticsearch.nodeAffinity }}
       affinity:
@@ -64,18 +64,15 @@ spec:
       - name: change-volume-owner
         image: busybox:latest
         imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 256Mi
+        {{- if .Values.elasticsearch.initContainers.securityContext.enabled }}
+        securityContext: {{- include "docspace.securityContext" .Values.elasticsearch.initContainers.securityContext | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.elasticsearch.initContainers.resources | nindent 10 }}
         command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/data']
         volumeMounts:
         - name: elasticsearch-data
           mountPath: /usr/share/elasticsearch/data
-      {{- with .Values.elasticsearch.initContainers }}
+      {{- with .Values.elasticsearch.initContainers.custom }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
@@ -83,7 +80,7 @@ spec:
         image: {{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}
         imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
         {{- if .Values.elasticsearch.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.elasticsearch.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" .Values.elasticsearch.containerSecurityContext | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: 9200

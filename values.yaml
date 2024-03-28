@@ -197,20 +197,20 @@ podSecurityContext:
 containerSecurityContext:
   # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
-  ## containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  # containerSecurityContext.runAsUser User ID for the DocSpace application containers
   runAsUser: 104
-  ## containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  # containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
   runAsGroup: 107
-  ## containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+  # containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
   runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
-  ## containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
   seLinuxOptions: {}
-  ## containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
   seccompProfile:
     type: RuntimeDefault
-  ## containerSecurityContext.capabilities Defines the privileges granted to the process
+  # containerSecurityContext.capabilities Defines the privileges granted to the process
   capabilities:
     drop: ["ALL"]
 # nodeSelector Node labels for pods assignment
@@ -2910,6 +2910,11 @@ proxyFrontend:
   # Used if `proxyFrontend.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Proxy Frontend Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # proxyFrontend.podSecurityContext.enabled Enable security context for the Proxy Frontend pods
+    enabled: false
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2958,6 +2963,11 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Proxy Frontend Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
+    enabled: false
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -3076,15 +3086,12 @@ docs:
     # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Document Server Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Configure a Security Context for the Document Server Pod
   podSecurityContext:
     # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
-    runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
-    runAsGroup: 101
+    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
+    fsGroup: 101
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3133,6 +3140,26 @@ docs:
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Document Server Pod
+  containerSecurityContext:
+    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
+    enabled: false
+    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
+    runAsUser: 101
+    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
+    runAsGroup: 101
+    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
+    seLinuxOptions: {}
+    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
+    seccompProfile:
+      type: RuntimeDefault
+    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
@@ -3358,15 +3385,12 @@ elasticsearch:
     # elasticsearch.updateStrategy.type Elasticsearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Elasticsearch Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Configure a Security Context for the Elasticsearch Pod
   podSecurityContext:
     # elasticsearch.podSecurityContext.enabled Enable security context for the Elasticsearch Pod
     enabled: false
-    # elasticsearch.podSecurityContext.runAsUser User ID for the Elasticsearch pod
-    runAsUser: 1000
-    # elasticsearch.podSecurityContext.runAsGroup Group ID for the Elasticsearch pod
-    runAsGroup: 1000
+    # elasticsearch.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Elasticsearch Pod
+    fsGroup: 1000
   # Pod affinity rules for Elasticsearch Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Elasticsearch Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3398,15 +3422,42 @@ elasticsearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # Elasticsearch additional initContainers parameters
-  # elasticsearch.initContainers Additional containers that run before Elasticsearch container in a Pod
-  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  # Example:
-  # initContainers:
-  #   - name: additional-init-container
-  #     image: busybox:latest
-  #     command: ['sh', '-c', 'sleep 180']
-  initContainers: []
+  initContainers:
+    # Configure a Security Context for Elasticsearch change-volume-owner initContainer container in Pod
+    securityContext:
+      # elasticsearch.initContainers.securityContext.enabled Enable security context for Elasticsearch change-volume-owner initContainer container in pod
+      enabled: false
+      # elasticsearch.initContainers.securityContext.runAsUser User ID for the Elasticsearch change-volume-owner initContainer container
+      runAsUser: 0
+      # elasticsearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+      allowPrivilegeEscalation: false
+      # elasticsearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Elasticsearch change-volume-owner initContainer container
+      seLinuxOptions: {}
+      # elasticsearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Elasticsearch change-volume-owner initContainer container
+      seccompProfile:
+        type: RuntimeDefault
+      # elasticsearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
+      capabilities:
+        drop: ["ALL"]
+    # Elasticsearch change-volume-owner initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # elasticsearch.initContainers.resources.requests The requested resources for the Elasticsearch change-volume-owner initContainer
+    # elasticsearch.initContainers.resources.limits The resources limits for the Elasticsearch change-volume-owner initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    # elasticsearch.initContainers.custom Custom Elasticsearch initContainers parameters
+    # Additional containers that run before Elasticsearch container in a Pod
+    # Example:
+    # custom:
+    #   - name: additional-init-container
+    #     image: busybox:latest
+    #     command: ['sh', '-c', 'sleep 180']
+    custom: []
   # Elasticsearch container image parameters
   image:
     # elasticsearch.image.repository Elasticsearch container image repository
@@ -3419,8 +3470,22 @@ elasticsearch:
   containerSecurityContext:
     # elasticsearch.containerSecurityContext.enabled Enable security context for Elasticsearch container in pod
     enabled: false
-    # elasticsearch.containerSecurityContext.privileged Granting a privileged status to a container
-    privileged: false
+    # elasticsearch.containerSecurityContext.runAsUser User ID for the Elasticsearch container
+    runAsUser: 1000
+    # elasticsearch.containerSecurityContext.runAsGroup Group ID for the Elasticsearch container
+    runAsGroup: 1000
+    # elasticsearch.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # elasticsearch.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # elasticsearch.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Elasticsearch container
+    seLinuxOptions: {}
+    # elasticsearch.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Elasticsearch container
+    seccompProfile:
+      type: RuntimeDefault
+    # elasticsearch.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   # Probe used for the Elasticsearch container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `elasticsearch.startupProbe.enabled=true`
