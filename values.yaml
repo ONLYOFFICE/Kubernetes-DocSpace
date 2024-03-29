@@ -183,7 +183,7 @@ serviceAccount:
   automountServiceAccountToken: true
 # Configure a Security Context for the DocSpace application Pods
 # Each Docspace application can override the values specified here with its own
-# Individual values for `docs`, `elasticsearch` and `Jobs`
+# Individual values for `docs` and `elasticsearch`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
@@ -193,7 +193,7 @@ podSecurityContext:
   fsGroup: 107
 # Configure a Security Context for containers in DocSpace application Pods
 # Each Docspace application can override the values specified here with its own
-# Individual values for `docs`, `elasticsearch` and `Jobs`
+# Individual values for `docs` and `elasticsearch`
 containerSecurityContext:
   # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
@@ -3259,6 +3259,11 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # Configure a Security Context for the Install Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # install.job.podSecurityContext.enabled Enable security context for the Install Job pod
+      enabled: false
     # Pod affinity rules for Install Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Install Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3290,6 +3295,11 @@ install:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # Configure a Security Context for containers in Install Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # install.job.containerSecurityContext.enabled Enable security context for containers in Install Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # install.job.initContainers.migrationRunner.enabled Enable database initialization
@@ -3320,6 +3330,11 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # Configure a Security Context for the Upgrade Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # upgrade.job.podSecurityContext.enabled Enable security context for the Upgrade Job pod
+      enabled: false
     # Pod affinity rules for Upgrade Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Upgrade Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3351,6 +3366,11 @@ upgrade:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # Configure a Security Context for containers in Upgrade Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update

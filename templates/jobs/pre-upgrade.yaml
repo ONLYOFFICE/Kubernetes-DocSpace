@@ -17,8 +17,14 @@ spec:
   template:
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.upgrade.job.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.upgrade.job.podSecurityContext.enabled }}
+      {{- $psc = .Values.upgrade.job.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.upgrade.job.podAffinity .Values.upgrade.job.nodeAffinity }}
       affinity:
@@ -45,6 +51,15 @@ spec:
       - name: check-db
         image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $iccdsc := dict }}
+        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $iccdsc = .Values.upgrade.job.containerSecurityContext }}
+        {{- else }}
+        {{- $iccdsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $iccdsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
         env:
         - name: MYSQL_PASSWORD
@@ -62,7 +77,16 @@ spec:
       - name: migration-runner
         image: {{ .Values.upgrade.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
-        resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $icmrsc := dict }}
+        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $icmrsc = .Values.upgrade.job.containerSecurityContext }}
+        {{- else }}
+        {{- $icmrsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.upgrade.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
           value: {{ .Values.connections.mysqlUser }}
@@ -81,6 +105,15 @@ spec:
       - name: app-init-storage
         image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $csc = .Values.upgrade.job.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.initStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
