@@ -28,11 +28,11 @@ spec:
                   key: {{ .Values.connections.mysqlSecretKeyPassword }}
           volumeMounts:
             - name: remove-indexes
-              mountPath: /remove-indexes
-              readOnly: true
+              mountPath: /remove-indexes.sh
               subPath: remove-indexes.sh
       restartPolicy: Never
       volumes:
         - name: remove-indexes
           configMap:
             name: remove-indexes
+            defaultMode: 0777
