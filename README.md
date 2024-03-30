@@ -166,6 +166,23 @@ Note: If you need to add a configuration file after the DocSpace is already inst
 and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
 `helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
 
+### 8. Transition from ElasticSearch to OpenSearch
+
+In DocSpace appVersion 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
+
+For proper reindexing before updating DocSpace to version 2.5.0, execute the following command:
+- If `file-services` is deployed as a StatefulSet:
+
+  ```bash
+  kubectl scale statefulset files-services --replicas=0
+  ```
+- Otherwise, if deployed as a Deployment:
+
+  ```bash
+  kubectl scale deployment files-services --replicas=0
+  ```
+Then proceed with the DocSpace update.
+
 ## Deploy DocSpace
 
 Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
@@ -209,20 +226,7 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 
 ### 3. Upgrade DocSpace
 
-Note: 
-
-In DocSpace version 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
-
-For proper reindexing before updating DocSpace to version 2.5.0, execute the following command:
-- If `file-services` is deployed as a StatefulSet:
-  ```
-  kubectl scale statefulset files-services --replicas=0
-  ```
-- Otherwise, if deployed as a Deployment:
-  ```
-  kubectl scale deployment files-services --replicas=0
-  ```
-Then proceed with the DocSpace update.
+If you have previously installed Elasticsearch as part of this Helm chart, please read [this section](#8-transition-from-elasticsearch-to-opensearch).
 
 It's necessary to set the parameters for updating. For example,
 
