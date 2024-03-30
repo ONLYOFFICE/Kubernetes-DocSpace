@@ -21,6 +21,11 @@ spec:
                 configMapKeyRef:
                   name: docspace
                   key: ELK_HOST
+            - name: ELK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_PORT
             - name: mysqlPassword
               valueFrom:
                 secretKeyRef:
