@@ -14,11 +14,12 @@ data:
     response=$(curl -s http://$ELK_HOST:{{ .Values.connections.elkPort }})
     name=$(echo $response | jq -r ".name")
     if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
-      mysqlHost={{ .Values.connections.mysqlHost }}
-      mysqlUser={{ .Values.connections.mysqlUser }}
-      mysqlDatabase={{ .Values.connections.mysqlDatabase }}
-      mysqlPort={{ .Values.connections.mysqlPort }}
-      mysql -h "$mysqlHost" -P "$mysqlPort" -u "$mysqlUser" -p"$mysqlPassword" "$mysqlDatabase" -e "TRUNCATE webstudio_index;"
-      curl -XDELETE http://$ELK_HOST:{{ .Values.connections.elkPort }}/files_folder
-      curl -XDELETE http://$ELK_HOST:{{ .Values.connections.elkPort }}/files_file
+      mysql \
+      -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p"$mysqlPassword" {{ .Values.connections.mysqlDatabase }} \
+      -e "TRUNCATE webstudio_index;"
+      curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_folder
+      curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_file
     fi
