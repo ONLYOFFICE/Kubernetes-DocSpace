@@ -39,6 +39,7 @@ The following guide covers the installation process of the ‘DocSpace’ into a
     + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
     + [1.2.2 Expose DocSpace via HTTP](#122-expose-docspace-via-http)
     + [1.2.3 Expose DocSpace via HTTPS](#123-expose-docspace-via-https)
+    + [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
 - [DocSpace installation test (optional)](#docspace-installation-test-optional)
 
 ## Requirements
