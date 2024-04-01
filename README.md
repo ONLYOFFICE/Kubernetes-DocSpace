@@ -700,7 +700,10 @@ NOTE: If you have an external Elasticsearch installed, please follow these steps
   ```bash
   kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/feature/opensearch/sources/remove-indexes-manually.yaml
   ```
-
+To delete the job, use the following command:
+``` bash
+    kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/feature/opensearch/sources/remove-indexes-manually.yaml
+```
 ## DocSpace installation test (optional)
 
 You can test DocSpace services availability and access to connected dependencies by running the following command:
