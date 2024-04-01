@@ -701,7 +701,8 @@ NOTE: If you have an external Elasticsearch installed, please follow these steps
   ```bash
   kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/feature/opensearch/sources/remove-indexes-manually.yaml
   ```
-To delete the job, use the following command:
+After successfully executing the Pod shutdown-ds that created the Job, delete this Job with the following command:
+
 ``` bash
     kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/feature/opensearch/sources/remove-indexes-manually.yaml
 ```
