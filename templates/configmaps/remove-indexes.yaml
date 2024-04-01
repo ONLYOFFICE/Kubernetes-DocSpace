@@ -18,7 +18,7 @@ data:
       -h {{ .Values.connections.mysqlHost }} \
       -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
-      -p"$mysqlPassword" {{ .Values.connections.mysqlDatabase }} \
+      -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
       -e "TRUNCATE webstudio_index;"
       curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_folder
       curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_file
