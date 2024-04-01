@@ -13,10 +13,7 @@ spec:
           args: ["/remove-indexes.sh"]
           env:
             - name: MYSQL_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: onlyoffice_user
+              value: onlyoffice_user
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
@@ -33,7 +30,7 @@ spec:
                   name: docspace
                   key: MYSQL_DATABASE
             - name: MYSQL_PASSWORD
-              value: "onlyoffice_user_password"
+              value: onlyoffice_user_password
             - name: ELK_HOST
               valueFrom:
                 configMapKeyRef:
