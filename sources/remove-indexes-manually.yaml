@@ -51,3 +51,20 @@ spec:
           configMap:
             name: remove-indexes
             defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: remove-indexes
+data:
+  remove-indexes.sh: |
+    #!/bin/bash
+    mysql \
+    -h "$MYSQL_HOST" \
+    -P "$MYSQL_PORT" \
+    -u "$MYSQL_USER" \
+    -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" \
+    -e "TRUNCATE webstudio_index;"
+    curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_folder
+    curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_file
+    
