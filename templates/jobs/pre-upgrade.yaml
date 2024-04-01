@@ -75,7 +75,7 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ .Values.upgrade.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
@@ -103,7 +103,7 @@ spec:
       {{- end }}
       containers:
       - name: app-init-storage
-        image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $csc := dict }}
