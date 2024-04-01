@@ -209,7 +209,7 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 
 ### 3. Upgrade DocSpace
 
-If you have previously installed Elasticsearch as part of this Helm chart, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
+If you have previously installed Elasticsearch, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
 
 It's necessary to set the parameters for updating. For example,
 
@@ -693,13 +693,12 @@ Then proceed with the DocSpace update.
 
 NOTE: If you have an external Elasticsearch installed, please follow these steps before updating:
 
-1. Reduce the replica count of files-services to 0, as described above.
+1. Reduce the replica count of `files-services` to 0, as described above.
 2. In the configmap and job files named `remove-indexes-manually.yml`, replace the values in `spec.template.spec.containers.env[(name=="MYSQL_PASSWORD")].value` and, if necessary, in `spec.template.spec.containers.env[(name=="MYSQL_USER")].value` with your own values.
 3. Apply these files `remove-indexes-manually.yml`:
 
   ```bash
-  kubectl apply -f templates/configmaps/remove-indexes-manually.yaml  
-  kubectl apply -f templates/jobs/remove-indexes-manually.yaml
+  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/feature/opensearch/sources/remove-indexes-manually.yaml
   ```
 
 ## DocSpace installation test (optional)
