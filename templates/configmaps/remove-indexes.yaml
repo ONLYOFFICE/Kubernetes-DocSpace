@@ -11,7 +11,8 @@ data:
     #!/bin/bash
 
     apt update && apt-get install -y curl jq
-    response=$(curl -s http://$ELK_HOST:$ELK_PORT
+    response=$(curl -s http://$ELK_HOST:$ELK_PORT)
+
     name=$(echo $response | jq -r ".name")
     if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
       mysql \
