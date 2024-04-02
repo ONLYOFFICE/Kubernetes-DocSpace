@@ -704,7 +704,7 @@ NOTE: If you have an external Elasticsearch installed, please follow these steps
 After successfully executing the Pod `remove-indexes` that created the Job, delete this Job with the following command:
 
 ``` bash
-    kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/remove-indexes-manually.yaml
+  kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/remove-indexes-manually.yaml
 ```
 ## DocSpace installation test (optional)
 
