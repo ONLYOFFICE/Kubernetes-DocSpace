@@ -59,6 +59,7 @@ metadata:
 data:
   remove-indexes.sh: |
     #!/bin/bash
+    apt update && apt-get install -y curl jq
     mysql \
     -h "$MYSQL_HOST" \
     -P "$MYSQL_PORT" \
