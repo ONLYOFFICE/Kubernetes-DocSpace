@@ -210,7 +210,7 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 
 ### 3. Upgrade DocSpace
 
-If you have previously installed Elasticsearch, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
+Note: If you have Elasticsearch installed, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
 
 It's necessary to set the parameters for updating. For example,
 
