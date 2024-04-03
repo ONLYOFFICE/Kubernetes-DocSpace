@@ -1,16 +1,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: remove-indexes
+  name: elasticsearch-clear-indexes
 spec:
   backoffLimit: 2
   template:
     spec:
       containers:
-        - name: remove-indexes
+        - name: elasticsearch-clear-indexes
           image: mysql:8.0.36-debian
           command: ["/bin/sh", "-c"]
-          args: ["/remove-indexes.sh"]
+          args: ["/elasticsearch-clear-indexes.sh"]
           env:
             - name: MYSQL_HOST
               valueFrom:
@@ -42,22 +42,22 @@ spec:
                   name: docspace
                   key: ELK_PORT
           volumeMounts:
-            - name: remove-indexes
-              mountPath: /remove-indexes.sh
-              subPath: remove-indexes.sh
+            - name: elasticsearch-clear-indexes
+              mountPath: /elasticsearch-clear-indexes.sh
+              subPath: elasticsearch-clear-indexes.sh
       restartPolicy: Never
       volumes:
-        - name: remove-indexes
+        - name: elasticsearch-clear-indexes
           configMap:
-            name: remove-indexes
+            name: elasticsearch-clear-indexes
             defaultMode: 0777
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: remove-indexes
+  name: elasticsearch-clear-indexes
 data:
-  remove-indexes.sh: |
+  elasticsearch-clear-indexes.sh: |
     #!/bin/bash
     apt update && apt-get install -y curl
     mysql \
