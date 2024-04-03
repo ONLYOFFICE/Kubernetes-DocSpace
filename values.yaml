@@ -181,22 +181,38 @@ serviceAccount:
   # Used only if `serviceAccount.create` is `true`
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
   automountServiceAccountToken: true
-# Configure a Security Context for a Pods
+# Configure a Security Context for the DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
   # If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
   enabled: false
-  # podSecurityContext.runAsUser User ID for the DocSpace pods
-  runAsUser: 104
-  # podSecurityContext.runAsGroup Group ID for the DocSpace pods
-  runAsGroup: 107
-# Configure a Security Context for containers in Pods
+  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the DocSpace application Pods
+  fsGroup: 107
+# Configure a Security Context for containers in DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 containerSecurityContext:
-  # containerSecurityContext.enabled Enable security context for containers in pods
+  # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
+  # containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  runAsUser: 104
+  # containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  runAsGroup: 107
+  # containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+  runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
+  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  seLinuxOptions: {}
+  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  seccompProfile:
+    type: RuntimeDefault
+  # containerSecurityContext.capabilities Defines the privileges granted to the process
+  capabilities:
+    drop: ["ALL"]
 # nodeSelector Node labels for pods assignment
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
@@ -206,9 +222,13 @@ tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
-# images.tag Global image tag for all services
-# Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
+# Global image parameters for for all DocSpace applications
+# Does not apply to the Document Server, Elasticsearch and Proxy Frontend
 images:
+  # images.repoPrefix Global repository prefix for all DocSpace applications
+  repoPrefix: ""
+  # images.tag Global image tag for all DocSpace applications
+  # Does not apply to the Document Server and Elasticsearch
   tag: 2.0.3
 # JSON Web Token parameters
 jwt:
@@ -380,6 +400,11 @@ files:
   # Used if `files.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # files.podSecurityContext.enabled Enable security context for the Files pods
+    enabled: false
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -417,6 +442,11 @@ files:
     tag: ""
     # files.image.pullPolicy files container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # files.containerSecurityContext.enabled Enable security context for containers in Files pods
+    enabled: false
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -511,6 +541,11 @@ peopleServer:
   # Used if `peopleServer.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the People Server Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # peopleServer.podSecurityContext.enabled Enable security context for the People Server pods
+    enabled: false
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -548,6 +583,11 @@ peopleServer:
     tag: ""
     # peopleServer.image.pullPolicy People Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in People Server Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
+    enabled: false
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -642,6 +682,11 @@ router:
   # Used if `router.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Router Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # router.podSecurityContext.enabled Enable security context for the Router pods
+    enabled: false
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -688,6 +733,11 @@ router:
     tag: ""
     # router.image.pullPolicy Router container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Router Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # router.containerSecurityContext.enabled Enable security context for containers in Router pods
+    enabled: false
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
@@ -855,6 +905,11 @@ healthchecks:
   # Used if `healthchecks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Healthchecks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # healthchecks.podSecurityContext.enabled Enable security context for the Healthchecks pods
+    enabled: false
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -892,6 +947,11 @@ healthchecks:
     tag: ""
     # healthchecks.image.pullPolicy Healthchecks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Healthchecks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
+    enabled: false
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
@@ -978,6 +1038,11 @@ apiSystem:
   # Used if `apiSystem.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api System Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
+    enabled: false
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1018,6 +1083,11 @@ apiSystem:
     tag: ""
     # apiSystem.image.pullPolicy Api System container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api System Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
+    enabled: false
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
@@ -1112,6 +1182,11 @@ api:
   # Used if `api.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # api.podSecurityContext.enabled Enable security context for the Api pods
+    enabled: false
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1152,6 +1227,11 @@ api:
     tag: ""
     # api.image.pullPolicy Api container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # api.containerSecurityContext.enabled Enable security context for containers in Api pods
+    enabled: false
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
@@ -1246,6 +1326,11 @@ backup:
   # Used if `backup.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backup.podSecurityContext.enabled Enable security context for the Backup pods
+    enabled: false
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1286,6 +1371,11 @@ backup:
     tag: ""
     # backup.image.pullPolicy Backup container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
+    enabled: false
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1380,6 +1470,11 @@ backupBackgroundTasks:
   # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Background Tasks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
+    enabled: false
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1420,6 +1515,11 @@ backupBackgroundTasks:
     tag: ""
     # backupBackgroundTasks.image.pullPolicy Backup Background Tasks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Background Tasks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
+    enabled: false
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
@@ -1514,6 +1614,11 @@ clearEvents:
   # Used if `clearEvents.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Clear Events Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # clearEvents.podSecurityContext.enabled Enable security context for the Clear Events pods
+    enabled: false
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1554,6 +1659,11 @@ clearEvents:
     tag: ""
     # clearEvents.image.pullPolicy Clear Events container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Clear Events Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
+    enabled: false
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
@@ -1648,6 +1758,11 @@ doceditor:
   # Used if `doceditor.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Doceditor Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # doceditor.podSecurityContext.enabled Enable security context for the Doceditor pods
+    enabled: false
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1688,6 +1803,11 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Doceditor Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
+    enabled: false
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
@@ -1784,6 +1904,11 @@ filesServices:
   # Used if `filesServices.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Services Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
+    enabled: false
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1824,6 +1949,11 @@ filesServices:
     tag: ""
     # filesServices.image.pullPolicy Files Services container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Services Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
+    enabled: false
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
@@ -1918,6 +2048,11 @@ login:
   # Used if `login.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Login Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # login.podSecurityContext.enabled Enable security context for the Login pods
+    enabled: false
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1958,6 +2093,11 @@ login:
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Login Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    enabled: false
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -2052,6 +2192,11 @@ notify:
   # Used if `notify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # notify.podSecurityContext.enabled Enable security context for the Notify pods
+    enabled: false
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2092,6 +2237,11 @@ notify:
     tag: ""
     # notify.image.pullPolicy Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
+    enabled: false
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
@@ -2186,6 +2336,11 @@ socket:
   # Used if `socket.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Socket Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # socket.podSecurityContext.enabled Enable security context for the Socket pods
+    enabled: false
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2226,6 +2381,11 @@ socket:
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Socket Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
+    enabled: false
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -2322,6 +2482,11 @@ ssoauth:
   # Used if `ssoauth.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the ssoauth Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # ssoauth.podSecurityContext.enabled Enable security context for the ssoauth pods
+    enabled: false
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2362,6 +2527,11 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in ssoauth Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
+    enabled: false
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
@@ -2452,6 +2622,11 @@ studio:
   # Used if `studio.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studio.podSecurityContext.enabled Enable security context for the Studio pods
+    enabled: false
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2492,6 +2667,11 @@ studio:
     tag: ""
     # studio.image.pullPolicy Studio container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
+    enabled: false
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -2586,6 +2766,11 @@ studioNotify:
   # Used if `studioNotify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studioNotify.podSecurityContext.enabled Enable security context for the Studio Notify pods
+    enabled: false
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2626,6 +2811,11 @@ studioNotify:
     tag: ""
     # studioNotify.image.pullPolicy Studio Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
+    enabled: false
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
@@ -2720,6 +2910,11 @@ proxyFrontend:
   # Used if `proxyFrontend.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Proxy Frontend Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # proxyFrontend.podSecurityContext.enabled Enable security context for the Proxy Frontend pods
+    enabled: false
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2768,6 +2963,11 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Proxy Frontend Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
+    enabled: false
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -2886,15 +3086,12 @@ docs:
     # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Document Server Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Configure a Security Context for the Document Server Pod
   podSecurityContext:
     # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
-    runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
-    runAsGroup: 101
+    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
+    fsGroup: 101
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2943,6 +3140,26 @@ docs:
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Document Server Pod
+  containerSecurityContext:
+    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
+    enabled: false
+    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
+    runAsUser: 101
+    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
+    runAsGroup: 101
+    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
+    seLinuxOptions: {}
+    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
+    seccompProfile:
+      type: RuntimeDefault
+    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
@@ -3042,6 +3259,11 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # Configure a Security Context for the Install Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # install.job.podSecurityContext.enabled Enable security context for the Install Job pod
+      enabled: false
     # Pod affinity rules for Install Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Install Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3073,6 +3295,11 @@ install:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # Configure a Security Context for containers in Install Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # install.job.containerSecurityContext.enabled Enable security context for containers in Install Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # install.job.initContainers.migrationRunner.enabled Enable database initialization
@@ -3103,6 +3330,11 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # Configure a Security Context for the Upgrade Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # upgrade.job.podSecurityContext.enabled Enable security context for the Upgrade Job pod
+      enabled: false
     # Pod affinity rules for Upgrade Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Upgrade Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3134,6 +3366,11 @@ upgrade:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # Configure a Security Context for containers in Upgrade Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
@@ -3168,15 +3405,12 @@ opensearch:
     # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Opensearch Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # Configure a Security Context for the Opensearch Pod
   podSecurityContext:
     # opensearch.podSecurityContext.enabled Enable security context for the Opensearch Pod
     enabled: false
-    # opensearch.podSecurityContext.runAsUser User ID for the Opensearch pod
-    runAsUser: 1000
-    # opensearch.podSecurityContext.runAsGroup Group ID for the Opensearch pod
-    runAsGroup: 1000
+    # opensearch.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Opensearch Pod
+    fsGroup: 1000
   # Pod affinity rules for Opensearch Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Opensearch Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3208,15 +3442,42 @@ opensearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # Opensearch additional initContainers parameters
-  # opensearch.initContainers Additional containers that run before Opensearch container in a Pod
-  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  # Example:
-  # initContainers:
-  #   - name: additional-init-container
-  #     image: busybox:latest
-  #     command: ['sh', '-c', 'sleep 180']
-  initContainers: []
+  initContainers:
+    # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
+    securityContext:
+      # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+      enabled: false
+      # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+      runAsUser: 0
+      # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+      allowPrivilegeEscalation: false
+      # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+      seLinuxOptions: {}
+      # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+      seccompProfile:
+        type: RuntimeDefault
+      # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
+      capabilities:
+        drop: ["ALL"]
+    # Opensearch change-volume-owner initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+    # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    # opensearch.initContainers.custom Custom Opensearch initContainers parameters
+    # Additional containers that run before Opensearch container in a Pod
+    # Example:
+    # custom:
+    #   - name: additional-init-container
+    #     image: busybox:latest
+    #     command: ['sh', '-c', 'sleep 180']
+    custom: []
   # Opensearch container image parameters
   image:
     # opensearch.image.repository Opensearch container image repository
@@ -3229,8 +3490,22 @@ opensearch:
   containerSecurityContext:
     # opensearch.containerSecurityContext.enabled Enable security context for Opensearch container in pod
     enabled: false
-    # opensearch.containerSecurityContext.privileged Granting a privileged status to a container
-    privileged: false
+    # opensearch.containerSecurityContext.runAsUser User ID for the Opensearch container
+    runAsUser: 1000
+    # opensearch.containerSecurityContext.runAsGroup Group ID for the Opensearch container
+    runAsGroup: 1000
+    # opensearch.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # opensearch.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # opensearch.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Opensearch container
+    seLinuxOptions: {}
+    # opensearch.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Opensearch container
+    seccompProfile:
+      type: RuntimeDefault
+    # opensearch.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   # Probe used for the Opensearch container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `opensearch.startupProbe.enabled=true`
@@ -3316,14 +3591,29 @@ tests:
   # These resources will be used when running the `helm test` command
   enabled: true
   # Configure a Security Context for the Test Pod
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
     # tests.podSecurityContext.enabled Enable security context for the Test pod
     enabled: false
-    # tests.podSecurityContext.runAsUser User ID for the Test pod
-    runAsUser: 0
-    # tests.podSecurityContext.runAsGroup Group ID for the Test pod
-    runAsGroup: 0
+    # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
+    fsGroup: 101
+  ## Configure a Security Context for the Test container
+  containerSecurityContext:
+    ## tests.containerSecurityContext.enabled Enable security context for the Test container
+    enabled: false
+    ## tests.containerSecurityContext.runAsUser User ID for the Test container
+    runAsUser: 101
+    ## tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    runAsGroup: 101
+    ## tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    ## tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    ## tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    seccompProfile:
+      type: RuntimeDefault
+    ## tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   # test container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # tests.resources.requests The requested resources for the test container

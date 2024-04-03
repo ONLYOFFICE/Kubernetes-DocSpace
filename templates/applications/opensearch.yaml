@@ -37,7 +37,7 @@ spec:
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if .Values.opensearch.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.opensearch.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" .Values.opensearch.podSecurityContext | nindent 8 }}
       {{- end }}
       {{- if or .Values.opensearch.podAffinity .Values.opensearch.nodeAffinity }}
       affinity:
@@ -64,18 +64,15 @@ spec:
       - name: change-volume-owner
         image: busybox:latest
         imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 256Mi
+        {{- if .Values.opensearch.initContainers.securityContext.enabled }}
+        securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.securityContext | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.opensearch.initContainers.resources | nindent 10 }}
         command: ['chown', '-R', '1000:1000', '/usr/share/opensearch/data']
         volumeMounts:
         - name: opensearch-data
           mountPath: /usr/share/opensearch/data
-      {{- with .Values.opensearch.initContainers }}
+      {{- with .Values.opensearch.initContainers.custom }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
@@ -83,7 +80,7 @@ spec:
         image: {{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}
         imagePullPolicy: {{ .Values.opensearch.image.pullPolicy }}
         {{- if .Values.opensearch.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.opensearch.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" .Values.opensearch.containerSecurityContext | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: 9200

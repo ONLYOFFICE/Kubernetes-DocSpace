@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.healthchecks.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.healthchecks.podSecurityContext.enabled }}
+      {{- $psc = .Values.healthchecks.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -91,8 +97,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.healthchecks.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -102,10 +117,16 @@ spec:
       {{- end }}
       containers:
       - name: healthchecks
-        image: {{ .Values.healthchecks.image.repository }}:{{ default .Values.images.tag .Values.healthchecks.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.healthchecks.image.repository) }}:{{ default .Values.images.tag .Values.healthchecks.image.tag }}
         imagePullPolicy: {{ .Values.healthchecks.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $csc = .Values.healthchecks.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.healthchecks.containerPorts.healthcheck }}

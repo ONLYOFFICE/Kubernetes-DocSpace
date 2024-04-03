@@ -17,8 +17,14 @@ spec:
   template:
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.install.job.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.install.job.podSecurityContext.enabled }}
+      {{- $psc = .Values.install.job.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
       affinity:
@@ -45,6 +51,15 @@ spec:
       - name: check-db
         image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
+        {{- $iccdsc := dict }}
+        {{- if .Values.install.job.containerSecurityContext.enabled }}
+        {{- $iccdsc = .Values.install.job.containerSecurityContext }}
+        {{- else }}
+        {{- $iccdsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $iccdsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
         env:
         - name: MYSQL_PASSWORD
@@ -60,8 +75,17 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ .Values.install.job.initContainers.migrationRunner.image.repository }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
+        {{- $icmrsc := dict }}
+        {{- if .Values.install.job.containerSecurityContext.enabled }}
+        {{- $icmrsc = .Values.install.job.containerSecurityContext }}
+        {{- else }}
+        {{- $icmrsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
@@ -79,8 +103,17 @@ spec:
       {{- end }}
       containers:
       - name: app-init-storage
-        image: {{ .Values.initContainers.initStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.install.job.containerSecurityContext.enabled }}
+        {{- $csc = .Values.install.job.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.initStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data

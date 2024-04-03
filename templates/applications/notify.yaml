@@ -45,8 +45,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.notify.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.notify.podSecurityContext.enabled }}
+      {{- $psc = .Values.notify.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.notify.podAffinity .Values.notify.nodeAffinity }}
       affinity:
@@ -71,8 +77,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.notify.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.notify.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.notify.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -82,10 +97,16 @@ spec:
       {{- end }}
       containers:
       - name: notify
-        image: {{ .Values.notify.image.repository }}:{{ default .Values.images.tag .Values.notify.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.notify.image.repository) }}:{{ default .Values.images.tag .Values.notify.image.tag }}
         imagePullPolicy: {{ .Values.notify.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.notify.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.notify.containerSecurityContext.enabled }}
+        {{- $csc = .Values.notify.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.notify.containerPorts.app }}
