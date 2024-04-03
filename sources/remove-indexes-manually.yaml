@@ -12,8 +12,6 @@ spec:
           command: ["/bin/sh", "-c"]
           args: ["/remove-indexes.sh"]
           env:
-            - name: MYSQL_USER
-              value: onlyoffice_user
             - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
@@ -24,13 +22,15 @@ spec:
                 configMapKeyRef:
                   name: docspace
                   key: MYSQL_PORT
+            - name: MYSQL_USER
+              value: onlyoffice_user
+            - name: MYSQL_PASSWORD
+              value: onlyoffice_user_password
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: docspace
                   key: MYSQL_DATABASE
-            - name: MYSQL_PASSWORD
-              value: onlyoffice_user_password
             - name: ELK_HOST
               valueFrom:
                 configMapKeyRef:
