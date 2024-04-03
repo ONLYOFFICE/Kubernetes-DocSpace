@@ -74,13 +74,13 @@ connections:
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
-  # connections.elkSheme The protocol for the connection to Elasticsearch
+  # connections.elkSheme The protocol for the connection to Opensearch
   elkSheme: http
-  # connections.elkHost The IP address or the name of the Elasticsearch host
-  elkHost: elasticsearch
-  # connections.elkPort The port for the connection to Elasticsearch
+  # connections.elkHost The IP address or the name of the Opensearch host
+  elkHost: opensearch
+  # connections.elkPort The port for the connection to Opensearch
   elkPort: "9200"
-  # connections.elkThreads Number of threads in Elasticsearch
+  # connections.elkThreads Number of threads in Opensearch
   elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
@@ -305,7 +305,7 @@ initContainers:
         memory: "2Gi"
         cpu: "1000m"
   # initContainers.custom Custom initContainers parameters
-  # Does not apply to the following services: `Document Server`, `Router`, `Elasticsearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
+  # Does not apply to the following services: `Document Server`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
   # custom:
   #   - name: additional-init-container
@@ -3158,27 +3158,27 @@ upgrade:
             memory: "1Gi"
             cpu: "1000m"
 
-# DocSpace Elasticsearch StatefulSet parameters
+# DocSpace Opensearch StatefulSet parameters
 #
-elasticsearch:
-  # elasticsearch.enabled Enables Elasticsearch installation
+opensearch:
+  # opensearch.enabled Enables Opensearch installation
   enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # elasticsearch.updateStrategy.type Elasticsearch update strategy type
+    # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Elasticsearch Pod Security Context parameters
+  # Opensearch Pod Security Context parameters
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
-    # elasticsearch.podSecurityContext.enabled Enable security context for the Elasticsearch Pod
+    # opensearch.podSecurityContext.enabled Enable security context for the Opensearch Pod
     enabled: false
-    # elasticsearch.podSecurityContext.runAsUser User ID for the Elasticsearch pod
+    # opensearch.podSecurityContext.runAsUser User ID for the Opensearch pod
     runAsUser: 1000
-    # elasticsearch.podSecurityContext.runAsGroup Group ID for the Elasticsearch pod
+    # opensearch.podSecurityContext.runAsGroup Group ID for the Opensearch pod
     runAsGroup: 1000
-  # Pod affinity rules for Elasticsearch Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Elasticsearch Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for Opensearch Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Opensearch Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -3193,8 +3193,8 @@ elasticsearch:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Elasticsearch Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Elasticsearch Pod can be scheduled on based on node labels
+  # Node affinity rules for Opensearch Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -3208,8 +3208,8 @@ elasticsearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # Elasticsearch additional initContainers parameters
-  # elasticsearch.initContainers Additional containers that run before Elasticsearch container in a Pod
+  # Opensearch additional initContainers parameters
+  # opensearch.initContainers Additional containers that run before Opensearch container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   # Example:
   # initContainers:
@@ -3217,67 +3217,67 @@ elasticsearch:
   #     image: busybox:latest
   #     command: ['sh', '-c', 'sleep 180']
   initContainers: []
-  # Elasticsearch container image parameters
+  # Opensearch container image parameters
   image:
-    # elasticsearch.image.repository Elasticsearch container image repository
-    repository: onlyoffice/elasticsearch
-    # elasticsearch.image.tag Elasticsearch container image tag
-    tag: 7.16.3
-    # elasticsearch.image.pullPolicy Elasticsearch container image pull policy
+    # opensearch.image.repository Opensearch container image repository
+    repository: onlyoffice/opensearch
+    # opensearch.image.tag Opensearch container image tag
+    tag: 2.11.1
+    # opensearch.image.pullPolicy Opensearch container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for Elasticsearch container in Pod
+  # Configure a Security Context for Opensearch container in Pod
   containerSecurityContext:
-    # elasticsearch.containerSecurityContext.enabled Enable security context for Elasticsearch container in pod
+    # opensearch.containerSecurityContext.enabled Enable security context for Opensearch container in pod
     enabled: false
-    # elasticsearch.containerSecurityContext.privileged Granting a privileged status to a container
+    # opensearch.containerSecurityContext.privileged Granting a privileged status to a container
     privileged: false
-  # Probe used for the Elasticsearch container: startup, readiness and liveness probes
+  # Probe used for the Opensearch container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `elasticsearch.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `opensearch.startupProbe.enabled=true`
   startupProbe:
-    # elasticsearch.startupProbe.enabled Enable startupProbe for Elasticsearch container
+    # opensearch.startupProbe.enabled Enable startupProbe for Opensearch container
     enabled: false
     tcpSocket:
-      # elasticsearch.startupProbe.tcpSocket.port Checking the port for startupProbe
+      # opensearch.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 9200
-    # elasticsearch.startupProbe.failureThreshold Failure threshold for startupProbe
+    # opensearch.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # elasticsearch.startupProbe.periodSeconds Period seconds for startupProbe
+    # opensearch.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `elasticsearch.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `opensearch.readinessProbe.enabled=true`
   readinessProbe:
-    # elasticsearch.readinessProbe.enabled Enable readinessProbe for Elasticsearch container
+    # opensearch.readinessProbe.enabled Enable readinessProbe for Opensearch container
     enabled: false
-    # elasticsearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # opensearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     tcpSocket:
-      # elasticsearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
+      # opensearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 9200
-    # elasticsearch.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # opensearch.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
-    # elasticsearch.readinessProbe.successThreshold Success threshold for readinessProbe
+    # opensearch.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # elasticsearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # opensearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `elasticsearch.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `opensearch.livenessProbe.enabled=true`
   livenessProbe:
-    # elasticsearch.livenessProbe.enabled Enable livenessProbe for Elasticsearch container
+    # opensearch.livenessProbe.enabled Enable livenessProbe for Opensearch container
     enabled: false
-    # elasticsearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # opensearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     tcpSocket:
-      # elasticsearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
+      # opensearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 9200
-    # elasticsearch.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # opensearch.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
-    # elasticsearch.livenessProbe.successThreshold Success threshold for livenessProbe
+    # opensearch.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # elasticsearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # opensearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Elasticsearch container resource requests and limits
+  # Opensearch container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # elasticsearch.resources.requests The requested resources for the elasticsearch container
-  # elasticsearch.resources.limits The resources limits for the elasticsearch container
+  # opensearch.resources.requests The requested resources for the opensearch container
+  # opensearch.resources.limits The resources limits for the opensearch container
   resources:
     requests:
       memory: "1Gi"
@@ -3285,13 +3285,28 @@ elasticsearch:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  env:
+    # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
+    discoveryType: "single-node"
+    # opensearch.env.disableSecurityPlugin disables the security plugin
+    disableSecurityPlugin: true
+    # opensearch.env.disableInstallDemoConfig disables the installation of demo configuration
+    disableInstallDemoConfig: true
+    # opensearch.env.bootstrapMemoryLock determines whether JVM should lock memory
+    bootstrapMemoryLock: true
+    # opensearch.env.ESJAVAOPTS defines JVM options
+    ESJAVAOPTS: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+    # opensearch.env.indicesFieldDataCacheSize sets the size of the index field data cache
+    indicesFieldDataCacheSize: "30%"
+    # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
+    indicesMemoryIndexBufferSize: "30%"
   persistence:
-    # elasticsearch.persistence.storageClass PVC Storage Class for Elasticsearch volume
+    # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
-    # elasticsearch.persistence.accessModes Elasticsearch Persistent Volume access modes
+    # opensearch.persistence.accessModes Opensearch Persistent Volume access modes
     accessModes:
       - ReadWriteOnce
-    # elasticsearch.persistence.size PVC Storage Request for Elasticsearch volume
+    # opensearch.persistence.size PVC Storage Request for Opensearch volume
     size: 30Gi
 
 # DocSpace tests parameters

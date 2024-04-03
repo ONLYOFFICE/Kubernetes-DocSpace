@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: elasticsearch-clear-indexes
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      containers:
+        - name: elasticsearch-clear-indexes
+          image: mysql:8.0.36-debian
+          command: ["/bin/sh", "-c"]
+          args: ["/elasticsearch-clear-indexes.sh"]
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: MYSQL_HOST
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: MYSQL_PORT
+            - name: MYSQL_USER
+              value: onlyoffice_user
+            - name: MYSQL_PASSWORD
+              value: onlyoffice_user_password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: MYSQL_DATABASE
+            - name: ELK_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_HOST
+            - name: ELK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_PORT
+          volumeMounts:
+            - name: elasticsearch-clear-indexes
+              mountPath: /elasticsearch-clear-indexes.sh
+              subPath: elasticsearch-clear-indexes.sh
+      restartPolicy: Never
+      volumes:
+        - name: elasticsearch-clear-indexes
+          configMap:
+            name: elasticsearch-clear-indexes
+            defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-clear-indexes
+data:
+  elasticsearch-clear-indexes.sh: |
+    #!/bin/bash
+    apt update && apt-get install -y curl
+    mysql \
+    -h "$MYSQL_HOST" \
+    -P "$MYSQL_PORT" \
+    -u "$MYSQL_USER" \
+    -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" \
+    -e "TRUNCATE webstudio_index;"
+    curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_folder
+    curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_file
+    
