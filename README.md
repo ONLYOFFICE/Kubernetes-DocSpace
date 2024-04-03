@@ -699,7 +699,7 @@ NOTE: If you have an external Elasticsearch installed, please follow these steps
 3. Apply these files `elasticsearch-clear-indexes.yaml`:
 
   ```bash
-  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes-manually.yaml
+  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
   ```
 After successfully executing the Pod `elasticsearch-clear-indexes` that created the Job, delete this Job with the following command:
 
