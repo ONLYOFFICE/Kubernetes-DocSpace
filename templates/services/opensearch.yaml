@@ -1,11 +1,11 @@
-{{- if .Values.elasticsearch.enabled }}
+{{- if .Values.opensearch.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: elasticsearch
+  name: opensearch
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: elasticsearch
+    app: opensearch
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -18,7 +18,7 @@ spec:
     name: transport
     targetPort: 9300
   selector:
-    statefulset.kubernetes.io/pod-name: elasticsearch-0
+    statefulset.kubernetes.io/pod-name: opensearch-0
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
