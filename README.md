@@ -695,16 +695,16 @@ Then proceed with the DocSpace update.
 NOTE: If you have an external Elasticsearch installed, please follow these steps before updating:
 
 1. Reduce the replica count of `files-services` to 0, as described above.
-2. In the configmap and job files named `remove-indexes-manually.yml`, replace the values in `spec.template.spec.containers.env[(name=="MYSQL_PASSWORD")].value` and, if necessary, in `spec.template.spec.containers.env[(name=="MYSQL_USER")].value` with your own values.
-3. Apply these files `remove-indexes-manually.yml`:
+2. In the configmap and job files named `elasticsearch-clear-indexes.yaml`, replace the values in `spec.template.spec.containers.env[(name=="MYSQL_PASSWORD")].value` and, if necessary, in `spec.template.spec.containers.env[(name=="MYSQL_USER")].value` with your own values.
+3. Apply these files `elasticsearch-clear-indexes.yaml`:
 
   ```bash
-  kubectl apply -fhttps://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/remove-indexes-manually.yaml
+  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes-manually.yaml
   ```
-After successfully executing the Pod `remove-indexes` that created the Job, delete this Job with the following command:
+After successfully executing the Pod `elasticsearch-clear-indexes` that created the Job, delete this Job with the following command:
 
   ``` bash
-  kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/remove-indexes-manually.yaml
+  kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
   ```
 ## DocSpace installation test (optional)
 
