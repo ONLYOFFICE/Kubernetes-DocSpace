@@ -553,12 +553,11 @@ NOTE: It is recommended to use an installation made specifically for Kubernetes.
 
 ### DocSpace Test parameters
 
-| Parameter                                                | Description                                                                                                     | Default                    |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|
+| Parameter                                                | Description                                                                                                                                                                            | Default                          |
+|----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|
 | `tests.enabled`                                          | Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing. These resources will be used when running the `helm test` command | `true`                           |
 | `tests.podSecurityContext.enabled`                       | Enable security context for the Test pod                                                                                                                                               | `false`                          |
-| `tests.podSecurityContext.runAsUser`                     | User ID for the Test pod                                                                                                                                                               | `0`                              |
-| `tests.podSecurityContext.runAsGroup`                    | Group ID for the Test pod                                                                                                                                                              | `0`                              |
+| `tests.containerSecurityContext.enabled`                 | Enable security context for the Test container                                                                                                                                         | `false`                          |
 | `tests.resources.requests`                               | The requested resources for the test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
 | `tests.resources.limits`                                 | The resources limits for the test container                                                                                                                                            | `memory: "1Gi"`, `cpu: "1000m"`  |
 
