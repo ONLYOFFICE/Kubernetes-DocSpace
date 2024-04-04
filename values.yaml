@@ -2910,6 +2910,8 @@ proxyFrontend:
   # Used if `proxyFrontend.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # proxyFrontend.podAnnotations Map of annotations to add to the Proxy Frontend pods
+  podAnnotations: {}
   # Configure a Security Context for the Proxy Frontend Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -3086,6 +3088,8 @@ docs:
     # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
+  # docs.podAnnotations Map of annotations to add to the Document Server pod
+  podAnnotations: {}
   # Configure a Security Context for the Document Server Pod
   podSecurityContext:
     # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
@@ -3405,6 +3409,8 @@ opensearch:
     # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
+  # opensearch.podAnnotations Map of annotations to add to the Opensearch pod
+  podAnnotations: {}
   # Configure a Security Context for the Opensearch Pod
   podSecurityContext:
     # opensearch.podSecurityContext.enabled Enable security context for the Opensearch Pod
