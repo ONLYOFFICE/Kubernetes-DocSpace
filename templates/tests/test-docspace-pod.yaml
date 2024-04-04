@@ -28,8 +28,9 @@ spec:
   - name: {{ .Values.imagePullSecrets }}
   {{- end }}
   containers:
-  - image: python:3.11
-    name: test-docspace
+  - name: test-docspace
+    image: {{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
+    imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
     {{- if .Values.tests.containerSecurityContext.enabled }}
     securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
     {{- end }}

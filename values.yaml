@@ -1821,7 +1821,7 @@ doceditor:
     enabled: true
     httpGet:
       # doceditor.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5013
     # doceditor.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -1836,7 +1836,7 @@ doceditor:
     failureThreshold: 2
     httpGet:
       # doceditor.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5013
     # doceditor.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -1853,7 +1853,7 @@ doceditor:
     failureThreshold: 3
     httpGet:
       # doceditor.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5013
     # doceditor.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -3517,7 +3517,7 @@ opensearch:
   # The parameters below for startup probes are used only when `opensearch.startupProbe.enabled=true`
   startupProbe:
     # opensearch.startupProbe.enabled Enable startupProbe for Opensearch container
-    enabled: false
+    enabled: true
     tcpSocket:
       # opensearch.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 9200
@@ -3528,14 +3528,14 @@ opensearch:
   # The parameters below for readiness probes are used only when `opensearch.readinessProbe.enabled=true`
   readinessProbe:
     # opensearch.readinessProbe.enabled Enable readinessProbe for Opensearch container
-    enabled: false
+    enabled: true
     # opensearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     tcpSocket:
       # opensearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 9200
     # opensearch.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # opensearch.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # opensearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
@@ -3543,14 +3543,14 @@ opensearch:
   # The parameters below for liveness probes are used only when `opensearch.livenessProbe.enabled=true`
   livenessProbe:
     # opensearch.livenessProbe.enabled Enable livenessProbe for Opensearch container
-    enabled: false
+    enabled: true
     # opensearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     tcpSocket:
       # opensearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 9200
     # opensearch.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # opensearch.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # opensearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -3602,6 +3602,14 @@ tests:
     enabled: false
     # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
     fsGroup: 101
+  ## Test container image parameters
+  image:
+    ## tests.image.repository test container image name
+    repository: onlyoffice/docs-utils
+    ## tests.image.tag test container image tag
+    tag: 8.0.1-1
+    ## tests.image.pullPolicy test container image pull policy
+    pullPolicy: IfNotPresent
   ## Configure a Security Context for the Test container
   containerSecurityContext:
     ## tests.containerSecurityContext.enabled Enable security context for the Test container
