@@ -28,9 +28,9 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
+      {{- if .Values.opensearch.podAnnotations }}
       annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- range $key, $value := .Values.opensearch.podAnnotations }}
         {{ $key }}: {{ tpl $value $ }}
         {{- end }}
       {{- end }}
