@@ -54,8 +54,29 @@ spec:
       {{- end }}
       securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
-      {{- if or .Values.clearEvents.podAffinity .Values.clearEvents.nodeAffinity }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - clear-events
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - clear-events
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
         {{- with .Values.clearEvents.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -64,7 +85,6 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}

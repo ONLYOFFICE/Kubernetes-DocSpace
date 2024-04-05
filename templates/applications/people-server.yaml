@@ -56,7 +56,7 @@ spec:
       {{- end }}
       affinity:
         podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -67,7 +67,7 @@ spec:
                   - people-server
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -76,7 +76,7 @@ spec:
                 values:
                 - people-server
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
+          {{- end }}
         {{- with .Values.peopleServer.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}

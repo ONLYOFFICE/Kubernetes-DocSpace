@@ -384,7 +384,7 @@ files:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # files.replicaCount Number of Files replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # files.updateStrategy.type Files update strategy type
@@ -525,7 +525,7 @@ peopleServer:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # peopleServer.replicaCount Number of People Server replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # peopleServer.updateStrategy.type People Server update strategy type
@@ -666,7 +666,7 @@ router:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # router.replicaCount Number of Router replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # router.updateStrategy.type Router update strategy type
@@ -889,7 +889,7 @@ healthchecks:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # healthchecks.updateStrategy.type Healthchecks update strategy type
@@ -1022,7 +1022,7 @@ apiSystem:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # apiSystem.replicaCount Number of Api System replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # apiSystem.updateStrategy.type Api System update strategy type
@@ -1166,7 +1166,7 @@ api:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # api.replicaCount Number of Api replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # api.updateStrategy.type Api update strategy type
@@ -1310,7 +1310,7 @@ backup:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # backup.replicaCount Number of Backup replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backup.updateStrategy.type Backup update strategy type
@@ -1454,7 +1454,7 @@ backupBackgroundTasks:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
@@ -1598,7 +1598,7 @@ clearEvents:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # clearEvents.updateStrategy.type Clear Events update strategy type
@@ -1742,7 +1742,7 @@ doceditor:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # doceditor.replicaCount Number of Doceditor replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # doceditor.updateStrategy.type Doceditor update strategy type
@@ -1888,7 +1888,7 @@ filesServices:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # filesServices.replicaCount Number of Files Services replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # filesServices.updateStrategy.type Files Services update strategy type
@@ -2032,7 +2032,7 @@ login:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # login.replicaCount Number of Login replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # login.updateStrategy.type Login update strategy type
@@ -2176,7 +2176,7 @@ notify:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # notify.replicaCount Number of Notify replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # notify.updateStrategy.type Notify update strategy type
@@ -2320,7 +2320,7 @@ socket:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # socket.replicaCount Number of Socket replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # socket.updateStrategy.type Socket update strategy type
@@ -2466,7 +2466,7 @@ ssoauth:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # ssoauth.updateStrategy.type ssoauth update strategy type
@@ -2606,7 +2606,7 @@ studio:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # studio.replicaCount Number of Studio replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studio.updateStrategy.type Studio update strategy type
@@ -2750,7 +2750,7 @@ studioNotify:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studioNotify.updateStrategy.type Studio Notify update strategy type
@@ -2894,7 +2894,7 @@ proxyFrontend:
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
