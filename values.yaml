@@ -213,10 +213,12 @@ containerSecurityContext:
   # containerSecurityContext.capabilities Defines the privileges granted to the process
   capabilities:
     drop: ["ALL"]
-# nodeSelector Node labels for pods assignment
+# nodeSelector Node labels for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
-# tolerations Tolerations for pods assignment
+# tolerations Tolerations for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 # imagePullSecrets Container image registry secret name
@@ -1043,6 +1045,18 @@ apiSystem:
   podSecurityContext:
     # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
     enabled: false
+  # apiSystem.customPodAntiAffinity Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - api
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1074,6 +1088,12 @@ apiSystem:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # apiSystem.nodeSelector Node labels for Api System pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # apiSystem.tolerations Tolerations for Api System pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
