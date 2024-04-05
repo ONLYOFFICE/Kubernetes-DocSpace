@@ -369,6 +369,7 @@ persistence:
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
 podAntiAffinity:
   # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
+  # Does not apply to `Document Server` and `Opensearch`
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match

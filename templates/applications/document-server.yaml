@@ -39,8 +39,12 @@ spec:
       {{- if .Values.docs.podSecurityContext.enabled }}
       securityContext: {{- include "docspace.securityContext" .Values.docs.podSecurityContext | nindent 8 }}
       {{- end }}
-      {{- if or .Values.docs.podAffinity .Values.docs.nodeAffinity }}
+      {{- if or .Values.docs.customPodAntiAffinity .Values.docs.podAffinity .Values.docs.nodeAffinity }}
       affinity:
+        {{- with .Values.docs.customPodAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.docs.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -50,11 +54,11 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.docs.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.docs.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.docs.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.docs.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

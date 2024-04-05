@@ -77,6 +77,9 @@ spec:
                 - proxy-frontend
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
+          {{- with .Values.proxyFrontend.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.proxyFrontend.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -85,11 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.proxyFrontend.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.proxyFrontend.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.proxyFrontend.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.proxyFrontend.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
