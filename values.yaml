@@ -213,10 +213,12 @@ containerSecurityContext:
   # containerSecurityContext.capabilities Defines the privileges granted to the process
   capabilities:
     drop: ["ALL"]
-# nodeSelector Node labels for pods assignment
+# nodeSelector Node labels for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
-# tolerations Tolerations for pods assignment
+# tolerations Tolerations for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 # imagePullSecrets Container image registry secret name
@@ -325,7 +327,7 @@ initContainers:
         memory: "2Gi"
         cpu: "1000m"
   # initContainers.custom Custom initContainers parameters
-  # Does not apply to the following services: `Document Server`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
+  # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
   # custom:
   #   - name: additional-init-container
@@ -365,9 +367,10 @@ persistence:
     size: 5Gi
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
+# Does not apply to `Docs` and `Opensearch`
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 podAntiAffinity:
   # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
@@ -405,6 +408,18 @@ files:
   podSecurityContext:
     # files.podSecurityContext.enabled Enable security context for the Files pods
     enabled: false
+  # files.customPodAntiAffinity Prohibiting the scheduling of Files Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files-services
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -420,7 +435,7 @@ files:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Files Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -433,6 +448,12 @@ files:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # files.nodeSelector Node labels for Files pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # files.tolerations Tolerations for Files pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files container image parameters
   image:
     # files.image.repository files container image repository
@@ -546,6 +567,8 @@ peopleServer:
   podSecurityContext:
     # peopleServer.podSecurityContext.enabled Enable security context for the People Server pods
     enabled: false
+  # peopleServer.customPodAntiAffinity Prohibiting the scheduling of People Server Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -561,7 +584,7 @@ peopleServer:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for People Server Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes People Server Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes People Server Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -574,6 +597,12 @@ peopleServer:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # peopleServer.nodeSelector Node labels for People Server pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # peopleServer.tolerations Tolerations for People Server pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # People Server container image parameters
   image:
     # peopleServer.image.repository People Server container image repository
@@ -687,6 +716,8 @@ router:
   podSecurityContext:
     # router.podSecurityContext.enabled Enable security context for the Router pods
     enabled: false
+  # router.customPodAntiAffinity Prohibiting the scheduling of Router Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -702,7 +733,7 @@ router:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Router Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Router Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Router Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -715,6 +746,12 @@ router:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # router.nodeSelector Node labels for Router pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # router.tolerations Tolerations for Router pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Router initContainers parameters
   # router.initContainers Containers that run before Router container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -909,6 +946,8 @@ healthchecks:
   podSecurityContext:
     # healthchecks.podSecurityContext.enabled Enable security context for the Healthchecks pods
     enabled: false
+  # healthchecks.customPodAntiAffinity Prohibiting the scheduling of Healthchecks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -924,7 +963,7 @@ healthchecks:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Healthchecks Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Healthchecks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -937,6 +976,12 @@ healthchecks:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # healthchecks.nodeSelector Node labels for Healthchecks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # healthchecks.tolerations Tolerations for Healthchecks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Healthchecks container image parameters
   image:
     # healthchecks.image.repository Healthchecks container image repository
@@ -1042,6 +1087,18 @@ apiSystem:
   podSecurityContext:
     # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
     enabled: false
+  # apiSystem.customPodAntiAffinity Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - api
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1059,7 +1116,7 @@ apiSystem:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api System Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api System Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api System Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1073,6 +1130,12 @@ apiSystem:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # apiSystem.nodeSelector Node labels for Api System pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # apiSystem.tolerations Tolerations for Api System pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
@@ -1186,6 +1249,18 @@ api:
   podSecurityContext:
     # api.podSecurityContext.enabled Enable security context for the Api pods
     enabled: false
+  # api.customPodAntiAffinity Prohibiting the scheduling of Api Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1203,7 +1278,7 @@ api:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1217,6 +1292,12 @@ api:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # api.nodeSelector Node labels for Api pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # api.tolerations Tolerations for Api pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
@@ -1330,6 +1411,8 @@ backup:
   podSecurityContext:
     # backup.podSecurityContext.enabled Enable security context for the Backup pods
     enabled: false
+  # backup.customPodAntiAffinity Prohibiting the scheduling of Backup Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1347,7 +1430,7 @@ backup:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes backup Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes backup Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1361,6 +1444,12 @@ backup:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backup.nodeSelector Node labels for Backup pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backup.tolerations Tolerations for Backup pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup container image parameters
   image:
     # backup.image.repository Backup container image repository
@@ -1474,6 +1563,8 @@ backupBackgroundTasks:
   podSecurityContext:
     # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
     enabled: false
+  # backupBackgroundTasks.customPodAntiAffinity Prohibiting the scheduling of Backup Background Tasks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1491,7 +1582,7 @@ backupBackgroundTasks:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Background Tasks Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Backup Background Tasks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1505,6 +1596,12 @@ backupBackgroundTasks:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backupBackgroundTasks.nodeSelector Node labels for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backupBackgroundTasks.tolerations Tolerations for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
@@ -1618,6 +1715,8 @@ clearEvents:
   podSecurityContext:
     # clearEvents.podSecurityContext.enabled Enable security context for the Clear Events pods
     enabled: false
+  # clearEvents.customPodAntiAffinity Prohibiting the scheduling of Clear Events Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1635,7 +1734,7 @@ clearEvents:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Clear Events Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Clear Events Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1649,6 +1748,12 @@ clearEvents:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # clearEvents.nodeSelector Node labels for Clear Events pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # clearEvents.tolerations Tolerations for Clear Events pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Clear Events container image parameters
   image:
     # clearEvents.image.repository Clear Events container image repository
@@ -1762,6 +1867,8 @@ doceditor:
   podSecurityContext:
     # doceditor.podSecurityContext.enabled Enable security context for the Doceditor pods
     enabled: false
+  # doceditor.customPodAntiAffinity Prohibiting the scheduling of Doceditor Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1779,7 +1886,7 @@ doceditor:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Doceditor Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Doceditor Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1793,6 +1900,12 @@ doceditor:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # doceditor.nodeSelector Node labels for Doceditor pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # doceditor.tolerations Tolerations for Doceditor pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Doceditor container image parameters
   image:
     # doceditor.image.repository Doceditor container image repository
@@ -1908,6 +2021,8 @@ filesServices:
   podSecurityContext:
     # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
     enabled: false
+  # filesServices.customPodAntiAffinity Prohibiting the scheduling of Files Services Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1925,7 +2040,7 @@ filesServices:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Files Services Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Services Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1939,6 +2054,12 @@ filesServices:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # filesServices.nodeSelector Node labels for Files Services pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # filesServices.tolerations Tolerations for Files Services pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
@@ -2052,6 +2173,8 @@ login:
   podSecurityContext:
     # login.podSecurityContext.enabled Enable security context for the Login pods
     enabled: false
+  # login.customPodAntiAffinity Prohibiting the scheduling of Login Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2069,7 +2192,7 @@ login:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Login Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Login Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Login Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2083,6 +2206,12 @@ login:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # login.nodeSelector Node labels for Login pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # login.tolerations Tolerations for Login pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Login container image parameters
   image:
     # login.image.repository Login container image repository
@@ -2196,6 +2325,8 @@ notify:
   podSecurityContext:
     # notify.podSecurityContext.enabled Enable security context for the Notify pods
     enabled: false
+  # notify.customPodAntiAffinity Prohibiting the scheduling of Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2213,7 +2344,7 @@ notify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2227,6 +2358,12 @@ notify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # notify.nodeSelector Node labels for Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # notify.tolerations Tolerations for Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Notify container image parameters
   image:
     # notify.image.repository Notify container image repository
@@ -2340,6 +2477,8 @@ socket:
   podSecurityContext:
     # socket.podSecurityContext.enabled Enable security context for the Socket pods
     enabled: false
+  # socket.customPodAntiAffinity Prohibiting the scheduling of Socket Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2357,7 +2496,7 @@ socket:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Socket Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Socket Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Socket Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2371,6 +2510,12 @@ socket:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # socket.nodeSelector Node labels for Socket pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # socket.tolerations Tolerations for Socket pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Socket container image parameters
   image:
     # socket.image.repository Socket container image repository
@@ -2486,6 +2631,8 @@ ssoauth:
   podSecurityContext:
     # ssoauth.podSecurityContext.enabled Enable security context for the ssoauth pods
     enabled: false
+  # ssoauth.customPodAntiAffinity Prohibiting the scheduling of ssoauth Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2503,7 +2650,7 @@ ssoauth:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for ssoauth Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes ssoauth Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2517,6 +2664,12 @@ ssoauth:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # ssoauth.nodeSelector Node labels for ssoauth pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # ssoauth.tolerations Tolerations for ssoauth pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # ssoauth container image parameters
   image:
     # ssoauth.image.repository ssoauth container image repository
@@ -2626,6 +2779,8 @@ studio:
   podSecurityContext:
     # studio.podSecurityContext.enabled Enable security context for the Studio pods
     enabled: false
+  # studio.customPodAntiAffinity Prohibiting the scheduling of Studio Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2643,7 +2798,7 @@ studio:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2657,6 +2812,12 @@ studio:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studio.nodeSelector Node labels for Studio pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studio.tolerations Tolerations for Studio pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio container image parameters
   image:
     # studio.image.repository Studio container image repository
@@ -2770,6 +2931,8 @@ studioNotify:
   podSecurityContext:
     # studioNotify.podSecurityContext.enabled Enable security context for the Studio Notify pods
     enabled: false
+  # studioNotify.customPodAntiAffinity Prohibiting the scheduling of Studio Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2787,7 +2950,7 @@ studioNotify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2801,6 +2964,12 @@ studioNotify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studioNotify.nodeSelector Node labels for Studio Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studioNotify.tolerations Tolerations for Studio Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio Notify container image parameters
   image:
     # studioNotify.image.repository Studio Notify container image repository
@@ -2916,6 +3085,8 @@ proxyFrontend:
   podSecurityContext:
     # proxyFrontend.podSecurityContext.enabled Enable security context for the Proxy Frontend pods
     enabled: false
+  # proxyFrontend.customPodAntiAffinity Prohibiting the scheduling of Proxy Frontend Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2933,7 +3104,7 @@ proxyFrontend:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Proxy Frontend Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Proxy Frontend Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2947,6 +3118,12 @@ proxyFrontend:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # proxyFrontend.nodeSelector Node labels for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # proxyFrontend.tolerations Tolerations for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Proxy Frontend initContainers parameters
   # proxyFrontend.initContainers Containers that run before Proxy Frontend container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -3095,6 +3272,8 @@ docs:
     enabled: false
     # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
     fsGroup: 101
+  # docs.customPodAntiAffinity Prohibiting the scheduling of Document Server Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3126,6 +3305,12 @@ docs:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # docs.nodeSelector Node labels for Document Server pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # docs.tolerations Tolerations for Document Server pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Document Server initContainers parameters
   # docs.initContainers Containers that run before Document Server container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -3416,8 +3601,10 @@ opensearch:
     enabled: false
     # opensearch.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Opensearch Pod
     fsGroup: 1000
+  # opensearch.customPodAntiAffinity Prohibiting the scheduling of Opensearch Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Opensearch Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Opensearch Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -3447,6 +3634,12 @@ opensearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # opensearch.nodeSelector Node labels for Opensearch pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # opensearch.tolerations Tolerations for Opensearch pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   initContainers:
     # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
     securityContext:

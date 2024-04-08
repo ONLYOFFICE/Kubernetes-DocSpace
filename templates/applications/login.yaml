@@ -77,6 +77,9 @@ spec:
                 - login
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
+          {{- with .Values.login.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.login.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -85,11 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.login.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.login.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.login.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.login.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
