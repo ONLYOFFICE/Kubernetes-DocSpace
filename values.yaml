@@ -809,7 +809,6 @@ router:
       # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
       # The values set here are necessary for correct Router configuration. You don't need to change it
       fileName:
-        - 40-change-hosts.sh
         - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
       # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
