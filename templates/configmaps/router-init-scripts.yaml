@@ -8,11 +8,6 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
 data:
-  40-change-hosts.sh: |-
-    #!/bin/bash
-    cp /etc/hosts ~/hosts.new
-    sed -i '/^::1/s/^/#/' ~/hosts.new
-    cp -f ~/hosts.new /etc/hosts
   50-change-router-onlyoffice-conf.sh: |-
     #!/bin/sh
     sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
