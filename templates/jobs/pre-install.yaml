@@ -26,8 +26,12 @@ spec:
       {{- end }}
       securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
-      {{- if or .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
+      {{- if or .Values.install.job.customPodAntiAffinity .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
       affinity:
+        {{- with .Values.install.job.customPodAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.install.job.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -37,11 +41,11 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.install.job.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.install.job.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.install.job.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.install.job.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
