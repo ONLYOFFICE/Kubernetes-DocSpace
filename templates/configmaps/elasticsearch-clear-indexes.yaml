@@ -24,6 +24,11 @@ data:
       -u {{ .Values.connections.mysqlUser }} \
       -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
       -e "TRUNCATE webstudio_index;"
-      curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_folder
-      curl -XDELETE http://$ELK_HOST:$ELK_PORT/files_file
+      if [[ "$ELK_SHEME" == "https" ]]; then
+        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_folder
+        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_file
+      else
+        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
+        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
+      fi
     fi
