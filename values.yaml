@@ -3452,6 +3452,8 @@ install:
     podSecurityContext:
       # install.job.podSecurityContext.enabled Enable security context for the Install Job pod
       enabled: false
+    # install.job.customPodAntiAffinity Prohibiting the scheduling of Install Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Install Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Install Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3483,6 +3485,12 @@ install:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # install.job.nodeSelector Node labels for Install Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # install.job.tolerations Tolerations for Install Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
     # Configure a Security Context for containers in Install Job Pod
     # If set to, it takes priority over the `containerSecurityContext`
     containerSecurityContext:
@@ -3523,6 +3531,8 @@ upgrade:
     podSecurityContext:
       # upgrade.job.podSecurityContext.enabled Enable security context for the Upgrade Job pod
       enabled: false
+    # upgrade.job.customPodAntiAffinity Prohibiting the scheduling of Upgrade Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Upgrade Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Upgrade Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -3554,6 +3564,12 @@ upgrade:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # upgrade.job.nodeSelector Node labels for Upgrade Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # upgrade.job.tolerations Tolerations for Upgrade Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
     # Configure a Security Context for containers in Upgrade Job Pod
     # If set to, it takes priority over the `containerSecurityContext`
     containerSecurityContext:
@@ -3794,6 +3810,22 @@ tests:
     enabled: false
     # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
     fsGroup: 101
+  # tests.customPodAntiAffinity Prohibiting the scheduling of Test Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Test Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Test Pod can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  podAffinity: {}
+  # Node affinity rules for Test Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Test Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  nodeAffinity: {}
+  # tests.nodeSelector Node labels for Test pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # tests.tolerations Tolerations for Test pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   ## Test container image parameters
   image:
     ## tests.image.repository test container image name
