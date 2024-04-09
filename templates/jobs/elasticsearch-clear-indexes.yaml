@@ -42,6 +42,11 @@ spec:
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
           env:
+            - name: ELK_SHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_SHEME
             - name: ELK_HOST
               valueFrom:
                 configMapKeyRef:
