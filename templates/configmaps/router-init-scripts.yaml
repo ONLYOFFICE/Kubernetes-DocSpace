@@ -32,3 +32,4 @@ data:
     {{- end }}
     sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
     rm -rf /etc/nginx/conf.d/upstream.conf
+    rm -rf /etc/nginx/conf.d/default.conf
