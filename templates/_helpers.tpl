@@ -19,6 +19,18 @@ Get the DocSpace labels
 {{- end -}}
 
 {{/*
+Get the DocSpace annotations
+*/}}
+{{- define "docspace.annotations" -}}
+{{- $annotations := toYaml .keyName }}
+{{- if contains "{{" $annotations }}
+    {{- tpl $annotations .context }}
+{{- else }}
+    {{- $annotations }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Get the update strategy type for DocSpace Apps
 */}}
 {{- define "docspace.update.strategyType" -}}

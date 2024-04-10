@@ -163,7 +163,16 @@ namespaceOverride: ""
 #   app.kubernetes.io/instance: "{{ .Release.Name }}"
 #   app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 commonLabels: {}
+## commonAnnotations Defines annotations that will be additionally added to all the deployed resources
+## You can also use `tpl` as the value for the key
+## Some resources may override the values specified here with their own
+## Example:
+## commonAnnotations:
+##   "key1": "value1"
+##   "key2": "{{ value2 }}"
+commonAnnotations: {}
 # podAnnotations Map of annotations to add to the DocSpace pods
+# Each Docspace application can override the values specified here with its own
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 # Service account parameters
@@ -1065,6 +1074,10 @@ apiSystem:
   # apiSystem.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## apiSystem.annotations Defines annotations that will be additionally added to Api System deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1082,6 +1095,8 @@ apiSystem:
   # Used if `apiSystem.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## apiSystem.podAnnotations Map of annotations to add to the Api System pods
+  podAnnotations: {}
   # Configure a Security Context for the Api System Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
