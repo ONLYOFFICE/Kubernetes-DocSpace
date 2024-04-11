@@ -1242,6 +1242,10 @@ api:
   # api.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## api.annotations Defines annotations that will be additionally added to Api deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # api.replicaCount Number of Api replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1259,6 +1263,8 @@ api:
   # Used if `api.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## api.podAnnotations Map of annotations to add to the Api pods
+  podAnnotations: {}
   # Configure a Security Context for the Api Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
