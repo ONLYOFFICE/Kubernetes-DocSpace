@@ -1562,6 +1562,10 @@ backupBackgroundTasks:
   # backupBackgroundTasks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1579,6 +1583,8 @@ backupBackgroundTasks:
   # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
+  podAnnotations: {}
   # Configure a Security Context for the Backup Background Tasks Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
