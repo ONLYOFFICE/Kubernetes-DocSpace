@@ -117,11 +117,11 @@ connections:
   # connections.dashboardsHost The name of the DocSpace Dashboards service
   dashboardsHost: dashboards
   # connections.documentServerHost The name of the Document Server service
+  # Used when installing a local Document Server (by default `docs.enabled=true`)
   documentServerHost: document-server
-  # connections.documentServerUrlPublic The name of the Document Server service
-  documentServerUrlPublic: "/ds-vpath/"
-  # connections.documentServerUrlInternal The name of the Document Server service for internal requests
-  documentServerUrlInternal: "http://document-server/"
+  # connections.documentServerUrlExternal The address of the external Document Server
+  # If set, the local Document Server will not be installed
+  documentServerUrlExternal: ""
   # connections.appUrlPortal URL for DocSpace requests
   # By default, the name of the routing (Router) service and the port on which it accepts requests are used
   appUrlPortal: "http://router:8092"

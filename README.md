@@ -303,9 +303,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.backupBackgroundTasksHost`                | The name of the DocSpace Backup Background Tasks service                                                                    | `backup-background-tasks`     |
 | `connections.loginHost`                                | The name of the DocSpace Login service                                                                                      | `login`                       |
 | `connections.healthchecksHost`                         | The name of the DocSpace Healthchecks service                                                                               | `healthchecks`                |
-| `connections.documentServerHost`                       | The name of the Document Server service                                                                                     | `document-server`             |
-| `connections.documentServerUrlPublic`                  | The name of the Document Server service                                                                                     | `/ds-vpath/`                  |
-| `connections.documentServerUrlInternal`                | The name of the Document Server service for internal requests                                                               | `http://document-server/`     |
+| `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
+| `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
 | `connections.appCoreBaseDomain`                        | The base domain on which the DocSpace will be available                                                                     | `localhost`                   |
 | `connections.appCoreMachinekey.secretKey`              | The secret key used in the DocSpace                                                                                         | `your_core_machinekey`        |
@@ -483,6 +482,8 @@ Instead of `Application`, the parameter name should have the following values: `
 ### DocSpace Document Server StatefulSet additional parameters
 
 NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs)
+
+In order to connect an external Document Server, you need to set the `docs.enabled` parameter to `false` and specify the address to the external Document Server in the `connections.documentServerUrlExternal` parameter.
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|

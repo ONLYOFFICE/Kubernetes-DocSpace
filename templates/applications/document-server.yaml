@@ -1,4 +1,4 @@
-{{- if .Values.docs.enabled }}
+{{- if and .Values.docs.enabled (not .Values.connections.documentServerUrlExternal) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
