@@ -326,6 +326,28 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
+  rootless:
+    # install.job.initContainers.migrationRunner.enabled Enable database initialization
+    enabled: true
+    image:
+      # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
+      repository: onlyoffice/docs-utils
+      # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: 8.0.1-1
+      # install.job.initContainers.migrationRunner.image.pullPolicy Job by pre-install Migration Runner container image pull policy
+      pullPolicy: IfNotPresent
+    # Job pre-install Migration Runner container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-install Migration Runner container
+    # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-install Migration Runner container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m" 
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
@@ -3574,7 +3596,8 @@ upgrade:
     # If set to, it takes priority over the `containerSecurityContext`
     containerSecurityContext:
       # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
-      enabled: false
+      enabled: true
+      runAsUser: 0
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update

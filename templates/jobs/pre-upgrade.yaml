@@ -105,6 +105,28 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
+      {{- if .Values.initContainers.rootless.enabled }}
+      - name: rootless
+        image: {{ .Values.initContainers.rootless.image.repository }}:{{ .Values.initContainers.rootless.image.tag }}
+        imagePullPolicy: {{ .Values.initContainers.rootless.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $icmrsc := dict }}
+        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $icmrsc = .Values.upgrade.job.containerSecurityContext }}
+        {{- else }}
+        {{- $icmrsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.initContainers.rootless.resources | nindent 10 }}
+        command: ["/bin/sh", "-c"]
+        args: ["chown -R 104:107  /var/docspace-data/ && chown -R 104:107  /var/router-log/"]
+        volumeMounts:
+        - name: docspace-data
+          mountPath: /var/docspace-data
+        - name: router-log
+          mountPath: /var/router-log
+      {{- end }}
       containers:
       - name: app-init-storage
         image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
@@ -144,5 +166,11 @@ spec:
         configMap:
           name: pre-upgrade
           defaultMode: 0755
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+      - name: router-log
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.router.name" . }}
       restartPolicy: Never
 {{- end }}
