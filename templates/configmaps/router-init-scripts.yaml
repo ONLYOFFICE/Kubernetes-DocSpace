@@ -26,10 +26,10 @@ data:
     sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}
     sed -i 's/$document_server/http\:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    {{- else if and .Values.connections.documentServerUrlExternal (empty .Values.connections.documentServerHost) }}
-    sed -i 's/$document_server/{{ .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    {{- else if .Values.connections.documentServerUrlExternal }}
+    sed -i 's/$document_server/{{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
-    {{- fail "You specified an empty value in the Document Server Host parameter!" }}
+    {{- fail "You need to specify a value in the connections.documentServerHost or connections.documentServerUrlExternal parameter!" }}
     {{- else }}
     sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- end }}
