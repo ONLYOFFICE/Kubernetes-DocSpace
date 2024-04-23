@@ -145,14 +145,15 @@ To install Opensearch to your cluster, set the `opensearch.enabled=true` paramet
 ### 7. Install ONLYOFFICE Docs
 
 NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs).
-Use the [built-in Document Derver](#docspace-document-server-statefulset-additional-parameters) only for the test environment.
+Use the [built-in Document Server](#docspace-document-server-statefulset-additional-parameters) only for the test environment.
 
-If Kubernetes-Docs is deployed in the same cluster as DocSpace is planned to be deployed, then in the `connections.documentServerHost` parameter you can specify the service name `documentserver:8888` and the Namespace name if Docs is deployed in a different Namespace than DocSpace is planned, for example, `documentserver.ds:8888`.
-Also in the `connections.appUrlPortal` parameter, specify the router service name of the DocSpace and the Namespace in wich DocSpace DocSpace will be deployed, for example, `http://router.default:8092`.
+If Kubernetes-Docs is deployed in the same cluster as DocSpace is planned to be deployed, then in the `connections.documentServerHost` parameter you can specify the service name `documentserver:8888`.
+Also, specify the Namespace if the Docs is deployed in a different Namespace than DocSpace is planned, for example, `documentserver.ds:8888`.
+Also, in the `connections.appUrlPortal` parameter, specify the router service name of the DocSpace and the Namespace in which DocSpace will be deployed, for example, `http://router.default:8092`.
 
-If Kubernetes-Docs is deployed externally, relative to the cluster in which DocSpace is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the external address of the DocSpace, for example, `https://docspace.example.com`.
+If Kubernetes-Docs is deployed externally, relative to the cluster in which DocSpace is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the DocSpace](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-docspace), for example, `https://docspace.example.com`.
 
-Also, when using Kubernetes-Docs, specify the [JWT parameters](values.yaml#L237-L249) the same as in Docs in `jwt.secret`, `jwt.header`, etc.
+Also, when using Kubernetes-Docs, specify the [JWT parameters](values.yaml#L238-L250) the same as in Docs in `jwt.secret`, `jwt.header`, etc.
 
 ### 8. Make changes to the configuration files (optional)
 
