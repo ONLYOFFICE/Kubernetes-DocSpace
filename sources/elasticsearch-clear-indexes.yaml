@@ -65,6 +65,7 @@ data:
   elasticsearch-clear-indexes.sh: |
     #!/bin/bash
     apt update && apt-get install -y curl
+    echo -e "\e[0;32m The indexes will be cleared \e[0m"
     mysql \
     -h "$MYSQL_HOST" \
     -P "$MYSQL_PORT" \
@@ -78,4 +79,4 @@ data:
       curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
       curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
     fi
-    
+    echo -e "\e[0;32m Index cleanup is complete \e[0m"
