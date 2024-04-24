@@ -10,9 +10,10 @@ The following guide covers the installation process of the ‘DocSpace’ into a
   * [4. Install RabbitMQ](#4-install-rabbitmq)
   * [5. Install Redis](#5-install-redis)
   * [6. Install Elasticsearch](#6-install-opensearch)
-  * [7. Make changes to the configuration files (optional)](#7-make-changes-to-the-configuration-files-optional)
-    + [7.1 Create a Secret containing a json file](#71-create-a-secret-containing-a-json-file)
-    + [7.2 Specify parameters when installing DocSpace](#72-specify-parameters-when-installing-docspace)
+  * [7. Install ONLYOFFICE Docs](#7-install-onlyoffice-docs)
+  * [8. Make changes to the configuration files (optional)](#8-make-changes-to-the-configuration-files-optional)
+    + [8.1 Create a Secret containing a json file](#81-create-a-secret-containing-a-json-file)
+    + [8.2 Specify parameters when installing DocSpace](#82-specify-parameters-when-installing-docspace)
 - [Deploy DocSpace](#deploy-docspace)
   * [1. Install DocSpace](#1-install-docspace)
   * [2. Uninstall DocSpace](#2-uninstall-docspace)
@@ -141,9 +142,22 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 
 To install Opensearch to your cluster, set the `opensearch.enabled=true` parameter when installing DocSpace
 
-### 7. Make changes to the configuration files (optional)
+### 7. Install ONLYOFFICE Docs
 
-#### 7.1 Create a Secret containing a json file
+NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs).
+Use the [built-in Document Server](#docspace-document-server-statefulset-additional-parameters) only for the test environment.
+
+If Kubernetes-Docs is deployed in the same cluster as DocSpace is planned to be deployed, then in the `connections.documentServerHost` parameter you can specify the service name `documentserver:8888`.
+Also, specify the Namespace if the Docs is deployed in a different Namespace than DocSpace is planned, for example, `documentserver.ds:8888`.
+Also, in the `connections.appUrlPortal` parameter, specify the router service name of the DocSpace and the Namespace in which DocSpace will be deployed, for example, `http://router.default:8092`.
+
+If Kubernetes-Docs is deployed externally, relative to the cluster in which DocSpace is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the DocSpace](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-docspace), for example, `https://docspace.example.com`.
+
+Also, when using Kubernetes-Docs, specify the [JWT parameters](values.yaml#L238-L250) the same as in Docs in `jwt.secret`, `jwt.header`, etc.
+
+### 8. Make changes to the configuration files (optional)
+
+#### 8.1 Create a Secret containing a json file
 
 To create a Secret containing configuration files for overriding default values and additional configuration files for DocSpace, you need to run the following command:
 
@@ -159,11 +173,11 @@ Note: The example above shows two configuration files. You can use as many as yo
 
 Note: When using the `test` suffix in the file name, set the `connections.envExtension` parameter to `test`.
 
-#### 7.2 Specify parameters when installing DocSpace
+#### 8.2 Specify parameters when installing DocSpace
 
 When installing DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
-Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [7.1](#71-create-a-secret-containing-a-json-file)
+Note: If you need to add a configuration file after the DocSpace is already installed, you need to execute step [8.1](#81-create-a-secret-containing-a-json-file)
 and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
 `helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
 
@@ -303,9 +317,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.backupBackgroundTasksHost`                | The name of the DocSpace Backup Background Tasks service                                                                    | `backup-background-tasks`     |
 | `connections.loginHost`                                | The name of the DocSpace Login service                                                                                      | `login`                       |
 | `connections.healthchecksHost`                         | The name of the DocSpace Healthchecks service                                                                               | `healthchecks`                |
-| `connections.documentServerHost`                       | The name of the Document Server service                                                                                     | `document-server`             |
-| `connections.documentServerUrlPublic`                  | The name of the Document Server service                                                                                     | `/ds-vpath/`                  |
-| `connections.documentServerUrlInternal`                | The name of the Document Server service for internal requests                                                               | `http://document-server/`     |
+| `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
+| `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
 | `connections.appCoreBaseDomain`                        | The base domain on which the DocSpace will be available                                                                     | `localhost`                   |
 | `connections.appCoreMachinekey.secretKey`              | The secret key used in the DocSpace                                                                                         | `your_core_machinekey`        |
@@ -481,8 +494,6 @@ Instead of `Application`, the parameter name should have the following values: `
 | `proxyFrontend.service.externalTrafficPolicy`            | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
 
 ### DocSpace Document Server StatefulSet additional parameters
-
-NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs)
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
