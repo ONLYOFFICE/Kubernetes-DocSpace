@@ -15,9 +15,10 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [8.1 Create a Secret containing a json file](#81-create-a-secret-containing-a-json-file)
     + [8.2 Specify parameters when installing ONLYOFFICE DocSpace](#82-specify-parameters-when-installing-onlyoffice-docspace)
 - [Deploy ONLYOFFICE DocSpace](#deploy-onlyoffice-docspace)
-  * [1. Install ONLYOFFICE DocSpace](#1-install-onlyoffice-docspace)
-  * [2. Uninstall ONLYOFFICE DocSpace](#2-uninstall-onlyoffice-docspace)
-  * [3. Upgrade ONLYOFFICE DocSpace](#3-upgrade-onlyoffice-docspace)
+  * [1. Add a license](#1-add-a-license)
+  * [2. Install ONLYOFFICE DocSpace](#2-install-onlyoffice-docspace)
+  * [3. Uninstall ONLYOFFICE DocSpace](#3-uninstall-onlyoffice-docspace)
+  * [4. Upgrade ONLYOFFICE DocSpace](#4-upgrade-onlyoffice-docspace)
 - [Parameters](#parameters)
   * [Common parameters](#common-parameters)
   * [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters)
@@ -200,7 +201,19 @@ Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext=true
 ```
 
-### 1. Install ONLYOFFICE DocSpace
+### 1. Add a license
+
+If you have a valid ONLYOFFICE DocSpace license, set the `connections.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
+
+```bash
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set connections.installationType=ENTERPRISE
+```
+
+At the wizard page during the first login please add your license using the corresponding field.
+
+If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `connections.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
+
+### 2. Install ONLYOFFICE DocSpace
 
 To install ONLYOFFICE DocSpace to your cluster, run the following command:
 
@@ -212,7 +225,7 @@ The command deploys ONLYOFFICE DocSpace on the Kubernetes cluster in the default
 
 _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documentation._
 
-### 2. Uninstall ONLYOFFICE DocSpace
+### 3. Uninstall ONLYOFFICE DocSpace
 
 To uninstall/delete the `docspace` deployment:
 
@@ -224,7 +237,7 @@ The `helm uninstall` command removes all the Kubernetes components associated wi
 
 _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command documentation._
 
-### 3. Upgrade ONLYOFFICE DocSpace
+### 4. Upgrade ONLYOFFICE DocSpace
 
 Note: If you have Elasticsearch installed, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
 
@@ -273,7 +286,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `none`                        |
-| `connections.installationType`                         | Defines solution type                                                                                                       | `ENTERPRISE`                  |
+| `connections.installationType`                         | Defines solution type                                                                                                       | `COMMUNITY`                   |
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
