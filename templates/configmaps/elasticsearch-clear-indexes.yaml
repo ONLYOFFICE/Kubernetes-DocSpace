@@ -18,6 +18,7 @@ data:
     fi
     name=$(echo $response | jq -r ".name")
     if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
+      echo -e "\e[0;32m A local Elasticsearch was found. The indexes will be cleared \e[0m"
       mysql \
       -h {{ .Values.connections.mysqlHost }} \
       -P {{ .Values.connections.mysqlPort }} \
@@ -31,4 +32,7 @@ data:
         curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
         curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
       fi
+      echo -e "\e[0;32m Index cleanup is complete \e[0m"
+    else
+      echo -e "\e[0;32m The local Elasticsearch was not found \e[0m"
     fi
