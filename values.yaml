@@ -1064,7 +1064,7 @@ healthchecks:
 #
 apiSystem:
   # apiSystem.enabled Enables Api System installation
-  enabled: false
+  enabled: true
   # apiSystem.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
