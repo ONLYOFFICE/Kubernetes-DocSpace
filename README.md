@@ -23,7 +23,6 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [Common parameters](#common-parameters)
   * [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters)
   * [ONLYOFFICE DocSpace Router Application additional parameters](#onlyoffice-docspace-router-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Api System Application additional parameters](#onlyoffice-docspace-api-system-application-additional-parameters)
   * [ONLYOFFICE DocSpace Doceditor Application additional parameters](#onlyoffice-docspace-doceditor-application-additional-parameters)
   * [ONLYOFFICE DocSpace Login Application additional parameters](#onlyoffice-docspace-login-application-additional-parameters)
   * [ONLYOFFICE DocSpace Socket Application additional parameters](#onlyoffice-docspace-socket-application-additional-parameters)
@@ -404,7 +403,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Application.enabled`                                     | Enables Application installation. Individual value for the `apiSystem`                                          | `true`                                    |
+| `Application.enabled`                                     | Enables Application installation                                                                                | `true`                                    |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.replicaCount`                                | Number of "Application" replicas to deploy                                                                      | `1`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
@@ -453,12 +452,6 @@ Instead of `Application`, the parameter name should have the following values: `
 | `router.service.externalTrafficPolicy`                   | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
 | `router.resolver.dns`                                    | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `router.resolver.local` | `""` |
 | `router.resolver.local`                                  | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
-
-### ONLYOFFICE DocSpace Api System Application additional parameters
-
-| Parameter                                                | Description                                                                                                     | Default              |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `apiSystem.enabled`                                      | Enables Api System installation                                                                                 | `false`              |
 
 ### ONLYOFFICE DocSpace Doceditor Application additional parameters
 
