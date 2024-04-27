@@ -41,7 +41,7 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.apiSystem.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.api.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.api.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
