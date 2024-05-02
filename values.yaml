@@ -2542,6 +2542,10 @@ socket:
   # socket.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # socket.annotations Defines annotations that will be additionally added to Socket deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # socket.replicaCount Number of Socket replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2559,6 +2563,8 @@ socket:
   # Used if `socket.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # socket.podAnnotations Map of annotations to add to the Socket pods
+  podAnnotations: {}
   # Configure a Security Context for the Socket Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2696,6 +2702,10 @@ ssoauth:
   # ssoauth.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # ssoauth.annotations Defines annotations that will be additionally added to ssoauth deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2713,6 +2723,8 @@ ssoauth:
   # Used if `ssoauth.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # ssoauth.podAnnotations Map of annotations to add to the ssoauth pods
+  podAnnotations: {}
   # Configure a Security Context for the ssoauth Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2844,6 +2856,10 @@ studio:
   # studio.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # studio.annotations Defines annotations that will be additionally added to Studio deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # studio.replicaCount Number of Studio replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2861,6 +2877,8 @@ studio:
   # Used if `studio.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # studio.podAnnotations Map of annotations to add to the Studio pods
+  podAnnotations: {}
   # Configure a Security Context for the Studio Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2996,6 +3014,10 @@ studioNotify:
   # studioNotify.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # studioNotify.annotations Defines annotations that will be additionally added to Studio Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -3013,6 +3035,8 @@ studioNotify:
   # Used if `studioNotify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # studioNotify.podAnnotations Map of annotations to add to the Studio Notify pods
+  podAnnotations: {}
   # Configure a Security Context for the Studio Notify Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
