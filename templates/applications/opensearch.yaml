@@ -9,6 +9,10 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.opensearch.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.opensearch.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
@@ -29,10 +33,7 @@ spec:
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.opensearch.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.opensearch.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.opensearch.podAnnotations "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}

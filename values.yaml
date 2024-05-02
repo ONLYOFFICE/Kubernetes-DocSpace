@@ -560,6 +560,10 @@ peopleServer:
   # peopleServer.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # peopleServer.annotations Defines annotations that will be additionally added to People Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -577,6 +581,8 @@ peopleServer:
   # Used if `peopleServer.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # peopleServer.podAnnotations Map of annotations to add to the People Server pods
+  podAnnotations: {}
   # Configure a Security Context for the People Server Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -709,6 +715,10 @@ router:
   # router.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # router.annotations Defines annotations that will be additionally added to Router deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # router.replicaCount Number of Router replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -726,6 +736,8 @@ router:
   # Used if `router.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # router.podAnnotations Map of annotations to add to the Router pods
+  podAnnotations: {}
   # Configure a Security Context for the Router Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -3136,6 +3148,10 @@ proxyFrontend:
   # proxyFrontend.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # proxyFrontend.annotations Defines annotations that will be additionally added to Proxy Frontend deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -3683,7 +3699,11 @@ upgrade:
 opensearch:
   # opensearch.enabled Enables Opensearch installation
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  # opensearch.annotations Defines annotations that will be additionally added to Opensearch deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
     # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
