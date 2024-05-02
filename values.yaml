@@ -395,6 +395,10 @@ files:
   # files.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## files.annotations Defines annotations that will be additionally added to Files deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # files.replicaCount Number of Files replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -412,6 +416,8 @@ files:
   # Used if `files.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## files.podAnnotations Map of annotations to add to the Files pods
+  podAnnotations: {}
   # Configure a Security Context for the Files Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2044,6 +2050,10 @@ filesServices:
   # filesServices.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2061,6 +2071,8 @@ filesServices:
   # Used if `filesServices.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## filesServices.podAnnotations Map of annotations to add to the Files Services pods
+  podAnnotations: {}
   # Configure a Security Context for the Files Services Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -3304,7 +3316,11 @@ proxyFrontend:
 docs:
   # docs.enabled Enables local installation of Document Server in k8s cluster
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  ## docs.annotations Defines annotations that will be additionally added to Document Server deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
     # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
