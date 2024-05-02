@@ -2,23 +2,27 @@
 apiVersion: apps/v1
 kind: {{ .Values.studioNotify.kind }}
 metadata:
-  name: studio-notify
+  name: studio-studioNotify
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: studio-notify
+    app: studio-studioNotify
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.studioNotify.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.studioNotify.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.studioNotify.replicaCount }}
   selector:
     matchLabels:
-      app: studio-notify
+      app: studio-studioNotify
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   {{- if eq .Values.studioNotify.kind "StatefulSet" }}
-  serviceName: studio-notify
+  serviceName: studio-studioNotify
   {{- end }}
   {{- if .Values.studioNotify.updateStrategy }}
   {{- if eq .Values.studioNotify.kind "Deployment" }}
@@ -33,15 +37,13 @@ spec:
   template:
     metadata:
       labels:
-        app: studio-notify
+        app: studio-studioNotify
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      {{- if or .Values.podAnnotations .Values.studioNotify.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.studioNotify.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
@@ -64,7 +66,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - studio-notify
+                  - studio-studioNotify
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -74,7 +76,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - studio-notify
+                - studio-studioNotify
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
           {{- with .Values.studioNotify.customPodAntiAffinity }}
@@ -119,7 +121,7 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: studio-notify
+      - name: studio-studioNotify
         image: {{ include "docspace.imageRepository" (list . .Values.studioNotify.image.repository) }}:{{ default .Values.images.tag .Values.studioNotify.image.tag }}
         imagePullPolicy: {{ .Values.studioNotify.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.studioNotify.containerSecurityContext.enabled }}
