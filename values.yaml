@@ -1884,6 +1884,10 @@ doceditor:
   # doceditor.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## doceditor.annotations Defines annotations that will be additionally added to Doceditor deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1901,6 +1905,8 @@ doceditor:
   # Used if `doceditor.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## doceditor.podAnnotations Map of annotations to add to the Doceditor pods
+  podAnnotations: {}
   # Configure a Security Context for the Doceditor Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
