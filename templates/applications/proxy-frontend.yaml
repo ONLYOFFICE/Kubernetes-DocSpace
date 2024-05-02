@@ -9,6 +9,10 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.proxyFrontend.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.proxyFrontend.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.proxyFrontend.replicaCount }}
   selector:
@@ -38,10 +42,7 @@ spec:
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.proxyFrontend.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.proxyFrontend.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.proxyFrontend.podAnnotations "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
