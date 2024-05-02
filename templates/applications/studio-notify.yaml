@@ -2,10 +2,10 @@
 apiVersion: apps/v1
 kind: {{ .Values.studioNotify.kind }}
 metadata:
-  name: studio-studioNotify
+  name: studio-notify
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: studio-studioNotify
+    app: studio-notify
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -17,12 +17,12 @@ spec:
   replicas: {{ .Values.studioNotify.replicaCount }}
   selector:
     matchLabels:
-      app: studio-studioNotify
+      app: studio-notify
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   {{- if eq .Values.studioNotify.kind "StatefulSet" }}
-  serviceName: studio-studioNotify
+  serviceName: studio-notify
   {{- end }}
   {{- if .Values.studioNotify.updateStrategy }}
   {{- if eq .Values.studioNotify.kind "Deployment" }}
@@ -37,7 +37,7 @@ spec:
   template:
     metadata:
       labels:
-        app: studio-studioNotify
+        app: studio-notify
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -66,7 +66,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - studio-studioNotify
+                  - studio-notify
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -76,7 +76,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - studio-studioNotify
+                - studio-notify
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
           {{- with .Values.studioNotify.customPodAntiAffinity }}
@@ -121,7 +121,7 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: studio-studioNotify
+      - name: studio-notify
         image: {{ include "docspace.imageRepository" (list . .Values.studioNotify.image.repository) }}:{{ default .Values.images.tag .Values.studioNotify.image.tag }}
         imagePullPolicy: {{ .Values.studioNotify.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.studioNotify.containerSecurityContext.enabled }}
