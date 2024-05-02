@@ -163,13 +163,13 @@ namespaceOverride: ""
 #   app.kubernetes.io/instance: "{{ .Release.Name }}"
 #   app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 commonLabels: {}
-## commonAnnotations Defines annotations that will be additionally added to all the deployed resources
-## You can also use `tpl` as the value for the key
-## Some resources may override the values specified here with their own
-## Example:
-## commonAnnotations:
-##   "key1": "value1"
-##   "key2": "{{ value2 }}"
+# commonAnnotations Defines annotations that will be additionally added to all the deployed resources
+# You can also use `tpl` as the value for the key
+# Some resources may override the values specified here with their own
+# Example:
+# commonAnnotations:
+#   "key1": "value1"
+#   "key2": "{{ value2 }}"
 commonAnnotations: {}
 # podAnnotations Map of annotations to add to the DocSpace pods
 # Each Docspace application can override the values specified here with its own
@@ -395,9 +395,9 @@ files:
   # files.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## files.annotations Defines annotations that will be additionally added to Files deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # files.annotations Defines annotations that will be additionally added to Files deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # files.replicaCount Number of Files replicas to deploy
   replicaCount: 2
@@ -416,7 +416,7 @@ files:
   # Used if `files.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## files.podAnnotations Map of annotations to add to the Files pods
+  # files.podAnnotations Map of annotations to add to the Files pods
   podAnnotations: {}
   # Configure a Security Context for the Files Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -939,6 +939,10 @@ healthchecks:
   # healthchecks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # healthchecks.annotations Defines annotations that will be additionally added to Healthchecks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -956,6 +960,8 @@ healthchecks:
   # Used if `healthchecks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # healthchecks.podAnnotations Map of annotations to add to the Healthchecks pods
+  podAnnotations: {}
   # Configure a Security Context for the Healthchecks Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1080,9 +1086,9 @@ apiSystem:
   # apiSystem.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## apiSystem.annotations Defines annotations that will be additionally added to Api System deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # apiSystem.annotations Defines annotations that will be additionally added to Api System deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
   replicaCount: 2
@@ -1101,7 +1107,7 @@ apiSystem:
   # Used if `apiSystem.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## apiSystem.podAnnotations Map of annotations to add to the Api System pods
+  # apiSystem.podAnnotations Map of annotations to add to the Api System pods
   podAnnotations: {}
   # Configure a Security Context for the Api System Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -1248,9 +1254,9 @@ api:
   # api.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## api.annotations Defines annotations that will be additionally added to Api deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # api.annotations Defines annotations that will be additionally added to Api deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # api.replicaCount Number of Api replicas to deploy
   replicaCount: 2
@@ -1269,7 +1275,7 @@ api:
   # Used if `api.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## api.podAnnotations Map of annotations to add to the Api pods
+  # api.podAnnotations Map of annotations to add to the Api pods
   podAnnotations: {}
   # Configure a Security Context for the Api Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -1416,9 +1422,9 @@ backup:
   # backup.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## backup.annotations Defines annotations that will be additionally added to Backup deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # backup.annotations Defines annotations that will be additionally added to Backup deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # backup.replicaCount Number of Backup replicas to deploy
   replicaCount: 2
@@ -1437,7 +1443,7 @@ backup:
   # Used if `backup.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## backup.podAnnotations Map of annotations to add to the Backup pods
+  # backup.podAnnotations Map of annotations to add to the Backup pods
   podAnnotations: {}
   # Configure a Security Context for the Backup Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -1574,9 +1580,9 @@ backupBackgroundTasks:
   # backupBackgroundTasks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
   replicaCount: 2
@@ -1595,7 +1601,7 @@ backupBackgroundTasks:
   # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
+  # backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
   podAnnotations: {}
   # Configure a Security Context for the Backup Background Tasks Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -1732,9 +1738,9 @@ clearEvents:
   # clearEvents.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## clearEvents.annotations Defines annotations that will be additionally added to Clear Events deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # clearEvents.annotations Defines annotations that will be additionally added to Clear Events deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
   replicaCount: 2
@@ -1753,7 +1759,7 @@ clearEvents:
   # Used if `clearEvents.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## clearEvents.podAnnotations Map of annotations to add to the Clear Events pods
+  # clearEvents.podAnnotations Map of annotations to add to the Clear Events pods
   podAnnotations: {}
   # Configure a Security Context for the Clear Events Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -1890,9 +1896,9 @@ doceditor:
   # doceditor.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## doceditor.annotations Defines annotations that will be additionally added to Doceditor deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # doceditor.annotations Defines annotations that will be additionally added to Doceditor deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
   replicaCount: 2
@@ -1911,7 +1917,7 @@ doceditor:
   # Used if `doceditor.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## doceditor.podAnnotations Map of annotations to add to the Doceditor pods
+  # doceditor.podAnnotations Map of annotations to add to the Doceditor pods
   podAnnotations: {}
   # Configure a Security Context for the Doceditor Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -2050,9 +2056,9 @@ filesServices:
   # filesServices.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  ## filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
   replicaCount: 2
@@ -2071,7 +2077,7 @@ filesServices:
   # Used if `filesServices.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  ## filesServices.podAnnotations Map of annotations to add to the Files Services pods
+  # filesServices.podAnnotations Map of annotations to add to the Files Services pods
   podAnnotations: {}
   # Configure a Security Context for the Files Services Pods
   # If set to, it takes priority over the `podSecurityContext`
@@ -2208,6 +2214,10 @@ login:
   # login.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # login.annotations Defines annotations that will be additionally added to Login deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # login.replicaCount Number of Login replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2225,6 +2235,8 @@ login:
   # Used if `login.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # login.podAnnotations Map of annotations to add to the Login pods
+  podAnnotations: {}
   # Configure a Security Context for the Login Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -3316,9 +3328,9 @@ proxyFrontend:
 docs:
   # docs.enabled Enables local installation of Document Server in k8s cluster
   enabled: true
-  ## docs.annotations Defines annotations that will be additionally added to Document Server deploy
-  ## If set to, it takes priority over the `commonAnnotations`
-  ## You can also use `tpl` as the value for the key
+  # docs.annotations Defines annotations that will be additionally added to Document Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
   annotations: {}
   # Update strategy used to replace old Pod by new ones
   updateStrategy:
@@ -3887,30 +3899,30 @@ tests:
   # tests.tolerations Tolerations for Test pod assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
-  ## Test container image parameters
+  # Test container image parameters
   image:
-    ## tests.image.repository test container image name
+    # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
-    ## tests.image.tag test container image tag
+    # tests.image.tag test container image tag
     tag: 8.0.1-1
-    ## tests.image.pullPolicy test container image pull policy
+    # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
-  ## Configure a Security Context for the Test container
+  # Configure a Security Context for the Test container
   containerSecurityContext:
-    ## tests.containerSecurityContext.enabled Enable security context for the Test container
+    # tests.containerSecurityContext.enabled Enable security context for the Test container
     enabled: false
-    ## tests.containerSecurityContext.runAsUser User ID for the Test container
+    # tests.containerSecurityContext.runAsUser User ID for the Test container
     runAsUser: 101
-    ## tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    # tests.containerSecurityContext.runAsGroup Group ID for the Test container
     runAsGroup: 101
-    ## tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    # tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
     runAsNonRoot: true
-    ## tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    # tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
     allowPrivilegeEscalation: false
-    ## tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    # tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
     seccompProfile:
       type: RuntimeDefault
-    ## tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    # tests.containerSecurityContext.capabilities Defines the privileges granted to the process
     capabilities:
       drop: ["ALL"]
   # test container resource requests and limits
