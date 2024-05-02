@@ -348,6 +348,10 @@ initContainers:
       limits:
         memory: "1Gi"
         cpu: "1000m" 
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: true
+      runAsUser: 0
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
@@ -3594,10 +3598,6 @@ upgrade:
     tolerations: []
     # Configure a Security Context for containers in Upgrade Job Pod
     # If set to, it takes priority over the `containerSecurityContext`
-    containerSecurityContext:
-      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
-      enabled: true
-      runAsUser: 0
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update

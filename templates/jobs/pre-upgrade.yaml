@@ -109,10 +109,10 @@ spec:
       - name: rootless
         image: {{ .Values.initContainers.rootless.image.repository }}:{{ .Values.initContainers.rootless.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.rootless.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.initContainers.rootless.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
-        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
-        {{- $icmrsc = .Values.upgrade.job.containerSecurityContext }}
+        {{- if .Values.initContainers.rootless.containerSecurityContext.enabled }}
+        {{- $icmrsc = .Values.initContainers.rootless.containerSecurityContext }}
         {{- else }}
         {{- $icmrsc = .Values.containerSecurityContext }}
         {{- end }}
