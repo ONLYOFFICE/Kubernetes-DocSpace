@@ -1726,6 +1726,10 @@ clearEvents:
   # clearEvents.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  ## clearEvents.annotations Defines annotations that will be additionally added to Clear Events deploy
+  ## If set to, it takes priority over the `commonAnnotations`
+  ## You can also use `tpl` as the value for the key
+  annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1743,6 +1747,8 @@ clearEvents:
   # Used if `clearEvents.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  ## clearEvents.podAnnotations Map of annotations to add to the Clear Events pods
+  podAnnotations: {}
   # Configure a Security Context for the Clear Events Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
