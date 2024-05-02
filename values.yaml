@@ -2372,6 +2372,10 @@ notify:
   # notify.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # notify.annotations Defines annotations that will be additionally added to Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # notify.replicaCount Number of Notify replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2389,6 +2393,8 @@ notify:
   # Used if `notify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # notify.podAnnotations Map of annotations to add to the Notify pods
+  podAnnotations: {}
   # Configure a Security Context for the Notify Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
