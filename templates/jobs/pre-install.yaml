@@ -4,17 +4,32 @@ kind: Job
 metadata:
   name: pre-install
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app.kubernetes.io/component: install
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
+    {{- end }}
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "4"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- if or .Values.commonAnnotations .Values.install.job.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.install.job.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
   backoffLimit: 2
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: install
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.install.job.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.install.job.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.install.job.podSecurityContext.enabled }}

@@ -3979,6 +3979,10 @@ tests:
   # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
   # These resources will be used when running the `helm test` command
   enabled: true
+  # tests.annotations Defines annotations that will be additionally added to Test Pod
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # Configure a Security Context for the Test Pod
   podSecurityContext:
     # tests.podSecurityContext.enabled Enable security context for the Test pod
