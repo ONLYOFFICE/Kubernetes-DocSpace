@@ -8,6 +8,9 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 data:
 {{ (.Files.Glob "sources/scripts/test_docspace.py").AsConfig | indent 2 }}
 {{- end }}
