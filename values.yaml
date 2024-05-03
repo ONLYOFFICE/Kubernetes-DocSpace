@@ -3638,6 +3638,7 @@ install:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
 # He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
@@ -3717,6 +3718,57 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+
+# Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
+# He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
+elasticsearchClearIndexes:
+  job:
+    # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
+    # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
+    enabled: true
+    # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # elasticsearchClearIndexes.job.podAnnotations Map of annotations to add to the elasticsearchClearIndexes Pod
+    podAnnotations: {}
+    # Configure a Security Context for the elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # elasticsearchClearIndexes.job.podSecurityContext.enabled Enable security context for the elasticsearchClearIndexes Job pod
+      enabled: false
+    # elasticsearchClearIndexes.job.customPodAntiAffinity Prohibiting the scheduling of elasticsearchClearIndexes Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    podAffinity: {}
+    # Node affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    nodeAffinity: {}
+    # elasticsearchClearIndexes.job.nodeSelector Node labels for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # elasticsearchClearIndexes.job.tolerations Tolerations for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # elasticsearchClearIndexes.job.containerSecurityContext.enabled Enable security context for containers in elasticsearchClearIndexes Job pod
+      enabled: false
+    # Job elasticsearchClearIndexes container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # elasticsearchClearIndexes.job.resources.requests The requested resources for the Job elasticsearchClearIndexes container
+    # elasticsearchClearIndexes.job.resources.limits The resources limits for the Job elasticsearchClearIndexes container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
 
 # DocSpace Opensearch StatefulSet parameters
 #
