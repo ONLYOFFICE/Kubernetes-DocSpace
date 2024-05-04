@@ -354,24 +354,40 @@ persistence:
     # persistence.docspaceData.existingClaim The name of the existing PVC for storing files common to all services
     # If not specified, a PVC named "docspace-data" will be created
     existingClaim: ""
+    # persistence.docspaceData.annotations Defines annotations that will be additionally added to common files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.docspaceData.size PVC Storage Request for common files volume
     size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
     # If not specified, a PVC named "files-data" will be created
     existingClaim: ""
+    # persistence.filesData.annotations Defines annotations that will be additionally added to Files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.filesData.size PVC Storage Request for Files volume
     size: 2Gi
   peopleData:
     # persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
     # If not specified, a PVC named "people-data" will be created
     existingClaim: ""
+    # persistence.peopleData.annotations Defines annotations that will be additionally added to People Server PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.peopleData.size PVC Storage Request for People Server volume
     size: 2Gi
   routerLog:
     # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
     # If not specified, a PVC named "router-log" will be created
     existingClaim: ""
+    # persistence.routerLog.annotations Defines annotations that will be additionally added to Nginx logs PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
 # Pod anti-affinity parameters
@@ -3566,6 +3582,12 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # install.job.annotations Defines annotations that will be additionally added to Install Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # install.job.podAnnotations Map of annotations to add to the Install Job Pod
+    podAnnotations: {}
     # Configure a Security Context for the Install Job Pod
     # If set to, it takes priority over the `podSecurityContext`
     podSecurityContext:
@@ -3646,6 +3668,12 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # upgrade.job.annotations Defines annotations that will be additionally added to Upgrade Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # upgrade.job.podAnnotations Map of annotations to add to the Upgrade Job Pod
+    podAnnotations: {}
     # Configure a Security Context for the Upgrade Job Pod
     # If set to, it takes priority over the `podSecurityContext`
     podSecurityContext:
@@ -3730,7 +3758,7 @@ elasticsearchClearIndexes:
     # If set to, it takes priority over the `commonAnnotations`
     # You can also use `tpl` as the value for the key
     annotations: {}
-    # elasticsearchClearIndexes.job.podAnnotations Map of annotations to add to the elasticsearchClearIndexes Pod
+    # elasticsearchClearIndexes.job.podAnnotations Map of annotations to add to the elasticsearchClearIndexes Job Pod
     podAnnotations: {}
     # Configure a Security Context for the elasticsearchClearIndexes Job Pod
     # If set to, it takes priority over the `podSecurityContext`
@@ -3944,8 +3972,8 @@ opensearch:
   # opensearch.resources.limits The resources limits for the opensearch container
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "500m"
     limits:
       memory: "4Gi"
       cpu: "4000m"
@@ -3965,6 +3993,10 @@ opensearch:
     # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
     indicesMemoryIndexBufferSize: "30%"
   persistence:
+    # opensearch.persistence.annotations Defines annotations that will be additionally added to Opensearch PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
     # opensearch.persistence.accessModes Opensearch Persistent Volume access modes

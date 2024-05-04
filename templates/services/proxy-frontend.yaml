@@ -9,11 +9,9 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if .Values.proxyFrontend.service.annotations }}
-  annotations:
-    {{- range $key, $value := .Values.proxyFrontend.service.annotations }}
-    {{ $key }}: {{ tpl $value $ }}
-    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:
