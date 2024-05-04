@@ -11,6 +11,10 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "2"
+    {{- if or .Values.commonAnnotations .Values.persistence.filesData.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.persistence.filesData.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:
