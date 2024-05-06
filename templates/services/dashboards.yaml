@@ -1,23 +1,21 @@
-{{- if .Values.elasticsearch.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: elasticsearch
+  name: dashboards
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: elasticsearch
+    app: dashboards
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   ports:
-  - port: 9200
-    name: http
-    targetPort: 9200
-  - port: 9300
-    name: transport
-    targetPort: 9300
+  - port: 5601
+    name: dashboards
+    targetPort: 5601
   selector:
-    statefulset.kubernetes.io/pod-name: elasticsearch-0
+    app: dashboards
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP
-{{- end }}

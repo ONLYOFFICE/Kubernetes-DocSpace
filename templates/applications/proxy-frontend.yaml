@@ -1,6 +1,6 @@
 {{- if .Values.proxyFrontend.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.proxyFrontend.kind }}
 metadata:
   name: proxy-frontend
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -10,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.proxyFrontend.replicaCount }}
   selector:
     matchLabels:
       app: proxy-frontend
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
   serviceName: {{ template "docspace.svc.proxyFrontend.name" . }}
-  {{- if .Values.proxyFrontend.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.proxyFrontend.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.proxyFrontend.updateStrategy }}
+  {{- if eq .Values.proxyFrontend.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.proxyFrontend.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -29,19 +37,49 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
+      {{- if .Values.proxyFrontend.podAnnotations }}
       annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
+        {{- range $key, $value := .Values.proxyFrontend.podAnnotations }}
         {{ $key }}: {{ tpl $value $ }}
         {{- end }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.proxyFrontend.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.proxyFrontend.podSecurityContext.enabled }}
+      {{- $psc = .Values.proxyFrontend.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.proxyFrontend.podAffinity .Values.proxyFrontend.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - proxy-frontend
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - proxy-frontend
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.proxyFrontend.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.proxyFrontend.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -50,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.proxyFrontend.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.proxyFrontend.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.proxyFrontend.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.proxyFrontend.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -69,8 +106,14 @@ spec:
       - name: proxy-frontend
         image: {{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
         imagePullPolicy: {{ .Values.proxyFrontend.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.proxyFrontend.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.proxyFrontend.containerSecurityContext.enabled }}
+        {{- $csc = .Values.proxyFrontend.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.proxyFrontend.containerPorts.http }}

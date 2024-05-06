@@ -1,5 +1,6 @@
+{{- if .Values.clearEvents.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.clearEvents.kind }}
 metadata:
   name: clear-events
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.clearEvents.replicaCount }}
   selector:
     matchLabels:
       app: clear-events
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
   serviceName: clear-events
-  {{- if .Values.clearEvents.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.clearEvents.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.clearEvents.updateStrategy }}
+  {{- if eq .Values.clearEvents.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.clearEvents.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.clearEvents.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.clearEvents.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,11 +45,41 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.clearEvents.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.clearEvents.podSecurityContext.enabled }}
+      {{- $psc = .Values.clearEvents.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.clearEvents.podAffinity .Values.clearEvents.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - clear-events
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - clear-events
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.clearEvents.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.clearEvents.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.clearEvents.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.clearEvents.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.clearEvents.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.clearEvents.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,8 +100,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.clearEvents.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.clearEvents.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.clearEvents.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -73,10 +120,16 @@ spec:
       {{- end }}
       containers:
       - name: clear-events
-        image: {{ .Values.clearEvents.image.repository }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.clearEvents.image.repository) }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
         imagePullPolicy: {{ .Values.clearEvents.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.clearEvents.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.clearEvents.containerSecurityContext.enabled }}
+        {{- $csc = .Values.clearEvents.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.clearEvents.containerPorts.app }}
@@ -160,3 +213,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

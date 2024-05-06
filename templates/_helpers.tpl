@@ -19,6 +19,17 @@ Get the DocSpace labels
 {{- end -}}
 
 {{/*
+Get the update strategy type for DocSpace Apps
+*/}}
+{{- define "docspace.update.strategyType" -}}
+{{- if eq .type "RollingUpdate" -}}
+    {{- toYaml . | nindent 4 -}}
+{{- else -}}
+    {{- omit . "rollingUpdate" | toYaml | nindent 4 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the DocSpace Service Account name
 */}}
 {{- define "docspace.serviceAccountName" -}}
@@ -26,6 +37,33 @@ Get the DocSpace Service Account name
     {{ default .Release.Name .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the DocSpace Security Context
+*/}}
+{{- define "docspace.securityContext" -}}
+{{- if not .seLinuxOptions -}}
+    {{- omit . "enabled" "seLinuxOptions" | toYaml }}
+{{- else -}}
+    {{- omit . "enabled" | toYaml }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the DocSpace image repository
+*/}}
+{{- define "docspace.imageRepository" -}}
+{{- $context := index . 0 -}}
+{{- $repo := index . 1 -}}
+{{- $repoPrefix := $context.Values.images.repoPrefix -}}
+{{- if and $repoPrefix (eq $repoPrefix "4testing" ) (contains "onlyoffice/" $repo) -}}
+    {{- $repo | replace "onlyoffice/" (printf "onlyoffice/%s-" $repoPrefix) -}}
+{{- else if $repoPrefix }}
+    {{- $repo | replace "onlyoffice/" (printf "%s/" $repoPrefix) -}}
+{{- else -}}
+    {{- $repo -}}
 {{- end -}}
 {{- end -}}
 
@@ -150,10 +188,10 @@ Get the DocSpace Url Portal
     {{- printf "" -}}
 {{- else if .Values.router.service.existing -}}
     {{- printf "http://%s:%s" (tpl .Values.router.service.existing $) (toString .Values.router.service.port.external) -}}
-{{- else if empty .Values.router.service.existing -}}
-    {{- printf "http://router:%s" (toString .Values.router.service.port.external) -}}
-{{- else -}}
+{{- else if and (not (empty .Values.connections.appUrlPortal)) (eq (toString .Values.router.service.port.external) "8092") -}}
     {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
+{{- else -}}
+    {{- printf "http://router:%s" (toString .Values.router.service.port.external) -}}
 {{- end -}}
 {{- end -}}
 

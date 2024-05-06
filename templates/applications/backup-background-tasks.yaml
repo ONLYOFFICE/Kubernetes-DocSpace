@@ -1,5 +1,6 @@
+{{- if .Values.backupBackgroundTasks.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.backupBackgroundTasks.kind }}
 metadata:
   name: backup-background-tasks
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backupBackgroundTasks.replicaCount }}
   selector:
     matchLabels:
       app: backup-background-tasks
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.backupBackgroundTasks.kind "StatefulSet" }}
   serviceName: backup-background-tasks
-  {{- if .Values.backupBackgroundTasks.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.backupBackgroundTasks.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.backupBackgroundTasks.updateStrategy }}
+  {{- if eq .Values.backupBackgroundTasks.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.backupBackgroundTasks.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.backupBackgroundTasks.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.backupBackgroundTasks.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.backupBackgroundTasks.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,11 +45,41 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.backupBackgroundTasks.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.backupBackgroundTasks.podSecurityContext.enabled }}
+      {{- $psc = .Values.backupBackgroundTasks.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.backupBackgroundTasks.podAffinity .Values.backupBackgroundTasks.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - backup-background-tasks
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - backup-background-tasks
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.backupBackgroundTasks.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.backupBackgroundTasks.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.backupBackgroundTasks.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.backupBackgroundTasks.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.backupBackgroundTasks.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.backupBackgroundTasks.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,8 +100,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.backupBackgroundTasks.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.backupBackgroundTasks.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.backupBackgroundTasks.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -73,10 +120,16 @@ spec:
       {{- end }}
       containers:
       - name: backup-background-tasks
-        image: {{ .Values.backupBackgroundTasks.image.repository }}:{{ default .Values.images.tag .Values.backupBackgroundTasks.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.backupBackgroundTasks.image.repository) }}:{{ default .Values.images.tag .Values.backupBackgroundTasks.image.tag }}
         imagePullPolicy: {{ .Values.backupBackgroundTasks.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.backupBackgroundTasks.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.backupBackgroundTasks.containerSecurityContext.enabled }}
+        {{- $csc = .Values.backupBackgroundTasks.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.backupBackgroundTasks.containerPorts.app }}
@@ -160,3 +213,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

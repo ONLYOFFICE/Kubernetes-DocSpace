@@ -1,5 +1,6 @@
+{{- if .Values.filesServices.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.filesServices.kind }}
 metadata:
   name: files-services
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.filesServices.replicaCount }}
   selector:
     matchLabels:
       app: files-services
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
   serviceName: files-services
-  {{- if .Values.filesServices.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.filesServices.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.filesServices.updateStrategy }}
+  {{- if eq .Values.filesServices.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.filesServices.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.filesServices.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,11 +45,41 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.filesServices.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.filesServices.podSecurityContext.enabled }}
+      {{- $psc = .Values.filesServices.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.filesServices.podAffinity .Values.filesServices.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - files-services
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - files-services
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.filesServices.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.filesServices.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.filesServices.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.filesServices.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.filesServices.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.filesServices.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,8 +100,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.filesServices.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.filesServices.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.filesServices.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -73,10 +120,16 @@ spec:
       {{- end }}
       containers:
       - name: files-services
-        image: {{ .Values.filesServices.image.repository }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.filesServices.image.repository) }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
         imagePullPolicy: {{ .Values.filesServices.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.filesServices.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.filesServices.containerSecurityContext.enabled }}
+        {{- $csc = .Values.filesServices.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.filesServices.containerPorts.app }}
@@ -160,3 +213,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

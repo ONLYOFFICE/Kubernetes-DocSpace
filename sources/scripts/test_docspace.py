@@ -68,18 +68,7 @@ def init_logger(name):
     logger.info('Running a script to test the availability of DocSpace and dependencies\n')
 
 
-def install_module(package):
-    try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', package],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.STDOUT)
-    except Exception as msg_install_module:
-        logger_test_docspace.error(f'Error when trying to install the "{package}" package... {msg_install_module}\n')
-
-
-
 def get_redis_status():
-    install_module('redis')
     import redis
     global rc
     try:
@@ -124,7 +113,6 @@ def check_redis():
 
 
 def check_db_mysql(tbl_dict):
-    install_module('pymysql')
     import pymysql
     try:
         dbc = pymysql.connect(
@@ -166,7 +154,6 @@ def check_db():
 
 
 def check_mq_rabbitmq():
-    install_module('pika')
     import pika
     try:
         mqp = pika.URLParameters(f'{brokerProto}://{brokerUser}:{brokerPassword}@{brokerHost}:{brokerPort}{brokerVhost}')
@@ -200,7 +187,6 @@ def check_mq():
 
 
 def get_docspace_status():
-    install_module('requests')
     import requests
     from requests.adapters import HTTPAdapter
     logger_test_docspace.info('Checking DocSpace availability...')
@@ -209,13 +195,15 @@ def get_docspace_status():
     for i in docspace_services:
         if i.split(":")[0] == 'socket':
             url = f'http://{i}/'
+        elif i.split(":")[0] == 'doceditor':
+            url = f'http://{i}/doceditor/health'
         else:
             url = f'http://{i}/health'
         docspace_session.mount(url, docspace_adapter)
         try:
             response = docspace_session.get(url, timeout=5)
             i = i.split(":")[0]
-            if i == 'socket':
+            if i == 'socket' or i == 'doceditor':
                 code = response.status_code
                 if code == 200:
                     total_result[i] = 'Healthy'

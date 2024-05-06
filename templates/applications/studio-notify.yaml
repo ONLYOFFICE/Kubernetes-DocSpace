@@ -1,5 +1,6 @@
+{{- if .Values.studioNotify.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.studioNotify.kind }}
 metadata:
   name: studio-notify
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.studioNotify.replicaCount }}
   selector:
     matchLabels:
       app: studio-notify
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
   serviceName: studio-notify
-  {{- if .Values.studioNotify.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.studioNotify.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.studioNotify.updateStrategy }}
+  {{- if eq .Values.studioNotify.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.studioNotify.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.studioNotify.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.studioNotify.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,11 +45,41 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.studioNotify.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.studioNotify.podSecurityContext.enabled }}
+      {{- $psc = .Values.studioNotify.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.studioNotify.podAffinity .Values.studioNotify.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - studio-notify
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - studio-notify
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.studioNotify.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.studioNotify.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.studioNotify.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.studioNotify.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.studioNotify.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.studioNotify.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,8 +100,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.studioNotify.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.studioNotify.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.studioNotify.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -73,10 +120,16 @@ spec:
       {{- end }}
       containers:
       - name: studio-notify
-        image: {{ .Values.studioNotify.image.repository }}:{{ default .Values.images.tag .Values.studioNotify.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.studioNotify.image.repository) }}:{{ default .Values.images.tag .Values.studioNotify.image.tag }}
         imagePullPolicy: {{ .Values.studioNotify.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.studioNotify.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.studioNotify.containerSecurityContext.enabled }}
+        {{- $csc = .Values.studioNotify.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.studioNotify.containerPorts.app }}
@@ -160,3 +213,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

@@ -1,5 +1,6 @@
+{{- if .Values.api.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.api.kind }}
 metadata:
   name: api
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,18 +10,26 @@ metadata:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
       app: api
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.api.kind "StatefulSet" }}
   serviceName: api
-  {{- if .Values.api.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.api.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.api.updateStrategy }}
+  {{- if eq .Values.api.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.api.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.api.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.api.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.api.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,11 +45,41 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.api.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.api.podSecurityContext.enabled }}
+      {{- $psc = .Values.api.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.api.podAffinity .Values.api.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - api
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - api
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.api.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.api.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.api.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.api.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.api.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.api.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,8 +100,17 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.api.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.api.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.api.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
@@ -73,10 +120,16 @@ spec:
       {{- end }}
       containers:
       - name: api
-        image: {{ .Values.api.image.repository }}:{{ default .Values.images.tag .Values.api.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.api.image.repository) }}:{{ default .Values.images.tag .Values.api.image.tag }}
         imagePullPolicy: {{ .Values.api.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.api.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.api.containerSecurityContext.enabled }}
+        {{- $csc = .Values.api.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.api.containerPorts.app }}
@@ -160,3 +213,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

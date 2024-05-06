@@ -1,0 +1,126 @@
+{{- if .Values.opensearch.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: opensearch
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  serviceName: opensearch
+  {{- if .Values.opensearch.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.opensearch.updateStrategy }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: opensearch
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if .Values.opensearch.podAnnotations }}
+      annotations:
+        {{- range $key, $value := .Values.opensearch.podAnnotations }}
+        {{ $key }}: {{ tpl $value $ }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if .Values.opensearch.podSecurityContext.enabled }}
+      securityContext: {{- include "docspace.securityContext" .Values.opensearch.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.opensearch.customPodAntiAffinity .Values.opensearch.podAffinity .Values.opensearch.nodeAffinity }}
+      affinity:
+        {{- with .Values.opensearch.customPodAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.opensearch.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.opensearch.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if or .Values.nodeSelector .Values.opensearch.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.opensearch.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.opensearch.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.opensearch.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+      - name: change-volume-owner
+        image: busybox:latest
+        imagePullPolicy: IfNotPresent
+        {{- if .Values.opensearch.initContainers.securityContext.enabled }}
+        securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.securityContext | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.opensearch.initContainers.resources | nindent 10 }}
+        command: ['chown', '-R', '1000:1000', '/usr/share/opensearch/data']
+        volumeMounts:
+        - name: opensearch-data
+          mountPath: /usr/share/opensearch/data
+      {{- with .Values.opensearch.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: opensearch
+        image: {{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}
+        imagePullPolicy: {{ .Values.opensearch.image.pullPolicy }}
+        {{- if .Values.opensearch.containerSecurityContext.enabled }}
+        securityContext: {{- include "docspace.securityContext" .Values.opensearch.containerSecurityContext | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        {{- if .Values.opensearch.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.opensearch.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.opensearch.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.opensearch.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.opensearch.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.opensearch.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.opensearch.resources | nindent 10 }}
+        env:
+        - name: discovery.type
+          value: {{ .Values.opensearch.env.discoveryType | quote}}
+        - name: DISABLE_SECURITY_PLUGIN
+          value: {{ .Values.opensearch.env.disableSecurityPlugin | quote}}
+        - name: DISABLE_INSTALL_DEMO_CONFIG
+          value: {{ .Values.opensearch.env.disableInstallDemoConfig | quote}}
+        - name: bootstrap.memory_lock
+          value: {{ .Values.opensearch.env.bootstrapMemoryLock | quote}}
+        - name: ES_JAVA_OPTS
+          value: {{ .Values.opensearch.env.ESJAVAOPTS | quote}}
+        - name: indices.fielddata.cache.size
+          value: {{ .Values.opensearch.env.indicesFieldDataCacheSize | quote }}
+        - name: indices.memory.index_buffer_size
+          value: {{ .Values.opensearch.env.indicesMemoryIndexBufferSize | quote }}
+        volumeMounts:
+        - name: opensearch-data
+          mountPath: /usr/share/opensearch/data
+      volumes:
+      - name: opensearch-data
+        persistentVolumeClaim:
+          claimName: opensearch-data
+{{- end }}

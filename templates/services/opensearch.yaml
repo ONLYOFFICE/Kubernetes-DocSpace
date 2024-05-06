@@ -1,21 +1,26 @@
+{{- if .Values.opensearch.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: clear-events
+  name: opensearch
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: clear-events
+    app: opensearch
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
 spec:
   ports:
-  - port: {{ .Values.clearEvents.containerPorts.app }}
-    name: app
-    targetPort: {{ .Values.clearEvents.containerPorts.app }}
+  - port: 9200
+    name: http
+    targetPort: 9200
+  - port: 9300
+    name: transport
+    targetPort: 9300
   selector:
-    app: clear-events
+    statefulset.kubernetes.io/pod-name: opensearch-0
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   type: ClusterIP
+{{- end }}

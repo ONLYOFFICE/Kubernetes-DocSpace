@@ -1,5 +1,6 @@
+{{- if .Values.router.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.router.kind }}
 metadata:
   name: router
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -16,8 +17,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  serviceName: {{ template "docspace.svc.router.name" . }}
+  {{- end }}
   {{- if .Values.router.updateStrategy }}
-  strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  {{- if eq .Values.router.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.router.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
@@ -34,12 +45,18 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.router.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.router.podSecurityContext.enabled }}
+      {{- $psc = .Values.router.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -50,7 +67,7 @@ spec:
                   - router
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -59,7 +76,10 @@ spec:
                 values:
                 - router
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.router.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.router.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -68,11 +88,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.router.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.router.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.router.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.router.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -84,10 +104,16 @@ spec:
       {{- end }}
       containers:
       - name: router
-        image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.router.image.repository) }}:{{ default .Values.images.tag .Values.router.image.tag }}
         imagePullPolicy: {{ .Values.router.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.router.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.router.containerSecurityContext.enabled }}
+        {{- $csc = .Values.router.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.router.containerPorts.external }}
@@ -172,3 +198,4 @@ spec:
       - name: router-log
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.router.name" . }}
+{{- end }}

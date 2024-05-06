@@ -1,7 +1,7 @@
 # Default values for DocSpace
 
 # DocSpace common parameters
-# This block defines common parameters for all deployments and statefulsets
+# This block defines common parameters for all DocSpace Apps services
 #
 # Connection parameters to services
 connections:
@@ -74,13 +74,13 @@ connections:
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
-  # connections.elkSheme The protocol for the connection to Elasticsearch
+  # connections.elkSheme The protocol for the connection to Opensearch
   elkSheme: http
-  # connections.elkHost The IP address or the name of the Elasticsearch host
-  elkHost: elasticsearch
-  # connections.elkPort The port for the connection to Elasticsearch
+  # connections.elkHost The IP address or the name of the Opensearch host
+  elkHost: opensearch
+  # connections.elkPort The port for the connection to Opensearch
   elkPort: "9200"
-  # connections.elkThreads Number of threads in Elasticsearch
+  # connections.elkThreads Number of threads in Opensearch
   elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
@@ -114,12 +114,15 @@ connections:
   loginHost: login
   # connections.healthchecksHost The name of the DocSpace Healthchecks service
   healthchecksHost: healthchecks
+  # connections.dashboardsHost The name of the DocSpace Dashboards service
+  dashboardsHost: dashboards
   # connections.documentServerHost The name of the Document Server service
+  # Used when installing a local Document Server (by default `docs.enabled=true`)
   documentServerHost: document-server
-  # connections.documentServerUrlPublic The name of the Document Server service
-  documentServerUrlPublic: "/ds-vpath/"
-  # connections.documentServerUrlInternal The name of the Document Server service for internal requests
-  documentServerUrlInternal: "http://document-server/"
+  # connections.documentServerUrlExternal The address of the external Document Server
+  # If set, the local Document Server will not be installed
+  # The address must be in the `http(s)://<documentserver-address>/` format
+  documentServerUrlExternal: ""
   # connections.appUrlPortal URL for DocSpace requests
   # By default, the name of the routing (Router) service and the port on which it accepts requests are used
   appUrlPortal: "http://router:8092"
@@ -181,35 +184,57 @@ serviceAccount:
   # Used only if `serviceAccount.create` is `true`
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
   automountServiceAccountToken: true
-# Configure a Security Context for a Pods
+# Configure a Security Context for the DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
   # If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
   enabled: false
-  # podSecurityContext.runAsUser User ID for the DocSpace pods
-  runAsUser: 104
-  # podSecurityContext.runAsGroup Group ID for the DocSpace pods
-  runAsGroup: 107
-# Configure a Security Context for containers in Pods
+  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the DocSpace application Pods
+  fsGroup: 107
+# Configure a Security Context for containers in DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 containerSecurityContext:
-  # containerSecurityContext.enabled Enable security context for containers in pods
+  # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
+  # containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  runAsUser: 104
+  # containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  runAsGroup: 107
+  # containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+  runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
-# nodeSelector Node labels for pods assignment
+  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  seLinuxOptions: {}
+  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  seccompProfile:
+    type: RuntimeDefault
+  # containerSecurityContext.capabilities Defines the privileges granted to the process
+  capabilities:
+    drop: ["ALL"]
+# nodeSelector Node labels for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
-# tolerations Tolerations for pods assignment
+# tolerations Tolerations for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
-# images.tag Global image tag for all services
-# Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
+# Global image parameters for for all DocSpace applications
+# Does not apply to the Document Server, Elasticsearch and Proxy Frontend
 images:
-  tag: 2.0.3
+  # images.repoPrefix Global repository prefix for all DocSpace applications
+  repoPrefix: ""
+  # images.tag Global image tag for all DocSpace applications
+  # Does not apply to the Document Server and Elasticsearch
+  tag: 2.5.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -305,7 +330,7 @@ initContainers:
         memory: "2Gi"
         cpu: "1000m"
   # initContainers.custom Custom initContainers parameters
-  # Does not apply to the following services: `Document Server`, `Router`, `Elasticsearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
+  # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
   # custom:
   #   - name: additional-init-container
@@ -343,31 +368,33 @@ persistence:
     existingClaim: ""
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
-
-# DocSpace common deployment parameters
-# This block defines common parameters for all deployments only
-#
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
+# Does not apply to `Docs` and `Opensearch`
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 podAntiAffinity:
   # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
   # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
-# DocSpace Files Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Files application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 files:
+  # files.enabled Enables Files installation
+  enabled: true
+  # files.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # files.replicaCount Number of Files replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # files.updateStrategy.type Files Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # files.updateStrategy.type Files update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `files.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `files.kind` is set to `Deployment`
     type: RollingUpdate
     # files.updateStrategy.rollingUpdate Used only when `files.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -375,6 +402,27 @@ files:
       maxUnavailable: 25%
       # files.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Pods created over the desired number of Pods
       maxSurge: 25%
+  # files.podManagementPolicy The Files Pods scaling operations policy
+  # Used if `files.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # files.podSecurityContext.enabled Enable security context for the Files pods
+    enabled: false
+  # files.customPodAntiAffinity Prohibiting the scheduling of Files Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files-services
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -390,7 +438,7 @@ files:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Files Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -403,6 +451,12 @@ files:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # files.nodeSelector Node labels for Files pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # files.tolerations Tolerations for Files pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files container image parameters
   image:
     # files.image.repository files container image repository
@@ -412,6 +466,11 @@ files:
     tag: ""
     # files.image.pullPolicy files container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # files.containerSecurityContext.enabled Enable security context for containers in Files pods
+    enabled: false
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -480,16 +539,21 @@ files:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace People Server Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace People Server application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
+  # peopleServer.enabled Enables People Server installation
+  enabled: true
+  # peopleServer.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # peopleServer.replicaCount Number of People Server replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # peopleServer.updateStrategy.type People Server Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # peopleServer.updateStrategy.type People Server update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `peopleServer.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `peopleServer.kind` is set to `Deployment`
     type: RollingUpdate
     # peopleServer.updateStrategy.rollingUpdate Used only when `peopleServer.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -497,6 +561,17 @@ peopleServer:
       maxUnavailable: 25%
       # peopleServer.updateStrategy.rollingUpdate.maxSurge Maximum number of People Server Pods created over the desired number of Pods
       maxSurge: 25%
+  # peopleServer.podManagementPolicy The People Server Pods scaling operations policy
+  # Used if `peopleServer.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the People Server Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # peopleServer.podSecurityContext.enabled Enable security context for the People Server pods
+    enabled: false
+  # peopleServer.customPodAntiAffinity Prohibiting the scheduling of People Server Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -512,7 +587,7 @@ peopleServer:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for People Server Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes People Server Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes People Server Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -525,6 +600,12 @@ peopleServer:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # peopleServer.nodeSelector Node labels for People Server pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # peopleServer.tolerations Tolerations for People Server pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # People Server container image parameters
   image:
     # peopleServer.image.repository People Server container image repository
@@ -534,6 +615,11 @@ peopleServer:
     tag: ""
     # peopleServer.image.pullPolicy People Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in People Server Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
+    enabled: false
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -602,16 +688,21 @@ peopleServer:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Router Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Router application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 router:
+  # router.enabled Enables Router installation
+  enabled: true
+  # router.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # router.replicaCount Number of Router replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # router.updateStrategy.type Router Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # router.updateStrategy.type Router update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `router.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `router.kind` is set to `Deployment`
     type: RollingUpdate
     # router.updateStrategy.rollingUpdate Used only when `router.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -619,6 +710,17 @@ router:
       maxUnavailable: 25%
       # router.updateStrategy.rollingUpdate.maxSurge Maximum number of Router Pods created over the desired number of Pods
       maxSurge: 25%
+  # router.podManagementPolicy The Router Pods scaling operations policy
+  # Used if `router.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Router Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # router.podSecurityContext.enabled Enable security context for the Router pods
+    enabled: false
+  # router.customPodAntiAffinity Prohibiting the scheduling of Router Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -634,7 +736,7 @@ router:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Router Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Router Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Router Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -647,6 +749,12 @@ router:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # router.nodeSelector Node labels for Router pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # router.tolerations Tolerations for Router pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Router initContainers parameters
   # router.initContainers Containers that run before Router container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -665,6 +773,11 @@ router:
     tag: ""
     # router.image.pullPolicy Router container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Router Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # router.containerSecurityContext.enabled Enable security context for containers in Router pods
+    enabled: false
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
@@ -736,7 +849,6 @@ router:
       # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
       # The values set here are necessary for correct Router configuration. You don't need to change it
       fileName:
-        - 40-change-hosts.sh
         - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
       # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
@@ -806,18 +918,21 @@ router:
     # local: "/tmp/resolv.conf"
     local: "on"
 
-# DocSpace Healthchecks Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Healthchecks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 healthchecks:
   # healthchecks.enabled Enables Healthchecks installation
   enabled: true
+  # healthchecks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # healthchecks.updateStrategy.type Healthchecks Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # healthchecks.updateStrategy.type Healthchecks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `healthchecks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `healthchecks.kind` is set to `Deployment`
     type: RollingUpdate
     # healthchecks.updateStrategy.rollingUpdate Used only when `healthchecks.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -825,6 +940,17 @@ healthchecks:
       maxUnavailable: 25%
       # healthchecks.updateStrategy.rollingUpdate.maxSurge Maximum number of Healthchecks Pods created over the desired number of Pods
       maxSurge: 25%
+  # healthchecks.podManagementPolicy The Healthchecks Pods scaling operations policy
+  # Used if `healthchecks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Healthchecks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # healthchecks.podSecurityContext.enabled Enable security context for the Healthchecks pods
+    enabled: false
+  # healthchecks.customPodAntiAffinity Prohibiting the scheduling of Healthchecks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -840,7 +966,7 @@ healthchecks:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Healthchecks Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Healthchecks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -853,6 +979,12 @@ healthchecks:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # healthchecks.nodeSelector Node labels for Healthchecks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # healthchecks.tolerations Tolerations for Healthchecks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Healthchecks container image parameters
   image:
     # healthchecks.image.repository Healthchecks container image repository
@@ -862,6 +994,11 @@ healthchecks:
     tag: ""
     # healthchecks.image.pullPolicy Healthchecks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Healthchecks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
+    enabled: false
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
@@ -922,16 +1059,49 @@ healthchecks:
 
 # DocSpace statefulsets
 #
-# DocSpace Api System StatefulSet parameters
+# DocSpace Api System application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 apiSystem:
   # apiSystem.enabled Enables Api System installation
-  enabled: false
+  enabled: true
+  # apiSystem.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # apiSystem.replicaCount Number of Api System replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # apiSystem.updateStrategy.type Api System StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # apiSystem.updateStrategy.type Api System update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `apiSystem.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `apiSystem.kind` is set to `Deployment`
     type: RollingUpdate
+    # apiSystem.updateStrategy.rollingUpdate Used only when `apiSystem.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # apiSystem.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api System Pods unavailable during the update process
+      maxUnavailable: 25%
+      # apiSystem.updateStrategy.rollingUpdate.maxSurge Maximum number of Api System Pods created over the desired number of Pods
+      maxSurge: 25%
+  # apiSystem.podManagementPolicy The Api System Pods scaling operations policy
+  # Used if `apiSystem.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api System Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
+    enabled: false
+  # apiSystem.customPodAntiAffinity Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - api
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -949,7 +1119,7 @@ apiSystem:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api System Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api System Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api System Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -963,6 +1133,12 @@ apiSystem:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # apiSystem.nodeSelector Node labels for Api System pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # apiSystem.tolerations Tolerations for Api System pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
@@ -972,6 +1148,11 @@ apiSystem:
     tag: ""
     # apiSystem.image.pullPolicy Api System container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api System Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
+    enabled: false
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
@@ -1040,14 +1221,49 @@ apiSystem:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Api StatefulSet parameters
+# DocSpace Api application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.enabled Enables Api installation
+  enabled: true
+  # api.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # api.replicaCount Number of Api replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # api.updateStrategy.type Api StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # api.updateStrategy.type Api update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `api.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `api.kind` is set to `Deployment`
     type: RollingUpdate
+    # api.updateStrategy.rollingUpdate Used only when `api.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # api.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api Pods unavailable during the update process
+      maxUnavailable: 25%
+      # api.updateStrategy.rollingUpdate.maxSurge Maximum number of Api Pods created over the desired number of Pods
+      maxSurge: 25%
+  # api.podManagementPolicy The Api Pods scaling operations policy
+  # Used if `api.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Api Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # api.podSecurityContext.enabled Enable security context for the Api pods
+    enabled: false
+  # api.customPodAntiAffinity Prohibiting the scheduling of Api Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1065,7 +1281,7 @@ api:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1079,6 +1295,12 @@ api:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # api.nodeSelector Node labels for Api pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # api.tolerations Tolerations for Api pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
@@ -1088,6 +1310,11 @@ api:
     tag: ""
     # api.image.pullPolicy Api container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # api.containerSecurityContext.enabled Enable security context for containers in Api pods
+    enabled: false
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
@@ -1156,14 +1383,39 @@ api:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup StatefulSet parameters
+# DocSpace Backup application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backup:
+  # backup.enabled Enables Backup installation
+  enabled: true
+  # backup.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backup.replicaCount Number of Backup replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backup.updateStrategy.type Backup StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backup.updateStrategy.type Backup update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backup.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backup.kind` is set to `Deployment`
     type: RollingUpdate
+    # backup.updateStrategy.rollingUpdate Used only when `backup.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backup.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backup.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backup.podManagementPolicy The Backup Pods scaling operations policy
+  # Used if `backup.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backup.podSecurityContext.enabled Enable security context for the Backup pods
+    enabled: false
+  # backup.customPodAntiAffinity Prohibiting the scheduling of Backup Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1181,7 +1433,7 @@ backup:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes backup Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes backup Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1195,6 +1447,12 @@ backup:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backup.nodeSelector Node labels for Backup pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backup.tolerations Tolerations for Backup pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup container image parameters
   image:
     # backup.image.repository Backup container image repository
@@ -1204,6 +1462,11 @@ backup:
     tag: ""
     # backup.image.pullPolicy Backup container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
+    enabled: false
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1272,14 +1535,39 @@ backup:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup Background Tasks StatefulSet parameters
+# DocSpace Backup Background Tasks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.enabled Enables Backup Background Tasks installation
+  enabled: true
+  # backupBackgroundTasks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backupBackgroundTasks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupBackgroundTasks.kind` is set to `Deployment`
     type: RollingUpdate
+    # backupBackgroundTasks.updateStrategy.rollingUpdate Used only when `backupBackgroundTasks.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Background Tasks Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Background Tasks Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backupBackgroundTasks.podManagementPolicy The Backup Background Tasks Pods scaling operations policy
+  # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Backup Background Tasks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
+    enabled: false
+  # backupBackgroundTasks.customPodAntiAffinity Prohibiting the scheduling of Backup Background Tasks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1297,7 +1585,7 @@ backupBackgroundTasks:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Background Tasks Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Backup Background Tasks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1311,6 +1599,12 @@ backupBackgroundTasks:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backupBackgroundTasks.nodeSelector Node labels for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backupBackgroundTasks.tolerations Tolerations for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
@@ -1320,6 +1614,11 @@ backupBackgroundTasks:
     tag: ""
     # backupBackgroundTasks.image.pullPolicy Backup Background Tasks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Background Tasks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
+    enabled: false
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
@@ -1388,14 +1687,39 @@ backupBackgroundTasks:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Clear Events StatefulSet parameters
+# DocSpace Clear Events application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
+  # clearEvents.enabled Enables Clear Events installation
+  enabled: true
+  # clearEvents.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # clearEvents.updateStrategy.type Clear Events StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # clearEvents.updateStrategy.type Clear Events update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `clearEvents.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `clearEvents.kind` is set to `Deployment`
     type: RollingUpdate
+    # clearEvents.updateStrategy.rollingUpdate Used only when `clearEvents.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # clearEvents.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Clear Events Pods unavailable during the update process
+      maxUnavailable: 25%
+      # clearEvents.updateStrategy.rollingUpdate.maxSurge Maximum number of Clear Events Pods created over the desired number of Pods
+      maxSurge: 25%
+  # clearEvents.podManagementPolicy The Clear Events Pods scaling operations policy
+  # Used if `clearEvents.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Clear Events Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # clearEvents.podSecurityContext.enabled Enable security context for the Clear Events pods
+    enabled: false
+  # clearEvents.customPodAntiAffinity Prohibiting the scheduling of Clear Events Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1413,7 +1737,7 @@ clearEvents:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Clear Events Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Clear Events Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1427,6 +1751,12 @@ clearEvents:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # clearEvents.nodeSelector Node labels for Clear Events pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # clearEvents.tolerations Tolerations for Clear Events pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Clear Events container image parameters
   image:
     # clearEvents.image.repository Clear Events container image repository
@@ -1436,6 +1766,11 @@ clearEvents:
     tag: ""
     # clearEvents.image.pullPolicy Clear Events container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Clear Events Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
+    enabled: false
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
@@ -1504,14 +1839,39 @@ clearEvents:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Doceditor StatefulSet parameters
+# DocSpace Doceditor application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 doceditor:
+  # doceditor.enabled Enables Doceditor installation
+  enabled: true
+  # doceditor.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # doceditor.replicaCount Number of Doceditor replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # doceditor.updateStrategy.type Doceditor update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `doceditor.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `doceditor.kind` is set to `Deployment`
     type: RollingUpdate
+    # doceditor.updateStrategy.rollingUpdate Used only when `doceditor.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # doceditor.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Doceditor Pods unavailable during the update process
+      maxUnavailable: 25%
+      # doceditor.updateStrategy.rollingUpdate.maxSurge Maximum number of Doceditor Pods created over the desired number of Pods
+      maxSurge: 25%
+  # doceditor.podManagementPolicy The Doceditor Pods scaling operations policy
+  # Used if `doceditor.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Doceditor Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # doceditor.podSecurityContext.enabled Enable security context for the Doceditor pods
+    enabled: false
+  # doceditor.customPodAntiAffinity Prohibiting the scheduling of Doceditor Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1529,7 +1889,7 @@ doceditor:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Doceditor Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Doceditor Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1543,6 +1903,12 @@ doceditor:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # doceditor.nodeSelector Node labels for Doceditor pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # doceditor.tolerations Tolerations for Doceditor pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Doceditor container image parameters
   image:
     # doceditor.image.repository Doceditor container image repository
@@ -1552,6 +1918,11 @@ doceditor:
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Doceditor Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
+    enabled: false
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
@@ -1565,7 +1936,7 @@ doceditor:
     enabled: true
     httpGet:
       # doceditor.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5013
     # doceditor.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -1580,7 +1951,7 @@ doceditor:
     failureThreshold: 2
     httpGet:
       # doceditor.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5013
     # doceditor.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -1597,7 +1968,7 @@ doceditor:
     failureThreshold: 3
     httpGet:
       # doceditor.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5013
     # doceditor.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -1622,14 +1993,39 @@ doceditor:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Files Services StatefulSet parameters
+# DocSpace Files Services application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 filesServices:
+  # filesServices.enabled Enables Files Services installation
+  enabled: true
+  # filesServices.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # filesServices.replicaCount Number of Files Services replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # filesServices.updateStrategy.type Files Services update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `filesServices.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesServices.kind` is set to `Deployment`
     type: RollingUpdate
+    # filesServices.updateStrategy.rollingUpdate Used only when `filesServices.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # filesServices.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Services Pods unavailable during the update process
+      maxUnavailable: 25%
+      # filesServices.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Services Pods created over the desired number of Pods
+      maxSurge: 25%
+  # filesServices.podManagementPolicy The Files Services Pods scaling operations policy
+  # Used if `filesServices.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Files Services Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
+    enabled: false
+  # filesServices.customPodAntiAffinity Prohibiting the scheduling of Files Services Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1647,7 +2043,7 @@ filesServices:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Files Services Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Services Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1661,6 +2057,12 @@ filesServices:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # filesServices.nodeSelector Node labels for Files Services pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # filesServices.tolerations Tolerations for Files Services pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
@@ -1670,6 +2072,11 @@ filesServices:
     tag: ""
     # filesServices.image.pullPolicy Files Services container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Services Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
+    enabled: false
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
@@ -1738,14 +2145,39 @@ filesServices:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Login StatefulSet parameters
+# DocSpace Login application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 login:
+  # login.enabled Enables Login installation
+  enabled: true
+  # login.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # login.replicaCount Number of Login replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # login.updateStrategy.type Login update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
     type: RollingUpdate
+    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      maxUnavailable: 25%
+      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      maxSurge: 25%
+  # login.podManagementPolicy The Login Pods scaling operations policy
+  # Used if `login.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Login Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # login.podSecurityContext.enabled Enable security context for the Login pods
+    enabled: false
+  # login.customPodAntiAffinity Prohibiting the scheduling of Login Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1763,7 +2195,7 @@ login:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Login Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Login Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Login Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1777,6 +2209,12 @@ login:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # login.nodeSelector Node labels for Login pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # login.tolerations Tolerations for Login pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Login container image parameters
   image:
     # login.image.repository Login container image repository
@@ -1786,6 +2224,11 @@ login:
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Login Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    enabled: false
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -1854,14 +2297,39 @@ login:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Notify StatefulSet parameters
+# DocSpace Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 notify:
+  # notify.enabled Enables Notify installation
+  enabled: true
+  # notify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # notify.replicaCount Number of Notify replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # notify.updateStrategy.type Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # notify.updateStrategy.type Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `notify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `notify.kind` is set to `Deployment`
     type: RollingUpdate
+    # notify.updateStrategy.rollingUpdate Used only when `notify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # notify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # notify.updateStrategy.rollingUpdate.maxSurge Maximum number of Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # notify.podManagementPolicy The Notify Pods scaling operations policy
+  # Used if `notify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # notify.podSecurityContext.enabled Enable security context for the Notify pods
+    enabled: false
+  # notify.customPodAntiAffinity Prohibiting the scheduling of Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1879,7 +2347,7 @@ notify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1893,6 +2361,12 @@ notify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # notify.nodeSelector Node labels for Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # notify.tolerations Tolerations for Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Notify container image parameters
   image:
     # notify.image.repository Notify container image repository
@@ -1902,6 +2376,11 @@ notify:
     tag: ""
     # notify.image.pullPolicy Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
+    enabled: false
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
@@ -1970,14 +2449,39 @@ notify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Socket StatefulSet parameters
+# DocSpace Socket application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 socket:
+  # socket.enabled Enables Socket installation
+  enabled: true
+  # socket.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # socket.replicaCount Number of Socket replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # socket.updateStrategy.type Socket StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # socket.updateStrategy.type Socket update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `socket.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `socket.kind` is set to `Deployment`
     type: RollingUpdate
+    # socket.updateStrategy.rollingUpdate Used only when `socket.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # socket.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Socket Pods unavailable during the update process
+      maxUnavailable: 25%
+      # socket.updateStrategy.rollingUpdate.maxSurge Maximum number of Socket Pods created over the desired number of Pods
+      maxSurge: 25%
+  # socket.podManagementPolicy The Socket Pods scaling operations policy
+  # Used if `socket.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Socket Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # socket.podSecurityContext.enabled Enable security context for the Socket pods
+    enabled: false
+  # socket.customPodAntiAffinity Prohibiting the scheduling of Socket Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1995,7 +2499,7 @@ socket:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Socket Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Socket Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Socket Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2009,6 +2513,12 @@ socket:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # socket.nodeSelector Node labels for Socket pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # socket.tolerations Tolerations for Socket pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Socket container image parameters
   image:
     # socket.image.repository Socket container image repository
@@ -2018,6 +2528,11 @@ socket:
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Socket Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
+    enabled: false
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -2088,14 +2603,39 @@ socket:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace ssoauth StatefulSet parameters
+# DocSpace ssoauth application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
+  # ssoauth.enabled Enables ssoauth installation
+  enabled: true
+  # ssoauth.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # ssoauth.updateStrategy.type ssoauth update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `ssoauth.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `ssoauth.kind` is set to `Deployment`
     type: RollingUpdate
+    # ssoauth.updateStrategy.rollingUpdate Used only when `ssoauth.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # ssoauth.updateStrategy.rollingUpdate.maxUnavailable Maximum number of ssoauth Pods unavailable during the update process
+      maxUnavailable: 25%
+      # ssoauth.updateStrategy.rollingUpdate.maxSurge Maximum number of ssoauth Pods created over the desired number of Pods
+      maxSurge: 25%
+  # ssoauth.podManagementPolicy The ssoauth Pods scaling operations policy
+  # Used if `ssoauth.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the ssoauth Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # ssoauth.podSecurityContext.enabled Enable security context for the ssoauth pods
+    enabled: false
+  # ssoauth.customPodAntiAffinity Prohibiting the scheduling of ssoauth Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2113,7 +2653,7 @@ ssoauth:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for ssoauth Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes ssoauth Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2127,6 +2667,12 @@ ssoauth:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # ssoauth.nodeSelector Node labels for ssoauth pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # ssoauth.tolerations Tolerations for ssoauth pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # ssoauth container image parameters
   image:
     # ssoauth.image.repository ssoauth container image repository
@@ -2136,6 +2682,11 @@ ssoauth:
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in ssoauth Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
+    enabled: false
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
@@ -2200,14 +2751,39 @@ ssoauth:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio StatefulSet parameters
+# DocSpace Studio application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studio:
+  # studio.enabled Enables Studio installation
+  enabled: true
+  # studio.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studio.replicaCount Number of Studio replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studio.updateStrategy.type Studio StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studio.updateStrategy.type Studio update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studio.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studio.kind` is set to `Deployment`
     type: RollingUpdate
+    # studio.updateStrategy.rollingUpdate Used only when `studio.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studio.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studio.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studio.podManagementPolicy The Studio Pods scaling operations policy
+  # Used if `studio.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studio.podSecurityContext.enabled Enable security context for the Studio pods
+    enabled: false
+  # studio.customPodAntiAffinity Prohibiting the scheduling of Studio Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2225,7 +2801,7 @@ studio:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2239,6 +2815,12 @@ studio:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studio.nodeSelector Node labels for Studio pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studio.tolerations Tolerations for Studio pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio container image parameters
   image:
     # studio.image.repository Studio container image repository
@@ -2248,6 +2830,11 @@ studio:
     tag: ""
     # studio.image.pullPolicy Studio container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
+    enabled: false
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -2316,14 +2903,39 @@ studio:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio Notify StatefulSet parameters
+# DocSpace Studio Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
+  # studioNotify.enabled Enables Studio Notify installation
+  enabled: true
+  # studioNotify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studioNotify.updateStrategy.type Studio Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studioNotify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studioNotify.kind` is set to `Deployment`
     type: RollingUpdate
+    # studioNotify.updateStrategy.rollingUpdate Used only when `studioNotify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studioNotify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studioNotify.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studioNotify.podManagementPolicy The Studio Notify Pods scaling operations policy
+  # Used if `studioNotify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # Configure a Security Context for the Studio Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studioNotify.podSecurityContext.enabled Enable security context for the Studio Notify pods
+    enabled: false
+  # studioNotify.customPodAntiAffinity Prohibiting the scheduling of Studio Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2341,7 +2953,7 @@ studioNotify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2355,6 +2967,12 @@ studioNotify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studioNotify.nodeSelector Node labels for Studio Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studioNotify.tolerations Tolerations for Studio Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio Notify container image parameters
   image:
     # studioNotify.image.repository Studio Notify container image repository
@@ -2364,6 +2982,11 @@ studioNotify:
     tag: ""
     # studioNotify.image.pullPolicy Studio Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
+    enabled: false
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
@@ -2432,16 +3055,41 @@ studioNotify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Proxy Frontend StatefulSet parameters
+# DocSpace Proxy Frontend application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
   enabled: false
+  # proxyFrontend.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # proxyFrontend.updateStrategy.type Proxy Frontend StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `proxyFrontend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `proxyFrontend.kind` is set to `Deployment`
     type: RollingUpdate
+    # proxyFrontend.updateStrategy.rollingUpdate Used only when `proxyFrontend.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # proxyFrontend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Proxy Frontend Pods unavailable during the update process
+      maxUnavailable: 25%
+      # proxyFrontend.updateStrategy.rollingUpdate.maxSurge Maximum number of Proxy Frontend Pods created over the desired number of Pods
+      maxSurge: 25%
+  # proxyFrontend.podManagementPolicy The Proxy Frontend Pods scaling operations policy
+  # Used if `proxyFrontend.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # proxyFrontend.podAnnotations Map of annotations to add to the Proxy Frontend pods
+  podAnnotations: {}
+  # Configure a Security Context for the Proxy Frontend Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # proxyFrontend.podSecurityContext.enabled Enable security context for the Proxy Frontend pods
+    enabled: false
+  # proxyFrontend.customPodAntiAffinity Prohibiting the scheduling of Proxy Frontend Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2459,7 +3107,7 @@ proxyFrontend:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Proxy Frontend Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Proxy Frontend Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2473,6 +3121,12 @@ proxyFrontend:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # proxyFrontend.nodeSelector Node labels for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # proxyFrontend.tolerations Tolerations for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Proxy Frontend initContainers parameters
   # proxyFrontend.initContainers Containers that run before Proxy Frontend container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -2490,6 +3144,11 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Proxy Frontend Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
+    enabled: false
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -2605,18 +3264,19 @@ docs:
   enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # docs.updateStrategy.type Document Server StatefulSet update strategy type
+    # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Document Server Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # docs.podAnnotations Map of annotations to add to the Document Server pod
+  podAnnotations: {}
+  # Configure a Security Context for the Document Server Pod
   podSecurityContext:
     # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
-    runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
-    runAsGroup: 101
+    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
+    fsGroup: 101
+  # docs.customPodAntiAffinity Prohibiting the scheduling of Document Server Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2648,6 +3308,12 @@ docs:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # docs.nodeSelector Node labels for Document Server pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # docs.tolerations Tolerations for Document Server pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Document Server initContainers parameters
   # docs.initContainers Containers that run before Document Server container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -2665,6 +3331,26 @@ docs:
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Document Server Pod
+  containerSecurityContext:
+    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
+    enabled: false
+    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
+    runAsUser: 101
+    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
+    runAsGroup: 101
+    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
+    seLinuxOptions: {}
+    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
+    seccompProfile:
+      type: RuntimeDefault
+    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
@@ -2764,6 +3450,13 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # Configure a Security Context for the Install Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # install.job.podSecurityContext.enabled Enable security context for the Install Job pod
+      enabled: false
+    # install.job.customPodAntiAffinity Prohibiting the scheduling of Install Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Install Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Install Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2795,6 +3488,17 @@ install:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # install.job.nodeSelector Node labels for Install Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # install.job.tolerations Tolerations for Install Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in Install Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # install.job.containerSecurityContext.enabled Enable security context for containers in Install Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # install.job.initContainers.migrationRunner.enabled Enable database initialization
@@ -2825,6 +3529,13 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # Configure a Security Context for the Upgrade Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # upgrade.job.podSecurityContext.enabled Enable security context for the Upgrade Job pod
+      enabled: false
+    # upgrade.job.customPodAntiAffinity Prohibiting the scheduling of Upgrade Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Upgrade Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Upgrade Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2856,6 +3567,17 @@ upgrade:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # upgrade.job.nodeSelector Node labels for Upgrade Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # upgrade.job.tolerations Tolerations for Upgrade Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in Upgrade Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
@@ -2880,27 +3602,28 @@ upgrade:
             memory: "1Gi"
             cpu: "1000m"
 
-# DocSpace Elasticsearch parameters
+# DocSpace Opensearch StatefulSet parameters
 #
-elasticsearch:
-  # elasticsearch.enabled Enables Elasticsearch installation
+opensearch:
+  # opensearch.enabled Enables Opensearch installation
   enabled: true
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # elasticsearch.updateStrategy.type Elasticsearch update strategy type
+    # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Elasticsearch Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # opensearch.podAnnotations Map of annotations to add to the Opensearch pod
+  podAnnotations: {}
+  # Configure a Security Context for the Opensearch Pod
   podSecurityContext:
-    # elasticsearch.podSecurityContext.enabled Enable security context for the Elasticsearch Pod
+    # opensearch.podSecurityContext.enabled Enable security context for the Opensearch Pod
     enabled: false
-    # elasticsearch.podSecurityContext.runAsUser User ID for the Elasticsearch pod
-    runAsUser: 1000
-    # elasticsearch.podSecurityContext.runAsGroup Group ID for the Elasticsearch pod
-    runAsGroup: 1000
-  # Pod affinity rules for Elasticsearch Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Elasticsearch Pods can be scheduled on based on the labels of Pods already running on that node
+    # opensearch.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Opensearch Pod
+    fsGroup: 1000
+  # opensearch.customPodAntiAffinity Prohibiting the scheduling of Opensearch Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Opensearch Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2915,8 +3638,8 @@ elasticsearch:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Elasticsearch Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Elasticsearch Pod can be scheduled on based on node labels
+  # Node affinity rules for Opensearch Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2930,76 +3653,123 @@ elasticsearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # Elasticsearch additional initContainers parameters
-  # elasticsearch.initContainers Additional containers that run before Elasticsearch container in a Pod
-  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  # Example:
-  # initContainers:
-  #   - name: additional-init-container
-  #     image: busybox:latest
-  #     command: ['sh', '-c', 'sleep 180']
-  initContainers: []
-  # Elasticsearch container image parameters
+  # opensearch.nodeSelector Node labels for Opensearch pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # opensearch.tolerations Tolerations for Opensearch pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  initContainers:
+    # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
+    securityContext:
+      # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+      enabled: false
+      # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+      runAsUser: 0
+      # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+      allowPrivilegeEscalation: false
+      # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+      seLinuxOptions: {}
+      # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+      seccompProfile:
+        type: RuntimeDefault
+      # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
+      capabilities:
+        drop: ["ALL"]
+    # Opensearch change-volume-owner initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+    # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    # opensearch.initContainers.custom Custom Opensearch initContainers parameters
+    # Additional containers that run before Opensearch container in a Pod
+    # Example:
+    # custom:
+    #   - name: additional-init-container
+    #     image: busybox:latest
+    #     command: ['sh', '-c', 'sleep 180']
+    custom: []
+  # Opensearch container image parameters
   image:
-    # elasticsearch.image.repository Elasticsearch container image repository
-    repository: onlyoffice/elasticsearch
-    # elasticsearch.image.tag Elasticsearch container image tag
-    tag: 7.16.3
-    # elasticsearch.image.pullPolicy Elasticsearch container image pull policy
+    # opensearch.image.repository Opensearch container image repository
+    repository: onlyoffice/opensearch
+    # opensearch.image.tag Opensearch container image tag
+    tag: 2.11.1
+    # opensearch.image.pullPolicy Opensearch container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for Elasticsearch container in Pod
+  # Configure a Security Context for Opensearch container in Pod
   containerSecurityContext:
-    # elasticsearch.containerSecurityContext.enabled Enable security context for Elasticsearch container in pod
+    # opensearch.containerSecurityContext.enabled Enable security context for Opensearch container in pod
     enabled: false
-    # elasticsearch.containerSecurityContext.privileged Granting a privileged status to a container
-    privileged: false
-  # Probe used for the Elasticsearch container: startup, readiness and liveness probes
+    # opensearch.containerSecurityContext.runAsUser User ID for the Opensearch container
+    runAsUser: 1000
+    # opensearch.containerSecurityContext.runAsGroup Group ID for the Opensearch container
+    runAsGroup: 1000
+    # opensearch.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # opensearch.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # opensearch.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Opensearch container
+    seLinuxOptions: {}
+    # opensearch.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Opensearch container
+    seccompProfile:
+      type: RuntimeDefault
+    # opensearch.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
+  # Probe used for the Opensearch container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `elasticsearch.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `opensearch.startupProbe.enabled=true`
   startupProbe:
-    # elasticsearch.startupProbe.enabled Enable startupProbe for Elasticsearch container
-    enabled: false
+    # opensearch.startupProbe.enabled Enable startupProbe for Opensearch container
+    enabled: true
     tcpSocket:
-      # elasticsearch.startupProbe.tcpSocket.port Checking the port for startupProbe
+      # opensearch.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 9200
-    # elasticsearch.startupProbe.failureThreshold Failure threshold for startupProbe
+    # opensearch.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # elasticsearch.startupProbe.periodSeconds Period seconds for startupProbe
+    # opensearch.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `elasticsearch.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `opensearch.readinessProbe.enabled=true`
   readinessProbe:
-    # elasticsearch.readinessProbe.enabled Enable readinessProbe for Elasticsearch container
-    enabled: false
-    # elasticsearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # opensearch.readinessProbe.enabled Enable readinessProbe for Opensearch container
+    enabled: true
+    # opensearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     tcpSocket:
-      # elasticsearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
+      # opensearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 9200
-    # elasticsearch.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
-    # elasticsearch.readinessProbe.successThreshold Success threshold for readinessProbe
+    # opensearch.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # opensearch.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # elasticsearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # opensearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `elasticsearch.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `opensearch.livenessProbe.enabled=true`
   livenessProbe:
-    # elasticsearch.livenessProbe.enabled Enable livenessProbe for Elasticsearch container
-    enabled: false
-    # elasticsearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # opensearch.livenessProbe.enabled Enable livenessProbe for Opensearch container
+    enabled: true
+    # opensearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     tcpSocket:
-      # elasticsearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
+      # opensearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 9200
-    # elasticsearch.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
-    # elasticsearch.livenessProbe.successThreshold Success threshold for livenessProbe
+    # opensearch.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # opensearch.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # elasticsearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # opensearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Elasticsearch container resource requests and limits
+  # Opensearch container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # elasticsearch.resources.requests The requested resources for the elasticsearch container
-  # elasticsearch.resources.limits The resources limits for the elasticsearch container
+  # opensearch.resources.requests The requested resources for the opensearch container
+  # opensearch.resources.limits The resources limits for the opensearch container
   resources:
     requests:
       memory: "1Gi"
@@ -3007,13 +3777,28 @@ elasticsearch:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  env:
+    # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
+    discoveryType: "single-node"
+    # opensearch.env.disableSecurityPlugin disables the security plugin
+    disableSecurityPlugin: true
+    # opensearch.env.disableInstallDemoConfig disables the installation of demo configuration
+    disableInstallDemoConfig: true
+    # opensearch.env.bootstrapMemoryLock determines whether JVM should lock memory
+    bootstrapMemoryLock: true
+    # opensearch.env.ESJAVAOPTS defines JVM options
+    ESJAVAOPTS: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+    # opensearch.env.indicesFieldDataCacheSize sets the size of the index field data cache
+    indicesFieldDataCacheSize: "30%"
+    # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
+    indicesMemoryIndexBufferSize: "30%"
   persistence:
-    # elasticsearch.persistence.storageClass PVC Storage Class for Elasticsearch volume
+    # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
-    # elasticsearch.persistence.accessModes Elasticsearch Persistent Volume access modes
+    # opensearch.persistence.accessModes Opensearch Persistent Volume access modes
     accessModes:
       - ReadWriteOnce
-    # elasticsearch.persistence.size PVC Storage Request for Elasticsearch volume
+    # opensearch.persistence.size PVC Storage Request for Opensearch volume
     size: 30Gi
 
 # DocSpace tests parameters
@@ -3023,14 +3808,53 @@ tests:
   # These resources will be used when running the `helm test` command
   enabled: true
   # Configure a Security Context for the Test Pod
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   podSecurityContext:
     # tests.podSecurityContext.enabled Enable security context for the Test pod
     enabled: false
-    # tests.podSecurityContext.runAsUser User ID for the Test pod
-    runAsUser: 0
-    # tests.podSecurityContext.runAsGroup Group ID for the Test pod
-    runAsGroup: 0
+    # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
+    fsGroup: 101
+  # tests.customPodAntiAffinity Prohibiting the scheduling of Test Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Test Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Test Pod can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  podAffinity: {}
+  # Node affinity rules for Test Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Test Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  nodeAffinity: {}
+  # tests.nodeSelector Node labels for Test pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # tests.tolerations Tolerations for Test pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Test container image parameters
+  image:
+    ## tests.image.repository test container image name
+    repository: onlyoffice/docs-utils
+    ## tests.image.tag test container image tag
+    tag: 8.0.1-1
+    ## tests.image.pullPolicy test container image pull policy
+    pullPolicy: IfNotPresent
+  ## Configure a Security Context for the Test container
+  containerSecurityContext:
+    ## tests.containerSecurityContext.enabled Enable security context for the Test container
+    enabled: false
+    ## tests.containerSecurityContext.runAsUser User ID for the Test container
+    runAsUser: 101
+    ## tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    runAsGroup: 101
+    ## tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    ## tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    ## tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    seccompProfile:
+      type: RuntimeDefault
+    ## tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
   # test container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # tests.resources.requests The requested resources for the test container

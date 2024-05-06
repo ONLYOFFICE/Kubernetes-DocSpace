@@ -14,5 +14,8 @@ spec:
     name: app
     targetPort: {{ .Values.backup.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: backup-0
+    app: backup
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

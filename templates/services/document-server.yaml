@@ -1,4 +1,4 @@
-{{- if eq .Values.connections.documentServerHost "document-server" }}
+{{- if and (eq .Values.connections.documentServerHost "document-server") (not .Values.connections.documentServerUrlExternal) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -22,5 +22,8 @@ spec:
     targetPort: {{ .Values.docs.containerPorts.docservice }}
   selector:
     statefulset.kubernetes.io/pod-name: document-server-0
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP
 {{- end }}

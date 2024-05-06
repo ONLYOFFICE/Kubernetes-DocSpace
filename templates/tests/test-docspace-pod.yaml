@@ -15,21 +15,40 @@ metadata:
 spec:
   serviceAccountName: {{ include "docspace.serviceAccountName" . }}
   {{- if .Values.tests.podSecurityContext.enabled }}
-  securityContext: {{- omit .Values.tests.podSecurityContext "enabled" | toYaml | nindent 4 }}
+  securityContext: {{- include "docspace.securityContext" .Values.tests.podSecurityContext | nindent 4 }}
   {{- end }}
-  {{- if .Values.nodeSelector }}
-  nodeSelector: {{ toYaml .Values.nodeSelector | nindent 4 }}
+  {{- if or .Values.tests.customPodAntiAffinity .Values.tests.podAffinity .Values.tests.nodeAffinity }}
+  affinity:
+    {{- with .Values.tests.customPodAntiAffinity }}
+    podAntiAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.tests.podAffinity }}
+    podAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.tests.nodeAffinity }}
+    nodeAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   {{- end }}
-  {{- if .Values.tolerations }}
-  tolerations: {{ toYaml .Values.tolerations | nindent 4 }}
+  {{- if or .Values.nodeSelector .Values.tests.nodeSelector }}
+  nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.tests.nodeSelector) | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.tolerations .Values.tests.tolerations }}
+  tolerations: {{ toYaml (default .Values.tolerations .Values.tests.tolerations) | nindent 4 }}
   {{- end }}
   {{- if .Values.imagePullSecrets }}
   imagePullSecrets:
   - name: {{ .Values.imagePullSecrets }}
   {{- end }}
   containers:
-  - image: python:3.11
-    name: test-docspace
+  - name: test-docspace
+    image: {{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
+    imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
+    {{- if .Values.tests.containerSecurityContext.enabled }}
+    securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
+    {{- end }}
     resources: {{ toYaml .Values.tests.resources | nindent 6 }}
     env:
     - name: MYSQL_USER

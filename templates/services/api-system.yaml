@@ -14,5 +14,8 @@ spec:
     name: app
     targetPort: {{ .Values.apiSystem.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: api-system-0
+    app: api-system
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP
