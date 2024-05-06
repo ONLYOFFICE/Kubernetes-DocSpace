@@ -8,6 +8,9 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 data:
   API_HOST: {{ .Values.connections.apiHost }}:{{ .Values.api.containerPorts.app }}
   API_SYSTEM_HOST: {{ .Values.connections.apiSystemHost }}:{{ .Values.apiSystem.containerPorts.app }}

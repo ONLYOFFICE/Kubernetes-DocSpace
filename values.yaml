@@ -166,7 +166,16 @@ namespaceOverride: ""
 #   app.kubernetes.io/instance: "{{ .Release.Name }}"
 #   app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 commonLabels: {}
+# commonAnnotations Defines annotations that will be additionally added to all the deployed resources
+# You can also use `tpl` as the value for the key
+# Some resources may override the values specified here with their own
+# Example:
+# commonAnnotations:
+#   "key1": "value1"
+#   "key2": "{{ value2 }}"
+commonAnnotations: {}
 # podAnnotations Map of annotations to add to the DocSpace pods
+# Each Docspace application can override the values specified here with its own
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 # Service account parameters
@@ -348,24 +357,40 @@ persistence:
     # persistence.docspaceData.existingClaim The name of the existing PVC for storing files common to all services
     # If not specified, a PVC named "docspace-data" will be created
     existingClaim: ""
+    # persistence.docspaceData.annotations Defines annotations that will be additionally added to common files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.docspaceData.size PVC Storage Request for common files volume
     size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
     # If not specified, a PVC named "files-data" will be created
     existingClaim: ""
+    # persistence.filesData.annotations Defines annotations that will be additionally added to Files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.filesData.size PVC Storage Request for Files volume
     size: 2Gi
   peopleData:
     # persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
     # If not specified, a PVC named "people-data" will be created
     existingClaim: ""
+    # persistence.peopleData.annotations Defines annotations that will be additionally added to People Server PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.peopleData.size PVC Storage Request for People Server volume
     size: 2Gi
   routerLog:
     # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
     # If not specified, a PVC named "router-log" will be created
     existingClaim: ""
+    # persistence.routerLog.annotations Defines annotations that will be additionally added to Nginx logs PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
 # Pod anti-affinity parameters
@@ -389,6 +414,10 @@ files:
   # files.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # files.annotations Defines annotations that will be additionally added to Files deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # files.replicaCount Number of Files replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -406,6 +435,8 @@ files:
   # Used if `files.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # files.podAnnotations Map of annotations to add to the Files pods
+  podAnnotations: {}
   # Configure a Security Context for the Files Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -548,6 +579,10 @@ peopleServer:
   # peopleServer.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # peopleServer.annotations Defines annotations that will be additionally added to People Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -565,6 +600,8 @@ peopleServer:
   # Used if `peopleServer.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # peopleServer.podAnnotations Map of annotations to add to the People Server pods
+  podAnnotations: {}
   # Configure a Security Context for the People Server Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -697,6 +734,10 @@ router:
   # router.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # router.annotations Defines annotations that will be additionally added to Router deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # router.replicaCount Number of Router replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -714,6 +755,8 @@ router:
   # Used if `router.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # router.podAnnotations Map of annotations to add to the Router pods
+  podAnnotations: {}
   # Configure a Security Context for the Router Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -927,6 +970,10 @@ healthchecks:
   # healthchecks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # healthchecks.annotations Defines annotations that will be additionally added to Healthchecks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -944,6 +991,8 @@ healthchecks:
   # Used if `healthchecks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # healthchecks.podAnnotations Map of annotations to add to the Healthchecks pods
+  podAnnotations: {}
   # Configure a Security Context for the Healthchecks Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1068,6 +1117,10 @@ apiSystem:
   # apiSystem.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # apiSystem.annotations Defines annotations that will be additionally added to Api System deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1085,6 +1138,8 @@ apiSystem:
   # Used if `apiSystem.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # apiSystem.podAnnotations Map of annotations to add to the Api System pods
+  podAnnotations: {}
   # Configure a Security Context for the Api System Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1230,6 +1285,10 @@ api:
   # api.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # api.annotations Defines annotations that will be additionally added to Api deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # api.replicaCount Number of Api replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1247,6 +1306,8 @@ api:
   # Used if `api.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # api.podAnnotations Map of annotations to add to the Api pods
+  podAnnotations: {}
   # Configure a Security Context for the Api Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1392,6 +1453,10 @@ backup:
   # backup.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # backup.annotations Defines annotations that will be additionally added to Backup deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # backup.replicaCount Number of Backup replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1409,6 +1474,8 @@ backup:
   # Used if `backup.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # backup.podAnnotations Map of annotations to add to the Backup pods
+  podAnnotations: {}
   # Configure a Security Context for the Backup Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1544,6 +1611,10 @@ backupBackgroundTasks:
   # backupBackgroundTasks.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1561,6 +1632,8 @@ backupBackgroundTasks:
   # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
+  podAnnotations: {}
   # Configure a Security Context for the Backup Background Tasks Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1696,6 +1769,10 @@ clearEvents:
   # clearEvents.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # clearEvents.annotations Defines annotations that will be additionally added to Clear Events deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1713,6 +1790,8 @@ clearEvents:
   # Used if `clearEvents.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # clearEvents.podAnnotations Map of annotations to add to the Clear Events pods
+  podAnnotations: {}
   # Configure a Security Context for the Clear Events Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -1848,6 +1927,10 @@ doceditor:
   # doceditor.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # doceditor.annotations Defines annotations that will be additionally added to Doceditor deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -1865,6 +1948,8 @@ doceditor:
   # Used if `doceditor.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # doceditor.podAnnotations Map of annotations to add to the Doceditor pods
+  podAnnotations: {}
   # Configure a Security Context for the Doceditor Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2002,6 +2087,10 @@ filesServices:
   # filesServices.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2019,6 +2108,8 @@ filesServices:
   # Used if `filesServices.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # filesServices.podAnnotations Map of annotations to add to the Files Services pods
+  podAnnotations: {}
   # Configure a Security Context for the Files Services Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2154,6 +2245,10 @@ login:
   # login.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # login.annotations Defines annotations that will be additionally added to Login deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # login.replicaCount Number of Login replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2171,6 +2266,8 @@ login:
   # Used if `login.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # login.podAnnotations Map of annotations to add to the Login pods
+  podAnnotations: {}
   # Configure a Security Context for the Login Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2306,6 +2403,10 @@ notify:
   # notify.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # notify.annotations Defines annotations that will be additionally added to Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # notify.replicaCount Number of Notify replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2323,6 +2424,8 @@ notify:
   # Used if `notify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # notify.podAnnotations Map of annotations to add to the Notify pods
+  podAnnotations: {}
   # Configure a Security Context for the Notify Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2458,6 +2561,10 @@ socket:
   # socket.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # socket.annotations Defines annotations that will be additionally added to Socket deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # socket.replicaCount Number of Socket replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2475,6 +2582,8 @@ socket:
   # Used if `socket.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # socket.podAnnotations Map of annotations to add to the Socket pods
+  podAnnotations: {}
   # Configure a Security Context for the Socket Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2612,6 +2721,10 @@ ssoauth:
   # ssoauth.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # ssoauth.annotations Defines annotations that will be additionally added to ssoauth deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2629,6 +2742,8 @@ ssoauth:
   # Used if `ssoauth.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # ssoauth.podAnnotations Map of annotations to add to the ssoauth pods
+  podAnnotations: {}
   # Configure a Security Context for the ssoauth Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2760,6 +2875,10 @@ studio:
   # studio.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # studio.annotations Defines annotations that will be additionally added to Studio deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # studio.replicaCount Number of Studio replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2777,6 +2896,8 @@ studio:
   # Used if `studio.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # studio.podAnnotations Map of annotations to add to the Studio pods
+  podAnnotations: {}
   # Configure a Security Context for the Studio Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -2912,6 +3033,10 @@ studioNotify:
   # studioNotify.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # studioNotify.annotations Defines annotations that will be additionally added to Studio Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -2929,6 +3054,8 @@ studioNotify:
   # Used if `studioNotify.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
+  # studioNotify.podAnnotations Map of annotations to add to the Studio Notify pods
+  podAnnotations: {}
   # Configure a Security Context for the Studio Notify Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
@@ -3064,6 +3191,10 @@ proxyFrontend:
   # proxyFrontend.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
+  # proxyFrontend.annotations Defines annotations that will be additionally added to Proxy Frontend deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
@@ -3262,7 +3393,11 @@ proxyFrontend:
 docs:
   # docs.enabled Enables local installation of Document Server in k8s cluster
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  # docs.annotations Defines annotations that will be additionally added to Document Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
     # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
@@ -3450,6 +3585,12 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # install.job.annotations Defines annotations that will be additionally added to Install Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # install.job.podAnnotations Map of annotations to add to the Install Job Pod
+    podAnnotations: {}
     # Configure a Security Context for the Install Job Pod
     # If set to, it takes priority over the `podSecurityContext`
     podSecurityContext:
@@ -3522,6 +3663,7 @@ install:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
 # He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
@@ -3529,6 +3671,12 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # upgrade.job.annotations Defines annotations that will be additionally added to Upgrade Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # upgrade.job.podAnnotations Map of annotations to add to the Upgrade Job Pod
+    podAnnotations: {}
     # Configure a Security Context for the Upgrade Job Pod
     # If set to, it takes priority over the `podSecurityContext`
     podSecurityContext:
@@ -3602,12 +3750,67 @@ upgrade:
             memory: "1Gi"
             cpu: "1000m"
 
+# Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
+# He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
+elasticsearchClearIndexes:
+  job:
+    # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
+    # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
+    enabled: true
+    # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # elasticsearchClearIndexes.job.podAnnotations Map of annotations to add to the elasticsearchClearIndexes Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # elasticsearchClearIndexes.job.podSecurityContext.enabled Enable security context for the elasticsearchClearIndexes Job pod
+      enabled: false
+    # elasticsearchClearIndexes.job.customPodAntiAffinity Prohibiting the scheduling of elasticsearchClearIndexes Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    podAffinity: {}
+    # Node affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    nodeAffinity: {}
+    # elasticsearchClearIndexes.job.nodeSelector Node labels for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # elasticsearchClearIndexes.job.tolerations Tolerations for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # elasticsearchClearIndexes.job.containerSecurityContext.enabled Enable security context for containers in elasticsearchClearIndexes Job pod
+      enabled: false
+    # Job elasticsearchClearIndexes container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # elasticsearchClearIndexes.job.resources.requests The requested resources for the Job elasticsearchClearIndexes container
+    # elasticsearchClearIndexes.job.resources.limits The resources limits for the Job elasticsearchClearIndexes container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
 # DocSpace Opensearch StatefulSet parameters
 #
 opensearch:
   # opensearch.enabled Enables Opensearch installation
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  # opensearch.annotations Defines annotations that will be additionally added to Opensearch deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
     # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
@@ -3772,8 +3975,8 @@ opensearch:
   # opensearch.resources.limits The resources limits for the opensearch container
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "500m"
     limits:
       memory: "4Gi"
       cpu: "4000m"
@@ -3793,6 +3996,10 @@ opensearch:
     # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
     indicesMemoryIndexBufferSize: "30%"
   persistence:
+    # opensearch.persistence.annotations Defines annotations that will be additionally added to Opensearch PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
     # opensearch.persistence.accessModes Opensearch Persistent Volume access modes
@@ -3807,6 +4014,10 @@ tests:
   # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
   # These resources will be used when running the `helm test` command
   enabled: true
+  # tests.annotations Defines annotations that will be additionally added to Test Pod
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # Configure a Security Context for the Test Pod
   podSecurityContext:
     # tests.podSecurityContext.enabled Enable security context for the Test pod
@@ -3829,30 +4040,30 @@ tests:
   # tests.tolerations Tolerations for Test pod assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
-  ## Test container image parameters
+  # Test container image parameters
   image:
-    ## tests.image.repository test container image name
+    # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
-    ## tests.image.tag test container image tag
+    # tests.image.tag test container image tag
     tag: 8.0.1-1
-    ## tests.image.pullPolicy test container image pull policy
+    # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
-  ## Configure a Security Context for the Test container
+  # Configure a Security Context for the Test container
   containerSecurityContext:
-    ## tests.containerSecurityContext.enabled Enable security context for the Test container
+    # tests.containerSecurityContext.enabled Enable security context for the Test container
     enabled: false
-    ## tests.containerSecurityContext.runAsUser User ID for the Test container
+    # tests.containerSecurityContext.runAsUser User ID for the Test container
     runAsUser: 101
-    ## tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    # tests.containerSecurityContext.runAsGroup Group ID for the Test container
     runAsGroup: 101
-    ## tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    # tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
     runAsNonRoot: true
-    ## tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    # tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
     allowPrivilegeEscalation: false
-    ## tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    # tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
     seccompProfile:
       type: RuntimeDefault
-    ## tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    # tests.containerSecurityContext.capabilities Defines the privileges granted to the process
     capabilities:
       drop: ["ALL"]
   # test container resource requests and limits
