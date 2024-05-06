@@ -34,8 +34,12 @@ data:
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
   APP_URL_PORTAL: {{ include "docspace.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
-  DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
-  DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}
+  {{- if not (empty .Values.connections.documentServerHost) }}
+  DOCUMENT_SERVER_URL_INTERNAL: "http://{{ .Values.connections.documentServerHost }}/"
+  {{- else }}
+  DOCUMENT_SERVER_URL_INTERNAL: ""
+  {{- end }}
+  DOCUMENT_SERVER_URL_EXTERNAL: {{ .Values.connections.documentServerUrlExternal | quote }}
   APP_KNOWN_NETWORKS: {{ .Values.connections.appKnownNetworks | quote }}
   {{- if .Values.connections.appKnownProxies }}
   APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.1.0
+
+### New Features
+
+* Added the ability to set up `kind` for services. By default, `Deployment`
+* Added the ability to choose which services to deploy
+* Added the ability to set up its own `podSecurityContext` and `containerSecurityContext` for each service or define them globally 
+* Added the ability to set up custom `podAntiAffinity`
+* Added the ability to set up its own `nodeSelector` and `tolerations` for each service or define them globally
+
+### Changes
+
+* Released v2.5.0 of ONLYOFFICE DocSpace
+* Using an already configured image for the `helm test` command
+* Replaced ElasticSearch with OpenSearch
+* Removed ipv6 disabling for localhost in router
+
 ## 2.0.3
 
 ### Changes

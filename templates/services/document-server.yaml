@@ -1,4 +1,4 @@
-{{- if eq .Values.connections.documentServerHost "document-server" }}
+{{- if and (eq .Values.connections.documentServerHost "document-server") (not .Values.connections.documentServerUrlExternal) }}
 apiVersion: v1
 kind: Service
 metadata:
