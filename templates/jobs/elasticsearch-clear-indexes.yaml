@@ -76,9 +76,9 @@ spec:
           {{- else }}
           {{- $csc = .Values.containerSecurityContext }}
           {{- end }}
-          securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+          securityContext: {{- include "docspace.securityContext" $csc | nindent 12 }}
           {{- end }}
-          resources: {{- toYaml .Values.elasticsearchClearIndexes.job.resources | nindent 10 }}
+          resources: {{- toYaml .Values.elasticsearchClearIndexes.job.resources | nindent 12 }}
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
           env:
