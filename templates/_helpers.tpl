@@ -198,7 +198,9 @@ Get the DocSpace Url Portal
 {{- define "docspace.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
     {{- printf "" -}}
-{{- else if .Values.router.service.existing -}}
+{{- else if and .Values.connections.documentServerUrlExternal .Values.router.service.existing -}}
+    {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
+{{- else if and .Values.router.service.existing (not .Values.connections.documentServerUrlExternal) -}}
     {{- printf "http://%s:%s" (tpl .Values.router.service.existing $) (toString .Values.router.service.port.external) -}}
 {{- else if and (not (empty .Values.connections.appUrlPortal)) (eq (toString .Values.router.service.port.external) "8092") -}}
     {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
