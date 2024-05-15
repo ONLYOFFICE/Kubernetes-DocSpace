@@ -17,10 +17,10 @@ spec:
   ports:
   - port: {{ .Values.proxyFrontend.containerPorts.http }}
     name: http
-    targetPort: {{ .Values.proxyFrontend.containerPorts.http }}
+    targetPort: {{ .Values.proxyFrontend.containerPorts.httpTargetPort }}
   - port: {{ .Values.proxyFrontend.containerPorts.https }}
     name: https
-    targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
+    targetPort: {{ .Values.proxyFrontend.containerPorts.httpsTargetPort }}
   selector:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
