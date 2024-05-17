@@ -3187,7 +3187,7 @@ studioNotify:
 #
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
-  enabled: false
+  enabled: true
   # proxyFrontend.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
@@ -3284,7 +3284,10 @@ proxyFrontend:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 8080
     # proxyFrontend.containerPorts.https Proxy Frontend HTTPS container port
-    https: 443
+    https: 8443
+    httpsTargetPort: 8443
+    httpNodePort: 30180
+    httpsNodePort: 30143
   # Probe used for the proxyFrontend container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `proxyFrontend.startupProbe.enabled=true`
@@ -3366,7 +3369,7 @@ proxyFrontend:
       fileName:
         - example.conf
   # proxyFrontend.hostname The hostname (domainname) by which the DocSpace will be available
-  hostname: ""
+  hostname: "docspace-frontend.k8s.onlyoffice.fun"
   # Proxy Frontend TLS parameters
   tls:
     # proxyFrontend.tls.secretName The name of the TLS secret containing the certificate and its associated key
