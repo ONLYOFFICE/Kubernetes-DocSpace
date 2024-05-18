@@ -3296,7 +3296,7 @@ proxyFrontend:
     enabled: true
     httpGet:
       # proxyFrontend.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
+      path: /health
       # proxyFrontend.startupProbe.httpGet.port Checking the port for startupProbe
       port: 8080
     # proxyFrontend.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -3311,7 +3311,7 @@ proxyFrontend:
     failureThreshold: 2
     httpGet:
       # proxyFrontend.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
+      path: /health
       # proxyFrontend.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 8080
     # proxyFrontend.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -3328,7 +3328,7 @@ proxyFrontend:
     failureThreshold: 3
     httpGet:
       # proxyFrontend.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
+      path: /health
       # proxyFrontend.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 8080
     # proxyFrontend.livenessProbe.periodSeconds Period seconds for livenessProbe

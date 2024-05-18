@@ -45,12 +45,20 @@ data:
     proxy_set_header X-REWRITER-URL $the_scheme://$the_host;
     proxy_set_header Host $the_host;
     server {
-       listen 8080;
-       listen [::]:8080;
-       server_name {{ .Values.proxyFrontend.hostname }};
-       return 301 https://$host$request_uri;
+        listen 8080;
+        listen [::]:8080;
+        server_name {{ .Values.proxyFrontend.hostname }};
 
+        location /health {
+            default_type application/json;
+            return 200 '{"status":"UP"}';
+        }
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
     }
+
 
     server {
       listen 0.0.0.0:8443 ssl http2;
@@ -82,10 +90,13 @@ data:
 
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
-
+    location /health {
+        return 200 '{"status":"UP"}';
+      }
     location / {
 
             proxy_pass http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }};
         }
+
     }
 {{- end }}
