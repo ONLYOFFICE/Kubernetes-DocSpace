@@ -51,7 +51,7 @@ data:
 
         location /health {
             default_type application/json;
-            return 200 '{"status":"UP"}';
+            return 301 https://$host:8443$request_uri;
         }
 
         location / {
@@ -94,6 +94,11 @@ data:
 
             proxy_pass http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }};
         }
+        
+    location /health {
+      default_type application/json;
+      return 200 '{"status":"UP"}';
+      }
 
     }
 {{- end }}
