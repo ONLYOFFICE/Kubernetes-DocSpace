@@ -90,9 +90,6 @@ data:
 
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
-    location /health {
-        return 200 '{"status":"UP"}';
-      }
     location / {
 
             proxy_pass http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }};
