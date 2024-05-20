@@ -147,7 +147,7 @@ connections:
   # Provide IP ranges using CIDR notation
   # Example:
   # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
-  appKnownNetworks: "10.244.0.0/16"
+  appKnownNetworks: "10.233.0.0/16"
   # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
   appKnownProxies: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
