@@ -214,6 +214,8 @@ If you have initially installed Community version and plan to switch to Enterpri
 
 ### 2. Install ONLYOFFICE DocSpace
 
+*NOTE: When you deploy in production you should turn off the built-in Document Server by setting `docs.enabled` parameter to `false` and use the Document Server installation designed specifically for Kubernetes. For more information, see [here](#7-install-onlyoffice-docs).*
+
 To install ONLYOFFICE DocSpace to your cluster, run the following command:
 
 ```bash
