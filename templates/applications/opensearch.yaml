@@ -66,8 +66,9 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       initContainers:
+      {{- if .Values.opensearch.initContainers.changeVolumeOwner.enabled }}
       - name: change-volume-owner
-        image: busybox:latest
+        image: onlyoffice/docs-utils:8.0.1-1
         imagePullPolicy: IfNotPresent
         {{- if .Values.opensearch.initContainers.securityContext.enabled }}
         securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.securityContext | nindent 10 }}
@@ -79,6 +80,7 @@ spec:
           mountPath: /usr/share/opensearch/data
       {{- with .Values.opensearch.initContainers.custom }}
       {{- toYaml . | nindent 6 }}
+      {{- end }}
       {{- end }}
       containers:
       - name: opensearch
