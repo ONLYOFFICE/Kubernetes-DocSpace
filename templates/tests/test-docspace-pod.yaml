@@ -4,14 +4,19 @@ kind: Pod
 metadata:
   name: test-docspace
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app.kubernetes.io/component: test-docspace
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
+    {{- end }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation
+    {{- if or .Values.commonAnnotations .Values.tests.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.tests.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
   serviceAccountName: {{ include "docspace.serviceAccountName" . }}
   {{- if .Values.tests.podSecurityContext.enabled }}

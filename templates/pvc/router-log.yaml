@@ -8,6 +8,10 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
+  {{- if or .Values.commonAnnotations .Values.persistence.routerLog.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.persistence.routerLog.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}
   accessModes:

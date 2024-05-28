@@ -10,9 +10,13 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "1"
+    {{- if .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
 data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
+  API_HOST: "http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}"
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}

@@ -8,11 +8,9 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
-  {{- if .Values.ingress.annotations }}
-  annotations:
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ tpl $value $ }}
-    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.ingress.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   {{- if .Values.ingress.ingressClassName }}

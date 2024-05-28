@@ -7,6 +7,9 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 data:
   COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
   NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
