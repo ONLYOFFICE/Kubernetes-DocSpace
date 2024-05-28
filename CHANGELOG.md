@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.0
+
+### New Features
+
+* Added the ability set up `annotations` for all the deployed resources
+* Added the ability to set up its own `podAnnotations` for each service or define them globally
+
+### Changes
+
+* Released v2.5.1 of ONLYOFFICE DocSpace
+
 ## 2.1.0
 
 ### New Features
