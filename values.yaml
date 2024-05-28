@@ -280,9 +280,9 @@ initContainers:
   checkDB:
     image:
       # initContainers.checkDB.image.repository check-db initContainer image repository
-      repository: mysql
+      repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: latest
+      tag: 8.0.1-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -3863,10 +3863,13 @@ opensearch:
   # If set to, it takes priority over the `tolerations`
   tolerations: []
   initContainers:
+    # Enable security context for Opensearch change-volume-owner initContainer container in pod
+    changeVolumeOwner:
+      enabled: true
     # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
     securityContext:
       # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
-      enabled: false
+      enabled: true
       # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
       runAsUser: 0
       # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
