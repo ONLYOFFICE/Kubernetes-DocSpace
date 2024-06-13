@@ -24,7 +24,7 @@ data:
     sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/onlyoffice.conf
     sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/onlyoffice.conf
     sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$dashboards_host/{{ .Values.connections.dashboardsHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    rm -rf /etc/nginx/includes/dashboards.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}

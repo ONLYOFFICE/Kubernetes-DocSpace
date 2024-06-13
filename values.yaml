@@ -114,8 +114,6 @@ connections:
   loginHost: login
   # connections.healthchecksHost The name of the DocSpace Healthchecks service
   healthchecksHost: healthchecks
-  # connections.dashboardsHost The name of the DocSpace Dashboards service
-  dashboardsHost: dashboards
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   documentServerHost: document-server
