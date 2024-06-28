@@ -3867,32 +3867,32 @@ opensearch:
     changeVolumeOwner:
       enabled: true
     # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
-    securityContext:
-      # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
-      enabled: true
-      # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
-      runAsUser: 0
-      # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-      allowPrivilegeEscalation: false
-      # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
-      seLinuxOptions: {}
-      # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
-      seccompProfile:
-        type: RuntimeDefault
-      # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
-      capabilities:
-        drop: ["ALL"]
-    # Opensearch change-volume-owner initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
-    # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
+      securityContext:
+        # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+        enabled: true
+        # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+        runAsUser: 0
+        # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+        allowPrivilegeEscalation: false
+        # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+        seLinuxOptions: {}
+        # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+        seccompProfile:
+          type: RuntimeDefault
+        # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
+        capabilities:
+          drop: ["ALL"]
+      # Opensearch change-volume-owner initContainer resource requests and limits
+      # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+      # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
     # opensearch.initContainers.custom Custom Opensearch initContainers parameters
     # Additional containers that run before Opensearch container in a Pod
     # Example:
