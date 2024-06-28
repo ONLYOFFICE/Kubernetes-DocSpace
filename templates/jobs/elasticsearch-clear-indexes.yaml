@@ -68,7 +68,7 @@ spec:
       {{- end }}
       containers:
         - name: elasticsearch-clear-indexes
-          image: mysql:8.0.36-debian
+          image: onlyoffice/docs-utils:8.0.1-1
           {{- if or .Values.containerSecurityContext.enabled .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
           {{- if .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}
