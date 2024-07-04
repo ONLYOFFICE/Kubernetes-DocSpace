@@ -11,31 +11,31 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
-  50-change-router-onlyoffice-conf.sh: |-
+  50-change-router-{{ .Values.product.name }}-conf.sh: |-
     #!/bin/sh
-    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/onlyoffice.conf
-    sed -i 's/$dashboards_host/{{ .Values.connections.dashboardsHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$dashboards_host/{{ .Values.connections.dashboardsHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
-    sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}
-    sed -i 's/$document_server/http\:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$document_server/http\:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if .Values.connections.documentServerUrlExternal }}
-    sed -i 's/$document_server/{{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$document_server/{{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
     {{- fail "You need to specify a value in the connections.documentServerHost or connections.documentServerUrlExternal parameter!" }}
     {{- else }}
-    sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/onlyoffice.conf
+    sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- end }}
-    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/onlyoffice.conf
+    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     rm -rf /etc/nginx/conf.d/upstream.conf
     rm -rf /etc/nginx/conf.d/default.conf

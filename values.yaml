@@ -1,5 +1,10 @@
 # Default values for DocSpace
 
+## product.name Specifies name of the product
+## This is a service variable. You don't need to change it
+product:
+  name: onlyoffice
+
 # DocSpace common parameters
 # This block defines common parameters for all DocSpace Apps services
 #
