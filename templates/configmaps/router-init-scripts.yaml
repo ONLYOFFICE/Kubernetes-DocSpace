@@ -11,7 +11,7 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
-  50-change-router-{{ .Values.product.name }}-conf.sh: |-
+  50-change-router-conf.sh: |-
     #!/bin/sh
     sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
