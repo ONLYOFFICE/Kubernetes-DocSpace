@@ -3757,6 +3757,13 @@ elasticsearchClearIndexes:
     # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
     # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
     enabled: true
+    image:
+      # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
+      repository: onlyoffice/docs-utils
+      # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
+      tag: 8.1.0-1
+      # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
+      pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
     # If set to, it takes priority over the `commonAnnotations`
     # You can also use `tpl` as the value for the key

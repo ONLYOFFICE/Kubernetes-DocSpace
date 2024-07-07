@@ -70,7 +70,7 @@ spec:
       initContainers:
       {{- if .Values.opensearch.initContainers.changeVolumeOwner.enabled }}
       - name: change-volume-owner
-        image: onlyoffice/docs-utils:8.0.1-1
+        image: {{ .Values.elasticsearchClearIndexes.job.image.repository }}:{{ .Values.elasticsearchClearIndexes.job.image.tag }}
         imagePullPolicy: IfNotPresent
         {{- if .Values.opensearch.initContainers.changeVolumeOwner.securityContext.enabled }}
         securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.changeVolumeOwner.securityContext | nindent 10 }}
@@ -85,7 +85,7 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       {{- end }}
-      
+
       containers:
       - name: opensearch
         image: {{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}

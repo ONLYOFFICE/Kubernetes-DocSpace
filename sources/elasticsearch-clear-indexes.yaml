@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: elasticsearch-clear-indexes
-          image: onlyoffice/docs-utils:8.0.1-1
+          image: {{ .Values.elasticsearchClearIndexes.job.image.repository }}:{{ .Values.elasticsearchClearIndexes.job.image.tag }}
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
           env:
