@@ -1,5 +1,10 @@
 # Default values for DocSpace
 
+## product.name Specifies name of the product
+## This is a service variable. You don't need to change it
+product:
+  name: onlyoffice
+
 # DocSpace common parameters
 # This block defines common parameters for all DocSpace Apps services
 #
@@ -886,13 +891,6 @@ router:
       cpu: "2000m"
   # Additional configuration files for Router
   extraConf:
-    initScripts:
-      # router.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
-      configMap: router-init-scripts
-      # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
-      # The values set here are necessary for correct Router configuration. You don't need to change it
-      fileName:
-        - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
       # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
       configMap: ""

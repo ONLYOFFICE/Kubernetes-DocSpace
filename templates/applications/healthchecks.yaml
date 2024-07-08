@@ -151,7 +151,7 @@ spec:
             name: healthchecks
         volumeMounts:
         - name: docspace-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data

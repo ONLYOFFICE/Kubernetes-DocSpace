@@ -102,7 +102,7 @@ spec:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         - name: docspace-data
-          mountPath: /var/www/onlyoffice/Data
+          mountPath: /var/www/{{ .Values.product.name }}/Data
       volumes:
       - name: docspace-data
         persistentVolumeClaim:

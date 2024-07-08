@@ -70,10 +70,11 @@ Get the DocSpace image repository
 {{- $context := index . 0 -}}
 {{- $repo := index . 1 -}}
 {{- $repoPrefix := $context.Values.images.repoPrefix -}}
-{{- if and $repoPrefix (eq $repoPrefix "4testing" ) (contains "onlyoffice/" $repo) -}}
-    {{- $repo | replace "onlyoffice/" (printf "onlyoffice/%s-" $repoPrefix) -}}
+{{- $repoProductName := $context.Values.product.name -}}
+{{- if and $repoPrefix (eq $repoPrefix "4testing" ) (contains (printf "%s/" $repoProductName) $repo) -}}
+    {{- $repo | replace (printf "%s/" $repoProductName) (printf "%s/%s-" $repoProductName $repoPrefix) -}}
 {{- else if $repoPrefix }}
-    {{- $repo | replace "onlyoffice/" (printf "%s/" $repoPrefix) -}}
+    {{- $repo | replace (printf "%s/" $repoProductName) (printf "%s/" $repoPrefix) -}}
 {{- else -}}
     {{- $repo -}}
 {{- end -}}
