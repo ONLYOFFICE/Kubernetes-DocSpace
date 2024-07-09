@@ -3757,6 +3757,7 @@ elasticsearchClearIndexes:
     # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
     # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
     enabled: true
+    # Elasticsearch-clear-indexes container image parameters
     image:
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
@@ -3873,20 +3874,28 @@ opensearch:
     # Enable security context for Opensearch change-volume-owner initContainer container in pod
     changeVolumeOwner:
       enabled: true
+      # Change volume owner container image parameters
+      image:
+        # Opensearch.changeVolumeOwner.image.repository Change volume owner container image repository
+        repository: onlyoffice/docs-utils
+        # Opensearch.changeVolumeOwner.image.tag Change volume owner container image tag
+        tag: 8.1.0-1
+        # Opensearch.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
+        pullPolicy: IfNotPresent
     # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
       securityContext:
-        # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+        # opensearch.initContainers.changeVolumeOwner.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
         enabled: true
-        # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+        # opensearch.initContainers.changeVolumeOwner.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
         runAsUser: 0
-        # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+        # opensearch.initContainers.changeVolumeOwner.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
         allowPrivilegeEscalation: false
-        # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
         seLinuxOptions: {}
-        # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
         seccompProfile:
           type: RuntimeDefault
-        # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
+        # opensearch.initContainers.changeVolumeOwner.securityContext.capabilities Defines the privileges granted to the process
         capabilities:
           drop: ["ALL"]
       # Opensearch change-volume-owner initContainer resource requests and limits
