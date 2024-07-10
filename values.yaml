@@ -2333,7 +2333,7 @@ login:
     enabled: true
     httpGet:
       # login.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /login/health
       # login.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5011
     # login.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -2348,7 +2348,7 @@ login:
     failureThreshold: 2
     httpGet:
       # login.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /login/health
       # login.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5011
     # login.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -2365,7 +2365,7 @@ login:
     failureThreshold: 3
     httpGet:
       # login.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /login/health
       # login.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5011
     # login.livenessProbe.periodSeconds Period seconds for livenessProbe
