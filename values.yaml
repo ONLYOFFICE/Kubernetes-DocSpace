@@ -3876,11 +3876,11 @@ opensearch:
       enabled: true
       # Change volume owner container image parameters
       image:
-        # Opensearch.changeVolumeOwner.image.repository Change volume owner container image repository
+        # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
-        # Opensearch.changeVolumeOwner.image.tag Change volume owner container image tag
+        # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
         tag: 8.1.0-1
-        # Opensearch.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
+        # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
       # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
       securityContext:

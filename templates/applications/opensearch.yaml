@@ -70,7 +70,7 @@ spec:
       initContainers:
       {{- if .Values.opensearch.initContainers.changeVolumeOwner.enabled }}
       - name: change-volume-owner
-        image: {{ .Values.opensearch.changeVolumeOwner.image.repository }}:{{ .Values.opensearch.changeVolumeOwner.image.tag }}
+        image: {{ .Values.opensearch.initContainers.changeVolumeOwner.image.repository }}:{{ .Values.opensearch.initContainers.changeVolumeOwner.image.tag }}
         imagePullPolicy: IfNotPresent
         {{- if .Values.opensearch.initContainers.changeVolumeOwner.securityContext.enabled }}
         securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.changeVolumeOwner.securityContext | nindent 10 }}
