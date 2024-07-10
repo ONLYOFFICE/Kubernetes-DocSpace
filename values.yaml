@@ -3882,7 +3882,7 @@ opensearch:
         tag: 8.1.0-1
         # Opensearch.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
-    # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
+      # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
       securityContext:
         # opensearch.initContainers.changeVolumeOwner.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
         enabled: true
@@ -3900,8 +3900,8 @@ opensearch:
           drop: ["ALL"]
       # Opensearch change-volume-owner initContainer resource requests and limits
       # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-      # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
-      # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+      # opensearch.initContainers.changeVolumeOwner.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+      # opensearch.initContainers.changeVolumeOwner.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
       resources:
         requests:
           memory: "256Mi"
