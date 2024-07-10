@@ -101,7 +101,7 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 To install MySQL to your cluster, run the following command:
 
 ```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
+$ helm install mysql --version 10.3.0 -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
@@ -213,6 +213,8 @@ At the wizard page during the first login please add your license using the corr
 If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `connections.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
 
 ### 2. Install ONLYOFFICE DocSpace
+
+*NOTE: When you deploy in production you should turn off the built-in Document Server by setting `docs.enabled` parameter to `false` and use the Document Server installation designed specifically for Kubernetes. For more information, see [here](#7-install-onlyoffice-docs).*
 
 To install ONLYOFFICE DocSpace to your cluster, run the following command:
 
@@ -355,7 +357,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `2.5.0`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `2.5.1`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -411,12 +413,12 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.enabled`                                     | Enables Application installation                                                                                | `true`                                    |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
-| `Application.replicaCount`                                | Number of "Application" replicas to deploy                                                                      | `1`                                       |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
 | `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `opensearch` | `OrderedReady`    |
-| `Application.podAnnotations`                              | Map of annotations to add to the Notify pods. If set to, it takes priority over the `podAnnotations`            | `{}`                                      |
+| `Application.podAnnotations`                              | Map of annotations to add to the "Application" pods. If set to, it takes priority over the `podAnnotations`     | `{}`                                      |
 | `Application.podSecurityContext.enabled`                  | Enable security context for the "Application" pods. If set to, it takes priority over the `podSecurityContext`  | `false`                                   |
 | `Application.customPodAntiAffinity`                       | Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node | `{}`                                |
 | `Application.podAffinity`                                 | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for "Application" Pods scheduling by nodes relative to other Pods | `{}` |
