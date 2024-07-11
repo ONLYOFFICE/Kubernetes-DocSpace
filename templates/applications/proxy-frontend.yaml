@@ -117,9 +117,9 @@ spec:
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.proxyFrontend.containerPorts.http }}
+        - containerPort: {{ .Values.proxyFrontend.containerPorts.httpTargetPort }}
           name: http
-        - containerPort: {{ .Values.proxyFrontend.containerPorts.https }}
+        - containerPort: {{ .Values.proxyFrontend.containerPorts.httpsTargetPort }}
           name: https
         {{- if .Values.proxyFrontend.startupProbe.enabled }}
         startupProbe: {{- omit .Values.proxyFrontend.startupProbe "enabled" | toYaml | nindent 10 }}
