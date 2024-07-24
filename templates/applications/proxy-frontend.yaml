@@ -116,6 +116,9 @@ spec:
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
+        {{- if .Values.proxyFrontend.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.proxyFrontend.lifecycleHooks | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.proxyFrontend.containerPorts.http }}
           name: http

@@ -117,6 +117,9 @@ spec:
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
+        {{- if .Values.router.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.router.lifecycleHooks | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.router.containerPorts.external }}
           name: external
