@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.3.0
+
+### New Features
+
+* Added the ability to set up container `lifecycle` hooks
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v2.6.0
+* Various images of service containers have been replaced with one already configured image with utils
+
+### Fixes
+
+* Fixed MySQL 8.4 startup error
+
 ## 2.2.0
 
 ### New Features
