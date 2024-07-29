@@ -133,6 +133,9 @@ spec:
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
+        {{- if .Values.ssoauth.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.ssoauth.lifecycleHooks | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.ssoauth.containerPorts.app }}
           name: app

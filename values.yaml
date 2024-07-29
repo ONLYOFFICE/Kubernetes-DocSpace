@@ -505,6 +505,16 @@ files:
   containerSecurityContext:
     # files.containerSecurityContext.enabled Enable security context for containers in Files pods
     enabled: false
+  # files.lifecycleHooks Defines the Files container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -660,6 +670,11 @@ peopleServer:
   containerSecurityContext:
     # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
     enabled: false
+  # peopleServer.lifecycleHooks Defines the People Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -824,6 +839,11 @@ router:
   containerSecurityContext:
     # router.containerSecurityContext.enabled Enable security context for containers in Router pods
     enabled: false
+  # router.lifecycleHooks Defines the Router container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
@@ -1044,6 +1064,11 @@ healthchecks:
   containerSecurityContext:
     # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
     enabled: false
+  # healthchecks.lifecycleHooks Defines the Healthchecks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
@@ -1204,6 +1229,11 @@ apiSystem:
   containerSecurityContext:
     # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
     enabled: false
+  # apiSystem.lifecycleHooks Defines the Api System container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
@@ -1372,6 +1402,16 @@ api:
   containerSecurityContext:
     # api.containerSecurityContext.enabled Enable security context for containers in Api pods
     enabled: false
+  # api.lifecycleHooks Defines the Api container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
@@ -1530,6 +1570,11 @@ backup:
   containerSecurityContext:
     # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
     enabled: false
+  # backup.lifecycleHooks Defines the Backup container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1688,6 +1733,11 @@ backupBackgroundTasks:
   containerSecurityContext:
     # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
     enabled: false
+  # backupBackgroundTasks.lifecycleHooks Defines the Backup Background Tasks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
@@ -1846,6 +1896,11 @@ clearEvents:
   containerSecurityContext:
     # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
     enabled: false
+  # clearEvents.lifecycleHooks Defines the Clear Events container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
@@ -2004,6 +2059,11 @@ doceditor:
   containerSecurityContext:
     # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
     enabled: false
+  # doceditor.lifecycleHooks Defines the Doceditor container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
@@ -2164,6 +2224,11 @@ filesServices:
   containerSecurityContext:
     # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
     enabled: false
+  # filesServices.lifecycleHooks Defines the Files Services container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
@@ -2322,6 +2387,11 @@ login:
   containerSecurityContext:
     # login.containerSecurityContext.enabled Enable security context for containers in Login pods
     enabled: false
+  # login.lifecycleHooks Defines the Login container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -2480,6 +2550,11 @@ notify:
   containerSecurityContext:
     # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
     enabled: false
+  # notify.lifecycleHooks Defines the Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
@@ -2638,6 +2713,11 @@ socket:
   containerSecurityContext:
     # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
     enabled: false
+  # socket.lifecycleHooks Defines the Socket container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -2798,6 +2878,11 @@ ssoauth:
   containerSecurityContext:
     # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
     enabled: false
+  # ssoauth.lifecycleHooks Defines the ssoauth container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
@@ -2952,6 +3037,11 @@ studio:
   containerSecurityContext:
     # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
     enabled: false
+  # studio.lifecycleHooks Defines the Studio container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -3110,6 +3200,11 @@ studioNotify:
   containerSecurityContext:
     # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
     enabled: false
+  # studioNotify.lifecycleHooks Defines the Studio Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
@@ -3276,6 +3371,11 @@ proxyFrontend:
   containerSecurityContext:
     # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
     enabled: false
+  # proxyFrontend.lifecycleHooks Defines the Proxy Frontend container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -3482,6 +3582,11 @@ docs:
     # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
     capabilities:
       drop: ["ALL"]
+  # docs.lifecycleHooks Defines the Document Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
