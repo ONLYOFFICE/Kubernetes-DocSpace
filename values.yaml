@@ -2878,7 +2878,7 @@ ssoauth:
   containerSecurityContext:
     # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
     enabled: false
-  # backup.lifecycleHooks Defines the ssoauth container lifecycle hooks
+  # ssoauth.lifecycleHooks Defines the ssoauth container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
