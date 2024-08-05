@@ -197,6 +197,8 @@ def get_docspace_status():
             url = f'http://{i}/'
         elif i.split(":")[0] == 'doceditor':
             url = f'http://{i}/doceditor/health'
+        elif i.split(":")[0] == 'login':
+            url = f'http://{i}/login/health'
         else:
             url = f'http://{i}/health'
         docspace_session.mount(url, docspace_adapter)

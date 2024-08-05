@@ -19,7 +19,6 @@ data:
   elasticsearch-clear-indexes.sh: |
     #!/bin/bash
 
-    apt update && apt-get install -y curl jq
     if [[ "$ELK_SHEME" == "https" ]]; then
       response=$(curl -s $ELK_SHEME://$ELK_HOST)
     else

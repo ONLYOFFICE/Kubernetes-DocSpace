@@ -133,6 +133,9 @@ spec:
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
+        {{- if .Values.ssoauth.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.ssoauth.lifecycleHooks | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.ssoauth.containerPorts.app }}
           name: app
@@ -190,14 +193,15 @@ spec:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
         {{- range .Values.extraConf.fileName }}
         - name: custom-file
-          mountPath: /app/onlyoffice/config/{{ . }}
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
         - name: docspace-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data

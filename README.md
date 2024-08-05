@@ -101,7 +101,7 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 To install MySQL to your cluster, run the following command:
 
 ```bash
-$ helm install mysql --version 10.3.0 -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
@@ -357,7 +357,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `2.5.1`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `2.6.0`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -429,6 +429,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
+| `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
 | `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`                                 | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |

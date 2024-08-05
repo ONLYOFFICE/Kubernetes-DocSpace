@@ -68,7 +68,7 @@ spec:
       {{- end }}
       containers:
         - name: elasticsearch-clear-indexes
-          image: mysql:8.0.36-debian
+          image: {{ .Values.elasticsearchClearIndexes.job.image.repository }}:{{ .Values.elasticsearchClearIndexes.job.image.tag }}
           {{- if or .Values.containerSecurityContext.enabled .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
           {{- if .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}

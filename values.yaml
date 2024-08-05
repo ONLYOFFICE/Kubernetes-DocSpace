@@ -1,5 +1,10 @@
 # Default values for DocSpace
 
+## product.name Specifies name of the product
+## This is a service variable. You don't need to change it
+product:
+  name: onlyoffice
+
 # DocSpace common parameters
 # This block defines common parameters for all DocSpace Apps services
 #
@@ -243,7 +248,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 2.5.1
+  tag: 2.6.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -280,9 +285,9 @@ initContainers:
   checkDB:
     image:
       # initContainers.checkDB.image.repository check-db initContainer image repository
-      repository: mysql
+      repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: latest
+      tag: 8.0.1-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -502,6 +507,16 @@ files:
   containerSecurityContext:
     # files.containerSecurityContext.enabled Enable security context for containers in Files pods
     enabled: false
+  # files.lifecycleHooks Defines the Files container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -657,6 +672,11 @@ peopleServer:
   containerSecurityContext:
     # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
     enabled: false
+  # peopleServer.lifecycleHooks Defines the People Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -821,6 +841,11 @@ router:
   containerSecurityContext:
     # router.containerSecurityContext.enabled Enable security context for containers in Router pods
     enabled: false
+  # router.lifecycleHooks Defines the Router container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
@@ -886,13 +911,6 @@ router:
       cpu: "2000m"
   # Additional configuration files for Router
   extraConf:
-    initScripts:
-      # router.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
-      configMap: router-init-scripts
-      # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
-      # The values set here are necessary for correct Router configuration. You don't need to change it
-      fileName:
-        - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
       # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
       configMap: ""
@@ -1048,6 +1066,11 @@ healthchecks:
   containerSecurityContext:
     # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
     enabled: false
+  # healthchecks.lifecycleHooks Defines the Healthchecks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
@@ -1208,6 +1231,11 @@ apiSystem:
   containerSecurityContext:
     # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
     enabled: false
+  # apiSystem.lifecycleHooks Defines the Api System container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
@@ -1376,6 +1404,16 @@ api:
   containerSecurityContext:
     # api.containerSecurityContext.enabled Enable security context for containers in Api pods
     enabled: false
+  # api.lifecycleHooks Defines the Api container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
@@ -1534,6 +1572,11 @@ backup:
   containerSecurityContext:
     # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
     enabled: false
+  # backup.lifecycleHooks Defines the Backup container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1692,6 +1735,11 @@ backupBackgroundTasks:
   containerSecurityContext:
     # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
     enabled: false
+  # backupBackgroundTasks.lifecycleHooks Defines the Backup Background Tasks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
@@ -1850,6 +1898,11 @@ clearEvents:
   containerSecurityContext:
     # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
     enabled: false
+  # clearEvents.lifecycleHooks Defines the Clear Events container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
@@ -2008,6 +2061,11 @@ doceditor:
   containerSecurityContext:
     # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
     enabled: false
+  # doceditor.lifecycleHooks Defines the Doceditor container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
@@ -2168,6 +2226,11 @@ filesServices:
   containerSecurityContext:
     # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
     enabled: false
+  # filesServices.lifecycleHooks Defines the Files Services container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
@@ -2326,6 +2389,11 @@ login:
   containerSecurityContext:
     # login.containerSecurityContext.enabled Enable security context for containers in Login pods
     enabled: false
+  # login.lifecycleHooks Defines the Login container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -2337,7 +2405,7 @@ login:
     enabled: true
     httpGet:
       # login.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /login/health
       # login.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5011
     # login.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -2352,7 +2420,7 @@ login:
     failureThreshold: 2
     httpGet:
       # login.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /login/health
       # login.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5011
     # login.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -2369,7 +2437,7 @@ login:
     failureThreshold: 3
     httpGet:
       # login.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /login/health
       # login.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5011
     # login.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -2484,6 +2552,11 @@ notify:
   containerSecurityContext:
     # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
     enabled: false
+  # notify.lifecycleHooks Defines the Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
@@ -2642,6 +2715,11 @@ socket:
   containerSecurityContext:
     # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
     enabled: false
+  # socket.lifecycleHooks Defines the Socket container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -2802,6 +2880,11 @@ ssoauth:
   containerSecurityContext:
     # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
     enabled: false
+  # ssoauth.lifecycleHooks Defines the ssoauth container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
@@ -2956,6 +3039,11 @@ studio:
   containerSecurityContext:
     # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
     enabled: false
+  # studio.lifecycleHooks Defines the Studio container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -3114,6 +3202,11 @@ studioNotify:
   containerSecurityContext:
     # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
     enabled: false
+  # studioNotify.lifecycleHooks Defines the Studio Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
@@ -3280,6 +3373,11 @@ proxyFrontend:
   containerSecurityContext:
     # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
     enabled: false
+  # proxyFrontend.lifecycleHooks Defines the Proxy Frontend container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -3486,6 +3584,11 @@ docs:
     # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
     capabilities:
       drop: ["ALL"]
+  # docs.lifecycleHooks Defines the Document Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
@@ -3757,6 +3860,14 @@ elasticsearchClearIndexes:
     # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
     # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
     enabled: true
+    # Elasticsearch-clear-indexes container image parameters
+    image:
+      # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
+      repository: onlyoffice/docs-utils
+      # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
+      tag: 8.1.0-1
+      # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
+      pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
     # If set to, it takes priority over the `commonAnnotations`
     # You can also use `tpl` as the value for the key
@@ -3863,33 +3974,44 @@ opensearch:
   # If set to, it takes priority over the `tolerations`
   tolerations: []
   initContainers:
-    # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
-    securityContext:
-      # opensearch.initContainers.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
-      enabled: false
-      # opensearch.initContainers.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
-      runAsUser: 0
-      # opensearch.initContainers.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-      allowPrivilegeEscalation: false
-      # opensearch.initContainers.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
-      seLinuxOptions: {}
-      # opensearch.initContainers.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
-      seccompProfile:
-        type: RuntimeDefault
-      # opensearch.initContainers.securityContext.capabilities Defines the privileges granted to the process
-      capabilities:
-        drop: ["ALL"]
-    # Opensearch change-volume-owner initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # opensearch.initContainers.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
-    # opensearch.initContainers.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
+    # Enable security context for Opensearch change-volume-owner initContainer container in pod
+    changeVolumeOwner:
+      enabled: true
+      # Change volume owner container image parameters
+      image:
+        # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
+        repository: onlyoffice/docs-utils
+        # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
+        tag: 8.1.0-1
+        # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
+        pullPolicy: IfNotPresent
+      # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
+      securityContext:
+        # opensearch.initContainers.changeVolumeOwner.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+        enabled: true
+        # opensearch.initContainers.changeVolumeOwner.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+        runAsUser: 0
+        # opensearch.initContainers.changeVolumeOwner.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+        allowPrivilegeEscalation: false
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+        seLinuxOptions: {}
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+        seccompProfile:
+          type: RuntimeDefault
+        # opensearch.initContainers.changeVolumeOwner.securityContext.capabilities Defines the privileges granted to the process
+        capabilities:
+          drop: ["ALL"]
+      # Opensearch change-volume-owner initContainer resource requests and limits
+      # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      # opensearch.initContainers.changeVolumeOwner.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+      # opensearch.initContainers.changeVolumeOwner.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
     # opensearch.initContainers.custom Custom Opensearch initContainers parameters
     # Additional containers that run before Opensearch container in a Pod
     # Example:
