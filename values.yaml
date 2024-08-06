@@ -327,20 +327,20 @@ initContainers:
         memory: "2Gi"
         cpu: "1000m"
   rootless:
-    # install.job.initContainers.migrationRunner.enabled Enable database initialization
+    # initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
     enabled: true
     image:
-      # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
+      # initContainers.rootless.image.repository Rootless initContainer image repository
       repository: onlyoffice/docs-utils
-      # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
+      # initContainers.rootless.image.tag Rootless initContainer image tag
       # If set to, it takes priority over the `images.tag`
       tag: 8.0.1-1
-      # install.job.initContainers.migrationRunner.image.pullPolicy Job by pre-install Migration Runner container image pull policy
+      # initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
       pullPolicy: IfNotPresent
-    # Job pre-install Migration Runner container resource requests and limits
+    # Rootless initContainer resource requests and limits
     # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # install.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-install Migration Runner container
-    # install.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-install Migration Runner container
+    # initContainers.rootless.resources.requests The requested resources for the rootless initContainer
+    # initContainers.rootless.resources.limits The resources limits for the rootless initContainer
     resources:
       requests:
         memory: "256Mi"
@@ -349,7 +349,7 @@ initContainers:
         memory: "1Gi"
         cpu: "1000m" 
     containerSecurityContext:
-      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
       enabled: true
       runAsUser: 0
   # initContainers.custom Custom initContainers parameters
@@ -3596,8 +3596,6 @@ upgrade:
     # upgrade.job.tolerations Tolerations for Upgrade Job pod assignment
     # If set to, it takes priority over the `tolerations`
     tolerations: []
-    # Configure a Security Context for containers in Upgrade Job Pod
-    # If set to, it takes priority over the `containerSecurityContext`
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
