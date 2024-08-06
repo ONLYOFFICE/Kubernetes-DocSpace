@@ -3596,6 +3596,11 @@ upgrade:
     # upgrade.job.tolerations Tolerations for Upgrade Job pod assignment
     # If set to, it takes priority over the `tolerations`
     tolerations: []
+    # Configure a Security Context for containers in Upgrade Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
