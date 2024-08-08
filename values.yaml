@@ -364,7 +364,7 @@ initContainers:
         cpu: "100m"
       limits:
         memory: "1Gi"
-        cpu: "1000m" 
+        cpu: "1000m"
     containerSecurityContext:
       # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
       enabled: true
