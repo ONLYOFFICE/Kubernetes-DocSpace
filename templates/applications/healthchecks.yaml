@@ -1,6 +1,6 @@
 {{- if .Values.healthchecks.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.healthchecks.kind }}
 metadata:
   name: healthchecks
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -9,6 +9,10 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.healthchecks.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.healthchecks.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.healthchecks.replicaCount }}
   selector:
@@ -17,8 +21,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.healthchecks.kind "StatefulSet" }}
+  serviceName: healthchecks
+  {{- end }}
   {{- if .Values.healthchecks.updateStrategy }}
-  strategy: {{- toYaml .Values.healthchecks.updateStrategy | nindent 4 }}
+  {{- if eq .Values.healthchecks.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.healthchecks.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.healthchecks.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.healthchecks.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.healthchecks.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
@@ -27,20 +41,24 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      {{- if or .Values.podAnnotations .Values.healthchecks.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.healthchecks.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.healthchecks.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.healthchecks.podSecurityContext.enabled }}
+      {{- $psc = .Values.healthchecks.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -51,7 +69,7 @@ spec:
                   - people-server
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -60,7 +78,10 @@ spec:
                 values:
                 - people-server
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.healthchecks.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.healthchecks.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -69,11 +90,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.healthchecks.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.healthchecks.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.healthchecks.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.healthchecks.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -81,18 +102,39 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.healthchecks.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: healthchecks
-        image: {{ .Values.healthchecks.image.repository }}:{{ default .Values.images.tag .Values.healthchecks.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.healthchecks.image.repository) }}:{{ default .Values.images.tag .Values.healthchecks.image.tag }}
         imagePullPolicy: {{ .Values.healthchecks.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.healthchecks.containerSecurityContext.enabled }}
+        {{- $csc = .Values.healthchecks.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.healthchecks.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.healthchecks.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.healthchecks.containerPorts.healthcheck }}
@@ -112,7 +154,7 @@ spec:
             name: healthchecks
         volumeMounts:
         - name: docspace-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data

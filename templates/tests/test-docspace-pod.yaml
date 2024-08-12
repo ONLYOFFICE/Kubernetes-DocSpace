@@ -1,0 +1,132 @@
+{{- if .Values.tests.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-docspace
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app.kubernetes.io/component: test-docspace
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+    {{- if or .Values.commonAnnotations .Values.tests.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.tests.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+  {{- if .Values.tests.podSecurityContext.enabled }}
+  securityContext: {{- include "docspace.securityContext" .Values.tests.podSecurityContext | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.tests.customPodAntiAffinity .Values.tests.podAffinity .Values.tests.nodeAffinity }}
+  affinity:
+    {{- with .Values.tests.customPodAntiAffinity }}
+    podAntiAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.tests.podAffinity }}
+    podAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.tests.nodeAffinity }}
+    nodeAffinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  {{- if or .Values.nodeSelector .Values.tests.nodeSelector }}
+  nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.tests.nodeSelector) | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.tolerations .Values.tests.tolerations }}
+  tolerations: {{ toYaml (default .Values.tolerations .Values.tests.tolerations) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.imagePullSecrets }}
+  imagePullSecrets:
+  - name: {{ .Values.imagePullSecrets }}
+  {{- end }}
+  containers:
+  - name: test-docspace
+    image: {{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
+    imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
+    {{- if .Values.tests.containerSecurityContext.enabled }}
+    securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
+    {{- end }}
+    resources: {{ toYaml .Values.tests.resources | nindent 6 }}
+    env:
+    - name: MYSQL_USER
+      value: {{ .Values.connections.mysqlUser }}
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.mysql.secretName" . }}
+          key: {{ .Values.connections.mysqlSecretKeyPassword }}
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.redis.secretName" . }}
+          key: {{ .Values.connections.redisSecretKeyName }}
+    - name: RABBIT_PROTO
+      value: {{ .Values.connections.brokerProto }}
+    - name: RABBIT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ template "docspace.broker.secretName" . }}
+          key: {{ .Values.connections.brokerSecretKeyName }}
+    - name: ROUTER_SERVICE
+      value: {{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}
+    - name: BACKUP_SERVICE
+      value: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
+    - name: BACKUPBACKGROUNDTASKS_SERVICE
+      value: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+    - name: FILES_SERVICE
+      value: {{ .Values.connections.filesHost }}:{{ .Values.files.containerPorts.app }}
+    - name: FILESSERVICES_SERVICE
+      value: {{ .Values.connections.filesServicesHost }}:{{ .Values.filesServices.containerPorts.app }}
+    - name: PEOPLE_SERVICE
+      value: {{ .Values.connections.peopleServerHost }}:{{ .Values.peopleServer.containerPorts.app }}
+    - name: API_SERVICE
+      value: {{ .Values.connections.apiHost }}:{{ .Values.api.containerPorts.app }}
+    - name: STUDIO_SERVICE
+      value: {{ .Values.connections.studioHost }}:{{ .Values.studio.containerPorts.app }}
+    - name: STUDIONOTIFY_SERVICE
+      value: {{ .Values.connections.studioNotifyHost }}:{{ .Values.studioNotify.containerPorts.app }}
+    - name: NOTIFY_SERVICE
+      value: {{ .Values.connections.notifyHost }}:{{ .Values.notify.containerPorts.app }}
+    - name: SOCKET_SERVICE
+      value: {{ .Values.connections.socketHost }}:{{ .Values.socket.containerPorts.app }}
+    - name: SSO_SERVICE
+      value: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
+    - name: DOCEDITOR_SERVICE
+      value: {{ .Values.connections.doceditorHost }}:{{ .Values.doceditor.containerPorts.doceditor }}
+    - name: CLEAREVENTS_SERVICE
+      value: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
+    - name: LOGIN_SERVICE
+      value: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
+    - name: DOCS_SERVICE
+      value: {{ .Values.connections.documentServerHost }}:{{ .Values.docs.containerPorts.http }}
+    {{- if .Values.apiSystem.enabled }}
+    - name: APISYSTEM_SERVICE
+      value: {{ .Values.connections.apiSystemHost }}:{{ .Values.apiSystem.containerPorts.app }}
+    {{- end }}
+    {{- if .Values.proxyFrontend.enabled }}
+    - name: PROXYFRONTEND_SERVICE
+      value: {{ template "docspace.svc.proxyFrontend.name" . }}:{{ .Values.proxyFrontend.containerPorts.http }}
+    {{- end }}
+    envFrom:
+    - configMapRef:
+        name: docspace
+    volumeMounts:
+    - name: test-docspace
+      mountPath: /scripts/test_docspace.py
+      subPath: test_docspace.py
+    command: ['python', '/scripts/test_docspace.py']
+  volumes:
+  - name: test-docspace
+    configMap:
+      name: test-docspace
+      defaultMode: 0755
+  restartPolicy: Never
+{{- end }}

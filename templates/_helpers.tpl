@@ -19,6 +19,29 @@ Get the DocSpace labels
 {{- end -}}
 
 {{/*
+Get the DocSpace annotations
+*/}}
+{{- define "docspace.annotations" -}}
+{{- $annotations := toYaml .keyName }}
+{{- if contains "{{" $annotations }}
+    {{- tpl $annotations .context }}
+{{- else }}
+    {{- $annotations }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Get the update strategy type for DocSpace Apps
+*/}}
+{{- define "docspace.update.strategyType" -}}
+{{- if eq .type "RollingUpdate" -}}
+    {{- toYaml . | nindent 4 -}}
+{{- else -}}
+    {{- omit . "rollingUpdate" | toYaml | nindent 4 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the DocSpace Service Account name
 */}}
 {{- define "docspace.serviceAccountName" -}}
@@ -26,6 +49,34 @@ Get the DocSpace Service Account name
     {{ default .Release.Name .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the DocSpace Security Context
+*/}}
+{{- define "docspace.securityContext" -}}
+{{- if not .seLinuxOptions -}}
+    {{- omit . "enabled" "seLinuxOptions" | toYaml }}
+{{- else -}}
+    {{- omit . "enabled" | toYaml }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the DocSpace image repository
+*/}}
+{{- define "docspace.imageRepository" -}}
+{{- $context := index . 0 -}}
+{{- $repo := index . 1 -}}
+{{- $repoPrefix := $context.Values.images.repoPrefix -}}
+{{- $repoProductName := $context.Values.product.name -}}
+{{- if and $repoPrefix (eq $repoPrefix "4testing" ) (contains (printf "%s/" $repoProductName) $repo) -}}
+    {{- $repo | replace (printf "%s/" $repoProductName) (printf "%s/%s-" $repoProductName $repoPrefix) -}}
+{{- else if $repoPrefix }}
+    {{- $repo | replace (printf "%s/" $repoProductName) (printf "%s/" $repoPrefix) -}}
+{{- else -}}
+    {{- $repo -}}
 {{- end -}}
 {{- end -}}
 
@@ -44,7 +95,7 @@ Get the MySQL password secret
 Return true if a secret object should be created for MySQL
 */}}
 {{- define "docspace.mysql.createSecret" -}}
-{{- if or .Values.connections.mysqlPassword .Values.connections.mysqlRootPassword (not .Values.connections.mysqlExistingSecret) -}}
+{{- if or .Values.connections.mysqlPassword (not .Values.connections.mysqlExistingSecret) -}}
     {{- true -}}
 {{- end -}}
 {{- end -}}
@@ -57,17 +108,6 @@ Return MySQL password
     {{- .Values.connections.mysqlPassword }}
 {{- else -}}
     {{- required "A MySQL Password is required!" .Values.connections.mysqlPassword }}
-{{- end }}
-{{- end -}}
-
-{{/*
-Return MySQL root password
-*/}}
-{{- define "docspace.mysql.rootPassword" -}}
-{{- if not (empty .Values.connections.mysqlRootPassword) }}
-    {{- .Values.connections.mysqlRootPassword }}
-{{- else -}}
-    {{- required "A MySQL root Password is required!" .Values.connections.mysqlRootPassword }}
 {{- end }}
 {{- end -}}
 
@@ -159,12 +199,14 @@ Get the DocSpace Url Portal
 {{- define "docspace.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
     {{- printf "" -}}
-{{- else if .Values.router.service.existing -}}
-    {{- printf "http://%s:%s" (tpl .Values.router.service.existing $) (toString .Values.router.service.port.external) -}}
-{{- else if empty .Values.router.service.existing -}}
-    {{- printf "http://router:%s" (toString .Values.router.service.port.external) -}}
-{{- else -}}
+{{- else if and .Values.connections.documentServerUrlExternal .Values.router.service.existing -}}
     {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
+{{- else if and .Values.router.service.existing (not .Values.connections.documentServerUrlExternal) -}}
+    {{- printf "http://%s:%s" (tpl .Values.router.service.existing $) (toString .Values.router.service.port.external) -}}
+{{- else if not (empty .Values.connections.appUrlPortal) -}}
+    {{- printf "%s" (tpl .Values.connections.appUrlPortal $) -}}
+{{- else -}}
+    {{- printf "http://router:%s" (toString .Values.router.service.port.external) -}}
 {{- end -}}
 {{- end -}}
 

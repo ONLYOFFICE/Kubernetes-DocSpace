@@ -1,8 +1,8 @@
-{{- if eq (include "docspace.redis.createSecret" .) "true" }}
+{{- if .Values.tests.enabled }}
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-redis
+  name: test-docspace
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
@@ -11,7 +11,6 @@ metadata:
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
-type: Opaque
-stringData:
-  {{ .Values.connections.redisSecretKeyName }}: {{ include "docspace.redis.password" . | quote }}
+data:
+{{ (.Files.Glob "sources/scripts/test_docspace.py").AsConfig | indent 2 }}
 {{- end }}

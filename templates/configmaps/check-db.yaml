@@ -1,24 +1,30 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pre-upgrade
+  name: check-db
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   annotations:
-    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "2"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     {{- if .Values.commonAnnotations }}
     {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
 data:
-  update.sh: |-
-    #!/bin/sh
-    echo "Running deleting service files of the previous release"
-    rm -rf /var/www/products/ASC.Files/server/*
-    rm -rf /var/www/products/ASC.People/server/*
-    echo "The service files of the previous release have been deleted"
-    /app/docker-entrypoint.sh
+  checkdb.sh: |-
+    #!/bin/bash
+    mysql -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p$MYSQL_PASSWORD \
+      -e "show databases;" > /dev/null
+    if [ $? -ne 0 ]; then
+      echo -e "\e[0;31m DB is not available \e[0m"
+      exit 1
+    else
+      echo -e "\e[0;32m DB is available \e[0m"
+    fi

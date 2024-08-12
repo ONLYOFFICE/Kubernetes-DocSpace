@@ -8,11 +8,17 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
   - port: {{ .Values.apiSystem.containerPorts.app }}
     name: app
     targetPort: {{ .Values.apiSystem.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: api-system-0
+    app: api-system
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

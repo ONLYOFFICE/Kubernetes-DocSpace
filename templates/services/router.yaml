@@ -4,15 +4,14 @@ kind: Service
 metadata:
   name: router
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app: router
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-  {{- end }}
-  {{- if .Values.router.service.annotations }}
-  annotations:
-    {{- range $key, $value := .Values.router.service.annotations }}
-    {{ $key }}: {{ tpl $value $ }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.router.service.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.router.service.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:

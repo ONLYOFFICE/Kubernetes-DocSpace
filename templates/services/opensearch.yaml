@@ -1,10 +1,11 @@
+{{- if .Values.opensearch.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: backup-background-tasks
+  name: opensearch
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: backup-background-tasks
+    app: opensearch
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -13,12 +14,16 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.backupBackgroundTasks.containerPorts.app }}
-    name: app
-    targetPort: {{ .Values.backupBackgroundTasks.containerPorts.app }}
+  - port: 9200
+    name: http
+    targetPort: 9200
+  - port: 9300
+    name: transport
+    targetPort: 9300
   selector:
-    app: backup-background-tasks
+    statefulset.kubernetes.io/pod-name: opensearch-0
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   type: ClusterIP
+{{- end }}

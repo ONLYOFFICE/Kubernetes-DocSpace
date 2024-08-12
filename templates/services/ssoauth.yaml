@@ -8,6 +8,9 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
   - port: {{ .Values.ssoauth.containerPorts.app }}
@@ -17,5 +20,8 @@ spec:
     name: sso
     targetPort: {{ .Values.ssoauth.containerPorts.sso }}
   selector:
-    statefulset.kubernetes.io/pod-name: ssoauth-0
+    app: ssoauth
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

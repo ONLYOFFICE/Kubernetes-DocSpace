@@ -1,0 +1,47 @@
+{{- if .Values.elasticsearchClearIndexes.job.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-clear-indexes
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- if .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+data:
+  elasticsearch-clear-indexes.sh: |
+    #!/bin/bash
+
+    if [[ "$ELK_SHEME" == "https" ]]; then
+      response=$(curl -s $ELK_SHEME://$ELK_HOST)
+    else
+      response=$(curl -s $ELK_SHEME://$ELK_HOST:$ELK_PORT)
+    fi
+    name=$(echo $response | jq -r ".name")
+    if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
+      echo -e "\e[0;32m A local Elasticsearch was found. The indexes will be cleared \e[0m"
+      mysql \
+      -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
+      -e "TRUNCATE webstudio_index;"
+      if [[ "$ELK_SHEME" == "https" ]]; then
+        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_folder
+        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_file
+      else
+        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
+        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
+      fi
+      echo -e "\e[0;32m Index cleanup is complete \e[0m"
+    else
+      echo -e "\e[0;32m The local Elasticsearch was not found \e[0m"
+    fi
+{{- end }}

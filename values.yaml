@@ -1,7 +1,12 @@
 # Default values for DocSpace
 
+## product.name Specifies name of the product
+## This is a service variable. You don't need to change it
+product:
+  name: onlyoffice
+
 # DocSpace common parameters
-# This block defines common parameters for all deployments and statefulsets
+# This block defines common parameters for all DocSpace Apps services
 #
 # Connection parameters to services
 connections:
@@ -18,23 +23,16 @@ connections:
   # connections.mysqlPort Database server port number
   mysqlPort: "3306"
   # connections.mysqlDatabase Name of the Database the application will be connected with
+  # The database must already exist
   mysqlDatabase: docspace
-  # connections.superuser Database user with root rights
-  superuser: root
-  # connections.mysqlRootPassword Database root password
-  # If set to, it takes priority over the `connections.mysqlExistingSecret`
-  mysqlRootPassword: ""
   # connections.mysqlUser Database user
   mysqlUser: onlyoffice_user
   # connections.mysqlPassword Database user password
   # If set to, it takes priority over the `connections.mysqlExistingSecret`
   mysqlPassword: ""
   # connections.mysqlExistingSecret Name of existing secret to use for Database passwords
-  # Must contain the keys specified in `connections.mysqlSecretKeyRootPassword` and `connections.mysqlSecretKeyPassword`
+  # Must contain the key specified in `connections.mysqlSecretKeyPassword`
   mysqlExistingSecret: mysql
-  # connections.mysqlSecretKeyRootPassword The name of the key that contains the Database root password
-  # If you set a password in `connections.mysqlRootPassword`, a secret will be automatically created, the key name of which will be the value set here
-  mysqlSecretKeyRootPassword: mysql-root-password
   # connections.mysqlSecretKeyPassword The name of the key that contains the Database user password
   # If you set a password in `connections.mysqlPassword`, a secret will be automatically created, the key name of which will be the value set here
   mysqlSecretKeyPassword: mysql-password
@@ -81,13 +79,13 @@ connections:
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
-  # connections.elkSheme The protocol for the connection to Elasticsearch
+  # connections.elkSheme The protocol for the connection to Opensearch
   elkSheme: http
-  # connections.elkHost The IP address or the name of the Elasticsearch host
-  elkHost: elasticsearch
-  # connections.elkPort The port for the connection to Elasticsearch
+  # connections.elkHost The IP address or the name of the Opensearch host
+  elkHost: opensearch
+  # connections.elkPort The port for the connection to Opensearch
   elkPort: "9200"
-  # connections.elkThreads Number of threads in Elasticsearch
+  # connections.elkThreads Number of threads in Opensearch
   elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
@@ -122,11 +120,12 @@ connections:
   # connections.healthchecksHost The name of the DocSpace Healthchecks service
   healthchecksHost: healthchecks
   # connections.documentServerHost The name of the Document Server service
+  # Used when installing a local Document Server (by default `docs.enabled=true`)
   documentServerHost: document-server
-  # connections.documentServerUrlPublic The name of the Document Server service
-  documentServerUrlPublic: "/ds-vpath/"
-  # connections.documentServerUrlInternal The name of the Document Server service for internal requests
-  documentServerUrlInternal: "http://document-server/"
+  # connections.documentServerUrlExternal The address of the external Document Server
+  # If set, the local Document Server will not be installed
+  # The address must be in the `http(s)://<documentserver-address>/` format
+  documentServerUrlExternal: ""
   # connections.appUrlPortal URL for DocSpace requests
   # By default, the name of the routing (Router) service and the port on which it accepts requests are used
   appUrlPortal: "http://router:8092"
@@ -144,12 +143,18 @@ connections:
   countWorkerConnections: "1024"
   # connections.nginxSnvsubstTemplateSuffix A suffix of template files for rendering nginx configs in routing (Router) service
   nginxSnvsubstTemplateSuffix: ".template"
-  # connections.appKnownProxies Defines the known proxies for DocSpace services
+  # connections.wrongPortalNameURL
+  wrongPortalNameURL: ""
+  # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for DocSpace services
+  # In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here
+  # Provide IP ranges using CIDR notation
+  # Example:
+  # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
+  appKnownNetworks: "10.244.0.0/16"
+  # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
   appKnownProxies: ""
-  # connections.appKnownNetworks List of intermediate proxy addresses
-  appKnownNetworks: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
-  oauthRedirectURL: "https://service.example.com/oauth2.aspx"
+  oauthRedirectURL: "https://service.onlyoffice.com/oauth2.aspx"
 # namespaceOverride The name of the namespace in which DocSpace will be deployed
 # If not set, the name will be taken from .Release.Namespace
 namespaceOverride: ""
@@ -164,7 +169,16 @@ namespaceOverride: ""
 #   app.kubernetes.io/instance: "{{ .Release.Name }}"
 #   app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 commonLabels: {}
+# commonAnnotations Defines annotations that will be additionally added to all the deployed resources
+# You can also use `tpl` as the value for the key
+# Some resources may override the values specified here with their own
+# Example:
+# commonAnnotations:
+#   "key1": "value1"
+#   "key2": "{{ value2 }}"
+commonAnnotations: {}
 # podAnnotations Map of annotations to add to the DocSpace pods
+# Each Docspace application can override the values specified here with its own
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 # Service account parameters
@@ -182,35 +196,57 @@ serviceAccount:
   # Used only if `serviceAccount.create` is `true`
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
   automountServiceAccountToken: true
-# Configure a Security Context for a Pods
+# Configure a Security Context for the DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
   # If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
   enabled: false
-  # podSecurityContext.runAsUser User ID for the DocSpace pods
-  runAsUser: 104
-  # podSecurityContext.runAsGroup Group ID for the DocSpace pods
-  runAsGroup: 107
-# Configure a Security Context for containers in Pods
+  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the DocSpace application Pods
+  fsGroup: 107
+# Configure a Security Context for containers in DocSpace application Pods
+# Each Docspace application can override the values specified here with its own
+# Individual values for `docs` and `elasticsearch`
 containerSecurityContext:
-  # containerSecurityContext.enabled Enable security context for containers in pods
+  # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
   enabled: false
+  # containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  runAsUser: 104
+  # containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  runAsGroup: 107
+  # containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+  runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
-# nodeSelector Node labels for pods assignment
+  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  seLinuxOptions: {}
+  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  seccompProfile:
+    type: RuntimeDefault
+  # containerSecurityContext.capabilities Defines the privileges granted to the process
+  capabilities:
+    drop: ["ALL"]
+# nodeSelector Node labels for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
-# tolerations Tolerations for pods assignment
+# tolerations Tolerations for DocSpace application pods assignment
+# Each Docspace application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
-# images.tag Global image tag for all services
-# Does not apply to the Document Server service, which takes the tag value from the `docs.image.tag`
+# Global image parameters for for all DocSpace applications
+# Does not apply to the Document Server, Elasticsearch and Proxy Frontend
 images:
-  tag: 1.1.2.2487
+  # images.repoPrefix Global repository prefix for all DocSpace applications
+  repoPrefix: ""
+  # images.tag Global image tag for all DocSpace applications
+  # Does not apply to the Document Server and Elasticsearch
+  tag: 2.6.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -240,12 +276,34 @@ log:
 debug:
   enabled: "false"
 # DocSpace Init Containers parameters
+# Containers that run before containers in a Pods
+# ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 initContainers:
+  # Parameters of the Check DB initContainers
+  checkDB:
+    image:
+      # initContainers.checkDB.image.repository check-db initContainer image repository
+      repository: onlyoffice/docs-utils
+      # initContainers.checkDB.image.tag check-db initContainer image tag
+      tag: 8.0.1-1
+      # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
+      pullPolicy: IfNotPresent
+    # check-db initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # initContainers.checkDB.resources.requests The requested resources for the check-db initContainer
+    # initContainers.checkDB.resources.limits The resources limits for the check-db initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
   # Parameters of the Wait Storage initContainers
   waitStorage:
     image:
       # initContainers.waitStorage.image.repository app-wait-storage initContainer image repository
-      repository: onlyoffice/4testing-docspace-wait-bin-share
+      repository: onlyoffice/docspace-wait-bin-share
       # initContainers.waitStorage.image.tag app-wait-storage initContainer image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -262,11 +320,11 @@ initContainers:
       limits:
         memory: "1Gi"
         cpu: "1000m"
-  # Parameters of the Wait Storage initContainers
+  # Parameters of the Init Storage initContainers
   initStorage:
     image:
       # initContainers.initStorage.image.repository app-init-storage initContainer image repository
-      repository: onlyoffice/4testing-docspace-bin-share
+      repository: onlyoffice/docspace-bin-share
       # initContainers.initStorage.image.tag app-init-storage initContainer image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -283,6 +341,17 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
+  # initContainers.custom Custom initContainers parameters
+  # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
+  # Example:
+  # custom:
+  #   - name: additional-init-container
+  #     image: busybox:latest
+  #     command: ['chown', '-R', '104:107', '/app/onlyoffice/data']
+  #     volumeMounts:
+  #     - name: docspace-data
+  #       mountPath: /app/onlyoffice/data
+  custom: []
 # DocSpace persistence parameters
 persistence:
   # persistence.storageClass PVC Storage Class for DocSpace data volume
@@ -291,52 +360,73 @@ persistence:
     # persistence.docspaceData.existingClaim The name of the existing PVC for storing files common to all services
     # If not specified, a PVC named "docspace-data" will be created
     existingClaim: ""
+    # persistence.docspaceData.annotations Defines annotations that will be additionally added to common files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.docspaceData.size PVC Storage Request for common files volume
     size: 8Gi
   filesData:
     # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
     # If not specified, a PVC named "files-data" will be created
     existingClaim: ""
+    # persistence.filesData.annotations Defines annotations that will be additionally added to Files PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.filesData.size PVC Storage Request for Files volume
-    size: 1Gi
+    size: 2Gi
   peopleData:
     # persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
     # If not specified, a PVC named "people-data" will be created
     existingClaim: ""
+    # persistence.peopleData.annotations Defines annotations that will be additionally added to People Server PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.peopleData.size PVC Storage Request for People Server volume
-    size: 1Gi
+    size: 2Gi
   routerLog:
     # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
     # If not specified, a PVC named "router-log" will be created
     existingClaim: ""
+    # persistence.routerLog.annotations Defines annotations that will be additionally added to Nginx logs PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
     # persistence.routerLog.size PVC Storage Request for Nginx logs volume
     size: 5Gi
-
-# DocSpace common deployment parameters
-# This block defines common parameters for all deployments only
-#
 # Pod anti-affinity parameters
 # Pod anti-affinity prohibits at all (required) or, if possible (preferred), placing a second pod with the same label on the same node
+# Does not apply to `Docs` and `Opensearch`
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 podAntiAffinity:
   # podAntiAffinity.type Types of Pod antiaffinity. Allowed values: `preferred` or `required`
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   type: "preferred"
   # podAntiAffinity.topologyKey Node label key to match
   topologyKey: kubernetes.io/hostname
   # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
-# DocSpace Files Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Files application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 files:
+  # files.enabled Enables Files installation
+  enabled: true
+  # files.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # files.annotations Defines annotations that will be additionally added to Files deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # files.replicaCount Number of Files replicas to deploy
-  # If the `files.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # files.updateStrategy.type Files Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # files.updateStrategy.type Files update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `files.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `files.kind` is set to `Deployment`
     type: RollingUpdate
     # files.updateStrategy.rollingUpdate Used only when `files.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -344,6 +434,29 @@ files:
       maxUnavailable: 25%
       # files.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Pods created over the desired number of Pods
       maxSurge: 25%
+  # files.podManagementPolicy The Files Pods scaling operations policy
+  # Used if `files.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # files.podAnnotations Map of annotations to add to the Files pods
+  podAnnotations: {}
+  # Configure a Security Context for the Files Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # files.podSecurityContext.enabled Enable security context for the Files pods
+    enabled: false
+  # files.customPodAntiAffinity Prohibiting the scheduling of Files Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files-services
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -359,7 +472,7 @@ files:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Files Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -372,15 +485,36 @@ files:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # files.nodeSelector Node labels for Files pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # files.tolerations Tolerations for Files pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files container image parameters
   image:
     # files.image.repository files container image repository
-    repository: onlyoffice/4testing-docspace-files
+    repository: onlyoffice/docspace-files
     # files.image.tag files container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # files.image.pullPolicy files container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # files.containerSecurityContext.enabled Enable security context for containers in Files pods
+    enabled: false
+  # files.lifecycleHooks Defines the Files container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # files.containerPorts.app files container port
   containerPorts:
     app: 5050
@@ -389,7 +523,7 @@ files:
   # The parameters below for startup probes are used only when `files.startupProbe.enabled=true`
   startupProbe:
     # files.startupProbe.enabled Enable startupProbe for files container
-    enabled: false
+    enabled: true
     httpGet:
       # files.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -402,7 +536,7 @@ files:
   # The parameters below for readiness probes are used only when `files.readinessProbe.enabled=true`
   readinessProbe:
     # files.readinessProbe.enabled Enable readinessProbe for files container
-    enabled: false
+    enabled: true
     # files.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -411,15 +545,15 @@ files:
       # files.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # files.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # files.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # files.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `files.livenessProbe.enabled=true`
   livenessProbe:
     # files.livenessProbe.enabled Enable livenessProbe for files container
-    enabled: false
+    enabled: true
     # files.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -428,7 +562,7 @@ files:
       # files.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # files.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # files.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # files.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -444,18 +578,30 @@ files:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  # files.mysqlUser Database user who will be used by the Files service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace People Server Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace People Server application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
+  # peopleServer.enabled Enables People Server installation
+  enabled: true
+  # peopleServer.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # peopleServer.annotations Defines annotations that will be additionally added to People Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
-  # If the `peopleServer.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # peopleServer.updateStrategy.type People Server Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # peopleServer.updateStrategy.type People Server update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `peopleServer.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `peopleServer.kind` is set to `Deployment`
     type: RollingUpdate
     # peopleServer.updateStrategy.rollingUpdate Used only when `peopleServer.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -463,6 +609,19 @@ peopleServer:
       maxUnavailable: 25%
       # peopleServer.updateStrategy.rollingUpdate.maxSurge Maximum number of People Server Pods created over the desired number of Pods
       maxSurge: 25%
+  # peopleServer.podManagementPolicy The People Server Pods scaling operations policy
+  # Used if `peopleServer.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # peopleServer.podAnnotations Map of annotations to add to the People Server pods
+  podAnnotations: {}
+  # Configure a Security Context for the People Server Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # peopleServer.podSecurityContext.enabled Enable security context for the People Server pods
+    enabled: false
+  # peopleServer.customPodAntiAffinity Prohibiting the scheduling of People Server Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for People Server Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes People Server Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -478,7 +637,7 @@ peopleServer:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for People Server Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes People Server Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes People Server Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -491,15 +650,31 @@ peopleServer:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # peopleServer.nodeSelector Node labels for People Server pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # peopleServer.tolerations Tolerations for People Server pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # People Server container image parameters
   image:
     # peopleServer.image.repository People Server container image repository
-    repository: onlyoffice/4testing-docspace-people-server
+    repository: onlyoffice/docspace-people-server
     # peopleServer.image.tag People Server container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # peopleServer.image.pullPolicy People Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in People Server Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # peopleServer.containerSecurityContext.enabled Enable security context for containers in People Server pods
+    enabled: false
+  # peopleServer.lifecycleHooks Defines the People Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # peopleServer.containerPorts.app People Server container port
   containerPorts:
     app: 5050
@@ -508,7 +683,7 @@ peopleServer:
   # The parameters below for startup probes are used only when `peopleServer.startupProbe.enabled=true`
   startupProbe:
     # peopleServer.startupProbe.enabled Enable startupProbe for People Server container
-    enabled: false
+    enabled: true
     httpGet:
       # peopleServer.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -521,7 +696,7 @@ peopleServer:
   # The parameters below for readiness probes are used only when `peopleServer.readinessProbe.enabled=true`
   readinessProbe:
     # peopleServer.readinessProbe.enabled Enable readinessProbe for People Server container
-    enabled: false
+    enabled: true
     # peopleServer.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -534,11 +709,11 @@ peopleServer:
     # peopleServer.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # peopleServer.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `peopleServer.livenessProbe.enabled=true`
   livenessProbe:
     # peopleServer.livenessProbe.enabled Enable livenessProbe for People Server container
-    enabled: false
+    enabled: true
     # peopleServer.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -563,18 +738,30 @@ peopleServer:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # peopleServer.mysqlUser Database user who will be used by the People Server service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Router Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Router application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 router:
+  # router.enabled Enables Router installation
+  enabled: true
+  # router.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # router.annotations Defines annotations that will be additionally added to Router deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # router.replicaCount Number of Router replicas to deploy
-  # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # router.updateStrategy.type Router Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # router.updateStrategy.type Router update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `router.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `router.kind` is set to `Deployment`
     type: RollingUpdate
     # router.updateStrategy.rollingUpdate Used only when `router.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -582,6 +769,19 @@ router:
       maxUnavailable: 25%
       # router.updateStrategy.rollingUpdate.maxSurge Maximum number of Router Pods created over the desired number of Pods
       maxSurge: 25%
+  # router.podManagementPolicy The Router Pods scaling operations policy
+  # Used if `router.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # router.podAnnotations Map of annotations to add to the Router pods
+  podAnnotations: {}
+  # Configure a Security Context for the Router Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # router.podSecurityContext.enabled Enable security context for the Router pods
+    enabled: false
+  # router.customPodAntiAffinity Prohibiting the scheduling of Router Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Router Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Router Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -597,7 +797,7 @@ router:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Router Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Router Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Router Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -610,15 +810,40 @@ router:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # router.nodeSelector Node labels for Router pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # router.tolerations Tolerations for Router pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  # Router initContainers parameters
+  # router.initContainers Containers that run before Router container in a Pod
+  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  # Example:
+  # initContainers:
+  #   - name: custom-init-container
+  #     image: busybox:latest
+  #     command: ['sh', '-c', 'sleep 180']
+  initContainers: []
   # Router container image parameters
   image:
     # router.image.repository Router container image repository
-    repository: onlyoffice/4testing-docspace-router
+    repository: onlyoffice/docspace-router
     # router.image.tag Router container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # router.image.pullPolicy Router container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Router Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # router.containerSecurityContext.enabled Enable security context for containers in Router pods
+    enabled: false
+  # router.lifecycleHooks Defines the Router container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # router.containerPorts.external Router container port
   containerPorts:
     external: 8092
@@ -627,7 +852,7 @@ router:
   # The parameters below for startup probes are used only when `router.startupProbe.enabled=true`
   startupProbe:
     # router.startupProbe.enabled Enable startupProbe for Router container
-    enabled: false
+    enabled: true
     httpGet:
       # router.startupProbe.httpGet.path Checking the path for startupProbe
       path: /
@@ -640,7 +865,7 @@ router:
   # The parameters below for readiness probes are used only when `router.readinessProbe.enabled=true`
   readinessProbe:
     # router.readinessProbe.enabled Enable readinessProbe for Router container
-    enabled: false
+    enabled: true
     # router.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -649,15 +874,15 @@ router:
       # router.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 8092
     # router.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # router.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # router.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `router.livenessProbe.enabled=true`
   livenessProbe:
     # router.livenessProbe.enabled Enable livenessProbe for Router container
-    enabled: false
+    enabled: true
     # router.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 5
     httpGet:
@@ -666,7 +891,7 @@ router:
       # router.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 8092
     # router.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # router.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # router.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -684,14 +909,6 @@ router:
       cpu: "2000m"
   # Additional configuration files for Router
   extraConf:
-    initScripts:
-      # router.extraConf.initScripts.configMap The name of the ConfigMap containing initialization scripts
-      configMap: router-init-scripts
-      # router.extraConf.initScripts.fileName The names of scripts containing initialization scripts
-      # The values set here are necessary for correct Router configuration. You don't need to change it
-      fileName:
-        - 40-change-hosts.sh
-        - 50-change-router-onlyoffice-conf.sh
     customInitScripts:
       # router.extraConf.customInitScripts.configMap The name of the ConfigMap containing custom initialization scripts
       configMap: ""
@@ -760,19 +977,25 @@ router:
     # local: "/tmp/resolv.conf"
     local: "on"
 
-# DocSpace Healthchecks Deployment parameters
-# This block defines the parameters common to all the Pods of this deployment
+# DocSpace Healthchecks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 healthchecks:
   # healthchecks.enabled Enables Healthchecks installation
   enabled: true
+  # healthchecks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # healthchecks.annotations Defines annotations that will be additionally added to Healthchecks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
-  # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 1
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # healthchecks.updateStrategy.type Healthchecks Deployment update strategy type
-    # Allowed values: `RollingUpdate` or `Recreate`
+    # healthchecks.updateStrategy.type Healthchecks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `healthchecks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `healthchecks.kind` is set to `Deployment`
     type: RollingUpdate
     # healthchecks.updateStrategy.rollingUpdate Used only when `healthchecks.updateStrategy.type=RollingUpdate`
     rollingUpdate:
@@ -780,6 +1003,19 @@ healthchecks:
       maxUnavailable: 25%
       # healthchecks.updateStrategy.rollingUpdate.maxSurge Maximum number of Healthchecks Pods created over the desired number of Pods
       maxSurge: 25%
+  # healthchecks.podManagementPolicy The Healthchecks Pods scaling operations policy
+  # Used if `healthchecks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # healthchecks.podAnnotations Map of annotations to add to the Healthchecks pods
+  podAnnotations: {}
+  # Configure a Security Context for the Healthchecks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # healthchecks.podSecurityContext.enabled Enable security context for the Healthchecks pods
+    enabled: false
+  # healthchecks.customPodAntiAffinity Prohibiting the scheduling of Healthchecks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Healthchecks Pods scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -795,7 +1031,7 @@ healthchecks:
   #     topologyKey: topology.kubernetes.io/zone
   podAffinity: {}
   # Node affinity rules for Healthchecks Pods scheduling by nodes
-  # Node affinity allow you to constrain which nodes Healthchecks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Healthchecks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -808,15 +1044,31 @@ healthchecks:
   #         - zone1
   #         - zone2
   nodeAffinity: {}
+  # healthchecks.nodeSelector Node labels for Healthchecks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # healthchecks.tolerations Tolerations for Healthchecks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Healthchecks container image parameters
   image:
     # healthchecks.image.repository Healthchecks container image repository
-    repository: onlyoffice/4testing-docspace-healthchecks
+    repository: onlyoffice/docspace-healthchecks
     # healthchecks.image.tag Healthchecks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # healthchecks.image.pullPolicy Healthchecks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Healthchecks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # healthchecks.containerSecurityContext.enabled Enable security context for containers in Healthchecks pods
+    enabled: false
+  # healthchecks.lifecycleHooks Defines the Healthchecks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # healthchecks.containerPorts.healthcheck Healthchecks container port
   containerPorts:
     healthcheck: 5050
@@ -825,11 +1077,9 @@ healthchecks:
   # The parameters below for startup probes are used only when `healthchecks.startupProbe.enabled=true`
   startupProbe:
     # healthchecks.startupProbe.enabled Enable startupProbe for Healthchecks container
-    enabled: false
-    httpGet:
-      # healthchecks.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # healthchecks.startupProbe.httpGet.port Checking the port for startupProbe
+    enabled: true
+    tcpSocket:
+      # healthchecks.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 5050
     # healthchecks.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -838,33 +1088,29 @@ healthchecks:
   # The parameters below for readiness probes are used only when `healthchecks.readinessProbe.enabled=true`
   readinessProbe:
     # healthchecks.readinessProbe.enabled Enable readinessProbe for Healthchecks container
-    enabled: false
+    enabled: true
     # healthchecks.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # healthchecks.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # healthchecks.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # healthchecks.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 5050
     # healthchecks.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # healthchecks.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # healthchecks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `healthchecks.livenessProbe.enabled=true`
   livenessProbe:
     # healthchecks.livenessProbe.enabled Enable livenessProbe for Healthchecks container
-    enabled: false
+    enabled: true
     # healthchecks.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # healthchecks.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # healthchecks.livenessProbe.httpGet.port Checking the port for livenessProbe
+    tcpSocket:
+      # healthchecks.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 5050
     # healthchecks.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 60
     # healthchecks.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # healthchecks.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -883,16 +1129,55 @@ healthchecks:
 
 # DocSpace statefulsets
 #
-# DocSpace Api System StatefulSet parameters
+# DocSpace Api System application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 apiSystem:
   # apiSystem.enabled Enables Api System installation
-  enabled: false
+  enabled: true
+  # apiSystem.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # apiSystem.annotations Defines annotations that will be additionally added to Api System deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # apiSystem.replicaCount Number of Api System replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # apiSystem.updateStrategy.type Api System StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # apiSystem.updateStrategy.type Api System update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `apiSystem.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `apiSystem.kind` is set to `Deployment`
     type: RollingUpdate
+    # apiSystem.updateStrategy.rollingUpdate Used only when `apiSystem.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # apiSystem.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api System Pods unavailable during the update process
+      maxUnavailable: 25%
+      # apiSystem.updateStrategy.rollingUpdate.maxSurge Maximum number of Api System Pods created over the desired number of Pods
+      maxSurge: 25%
+  # apiSystem.podManagementPolicy The Api System Pods scaling operations policy
+  # Used if `apiSystem.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # apiSystem.podAnnotations Map of annotations to add to the Api System pods
+  podAnnotations: {}
+  # Configure a Security Context for the Api System Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # apiSystem.podSecurityContext.enabled Enable security context for the Api System pods
+    enabled: false
+  # apiSystem.customPodAntiAffinity Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - api
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api System Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api System Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -910,7 +1195,7 @@ apiSystem:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api System Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api System Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api System Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -924,15 +1209,31 @@ apiSystem:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # apiSystem.nodeSelector Node labels for Api System pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # apiSystem.tolerations Tolerations for Api System pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
-    repository: onlyoffice/4testing-docspace-api-system
+    repository: onlyoffice/docspace-api-system
     # apiSystem.image.tag Api System container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # apiSystem.image.pullPolicy Api System container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api System Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # apiSystem.containerSecurityContext.enabled Enable security context for containers in Api System pods
+    enabled: false
+  # apiSystem.lifecycleHooks Defines the Api System container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # apiSystem.containerPorts.app Api System container port
   containerPorts:
     app: 5050
@@ -941,7 +1242,7 @@ apiSystem:
   # The parameters below for startup probes are used only when `apiSystem.startupProbe.enabled=true`
   startupProbe:
     # apiSystem.startupProbe.enabled Enable startupProbe for Api System container
-    enabled: false
+    enabled: true
     httpGet:
       # apiSystem.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -954,7 +1255,7 @@ apiSystem:
   # The parameters below for readiness probes are used only when `apiSystem.readinessProbe.enabled=true`
   readinessProbe:
     # apiSystem.readinessProbe.enabled Enable readinessProbe for Api System container
-    enabled: false
+    enabled: true
     # apiSystem.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -967,11 +1268,11 @@ apiSystem:
     # apiSystem.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # apiSystem.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `apiSystem.livenessProbe.enabled=true`
   livenessProbe:
     # apiSystem.livenessProbe.enabled Enable livenessProbe for Api System container
-    enabled: false
+    enabled: true
     # apiSystem.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -996,15 +1297,60 @@ apiSystem:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # apiSystem.mysqlUser Database user who will be used by the Api System service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Api StatefulSet parameters
+# DocSpace Api application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 api:
+  # api.enabled Enables Api installation
+  enabled: true
+  # api.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # api.annotations Defines annotations that will be additionally added to Api deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # api.replicaCount Number of Api replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # api.updateStrategy.type Api StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # api.updateStrategy.type Api update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `api.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `api.kind` is set to `Deployment`
     type: RollingUpdate
+    # api.updateStrategy.rollingUpdate Used only when `api.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # api.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Api Pods unavailable during the update process
+      maxUnavailable: 25%
+      # api.updateStrategy.rollingUpdate.maxSurge Maximum number of Api Pods created over the desired number of Pods
+      maxSurge: 25%
+  # api.podManagementPolicy The Api Pods scaling operations policy
+  # Used if `api.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # api.podAnnotations Map of annotations to add to the Api pods
+  podAnnotations: {}
+  # Configure a Security Context for the Api Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # api.podSecurityContext.enabled Enable security context for the Api pods
+    enabled: false
+  # api.customPodAntiAffinity Prohibiting the scheduling of Api Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
   # Pod affinity rules for Api Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Api Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1022,7 +1368,7 @@ api:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Api Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Api Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Api Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1036,15 +1382,36 @@ api:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # api.nodeSelector Node labels for Api pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # api.tolerations Tolerations for Api pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
-    repository: onlyoffice/4testing-docspace-api
+    repository: onlyoffice/docspace-api
     # api.image.tag Api container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # api.image.pullPolicy Api container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Api Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # api.containerSecurityContext.enabled Enable security context for containers in Api pods
+    enabled: false
+  # api.lifecycleHooks Defines the Api container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
   # api.containerPorts.app Api container port
   containerPorts:
     app: 5050
@@ -1053,7 +1420,7 @@ api:
   # The parameters below for startup probes are used only when `api.startupProbe.enabled=true`
   startupProbe:
     # api.startupProbe.enabled Enable startupProbe for Api container
-    enabled: false
+    enabled: true
     httpGet:
       # api.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1066,7 +1433,7 @@ api:
   # The parameters below for readiness probes are used only when `Api.readinessProbe.enabled=true`
   readinessProbe:
     # api.readinessProbe.enabled Enable readinessProbe for Api container
-    enabled: false
+    enabled: true
     # api.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1075,15 +1442,15 @@ api:
       # api.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # api.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # api.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # api.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `Api.livenessProbe.enabled=true`
   livenessProbe:
     # api.livenessProbe.enabled Enable livenessProbe for Api container
-    enabled: false
+    enabled: true
     # api.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1092,7 +1459,7 @@ api:
       # api.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # api.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # api.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # api.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -1108,15 +1475,50 @@ api:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  # api.mysqlUser Database user who will be used by the Api service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Backup StatefulSet parameters
+# DocSpace Backup application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backup:
+  # backup.enabled Enables Backup installation
+  enabled: true
+  # backup.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backup.annotations Defines annotations that will be additionally added to Backup deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # backup.replicaCount Number of Backup replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backup.updateStrategy.type Backup StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backup.updateStrategy.type Backup update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backup.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backup.kind` is set to `Deployment`
     type: RollingUpdate
+    # backup.updateStrategy.rollingUpdate Used only when `backup.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backup.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backup.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backup.podManagementPolicy The Backup Pods scaling operations policy
+  # Used if `backup.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # backup.podAnnotations Map of annotations to add to the Backup pods
+  podAnnotations: {}
+  # Configure a Security Context for the Backup Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backup.podSecurityContext.enabled Enable security context for the Backup pods
+    enabled: false
+  # backup.customPodAntiAffinity Prohibiting the scheduling of Backup Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Backup Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1134,7 +1536,7 @@ backup:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes backup Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes backup Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1148,15 +1550,31 @@ backup:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backup.nodeSelector Node labels for Backup pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backup.tolerations Tolerations for Backup pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup container image parameters
   image:
     # backup.image.repository Backup container image repository
-    repository: onlyoffice/4testing-docspace-backup
+    repository: onlyoffice/docspace-backup
     # backup.image.tag Backup container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # backup.image.pullPolicy Backup container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backup.containerSecurityContext.enabled Enable security context for containers in Backup pods
+    enabled: false
+  # backup.lifecycleHooks Defines the Backup container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backup.containerPorts.app Backup container port
   containerPorts:
     app: 5050
@@ -1165,7 +1583,7 @@ backup:
   # The parameters below for startup probes are used only when `backup.startupProbe.enabled=true`
   startupProbe:
     # backup.startupProbe.enabled Enable startupProbe for Backup container
-    enabled: false
+    enabled: true
     httpGet:
       # backup.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1178,7 +1596,7 @@ backup:
   # The parameters below for readiness probes are used only when `backup.readinessProbe.enabled=true`
   readinessProbe:
     # backup.readinessProbe.enabled Enable readinessProbe for Backup container
-    enabled: false
+    enabled: true
     # backup.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1191,11 +1609,11 @@ backup:
     # backup.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # backup.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `backup.livenessProbe.enabled=true`
   livenessProbe:
     # backup.livenessProbe.enabled Enable livenessProbe for Backup container
-    enabled: false
+    enabled: true
     # backup.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1220,15 +1638,50 @@ backup:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # backup.mysqlUser Database user who will be used by the Backup service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Backup Background Tasks StatefulSet parameters
+# DocSpace Backup Background Tasks application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 backupBackgroundTasks:
+  # backupBackgroundTasks.enabled Enables Backup Background Tasks installation
+  enabled: true
+  # backupBackgroundTasks.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backupBackgroundTasks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupBackgroundTasks.kind` is set to `Deployment`
     type: RollingUpdate
+    # backupBackgroundTasks.updateStrategy.rollingUpdate Used only when `backupBackgroundTasks.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Background Tasks Pods unavailable during the update process
+      maxUnavailable: 25%
+      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Background Tasks Pods created over the desired number of Pods
+      maxSurge: 25%
+  # backupBackgroundTasks.podManagementPolicy The Backup Background Tasks Pods scaling operations policy
+  # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
+  podAnnotations: {}
+  # Configure a Security Context for the Backup Background Tasks Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
+    enabled: false
+  # backupBackgroundTasks.customPodAntiAffinity Prohibiting the scheduling of Backup Background Tasks Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1246,7 +1699,7 @@ backupBackgroundTasks:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Backup Background Tasks Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Backup Background Tasks Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1260,15 +1713,31 @@ backupBackgroundTasks:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # backupBackgroundTasks.nodeSelector Node labels for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # backupBackgroundTasks.tolerations Tolerations for Backup Background Tasks pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
-    repository: onlyoffice/4testing-docspace-backup-background
+    repository: onlyoffice/docspace-backup-background
     # backupBackgroundTasks.image.tag Backup Background Tasks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # backupBackgroundTasks.image.pullPolicy Backup Background Tasks container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Backup Background Tasks Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
+    enabled: false
+  # backupBackgroundTasks.lifecycleHooks Defines the Backup Background Tasks container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
   containerPorts:
     app: 5050
@@ -1277,7 +1746,7 @@ backupBackgroundTasks:
   # The parameters below for startup probes are used only when `backupBackgroundTasks.startupProbe.enabled=true`
   startupProbe:
     # backupBackgroundTasks.startupProbe.enabled Enable startupProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     httpGet:
       # backupBackgroundTasks.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1290,7 +1759,7 @@ backupBackgroundTasks:
   # The parameters below for readiness probes are used only when `backupBackgroundTasks.readinessProbe.enabled=true`
   readinessProbe:
     # backupBackgroundTasks.readinessProbe.enabled Enable readinessProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     # backupBackgroundTasks.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1303,11 +1772,11 @@ backupBackgroundTasks:
     # backupBackgroundTasks.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # backupBackgroundTasks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `backupBackgroundTasks.livenessProbe.enabled=true`
   livenessProbe:
     # backupBackgroundTasks.livenessProbe.enabled Enable livenessProbe for Backup Background Tasks container
-    enabled: false
+    enabled: true
     # backupBackgroundTasks.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1332,15 +1801,50 @@ backupBackgroundTasks:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # backupBackgroundTasks.mysqlUser Database user who will be used by the Backup Background Tasks service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Clear Events StatefulSet parameters
+# DocSpace Clear Events application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
+  # clearEvents.enabled Enables Clear Events installation
+  enabled: true
+  # clearEvents.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # clearEvents.annotations Defines annotations that will be additionally added to Clear Events deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # clearEvents.updateStrategy.type Clear Events StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # clearEvents.updateStrategy.type Clear Events update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `clearEvents.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `clearEvents.kind` is set to `Deployment`
     type: RollingUpdate
+    # clearEvents.updateStrategy.rollingUpdate Used only when `clearEvents.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # clearEvents.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Clear Events Pods unavailable during the update process
+      maxUnavailable: 25%
+      # clearEvents.updateStrategy.rollingUpdate.maxSurge Maximum number of Clear Events Pods created over the desired number of Pods
+      maxSurge: 25%
+  # clearEvents.podManagementPolicy The Clear Events Pods scaling operations policy
+  # Used if `clearEvents.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # clearEvents.podAnnotations Map of annotations to add to the Clear Events pods
+  podAnnotations: {}
+  # Configure a Security Context for the Clear Events Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # clearEvents.podSecurityContext.enabled Enable security context for the Clear Events pods
+    enabled: false
+  # clearEvents.customPodAntiAffinity Prohibiting the scheduling of Clear Events Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Clear Events Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1358,7 +1862,7 @@ clearEvents:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Clear Events Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Clear Events Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Clear Events Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1372,15 +1876,31 @@ clearEvents:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # clearEvents.nodeSelector Node labels for Clear Events pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # clearEvents.tolerations Tolerations for Clear Events pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Clear Events container image parameters
   image:
     # clearEvents.image.repository Clear Events container image repository
-    repository: onlyoffice/4testing-docspace-clear-events
+    repository: onlyoffice/docspace-clear-events
     # clearEvents.image.tag Clear Events container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # clearEvents.image.pullPolicy Clear Events container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Clear Events Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # clearEvents.containerSecurityContext.enabled Enable security context for containers in Clear Events pods
+    enabled: false
+  # clearEvents.lifecycleHooks Defines the Clear Events container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # clearEvents.containerPorts.app Clear Events container port
   containerPorts:
     app: 5050
@@ -1389,7 +1909,7 @@ clearEvents:
   # The parameters below for startup probes are used only when `clearEvents.startupProbe.enabled=true`
   startupProbe:
     # clearEvents.startupProbe.enabled Enable startupProbe for Clear Events container
-    enabled: false
+    enabled: true
     httpGet:
       # clearEvents.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1402,7 +1922,7 @@ clearEvents:
   # The parameters below for readiness probes are used only when `clearEvents.readinessProbe.enabled=true`
   readinessProbe:
     # clearEvents.readinessProbe.enabled Enable readinessProbe for Clear Events container
-    enabled: false
+    enabled: true
     # clearEvents.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1415,11 +1935,11 @@ clearEvents:
     # clearEvents.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # clearEvents.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `clearEvents.livenessProbe.enabled=true`
   livenessProbe:
     # clearEvents.livenessProbe.enabled Enable livenessProbe for Clear Events container
-    enabled: false
+    enabled: true
     # clearEvents.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1444,15 +1964,50 @@ clearEvents:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # clearEvents.mysqlUser Database user who will be used by the Clear Events service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Doceditor StatefulSet parameters
+# DocSpace Doceditor application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 doceditor:
+  # doceditor.enabled Enables Doceditor installation
+  enabled: true
+  # doceditor.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # doceditor.annotations Defines annotations that will be additionally added to Doceditor deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # doceditor.replicaCount Number of Doceditor replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # doceditor.updateStrategy.type Doceditor StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # doceditor.updateStrategy.type Doceditor update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `doceditor.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `doceditor.kind` is set to `Deployment`
     type: RollingUpdate
+    # doceditor.updateStrategy.rollingUpdate Used only when `doceditor.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # doceditor.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Doceditor Pods unavailable during the update process
+      maxUnavailable: 25%
+      # doceditor.updateStrategy.rollingUpdate.maxSurge Maximum number of Doceditor Pods created over the desired number of Pods
+      maxSurge: 25%
+  # doceditor.podManagementPolicy The Doceditor Pods scaling operations policy
+  # Used if `doceditor.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # doceditor.podAnnotations Map of annotations to add to the Doceditor pods
+  podAnnotations: {}
+  # Configure a Security Context for the Doceditor Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # doceditor.podSecurityContext.enabled Enable security context for the Doceditor pods
+    enabled: false
+  # doceditor.customPodAntiAffinity Prohibiting the scheduling of Doceditor Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Doceditor Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1470,7 +2025,7 @@ doceditor:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Doceditor Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Doceditor Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Doceditor Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1484,29 +2039,45 @@ doceditor:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # doceditor.nodeSelector Node labels for Doceditor pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # doceditor.tolerations Tolerations for Doceditor pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Doceditor container image parameters
   image:
     # doceditor.image.repository Doceditor container image repository
-    repository: onlyoffice/4testing-docspace-doceditor
+    repository: onlyoffice/docspace-doceditor
     # doceditor.image.tag Doceditor container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # doceditor.image.pullPolicy Doceditor container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Doceditor Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # doceditor.containerSecurityContext.enabled Enable security context for containers in Doceditor pods
+    enabled: false
+  # doceditor.lifecycleHooks Defines the Doceditor container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # doceditor.containerPorts.app Doceditor container port
     app: 5050
-    # doceditor.containerPorts.doceditor Socket additional container port
+    # doceditor.containerPorts.doceditor Doceditor additional container port
     doceditor: 5013
   # Probe used for the Doceditor container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `doceditor.startupProbe.enabled=true`
   startupProbe:
     # doceditor.startupProbe.enabled Enable startupProbe for Doceditor container
-    enabled: false
+    enabled: true
     httpGet:
       # doceditor.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5013
     # doceditor.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -1516,12 +2087,12 @@ doceditor:
   # The parameters below for readiness probes are used only when `doceditor.readinessProbe.enabled=true`
   readinessProbe:
     # doceditor.readinessProbe.enabled Enable readinessProbe for Doceditor container
-    enabled: false
+    enabled: true
     # doceditor.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
       # doceditor.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5013
     # doceditor.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -1529,16 +2100,16 @@ doceditor:
     # doceditor.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # doceditor.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `doceditor.livenessProbe.enabled=true`
   livenessProbe:
     # doceditor.livenessProbe.enabled Enable livenessProbe for Doceditor container
-    enabled: false
+    enabled: true
     # doceditor.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
       # doceditor.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /doceditor/health
       # doceditor.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5013
     # doceditor.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -1558,15 +2129,50 @@ doceditor:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # doceditor.mysqlUser Database user who will be used by the Doceditor service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Files Services StatefulSet parameters
+# DocSpace Files Services application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 filesServices:
+  # filesServices.enabled Enables Files Services installation
+  enabled: true
+  # filesServices.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # filesServices.replicaCount Number of Files Services replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # filesServices.updateStrategy.type Files Services StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # filesServices.updateStrategy.type Files Services update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `filesServices.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesServices.kind` is set to `Deployment`
     type: RollingUpdate
+    # filesServices.updateStrategy.rollingUpdate Used only when `filesServices.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # filesServices.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Services Pods unavailable during the update process
+      maxUnavailable: 25%
+      # filesServices.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Services Pods created over the desired number of Pods
+      maxSurge: 25%
+  # filesServices.podManagementPolicy The Files Services Pods scaling operations policy
+  # Used if `filesServices.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # filesServices.podAnnotations Map of annotations to add to the Files Services pods
+  podAnnotations: {}
+  # Configure a Security Context for the Files Services Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
+    enabled: false
+  # filesServices.customPodAntiAffinity Prohibiting the scheduling of Files Services Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1584,7 +2190,7 @@ filesServices:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Files Services Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Services Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1598,15 +2204,31 @@ filesServices:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # filesServices.nodeSelector Node labels for Files Services pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # filesServices.tolerations Tolerations for Files Services pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
-    repository: onlyoffice/4testing-docspace-files-services
+    repository: onlyoffice/docspace-files-services
     # filesServices.image.tag Files Services container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # filesServices.image.pullPolicy Files Services container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Files Services Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
+    enabled: false
+  # filesServices.lifecycleHooks Defines the Files Services container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # filesServices.containerPorts.app Files Services container port
   containerPorts:
     app: 5050
@@ -1615,7 +2237,7 @@ filesServices:
   # The parameters below for startup probes are used only when `filesServices.startupProbe.enabled=true`
   startupProbe:
     # filesServices.startupProbe.enabled Enable startupProbe for Files Services container
-    enabled: false
+    enabled: true
     httpGet:
       # filesServices.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1628,7 +2250,7 @@ filesServices:
   # The parameters below for readiness probes are used only when `filesServices.readinessProbe.enabled=true`
   readinessProbe:
     # filesServices.readinessProbe.enabled Enable readinessProbe for Files Services container
-    enabled: false
+    enabled: true
     # filesServices.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1637,15 +2259,15 @@ filesServices:
       # filesServices.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # filesServices.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # filesServices.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # filesServices.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `filesServices.livenessProbe.enabled=true`
   livenessProbe:
     # filesServices.livenessProbe.enabled Enable livenessProbe for Files Services container
-    enabled: false
+    enabled: true
     # filesServices.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1654,7 +2276,7 @@ filesServices:
       # filesServices.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # filesServices.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # filesServices.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # filesServices.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -1670,15 +2292,50 @@ filesServices:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # filesServices.mysqlUser Database user who will be used by the Files Services service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Login StatefulSet parameters
+# DocSpace Login application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 login:
+  # login.enabled Enables Login installation
+  enabled: true
+  # login.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # login.annotations Defines annotations that will be additionally added to Login deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # login.replicaCount Number of Login replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # login.updateStrategy.type Login update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
     type: RollingUpdate
+    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      maxUnavailable: 25%
+      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      maxSurge: 25%
+  # login.podManagementPolicy The Login Pods scaling operations policy
+  # Used if `login.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # login.podAnnotations Map of annotations to add to the Login pods
+  podAnnotations: {}
+  # Configure a Security Context for the Login Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # login.podSecurityContext.enabled Enable security context for the Login pods
+    enabled: false
+  # login.customPodAntiAffinity Prohibiting the scheduling of Login Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1696,7 +2353,7 @@ login:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Login Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Login Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Login Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1710,15 +2367,31 @@ login:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # login.nodeSelector Node labels for Login pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # login.tolerations Tolerations for Login pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Login container image parameters
   image:
     # login.image.repository Login container image repository
-    repository: onlyoffice/4testing-docspace-login
+    repository: onlyoffice/docspace-login
     # login.image.tag Login container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # login.image.pullPolicy Login container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Login Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    enabled: false
+  # login.lifecycleHooks Defines the Login container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # login.containerPorts.login Login container port
   containerPorts:
     login: 5011
@@ -1727,10 +2400,10 @@ login:
   # The parameters below for startup probes are used only when `login.startupProbe.enabled=true`
   startupProbe:
     # login.startupProbe.enabled Enable startupProbe for Login container
-    enabled: false
+    enabled: true
     httpGet:
       # login.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /login/health
       # login.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5011
     # login.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -1740,12 +2413,12 @@ login:
   # The parameters below for readiness probes are used only when `login.readinessProbe.enabled=true`
   readinessProbe:
     # login.readinessProbe.enabled Enable readinessProbe for Login container
-    enabled: false
+    enabled: true
     # login.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
       # login.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /login/health
       # login.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5011
     # login.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -1753,16 +2426,16 @@ login:
     # login.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # login.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `login.livenessProbe.enabled=true`
   livenessProbe:
     # login.livenessProbe.enabled Enable livenessProbe for Login container
-    enabled: false
+    enabled: true
     # login.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
       # login.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /login/health
       # login.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5011
     # login.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -1782,15 +2455,50 @@ login:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # login.mysqlUser Database user who will be used by the Login service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Notify StatefulSet parameters
+# DocSpace Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 notify:
+  # notify.enabled Enables Notify installation
+  enabled: true
+  # notify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # notify.annotations Defines annotations that will be additionally added to Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # notify.replicaCount Number of Notify replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # notify.updateStrategy.type Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # notify.updateStrategy.type Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `notify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `notify.kind` is set to `Deployment`
     type: RollingUpdate
+    # notify.updateStrategy.rollingUpdate Used only when `notify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # notify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # notify.updateStrategy.rollingUpdate.maxSurge Maximum number of Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # notify.podManagementPolicy The Notify Pods scaling operations policy
+  # Used if `notify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # notify.podAnnotations Map of annotations to add to the Notify pods
+  podAnnotations: {}
+  # Configure a Security Context for the Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # notify.podSecurityContext.enabled Enable security context for the Notify pods
+    enabled: false
+  # notify.customPodAntiAffinity Prohibiting the scheduling of Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1808,7 +2516,7 @@ notify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1822,15 +2530,31 @@ notify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # notify.nodeSelector Node labels for Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # notify.tolerations Tolerations for Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Notify container image parameters
   image:
     # notify.image.repository Notify container image repository
-    repository: onlyoffice/4testing-docspace-notify
+    repository: onlyoffice/docspace-notify
     # notify.image.tag Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # notify.image.pullPolicy Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # notify.containerSecurityContext.enabled Enable security context for containers in Notify pods
+    enabled: false
+  # notify.lifecycleHooks Defines the Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # notify.containerPorts.app Notify container port
   containerPorts:
     app: 5050
@@ -1839,7 +2563,7 @@ notify:
   # The parameters below for startup probes are used only when `notify.startupProbe.enabled=true`
   startupProbe:
     # notify.startupProbe.enabled Enable startupProbe for Notify container
-    enabled: false
+    enabled: true
     httpGet:
       # notify.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -1852,7 +2576,7 @@ notify:
   # The parameters below for readiness probes are used only when `notify.readinessProbe.enabled=true`
   readinessProbe:
     # notify.readinessProbe.enabled Enable readinessProbe for Notify container
-    enabled: false
+    enabled: true
     # notify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -1865,11 +2589,11 @@ notify:
     # notify.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # notify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `notify.livenessProbe.enabled=true`
   livenessProbe:
     # notify.livenessProbe.enabled Enable livenessProbe for Notify container
-    enabled: false
+    enabled: true
     # notify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -1894,15 +2618,50 @@ notify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # notify.mysqlUser Database user who will be used by the Notify service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Socket StatefulSet parameters
+# DocSpace Socket application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 socket:
+  # socket.enabled Enables Socket installation
+  enabled: true
+  # socket.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # socket.annotations Defines annotations that will be additionally added to Socket deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # socket.replicaCount Number of Socket replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # socket.updateStrategy.type Socket StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # socket.updateStrategy.type Socket update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `socket.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `socket.kind` is set to `Deployment`
     type: RollingUpdate
+    # socket.updateStrategy.rollingUpdate Used only when `socket.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # socket.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Socket Pods unavailable during the update process
+      maxUnavailable: 25%
+      # socket.updateStrategy.rollingUpdate.maxSurge Maximum number of Socket Pods created over the desired number of Pods
+      maxSurge: 25%
+  # socket.podManagementPolicy The Socket Pods scaling operations policy
+  # Used if `socket.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # socket.podAnnotations Map of annotations to add to the Socket pods
+  podAnnotations: {}
+  # Configure a Security Context for the Socket Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # socket.podSecurityContext.enabled Enable security context for the Socket pods
+    enabled: false
+  # socket.customPodAntiAffinity Prohibiting the scheduling of Socket Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Socket Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Socket Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -1920,7 +2679,7 @@ socket:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Socket Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Socket Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Socket Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -1934,15 +2693,31 @@ socket:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # socket.nodeSelector Node labels for Socket pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # socket.tolerations Tolerations for Socket pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Socket container image parameters
   image:
     # socket.image.repository Socket container image repository
-    repository: onlyoffice/4testing-docspace-socket
+    repository: onlyoffice/docspace-socket
     # socket.image.tag Socket container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # socket.image.pullPolicy Socket container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Socket Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # socket.containerSecurityContext.enabled Enable security context for containers in Socket pods
+    enabled: false
+  # socket.lifecycleHooks Defines the Socket container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # socket.containerPorts.app Socket container port
     app: 5050
@@ -1953,10 +2728,10 @@ socket:
   # The parameters below for startup probes are used only when `socket.startupProbe.enabled=true`
   startupProbe:
     # socket.startupProbe.enabled Enable startupProbe for Socket container
-    enabled: false
+    enabled: true
     httpGet:
       # socket.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
+      path: /
       # socket.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # socket.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -1966,12 +2741,12 @@ socket:
   # The parameters below for readiness probes are used only when `socket.readinessProbe.enabled=true`
   readinessProbe:
     # socket.readinessProbe.enabled Enable readinessProbe for Socket container
-    enabled: false
+    enabled: true
     # socket.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
       # socket.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
+      path: /
       # socket.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # socket.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -1979,16 +2754,16 @@ socket:
     # socket.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # socket.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `socket.livenessProbe.enabled=true`
   livenessProbe:
     # socket.livenessProbe.enabled Enable livenessProbe for Socket container
-    enabled: false
+    enabled: true
     # socket.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
       # socket.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
+      path: /
       # socket.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # socket.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -2008,15 +2783,50 @@ socket:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # socket.mysqlUser Database user who will be used by the Socket service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace ssoauth StatefulSet parameters
+# DocSpace ssoauth application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
+  # ssoauth.enabled Enables ssoauth installation
+  enabled: true
+  # ssoauth.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # ssoauth.annotations Defines annotations that will be additionally added to ssoauth deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # ssoauth.updateStrategy.type ssoauth StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # ssoauth.updateStrategy.type ssoauth update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `ssoauth.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `ssoauth.kind` is set to `Deployment`
     type: RollingUpdate
+    # ssoauth.updateStrategy.rollingUpdate Used only when `ssoauth.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # ssoauth.updateStrategy.rollingUpdate.maxUnavailable Maximum number of ssoauth Pods unavailable during the update process
+      maxUnavailable: 25%
+      # ssoauth.updateStrategy.rollingUpdate.maxSurge Maximum number of ssoauth Pods created over the desired number of Pods
+      maxSurge: 25%
+  # ssoauth.podManagementPolicy The ssoauth Pods scaling operations policy
+  # Used if `ssoauth.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # ssoauth.podAnnotations Map of annotations to add to the ssoauth pods
+  podAnnotations: {}
+  # Configure a Security Context for the ssoauth Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # ssoauth.podSecurityContext.enabled Enable security context for the ssoauth pods
+    enabled: false
+  # ssoauth.customPodAntiAffinity Prohibiting the scheduling of ssoauth Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for ssoauth Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2034,7 +2844,7 @@ ssoauth:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for ssoauth Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes ssoauth Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes ssoauth Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2048,15 +2858,31 @@ ssoauth:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # ssoauth.nodeSelector Node labels for ssoauth pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # ssoauth.tolerations Tolerations for ssoauth pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # ssoauth container image parameters
   image:
     # ssoauth.image.repository ssoauth container image repository
-    repository: onlyoffice/4testing-docspace-ssoauth
+    repository: onlyoffice/docspace-ssoauth
     # ssoauth.image.tag ssoauth container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # ssoauth.image.pullPolicy ssoauth container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in ssoauth Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # ssoauth.containerSecurityContext.enabled Enable security context for containers in ssoauth pods
+    enabled: false
+  # ssoauth.lifecycleHooks Defines the ssoauth container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # ssoauth.containerPorts.app ssoauth container port
     app: 5050
@@ -2067,11 +2893,9 @@ ssoauth:
   # The parameters below for startup probes are used only when `ssoauth.startupProbe.enabled=true`
   startupProbe:
     # ssoauth.startupProbe.enabled Enable startupProbe for ssoauth container
-    enabled: false
-    httpGet:
-      # ssoauth.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # ssoauth.startupProbe.httpGet.port Checking the port for startupProbe
+    enabled: true
+    tcpSocket:
+      # ssoauth.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 5050
     # ssoauth.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -2080,30 +2904,26 @@ ssoauth:
   # The parameters below for readiness probes are used only when `ssoauth.readinessProbe.enabled=true`
   readinessProbe:
     # ssoauth.readinessProbe.enabled Enable readinessProbe for ssoauth container
-    enabled: false
+    enabled: true
     # ssoauth.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # ssoauth.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # ssoauth.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # ssoauth.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 5050
     # ssoauth.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # ssoauth.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # ssoauth.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `ssoauth.livenessProbe.enabled=true`
   livenessProbe:
     # ssoauth.livenessProbe.enabled Enable livenessProbe for ssoauth container
-    enabled: false
+    enabled: true
     # ssoauth.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # ssoauth.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # ssoauth.livenessProbe.httpGet.port Checking the port for livenessProbe
+    tcpSocket:
+      # ssoauth.livenessProbe.tcpSocket.port Checking the port for livenessProbe
       port: 5050
     # ssoauth.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
@@ -2122,15 +2942,50 @@ ssoauth:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # ssoauth.mysqlUser Database user who will be used by the ssoauth service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Studio StatefulSet parameters
+# DocSpace Studio application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studio:
+  # studio.enabled Enables Studio installation
+  enabled: true
+  # studio.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studio.annotations Defines annotations that will be additionally added to Studio deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # studio.replicaCount Number of Studio replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studio.updateStrategy.type Studio StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studio.updateStrategy.type Studio update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studio.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studio.kind` is set to `Deployment`
     type: RollingUpdate
+    # studio.updateStrategy.rollingUpdate Used only when `studio.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studio.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studio.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studio.podManagementPolicy The Studio Pods scaling operations policy
+  # Used if `studio.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # studio.podAnnotations Map of annotations to add to the Studio pods
+  podAnnotations: {}
+  # Configure a Security Context for the Studio Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studio.podSecurityContext.enabled Enable security context for the Studio pods
+    enabled: false
+  # studio.customPodAntiAffinity Prohibiting the scheduling of Studio Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2148,7 +3003,7 @@ studio:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2162,15 +3017,31 @@ studio:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studio.nodeSelector Node labels for Studio pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studio.tolerations Tolerations for Studio pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio container image parameters
   image:
     # studio.image.repository Studio container image repository
-    repository: onlyoffice/4testing-docspace-studio
+    repository: onlyoffice/docspace-studio
     # studio.image.tag Studio container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # studio.image.pullPolicy Studio container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studio.containerSecurityContext.enabled Enable security context for containers in Studio pods
+    enabled: false
+  # studio.lifecycleHooks Defines the Studio container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studio.containerPorts.app Studio container port
   containerPorts:
     app: 5050
@@ -2179,7 +3050,7 @@ studio:
   # The parameters below for startup probes are used only when `studio.startupProbe.enabled=true`
   startupProbe:
     # studio.startupProbe.enabled Enable startupProbe for Studio container
-    enabled: false
+    enabled: true
     httpGet:
       # studio.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -2192,7 +3063,7 @@ studio:
   # The parameters below for readiness probes are used only when `studio.readinessProbe.enabled=true`
   readinessProbe:
     # studio.readinessProbe.enabled Enable readinessProbe for Studio container
-    enabled: false
+    enabled: true
     # studio.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2205,11 +3076,11 @@ studio:
     # studio.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # studio.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `studio.livenessProbe.enabled=true`
   livenessProbe:
     # studio.livenessProbe.enabled Enable livenessProbe for Studio container
-    enabled: false
+    enabled: true
     # studio.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2234,15 +3105,50 @@ studio:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # studio.mysqlUser Database user who will be used by the Studio service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Studio Notify StatefulSet parameters
+# DocSpace Studio Notify application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
+  # studioNotify.enabled Enables Studio Notify installation
+  enabled: true
+  # studioNotify.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # studioNotify.annotations Defines annotations that will be additionally added to Studio Notify deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # studioNotify.updateStrategy.type Studio Notify StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # studioNotify.updateStrategy.type Studio Notify update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `studioNotify.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `studioNotify.kind` is set to `Deployment`
     type: RollingUpdate
+    # studioNotify.updateStrategy.rollingUpdate Used only when `studioNotify.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # studioNotify.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Studio Notify Pods unavailable during the update process
+      maxUnavailable: 25%
+      # studioNotify.updateStrategy.rollingUpdate.maxSurge Maximum number of Studio Notify Pods created over the desired number of Pods
+      maxSurge: 25%
+  # studioNotify.podManagementPolicy The Studio Notify Pods scaling operations policy
+  # Used if `studioNotify.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # studioNotify.podAnnotations Map of annotations to add to the Studio Notify pods
+  podAnnotations: {}
+  # Configure a Security Context for the Studio Notify Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # studioNotify.podSecurityContext.enabled Enable security context for the Studio Notify pods
+    enabled: false
+  # studioNotify.customPodAntiAffinity Prohibiting the scheduling of Studio Notify Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Studio Notify Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2260,7 +3166,7 @@ studioNotify:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Studio Notify Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Studio Notify Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Studio Notify Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2274,15 +3180,31 @@ studioNotify:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # studioNotify.nodeSelector Node labels for Studio Notify pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # studioNotify.tolerations Tolerations for Studio Notify pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
   # Studio Notify container image parameters
   image:
     # studioNotify.image.repository Studio Notify container image repository
-    repository: onlyoffice/4testing-docspace-studio-notify
+    repository: onlyoffice/docspace-studio-notify
     # studioNotify.image.tag Studio Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
     # studioNotify.image.pullPolicy Studio Notify container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Studio Notify Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # studioNotify.containerSecurityContext.enabled Enable security context for containers in Studio Notify pods
+    enabled: false
+  # studioNotify.lifecycleHooks Defines the Studio Notify container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   # studioNotify.containerPorts.app Studio Notify container port
   containerPorts:
     app: 5050
@@ -2291,7 +3213,7 @@ studioNotify:
   # The parameters below for startup probes are used only when `studioNotify.startupProbe.enabled=true`
   startupProbe:
     # studioNotify.startupProbe.enabled Enable Startup Probe for studioNotify container
-    enabled: false
+    enabled: true
     httpGet:
       # studioNotify.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
@@ -2304,7 +3226,7 @@ studioNotify:
   # The parameters below for readiness probes are used only when `studioNotify.readinessProbe.enabled=true`
   readinessProbe:
     # studioNotify.readinessProbe.enabled Enable readinessProbe for Studio Notify container
-    enabled: false
+    enabled: true
     # studioNotify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2317,11 +3239,11 @@ studioNotify:
     # studioNotify.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # studioNotify.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `studioNotify.livenessProbe.enabled=true`
   livenessProbe:
     # studioNotify.livenessProbe.enabled Enable livenessProbe for Studio Notify container
-    enabled: false
+    enabled: true
     # studioNotify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2346,17 +3268,50 @@ studioNotify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  # studioNotify.mysqlUser Database user who will be used by the Studio Notify service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
 
-# DocSpace Proxy Frontend StatefulSet parameters
+# DocSpace Proxy Frontend application parameters
+# This block defines the parameters common to all the Pods of this application
 #
 proxyFrontend:
   # proxyFrontend.enabled Enables Proxy Frontend installation
   enabled: false
+  # proxyFrontend.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # proxyFrontend.annotations Defines annotations that will be additionally added to Proxy Frontend deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # proxyFrontend.updateStrategy.type Proxy Frontend StatefulSet update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
+    # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `proxyFrontend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `proxyFrontend.kind` is set to `Deployment`
     type: RollingUpdate
+    # proxyFrontend.updateStrategy.rollingUpdate Used only when `proxyFrontend.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # proxyFrontend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Proxy Frontend Pods unavailable during the update process
+      maxUnavailable: 25%
+      # proxyFrontend.updateStrategy.rollingUpdate.maxSurge Maximum number of Proxy Frontend Pods created over the desired number of Pods
+      maxSurge: 25%
+  # proxyFrontend.podManagementPolicy The Proxy Frontend Pods scaling operations policy
+  # Used if `proxyFrontend.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # proxyFrontend.podAnnotations Map of annotations to add to the Proxy Frontend pods
+  podAnnotations: {}
+  # Configure a Security Context for the Proxy Frontend Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # proxyFrontend.podSecurityContext.enabled Enable security context for the Proxy Frontend pods
+    enabled: false
+  # proxyFrontend.customPodAntiAffinity Prohibiting the scheduling of Proxy Frontend Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Proxy Frontend Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2374,7 +3329,7 @@ proxyFrontend:
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
   # Node affinity rules for Proxy Frontend Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Proxy Frontend Pod can be scheduled on based on node labels
+  # Node affinity allow you to constrain which nodes Proxy Frontend Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2388,6 +3343,21 @@ proxyFrontend:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # proxyFrontend.nodeSelector Node labels for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # proxyFrontend.tolerations Tolerations for Proxy Frontend pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  # Proxy Frontend initContainers parameters
+  # proxyFrontend.initContainers Containers that run before Proxy Frontend container in a Pod
+  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  # Example:
+  # initContainers:
+  #   - name: custom-init-container
+  #     image: busybox:latest
+  #     command: ['sh', '-c', 'sleep 180']
+  initContainers: []
   # Proxy Frontend container image parameters
   image:
     # proxyFrontend.image.repository Proxy Frontend container image repository
@@ -2396,6 +3366,16 @@ proxyFrontend:
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Proxy Frontend Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # proxyFrontend.containerSecurityContext.enabled Enable security context for containers in Proxy Frontend pods
+    enabled: false
+  # proxyFrontend.lifecycleHooks Defines the Proxy Frontend container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
     http: 80
@@ -2406,7 +3386,7 @@ proxyFrontend:
   # The parameters below for startup probes are used only when `proxyFrontend.startupProbe.enabled=true`
   startupProbe:
     # proxyFrontend.startupProbe.enabled Enable startupProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     httpGet:
       # proxyFrontend.startupProbe.httpGet.path Checking the path for startupProbe
       path: /
@@ -2419,7 +3399,7 @@ proxyFrontend:
   # The parameters below for readiness probes are used only when `proxyFrontend.readinessProbe.enabled=true`
   readinessProbe:
     # proxyFrontend.readinessProbe.enabled Enable readinessProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     # proxyFrontend.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2428,15 +3408,15 @@ proxyFrontend:
       # proxyFrontend.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 80
     # proxyFrontend.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # proxyFrontend.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # proxyFrontend.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `proxyFrontend.livenessProbe.enabled=true`
   livenessProbe:
     # proxyFrontend.livenessProbe.enabled Enable livenessProbe for Proxy Frontend container
-    enabled: false
+    enabled: true
     # proxyFrontend.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2445,7 +3425,7 @@ proxyFrontend:
       # proxyFrontend.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 80
     # proxyFrontend.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # proxyFrontend.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # proxyFrontend.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -2509,20 +3489,25 @@ proxyFrontend:
 docs:
   # docs.enabled Enables local installation of Document Server in k8s cluster
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  # docs.annotations Defines annotations that will be additionally added to Document Server deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
-    # docs.updateStrategy.type Document Server StatefulSet update strategy type
+    # docs.updateStrategy.type Document Server update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Document Server Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # docs.podAnnotations Map of annotations to add to the Document Server pod
+  podAnnotations: {}
+  # Configure a Security Context for the Document Server Pod
   podSecurityContext:
     # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
     enabled: false
-    # docs.podSecurityContext.runAsUser User ID for the Document Server pod
-    runAsUser: 101
-    # docs.podSecurityContext.runAsGroup Group ID for the Document Server pod
-    runAsGroup: 101
+    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
+    fsGroup: 101
+  # docs.customPodAntiAffinity Prohibiting the scheduling of Document Server Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
   # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
   # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2554,6 +3539,21 @@ docs:
   #         - name1
   #         - name2
   nodeAffinity: {}
+  # docs.nodeSelector Node labels for Document Server pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # docs.tolerations Tolerations for Document Server pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  # Document Server initContainers parameters
+  # docs.initContainers Containers that run before Document Server container in a Pod
+  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  # Example:
+  # initContainers:
+  #   - name: custom-init-container
+  #     image: busybox:latest
+  #     command: ['sh', '-c', 'sleep 180']
+  initContainers: []
   # docs container image parameters
   image:
     # docs.image.repository Document Server container image repository
@@ -2562,6 +3562,31 @@ docs:
     tag: latest
     # docs.image.pullPolicy Document Server container image pull policy
     pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Document Server Pod
+  containerSecurityContext:
+    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
+    enabled: false
+    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
+    runAsUser: 101
+    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
+    runAsGroup: 101
+    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
+    seLinuxOptions: {}
+    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
+    seccompProfile:
+      type: RuntimeDefault
+    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
+  # docs.lifecycleHooks Defines the Document Server container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
   containerPorts:
     # docs.containerPorts.http Document Server HTTP container port
     http: 80
@@ -2574,7 +3599,7 @@ docs:
   # The parameters below for startup probes are used only when `docs.startupProbe.enabled=true`
   startupProbe:
     # docs.startupProbe.enabled Enable startupProbe for Document Server container
-    enabled: false
+    enabled: true
     httpGet:
       # docs.startupProbe.httpGet.path Checking the path for startupProbe
       path: /index.html
@@ -2583,11 +3608,11 @@ docs:
     # docs.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # docs.startupProbe.periodSeconds Period seconds for startupProbe
-    periodSeconds: 10
+    periodSeconds: 20
   # The parameters below for readiness probes are used only when `docs.readinessProbe.enabled=true`
   readinessProbe:
     # docs.readinessProbe.enabled Enable readinessProbe for Document Server container
-    enabled: false
+    enabled: true
     # docs.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
@@ -2596,15 +3621,15 @@ docs:
       # docs.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 80
     # docs.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # docs.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
     # docs.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
+    timeoutSeconds: 5
   # The parameters below for liveness probes are used only when `docs.livenessProbe.enabled=true`
   livenessProbe:
     # docs.livenessProbe.enabled Enable livenessProbe for Document Server container
-    enabled: false
+    enabled: true
     # docs.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
@@ -2613,7 +3638,7 @@ docs:
       # docs.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 80
     # docs.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
+    periodSeconds: 20
     # docs.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
     # docs.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
@@ -2661,6 +3686,19 @@ install:
   job:
     # install.job.enabled Enable the execution of job pre-install before installing DocSpace
     enabled: true
+    # install.job.annotations Defines annotations that will be additionally added to Install Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # install.job.podAnnotations Map of annotations to add to the Install Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the Install Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # install.job.podSecurityContext.enabled Enable security context for the Install Job pod
+      enabled: false
+    # install.job.customPodAntiAffinity Prohibiting the scheduling of Install Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Install Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Install Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2692,13 +3730,24 @@ install:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # install.job.nodeSelector Node labels for Install Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # install.job.tolerations Tolerations for Install Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in Install Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # install.job.containerSecurityContext.enabled Enable security context for containers in Install Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # install.job.initContainers.migrationRunner.enabled Enable database initialization
         enabled: true
         image:
           # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
-          repository: onlyoffice/4testing-docspace-migration-runner
+          repository: onlyoffice/docspace-migration-runner
           # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -2715,6 +3764,7 @@ install:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
 # He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
@@ -2722,6 +3772,19 @@ upgrade:
   job:
     # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
     enabled: true
+    # upgrade.job.annotations Defines annotations that will be additionally added to Upgrade Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # upgrade.job.podAnnotations Map of annotations to add to the Upgrade Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the Upgrade Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # upgrade.job.podSecurityContext.enabled Enable security context for the Upgrade Job pod
+      enabled: false
+    # upgrade.job.customPodAntiAffinity Prohibiting the scheduling of Upgrade Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
     # Pod affinity rules for Upgrade Job Pod scheduling by nodes relative to other Pods
     # Pod affinity allow you to constrain which nodes Upgrade Job Pod can be scheduled on based on the labels of Pods already running on that node
     # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
@@ -2753,13 +3816,24 @@ upgrade:
     #         - name1
     #         - name2
     nodeAffinity: {}
+    # upgrade.job.nodeSelector Node labels for Upgrade Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # upgrade.job.tolerations Tolerations for Upgrade Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in Upgrade Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
+      enabled: false
     initContainers:
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
         enabled: true
         image:
           # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
-          repository: onlyoffice/4testing-docspace-migration-runner
+          repository: onlyoffice/docspace-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -2776,48 +3850,92 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
-      # clearStorage is a container that cleans a set of service files in the DocSpace storage
-      clearStorage:
-        image:
-          # upgrade.job.initContainers.clearStorage.image.repository Job by pre-upgrade Clear Storage container image repository
-          repository: mysql
-          # upgrade.job.initContainers.clearStorage.image.tag Job by pre-upgrade Clear Storage container image tag
-          tag: latest
-          # upgrade.job.initContainers.clearStorage.image.pullPolicy Job by pre-upgrade Clear Storage container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-upgrade Clear Storage container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # upgrade.job.initContainers.clearStorage.resources.requests The requested resources for the Job pre-upgrade Clear Storage container
-        # upgrade.job.initContainers.clearStorage.resources.limits The resources limits for the Job pre-upgrade Clear Storage container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
 
-# DocSpace Elasticsearch parameters
+# Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
+# He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
+elasticsearchClearIndexes:
+  job:
+    # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
+    # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
+    enabled: true
+    # Elasticsearch-clear-indexes container image parameters
+    image:
+      # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
+      repository: onlyoffice/docs-utils
+      # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
+      tag: 8.1.0-1
+      # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
+      pullPolicy: IfNotPresent
+    # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # elasticsearchClearIndexes.job.podAnnotations Map of annotations to add to the elasticsearchClearIndexes Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # elasticsearchClearIndexes.job.podSecurityContext.enabled Enable security context for the elasticsearchClearIndexes Job pod
+      enabled: false
+    # elasticsearchClearIndexes.job.customPodAntiAffinity Prohibiting the scheduling of elasticsearchClearIndexes Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    podAffinity: {}
+    # Node affinity rules for elasticsearchClearIndexes Job Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes elasticsearchClearIndexes Job Pod can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    nodeAffinity: {}
+    # elasticsearchClearIndexes.job.nodeSelector Node labels for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # elasticsearchClearIndexes.job.tolerations Tolerations for elasticsearchClearIndexes Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in elasticsearchClearIndexes Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # elasticsearchClearIndexes.job.containerSecurityContext.enabled Enable security context for containers in elasticsearchClearIndexes Job pod
+      enabled: false
+    # Job elasticsearchClearIndexes container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # elasticsearchClearIndexes.job.resources.requests The requested resources for the Job elasticsearchClearIndexes container
+    # elasticsearchClearIndexes.job.resources.limits The resources limits for the Job elasticsearchClearIndexes container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
+# DocSpace Opensearch StatefulSet parameters
 #
-elasticsearch:
-  # elasticsearch.enabled Enables Elasticsearch installation
+opensearch:
+  # opensearch.enabled Enables Opensearch installation
   enabled: true
-  # Update strategy used to replace old Pods by new ones
+  # opensearch.annotations Defines annotations that will be additionally added to Opensearch deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
   updateStrategy:
-    # elasticsearch.updateStrategy.type Elasticsearch update strategy type
+    # opensearch.updateStrategy.type Opensearch update strategy type
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
-  # Elasticsearch Pod Security Context parameters
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  # opensearch.podAnnotations Map of annotations to add to the Opensearch pod
+  podAnnotations: {}
+  # Configure a Security Context for the Opensearch Pod
   podSecurityContext:
-    # elasticsearch.podSecurityContext.enabled Enable security context for the Elasticsearch Pod
+    # opensearch.podSecurityContext.enabled Enable security context for the Opensearch Pod
     enabled: false
-    # elasticsearch.podSecurityContext.runAsUser User ID for the Elasticsearch pod
-    runAsUser: 1000
-    # elasticsearch.podSecurityContext.runAsGroup Group ID for the Elasticsearch pod
-    runAsGroup: 1000
-  # Pod affinity rules for Elasticsearch Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Elasticsearch Pods can be scheduled on based on the labels of Pods already running on that node
+    # opensearch.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Opensearch Pod
+    fsGroup: 1000
+  # opensearch.customPodAntiAffinity Prohibiting the scheduling of Opensearch Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Opensearch Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2832,8 +3950,8 @@ elasticsearch:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Elasticsearch Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Elasticsearch Pod can be scheduled on based on node labels
+  # Node affinity rules for Opensearch Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Opensearch Pod can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2847,85 +3965,235 @@ elasticsearch:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # Elasticsearch container image parameters
+  # opensearch.nodeSelector Node labels for Opensearch pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # opensearch.tolerations Tolerations for Opensearch pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  initContainers:
+    # Enable security context for Opensearch change-volume-owner initContainer container in pod
+    changeVolumeOwner:
+      enabled: true
+      # Change volume owner container image parameters
+      image:
+        # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
+        repository: onlyoffice/docs-utils
+        # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
+        tag: 8.1.0-1
+        # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
+        pullPolicy: IfNotPresent
+      # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
+      securityContext:
+        # opensearch.initContainers.changeVolumeOwner.securityContext.enabled Enable security context for Opensearch change-volume-owner initContainer container in pod
+        enabled: true
+        # opensearch.initContainers.changeVolumeOwner.securityContext.runAsUser User ID for the Opensearch change-volume-owner initContainer container
+        runAsUser: 0
+        # opensearch.initContainers.changeVolumeOwner.securityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+        allowPrivilegeEscalation: false
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seLinuxOptions Defines SELinux labels for the Opensearch change-volume-owner initContainer container
+        seLinuxOptions: {}
+        # opensearch.initContainers.changeVolumeOwner.securityContext.seccompProfile Defines the Seccomp profile for the Opensearch change-volume-owner initContainer container
+        seccompProfile:
+          type: RuntimeDefault
+        # opensearch.initContainers.changeVolumeOwner.securityContext.capabilities Defines the privileges granted to the process
+        capabilities:
+          drop: ["ALL"]
+      # Opensearch change-volume-owner initContainer resource requests and limits
+      # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      # opensearch.initContainers.changeVolumeOwner.resources.requests The requested resources for the Opensearch change-volume-owner initContainer
+      # opensearch.initContainers.changeVolumeOwner.resources.limits The resources limits for the Opensearch change-volume-owner initContainer
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
+    # opensearch.initContainers.custom Custom Opensearch initContainers parameters
+    # Additional containers that run before Opensearch container in a Pod
+    # Example:
+    # custom:
+    #   - name: additional-init-container
+    #     image: busybox:latest
+    #     command: ['sh', '-c', 'sleep 180']
+    custom: []
+  # Opensearch container image parameters
   image:
-    # elasticsearch.image.repository Elasticsearch container image repository
-    repository: onlyoffice/elasticsearch
-    # elasticsearch.image.tag Elasticsearch container image tag
-    tag: 7.10.0
-    # elasticsearch.image.pullPolicy Elasticsearch container image pull policy
+    # opensearch.image.repository Opensearch container image repository
+    repository: onlyoffice/opensearch
+    # opensearch.image.tag Opensearch container image tag
+    tag: 2.11.1
+    # opensearch.image.pullPolicy Opensearch container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for Elasticsearch container in Pod
+  # Configure a Security Context for Opensearch container in Pod
   containerSecurityContext:
-    # elasticsearch.containerSecurityContext.enabled Enable security context for Elasticsearch container in pod
+    # opensearch.containerSecurityContext.enabled Enable security context for Opensearch container in pod
     enabled: false
-    # elasticsearch.containerSecurityContext.privileged Granting a privileged status to a container
-    privileged: false
-  # Probe used for the Elasticsearch container: startup, readiness and liveness probes
+    # opensearch.containerSecurityContext.runAsUser User ID for the Opensearch container
+    runAsUser: 1000
+    # opensearch.containerSecurityContext.runAsGroup Group ID for the Opensearch container
+    runAsGroup: 1000
+    # opensearch.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # opensearch.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # opensearch.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Opensearch container
+    seLinuxOptions: {}
+    # opensearch.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Opensearch container
+    seccompProfile:
+      type: RuntimeDefault
+    # opensearch.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
+  # Probe used for the Opensearch container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `elasticsearch.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `opensearch.startupProbe.enabled=true`
   startupProbe:
-    # elasticsearch.startupProbe.enabled Enable startupProbe for Elasticsearch container
-    enabled: false
-    httpGet:
-      # elasticsearch.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
-      # elasticsearch.startupProbe.httpGet.port Checking the port for startupProbe
+    # opensearch.startupProbe.enabled Enable startupProbe for Opensearch container
+    enabled: true
+    tcpSocket:
+      # opensearch.startupProbe.tcpSocket.port Checking the port for startupProbe
       port: 9200
-    # elasticsearch.startupProbe.failureThreshold Failure threshold for startupProbe
+    # opensearch.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # elasticsearch.startupProbe.periodSeconds Period seconds for startupProbe
+    # opensearch.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `elasticsearch.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `opensearch.readinessProbe.enabled=true`
   readinessProbe:
-    # elasticsearch.readinessProbe.enabled Enable readinessProbe for Elasticsearch container
-    enabled: false
-    # elasticsearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # opensearch.readinessProbe.enabled Enable readinessProbe for Opensearch container
+    enabled: true
+    # opensearch.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # elasticsearch.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
-      # elasticsearch.readinessProbe.httpGet.port Checking the port for readinessProbe
+    tcpSocket:
+      # opensearch.readinessProbe.tcpSocket.port Checking the port for readinessProbe
       port: 9200
-    # elasticsearch.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 10
-    # elasticsearch.readinessProbe.successThreshold Success threshold for readinessProbe
+    # opensearch.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # opensearch.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # elasticsearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 3
-  # The parameters below for liveness probes are used only when `elasticsearch.livenessProbe.enabled=true`
-  livenessProbe:
-    # elasticsearch.livenessProbe.enabled Enable livenessProbe for Elasticsearch container
-    enabled: false
-    # elasticsearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
-    failureThreshold: 3
-    httpGet:
-      # elasticsearch.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
-      # elasticsearch.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 9200
-    # elasticsearch.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 10
-    # elasticsearch.livenessProbe.successThreshold Success threshold for livenessProbe
-    successThreshold: 1
-    # elasticsearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # opensearch.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # Elasticsearch container resource requests and limits
+  # The parameters below for liveness probes are used only when `opensearch.livenessProbe.enabled=true`
+  livenessProbe:
+    # opensearch.livenessProbe.enabled Enable livenessProbe for Opensearch container
+    enabled: true
+    # opensearch.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    tcpSocket:
+      # opensearch.livenessProbe.tcpSocket.port Checking the port for livenessProbe
+      port: 9200
+    # opensearch.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # opensearch.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # opensearch.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Opensearch container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # elasticsearch.resources.requests The requested resources for the elasticsearch container
-  # elasticsearch.resources.limits The resources limits for the elasticsearch container
+  # opensearch.resources.requests The requested resources for the opensearch container
+  # opensearch.resources.limits The resources limits for the opensearch container
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "1000m"
+      memory: "512Mi"
+      cpu: "500m"
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  env:
+    # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
+    discoveryType: "single-node"
+    # opensearch.env.disableSecurityPlugin disables the security plugin
+    disableSecurityPlugin: true
+    # opensearch.env.disableInstallDemoConfig disables the installation of demo configuration
+    disableInstallDemoConfig: true
+    # opensearch.env.bootstrapMemoryLock determines whether JVM should lock memory
+    bootstrapMemoryLock: true
+    # opensearch.env.ESJAVAOPTS defines JVM options
+    ESJAVAOPTS: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+    # opensearch.env.indicesFieldDataCacheSize sets the size of the index field data cache
+    indicesFieldDataCacheSize: "30%"
+    # opensearch.env.indicesMemoryIndexBufferSize sets the size of the in-memory index buffer
+    indicesMemoryIndexBufferSize: "30%"
   persistence:
-    # elasticsearch.persistence.storageClass PVC Storage Class for Elasticsearch volume
+    # opensearch.persistence.annotations Defines annotations that will be additionally added to Opensearch PVC
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # opensearch.persistence.storageClass PVC Storage Class for Opensearch volume
     storageClass: "nfs"
-    # elasticsearch.persistence.accessModes Elasticsearch Persistent Volume access modes
+    # opensearch.persistence.accessModes Opensearch Persistent Volume access modes
     accessModes:
       - ReadWriteOnce
-    # elasticsearch.persistence.size PVC Storage Request for Elasticsearch volume
+    # opensearch.persistence.size PVC Storage Request for Opensearch volume
     size: 30Gi
+
+# DocSpace tests parameters
+#
+tests:
+  # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
+  # These resources will be used when running the `helm test` command
+  enabled: true
+  # tests.annotations Defines annotations that will be additionally added to Test Pod
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Configure a Security Context for the Test Pod
+  podSecurityContext:
+    # tests.podSecurityContext.enabled Enable security context for the Test pod
+    enabled: false
+    # tests.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Test Pod
+    fsGroup: 101
+  # tests.customPodAntiAffinity Prohibiting the scheduling of Test Pod relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Test Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Test Pod can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  podAffinity: {}
+  # Node affinity rules for Test Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Test Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  nodeAffinity: {}
+  # tests.nodeSelector Node labels for Test pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # tests.tolerations Tolerations for Test pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  # Test container image parameters
+  image:
+    # tests.image.repository test container image name
+    repository: onlyoffice/docs-utils
+    # tests.image.tag test container image tag
+    tag: 8.0.1-1
+    # tests.image.pullPolicy test container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for the Test container
+  containerSecurityContext:
+    # tests.containerSecurityContext.enabled Enable security context for the Test container
+    enabled: false
+    # tests.containerSecurityContext.runAsUser User ID for the Test container
+    runAsUser: 101
+    # tests.containerSecurityContext.runAsGroup Group ID for the Test container
+    runAsGroup: 101
+    # tests.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
+    runAsNonRoot: true
+    # tests.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+    allowPrivilegeEscalation: false
+    # tests.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Test container
+    seccompProfile:
+      type: RuntimeDefault
+    # tests.containerSecurityContext.capabilities Defines the privileges granted to the process
+    capabilities:
+      drop: ["ALL"]
+  # test container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # tests.resources.requests The requested resources for the test container
+  # tests.resources.limits The resources limits for the test container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"

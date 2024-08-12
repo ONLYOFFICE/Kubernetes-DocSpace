@@ -10,13 +10,16 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "1"
+    {{- if .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
 data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
+  API_HOST: "http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}"
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
-  MYSQL_USER: {{ .Values.connections.mysqlUser }}
   ELK_SHEME: {{ .Values.connections.elkSheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
@@ -32,10 +35,18 @@ data:
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
   APP_URL_PORTAL: {{ include "docspace.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
-  DOCUMENT_SERVER_URL_PUBLIC: {{ .Values.connections.documentServerUrlPublic | quote }}
-  DOCUMENT_SERVER_URL_INTERNAL: {{ .Values.connections.documentServerUrlInternal | quote }}
-  APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
+  {{- if not (empty .Values.connections.documentServerHost) }}
+  DOCUMENT_SERVER_URL_INTERNAL: "http://{{ .Values.connections.documentServerHost }}/"
+  {{- else }}
+  DOCUMENT_SERVER_URL_INTERNAL: ""
+  {{- end }}
+  DOCUMENT_SERVER_URL_EXTERNAL: {{ .Values.connections.documentServerUrlExternal | quote }}
   APP_KNOWN_NETWORKS: {{ .Values.connections.appKnownNetworks | quote }}
+  {{- if .Values.connections.appKnownProxies }}
+  APP_KNOWN_PROXIES: {{ .Values.connections.appKnownProxies | quote }}
+  {{- else }}
+  APP_KNOWN_PROXIES: ""
+  {{- end }}
   INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
   OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
   LOG_LEVEL: {{ .Values.log.level | quote }}

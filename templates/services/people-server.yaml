@@ -3,9 +3,13 @@ kind: Service
 metadata:
   name: people-server
   namespace: {{ include "docspace.namespace" . | quote }}
-  {{- if .Values.commonLabels }}
   labels:
+    app: people-server
+    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:

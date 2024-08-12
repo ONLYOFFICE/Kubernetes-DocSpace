@@ -1,5 +1,6 @@
+{{- if .Values.peopleServer.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.peopleServer.kind }}
 metadata:
   name: people-server
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -8,6 +9,10 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.peopleServer.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.peopleServer.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.peopleServer.replicaCount }}
   selector:
@@ -16,8 +21,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
+  serviceName: people-server
+  {{- end }}
   {{- if .Values.peopleServer.updateStrategy }}
-  strategy: {{- toYaml .Values.peopleServer.updateStrategy | nindent 4 }}
+  {{- if eq .Values.peopleServer.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.peopleServer.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
@@ -26,20 +41,24 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      {{- if or .Values.podAnnotations .Values.peopleServer.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.peopleServer.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.peopleServer.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.peopleServer.podSecurityContext.enabled }}
+      {{- $psc = .Values.peopleServer.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -50,7 +69,7 @@ spec:
                   - people-server
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -59,7 +78,10 @@ spec:
                 values:
                 - people-server
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.peopleServer.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.peopleServer.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -68,11 +90,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.peopleServer.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.peopleServer.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.peopleServer.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.peopleServer.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -80,18 +102,39 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.peopleServer.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.peopleServer.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.peopleServer.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: people-server
-        image: {{ .Values.peopleServer.image.repository }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.peopleServer.image.repository) }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
         imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.peopleServer.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.peopleServer.containerSecurityContext.enabled }}
+        {{- $csc = .Values.peopleServer.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.peopleServer.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.peopleServer.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.peopleServer.containerPorts.app }}
@@ -107,11 +150,8 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.peopleServer.resources | nindent 10 }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.peopleServer.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -151,14 +191,15 @@ spec:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
         {{- range .Values.extraConf.fileName }}
         - name: custom-file
-          mountPath: /app/onlyoffice/config/{{ . }}
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
         - name: docspace-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
       volumes:
@@ -176,3 +217,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

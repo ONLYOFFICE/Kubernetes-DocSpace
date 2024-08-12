@@ -1,0 +1,115 @@
+{{- if .Values.elasticsearchClearIndexes.job.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: elasticsearch-clear-indexes
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app.kubernetes.io/component: elasticsearch-clear-indexes
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- if or .Values.commonAnnotations .Values.elasticsearchClearIndexes.job.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.elasticsearchClearIndexes.job.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: elasticsearch-clear-indexes
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.elasticsearchClearIndexes.job.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.elasticsearchClearIndexes.job.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if or .Values.podSecurityContext.enabled .Values.elasticsearchClearIndexes.job.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.elasticsearchClearIndexes.job.podSecurityContext.enabled }}
+      {{- $psc = .Values.elasticsearchClearIndexes.job.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.elasticsearchClearIndexes.job.customPodAntiAffinity .Values.elasticsearchClearIndexes.job.podAffinity .Values.elasticsearchClearIndexes.job.nodeAffinity }}
+      affinity:
+        {{- with .Values.elasticsearchClearIndexes.job.customPodAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.elasticsearchClearIndexes.job.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.elasticsearchClearIndexes.job.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- if or .Values.nodeSelector .Values.elasticsearchClearIndexes.job.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.elasticsearchClearIndexes.job.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.elasticsearchClearIndexes.job.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.elasticsearchClearIndexes.job.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+        - name: elasticsearch-clear-indexes
+          image: {{ .Values.elasticsearchClearIndexes.job.image.repository }}:{{ .Values.elasticsearchClearIndexes.job.image.tag }}
+          {{- if or .Values.containerSecurityContext.enabled .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}
+          {{- $csc := dict }}
+          {{- if .Values.elasticsearchClearIndexes.job.containerSecurityContext.enabled }}
+          {{- $csc = .Values.elasticsearchClearIndexes.job.containerSecurityContext }}
+          {{- else }}
+          {{- $csc = .Values.containerSecurityContext }}
+          {{- end }}
+          securityContext: {{- include "docspace.securityContext" $csc | nindent 12 }}
+          {{- end }}
+          resources: {{- toYaml .Values.elasticsearchClearIndexes.job.resources | nindent 12 }}
+          command: ["/bin/sh", "-c"]
+          args: ["/elasticsearch-clear-indexes.sh"]
+          env:
+            - name: ELK_SHEME
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_SHEME
+            - name: ELK_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_HOST
+            - name: ELK_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: docspace
+                  key: ELK_PORT
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "docspace.mysql.secretName" . }}
+                  key: {{ .Values.connections.mysqlSecretKeyPassword }}
+          volumeMounts:
+            - name: elasticsearch-clear-indexes
+              mountPath: /elasticsearch-clear-indexes.sh
+              subPath: elasticsearch-clear-indexes.sh
+      restartPolicy: Never
+      volumes:
+        - name: elasticsearch-clear-indexes
+          configMap:
+            name: elasticsearch-clear-indexes
+            defaultMode: 0777
+{{- end }}

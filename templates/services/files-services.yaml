@@ -8,11 +8,17 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
   - port: {{ .Values.filesServices.containerPorts.app }}
     name: app
     targetPort: {{ .Values.filesServices.containerPorts.app }}
   selector:
-    statefulset.kubernetes.io/pod-name: files-services-0
+    app: files-services
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: ClusterIP

@@ -1,5 +1,6 @@
+{{- if .Values.socket.enabled }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ .Values.socket.kind }}
 metadata:
   name: socket
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -8,19 +9,31 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.socket.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.socket.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.socket.replicaCount }}
   selector:
     matchLabels:
       app: socket
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.socket.kind "StatefulSet" }}
   serviceName: socket
-  {{- if .Values.socket.updateStrategy }}
-  updateStrategy: {{- toYaml .Values.socket.updateStrategy | nindent 4 }}
   {{- end }}
-  podManagementPolicy: OrderedReady
+  {{- if .Values.socket.updateStrategy }}
+  {{- if eq .Values.socket.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.socket.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.socket.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.socket.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.socket.podManagementPolicy }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -28,19 +41,47 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      {{- if or .Values.podAnnotations .Values.socket.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.socket.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.socket.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.socket.podSecurityContext.enabled }}
+      {{- $psc = .Values.socket.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      {{- if or .Values.socket.podAffinity .Values.socket.nodeAffinity }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
       affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - socket
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - socket
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.socket.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.socket.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -49,12 +90,11 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if or .Values.nodeSelector .Values.socket.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.socket.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.socket.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.socket.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -62,18 +102,39 @@ spec:
       {{- end }}
       initContainers:
       - name: app-wait-storage
-        image: {{ .Values.initContainers.waitStorage.image.repository }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.socket.containerSecurityContext.enabled }}
+        {{- $icsc := dict }}
+        {{- if .Values.socket.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.socket.containerSecurityContext }}
+        {{- else }}
+        {{- $icsc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
+        {{- end }}
         resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
         volumeMounts:
         - name: files-data
           mountPath: /var/www/products/
+      {{- with .Values.initContainers.custom }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: socket
-        image: {{ .Values.socket.image.repository }}:{{ default .Values.images.tag .Values.socket.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.socket.image.repository) }}:{{ default .Values.images.tag .Values.socket.image.tag }}
         imagePullPolicy: {{ .Values.socket.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.socket.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.socket.containerSecurityContext.enabled }}
+        {{- $csc = .Values.socket.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.socket.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.socket.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.socket.containerPorts.app }}
@@ -91,11 +152,8 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.socket.resources | nindent 10 }}
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
-              key: {{ .Values.connections.mysqlSecretKeyRootPassword }}
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.socket.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -135,14 +193,15 @@ spec:
             name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
         {{- range .Values.extraConf.fileName }}
         - name: custom-file
-          mountPath: /app/onlyoffice/config/{{ . }}
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
           subPath: {{ . }}
         {{- end }}
         {{- end }}
         - name: docspace-data
-          mountPath: /app/onlyoffice/data
+          mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
           mountPath: /var/www/products/ASC.Files/server/
         - name: people-data
@@ -162,3 +221,4 @@ spec:
       - name: people-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.people.name" . }}
+{{- end }}

@@ -9,11 +9,9 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if .Values.proxyFrontend.service.annotations }}
-  annotations:
-    {{- range $key, $value := .Values.proxyFrontend.service.annotations }}
-    {{ $key }}: {{ tpl $value $ }}
-    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:
@@ -24,7 +22,10 @@ spec:
     name: https
     targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
   selector:
-    statefulset.kubernetes.io/pod-name: proxy-frontend-0
+    app: proxy-frontend
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
   type: {{ .Values.proxyFrontend.service.type }}
   {{- if .Values.proxyFrontend.service.sessionAffinity }}
   sessionAffinity: {{ .Values.proxyFrontend.service.sessionAffinity }}

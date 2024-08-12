@@ -1,5 +1,6 @@
+{{- if .Values.router.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.router.kind }}
 metadata:
   name: router
   namespace: {{ include "docspace.namespace" . | quote }}
@@ -8,6 +9,10 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if or .Values.commonAnnotations .Values.router.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.router.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.router.replicaCount }}
   selector:
@@ -16,8 +21,18 @@ spec:
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  serviceName: {{ template "docspace.svc.router.name" . }}
+  {{- end }}
   {{- if .Values.router.updateStrategy }}
-  strategy: {{- toYaml .Values.router.updateStrategy | nindent 4 }}
+  {{- if eq .Values.router.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.router.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.router.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.router.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
@@ -26,20 +41,24 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.podAnnotations }}
-      annotations:
-        {{- range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ tpl $value $ }}
-        {{- end }}
+      {{- if or .Values.podAnnotations .Values.router.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.router.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- if or .Values.podSecurityContext.enabled .Values.router.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.router.podSecurityContext.enabled }}
+      {{- $psc = .Values.router.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
-        {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
               labelSelector:
@@ -50,7 +69,7 @@ spec:
                   - router
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
-        {{- else if eq .Values.podAntiAffinity.type "required" }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -59,7 +78,10 @@ spec:
                 values:
                 - router
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.router.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- with .Values.router.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
@@ -68,22 +90,35 @@ spec:
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.router.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.router.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- if or .Values.tolerations .Values.router.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.router.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- with .Values.router.initContainers }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: router
-        image: {{ .Values.router.image.repository }}:{{ default .Values.images.tag .Values.router.image.tag }}
+        image: {{ include "docspace.imageRepository" (list . .Values.router.image.repository) }}:{{ default .Values.images.tag .Values.router.image.tag }}
         imagePullPolicy: {{ .Values.router.image.pullPolicy }}
-        {{- if .Values.containerSecurityContext.enabled }}
-        securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 10 }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.router.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.router.containerSecurityContext.enabled }}
+        {{- $csc = .Values.router.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.router.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.router.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.router.containerPorts.external }}
@@ -98,6 +133,12 @@ spec:
         livenessProbe: {{- omit .Values.router.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.router.resources | nindent 10 }}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
         envFrom:
         - configMapRef:
             name: docspace
@@ -106,13 +147,9 @@ spec:
         - secretRef:
             name: {{ template "docspace.coreMachineKey.secretName" . }}
         volumeMounts:
-        {{- if .Values.router.extraConf.initScripts.configMap }}
-        {{- range .Values.router.extraConf.initScripts.fileName }}
         - name: init-scripts
-          mountPath: /docker-entrypoint.d/{{ . }}
-          subPath: {{ . }}
-        {{- end }}
-        {{- end }}
+          mountPath: /docker-entrypoint.d/50-change-router-conf.sh
+          subPath: 50-change-router-conf.sh
         {{- if .Values.router.extraConf.customInitScripts.configMap }}
         {{- range .Values.router.extraConf.customInitScripts.fileName }}
         - name: custom-init-scripts
@@ -137,12 +174,10 @@ spec:
         - name: router-log
           mountPath: /var/log/nginx
       volumes:
-      {{- if .Values.router.extraConf.initScripts.configMap }}
       - name: init-scripts
         configMap:
-          name: {{ .Values.router.extraConf.initScripts.configMap }}
+          name: router-init-scripts
           defaultMode: 0755
-      {{- end }}
       {{- if .Values.router.extraConf.customInitScripts.configMap }}
       - name: custom-init-scripts
         configMap:
@@ -162,3 +197,4 @@ spec:
       - name: router-log
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.router.name" . }}
+{{- end }}
