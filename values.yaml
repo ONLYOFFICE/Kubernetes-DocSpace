@@ -3398,7 +3398,7 @@ proxyFrontend:
   # Proxy Frontend container image parameters
   image:
     # proxyFrontend.image.repository Proxy Frontend container image repository
-    repository: nginx
+    repository: nginxinc/nginx-unprivileged
     # proxyFrontend.image.tag Proxy Frontend container image tag
     tag: latest
     # proxyFrontend.image.pullPolicy Proxy Frontend container image pull policy
@@ -3415,9 +3415,9 @@ proxyFrontend:
   lifecycleHooks: {}
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
-    http: 80
+    http: 8080
     # proxyFrontend.containerPorts.https Proxy Frontend HTTPS container port
-    https: 443
+    https: 8443
   # Probe used for the proxyFrontend container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `proxyFrontend.startupProbe.enabled=true`
@@ -3426,9 +3426,9 @@ proxyFrontend:
     enabled: true
     httpGet:
       # proxyFrontend.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
+      path: /health
       # proxyFrontend.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 80
+      port: 8080
     # proxyFrontend.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # proxyFrontend.startupProbe.periodSeconds Period seconds for startupProbe
@@ -3441,9 +3441,9 @@ proxyFrontend:
     failureThreshold: 2
     httpGet:
       # proxyFrontend.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
+      path: /health
       # proxyFrontend.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 80
+      port: 8080
     # proxyFrontend.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
     # proxyFrontend.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -3458,9 +3458,9 @@ proxyFrontend:
     failureThreshold: 3
     httpGet:
       # proxyFrontend.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
+      path: /health
       # proxyFrontend.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 80
+      port: 8080
     # proxyFrontend.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
     # proxyFrontend.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -3518,6 +3518,11 @@ proxyFrontend:
     existing: ""
     # proxyFrontend.service.annotations Map of annotations to add to the Proxy Frontend service
     annotations: {}
+    port:
+      # proxyFrontend.service.port.http Proxy Frontend http service port
+      http: 80
+      # proxyFrontend.service.port.https Proxy Frontend https service port
+      https: 443
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
 
