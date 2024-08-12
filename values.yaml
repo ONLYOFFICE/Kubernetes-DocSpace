@@ -3282,11 +3282,9 @@ proxyFrontend:
     enabled: false
   containerPorts:
     # proxyFrontend.containerPorts.http Proxy Frontend HTTP container port
-    http: 80
-    httpTargetPort: 8080
+    http: 8080
     # proxyFrontend.containerPorts.https Proxy Frontend HTTPS container port
-    https: 443
-    httpsTargetPort: 8443
+    https: 8443
   # Probe used for the proxyFrontend container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `proxyFrontend.startupProbe.enabled=true`
@@ -3387,6 +3385,11 @@ proxyFrontend:
     existing: ""
     # proxyFrontend.service.annotations Map of annotations to add to the Proxy Frontend service
     annotations: {}
+    port:
+      # proxyFrontend.service.port.http Proxy Frontend http service port
+      http: 80
+      # proxyFrontend.service.port.https Proxy Frontend https service port
+      https: 443
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
 

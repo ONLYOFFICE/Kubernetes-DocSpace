@@ -45,8 +45,8 @@ data:
     proxy_set_header X-REWRITER-URL $the_scheme://$the_host;
     proxy_set_header Host $the_host;
     server {
-      listen 8080;
-      listen [::]:8080;
+      listen {{ .Values.proxyFrontend.containerPorts.http }};
+      listen [::]:{{ .Values.proxyFrontend.containerPorts.http }};
       server_name {{ .Values.proxyFrontend.hostname }};
       location /health {
           default_type application/json;
@@ -58,8 +58,8 @@ data:
     }
 
     server {
-      listen 0.0.0.0:8443 ssl http2;
-      listen [::]:8443 ssl http2;
+      listen 0.0.0.0:{{ .Values.proxyFrontend.containerPorts.https }} ssl http2;
+      listen [::]:{{ .Values.proxyFrontend.containerPorts.https }} ssl http2;
       server_name {{ .Values.proxyFrontend.hostname }};
       server_tokens off;
       client_max_body_size    4G;
