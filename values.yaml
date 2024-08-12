@@ -341,6 +341,43 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
+  rootless:
+    # initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
+    enabled: true
+    image:
+      # initContainers.rootless.image.repository Rootless initContainer image repository
+      repository: onlyoffice/docs-utils
+      # initContainers.rootless.image.tag Rootless initContainer image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: 8.0.1-1
+      # initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
+      pullPolicy: IfNotPresent
+    # Rootless initContainer resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # initContainers.rootless.resources.requests The requested resources for the rootless initContainer
+    # initContainers.rootless.resources.limits The resources limits for the rootless initContainer
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    containerSecurityContext:
+      # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
+      enabled: true
+      # initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
+      runAsUser: 0
+      # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+      allowPrivilegeEscalation: false
+      # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
+      seLinuxOptions: {}
+      # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
+      seccompProfile:
+        type: RuntimeDefault
+      # containerSecurityContext.capabilities Defines the privileges granted to the process
+      capabilities:
+        drop: ["ALL"]
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
