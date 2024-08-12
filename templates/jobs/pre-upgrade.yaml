@@ -125,13 +125,13 @@ spec:
         image: {{ .Values.initContainers.rootless.image.repository }}:{{ .Values.initContainers.rootless.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.rootless.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.initContainers.rootless.containerSecurityContext.enabled }}
-        {{- $icmrsc := dict }}
+        {{- $icrlsc := dict }}
         {{- if .Values.initContainers.rootless.containerSecurityContext.enabled }}
-        {{- $icmrsc = .Values.initContainers.rootless.containerSecurityContext }}
+        {{- $icrlsc = .Values.initContainers.rootless.containerSecurityContext }}
         {{- else }}
-        {{- $icmrsc = .Values.containerSecurityContext }}
+        {{- $icrlsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" $icrlsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.initContainers.rootless.resources | nindent 10 }}
         command: ["/bin/sh", "-c"]
