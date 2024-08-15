@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-migration
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: identity-migration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity-migration
+  template:
+    metadata:
+      labels:
+        app: identity-migration
+    spec:
+      containers:
+      - name: identity
+        image: lemmav/identity-migration:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: JDBC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: mysql-root-password
+        - name: JDBC_URL
+          value: {{ .Values.connections.mysqlHost }}
+        - name: JDBC_USER_NAME
+          # value: {{ .Values.connections.mysqlUser }}
+          value: root
+        - name: JDBC_DATABASE
+          value: {{ .Values.connections.mysqlDatabase }}
+        - name: RABBIT_HOST
+          value: {{ .Values.connections.brokerHost }}
+        - name: REDIS_HOST
+          value: {{ .Values.connections.redisHost }}  
+        envFrom:
+        - configMapRef:
+            name: docspace

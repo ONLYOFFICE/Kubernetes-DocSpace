@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity
+  template:
+    metadata:
+      labels:
+        app: identity
+    spec:
+      containers:
+      - name: identity
+        image: lemmav/identity-authorization:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: ASC.Identity.Authorization
+        - name: SERVER_PORT
+          value: "8080"
+        - name: JDBC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: mysql-root-password
+        - name: JDBC_URL
+          value: mysql
+        - name: SPRING_PROFILES_ACTIVE
+          value: dev
+        - name: JDBC_USER_NAME
+          # value: onlyoffice_user
+          value: root
+        - name: JDBC_DATABASE
+          value: {{ .Values.connections.mysqlDatabase }}
+        - name: RABBIT_HOST
+          value: {{ .Values.connections.brokerHost }}
+        - name: REDIS_HOST
+          value: {{ .Values.connections.redisHost }}  
+        envFrom:
+        - configMapRef:
+            name: docspace

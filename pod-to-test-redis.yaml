@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: interactive-pod
+spec:
+  containers:
+  - name: interactive-container
+    image: ubuntu
+    command: ["/bin/bash", "-c", "apt-get update && apt-get install -y curl && sleep infinity"]
+    stdin: true
+    tty: true
