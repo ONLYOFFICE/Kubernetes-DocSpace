@@ -78,7 +78,7 @@ connections:
   brokerSecretKeyName: rabbitmq-password
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
-  brokerPassword: "1"
+  brokerPassword: ""
   # connections.elkSheme The protocol for the connection to Opensearch
   elkSheme: http
   # connections.elkHost The IP address or the name of the Opensearch host

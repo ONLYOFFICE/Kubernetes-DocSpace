@@ -1,35 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: identity
+  name: identity-api
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: identity
+    app: identity-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: identity
+      app: identity-api
   template:
     metadata:
       labels:
-        app: identity
+        app: identity-api
     spec:
       containers:
-      - name: identity
-        image: lemmav/identity-authorization:latest
+      - name: identity-api
+        image: lemmav/identity-api:latest
         ports:
         - containerPort: 8080
         env:
         - name: SPRING_APPLICATION_NAME
-          value: ASC.Identity.Authorization
+          value: ASC.Identity.Registration
         - name: SERVER_PORT
-          value: "8080"
+          value: "9090"
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql
               key: mysql-root-password
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq
+              key: rabbitmq-password
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
