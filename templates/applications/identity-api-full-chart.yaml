@@ -1,56 +1,56 @@
-{{- if .Values.identity.enabled }}
+{{- if .Values.identityApi.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.identity.kind }}
+kind: {{ .Values.identityApi.kind }}
 metadata:
-  name: identity
+  name: identityApi
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: identity
+    app: identityApi
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.identity.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.identity.annotations }}
+  {{- if or .Values.commonAnnotations .Values.identityApi.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.identityApi.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  replicas: {{ .Values.identity.replicaCount }}
+  replicas: {{ .Values.identityApi.replicaCount }}
   selector:
     matchLabels:
-      app: identity
+      app: identityApi
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.identity.kind "StatefulSet" }}
-  serviceName: identity
+  {{- if eq .Values.identityApi.kind "StatefulSet" }}
+  serviceName: identityApi
   {{- end }}
-  {{- if .Values.identity.updateStrategy }}
-  {{- if eq .Values.identity.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.identity.updateStrategy }}
+  {{- if .Values.identityApi.updateStrategy }}
+  {{- if eq .Values.identityApi.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.identityApi.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.identity.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.identityApi.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.identity.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.identity.podManagementPolicy }}
+  {{- if eq .Values.identityApi.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.identityApi.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: identity
+        app: identityApi
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.identity.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.identity.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.identityApi.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.identityApi.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.identity.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.identityApi.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.identity.podSecurityContext.enabled }}
-      {{- $psc = .Values.identity.podSecurityContext }}
+      {{- if .Values.identityApi.podSecurityContext.enabled }}
+      {{- $psc = .Values.identityApi.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -66,7 +66,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - identity
+                  - identityApi
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -76,64 +76,64 @@ spec:
               - key: app
                 operator: In
                 values:
-                - identity
+                - identityApi
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.identity.customPodAntiAffinity }}
+          {{- with .Values.identityApi.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.identity.podAffinity }}
+        {{- with .Values.identityApi.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.identity.nodeAffinity }}
+        {{- with .Values.identityApi.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.identity.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.identity.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.identityApi.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.identityApi.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.identity.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.identity.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.identityApi.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.identityApi.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       containers:
-      - name: identity
-        image: {{ include "docspace.imageRepository" (list . .Values.identity.image.repository) }}:{{ default .Values.images.tag .Values.identity.image.tag }}
-        imagePullPolicy: {{ .Values.identity.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.identity.containerSecurityContext.enabled }}
+      - name: identityApi
+        image: {{ include "docspace.imageRepository" (list . .Values.identityApi.image.repository) }}:{{ default .Values.images.tag .Values.identityApi.image.tag }}
+        imagePullPolicy: {{ .Values.identityApi.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.identityApi.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.identity.containerSecurityContext.enabled }}
-        {{- $csc = .Values.identity.containerSecurityContext }}
+        {{- if .Values.identityApi.containerSecurityContext.enabled }}
+        {{- $csc = .Values.identityApi.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.identity.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.identity.lifecycleHooks | nindent 10 }}
+        {{- if .Values.identityApi.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.identityApi.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.identity.containerPorts.identity }}
-          name: identity
-        {{- if .Values.identity.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.identity.startupProbe "enabled" | toYaml | nindent 10 }}
+        - containerPort: {{ .Values.identityApi.containerPorts.identityApi }}
+          name: identityApi
+        {{- if .Values.identityApi.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.identityApi.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.identity.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.identity.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.identityApi.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.identityApi.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.identity.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.identity.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.identityApi.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.identityApi.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.identity.resources | nindent 10 }}
+        resources: {{- toYaml .Values.identityApi.resources | nindent 10 }}
         env:
         - name: SPRING_APPLICATION_NAME
-          value: ASC.Identity.Authorization
+          value: ASC.Identity.Registration
         - name: SERVER_PORT
-          value: {{ .Values.identity.containerPorts.identity }}
+          value: {{ .Values.identityApi.containerPorts.identityApi }}
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:
