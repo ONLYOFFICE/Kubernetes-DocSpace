@@ -120,42 +120,7 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
-      {{- if .Values.install.job.initContainers.identityMigration.enabled }}
-      - name: identity-migration
-        image: {{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.identityMigration.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.identityMigration.image.tag }}
-        imagePullPolicy: {{ .Values.install.job.initContainers.identityMigration.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
-        {{- $icmrsc := dict }}
-        {{- if .Values.install.job.containerSecurityContext.enabled }}
-        {{- $icmrsc = .Values.install.job.containerSecurityContext }}
-        {{- else }}
-        {{- $icmrsc = .Values.containerSecurityContext }}
-        {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.install.job.initContainers.identityMigration.resources | nindent 10 }}
-        env:
-        - name: JDBC_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql
-              key: mysql-root-password
-        - name: JDBC_URL
-          value: mysql
-        - name: SPRING_PROFILES_ACTIVE
-          value: dev
-        - name: JDBC_USER_NAME
-          value: root
-        - name: JDBC_DATABASE
-          value: {{ .Values.connections.mysqlDatabase }}
-        - name: RABBIT_HOST
-          value: {{ .Values.connections.brokerHost }}
-        - name: REDIS_HOST
-          value: {{ .Values.connections.redisHost }}  
-        envFrom:
-        - configMapRef:
-            name: docspace
-      {{- end }}
+
       containers:
       - name: app-init-storage
         image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}

@@ -8,11 +8,14 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
-  - port: 8080
-    name: identity
-    targetPort: 8080
+  - port: {{ .Values.identity.containerPorts.identity }}
+    name: app
+    targetPort: {{ .Values.identity.containerPorts.identity }}
   selector:
     app: identity
     {{- if .Values.commonLabels }}

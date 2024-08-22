@@ -131,9 +131,9 @@ spec:
         resources: {{- toYaml .Values.identity.resources | nindent 10 }}
         env:
         - name: SPRING_APPLICATION_NAME
-          value: ASC.Identity.Authorization
+          value: {{ .Values.identity.springApplicationName }}
         - name: SERVER_PORT
-          value: {{ .Values.identity.containerPorts.identity }}
+          value: {{ .Values.identity.containerPorts.identity | quote }}
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -149,19 +149,7 @@ spec:
             secretKeyRef:
               name: rabbitmq
               key: rabbitmq-password
-        - name: JDBC_URL
-          value: mysql
-        - name: SPRING_PROFILES_ACTIVE
-          value: dev
-        - name: JDBC_USER_NAME
-          value: root
-        - name: JDBC_DATABASE
-          value: {{ .Values.connections.mysqlDatabase }}
-        - name: RABBIT_HOST
-          value: {{ .Values.connections.brokerHost }}
-        - name: REDIS_HOST
-          value: {{ .Values.connections.redisHost }}  
         envFrom:
         - configMapRef:
-            name: docspace
+            name: identity
 {{- end }}

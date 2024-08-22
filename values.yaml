@@ -2505,43 +2505,43 @@ login:
 # This block defines the parameters common to all the Pods of this application
 #
 identity:
-  # login.enabled Enables Login installation
+  # identity.enabled Enables Identity installation
   enabled: true
-  # login.kind The controller used for deploy
+  # identity.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  # login.annotations Defines annotations that will be additionally added to Login deploy
+  # identity.annotations Defines annotations that will be additionally added to Identity deploy
   # If set to, it takes priority over the `commonAnnotations`
   # You can also use `tpl` as the value for the key
   annotations: {}
-  # login.replicaCount Number of Login replicas to deploy
+  # identity.replicaCount Number of Identity replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
+    # identity.updateStrategy.type Identity update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `identity.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `identity.kind` is set to `Deployment`
     type: RollingUpdate
-    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    # identity.updateStrategy.rollingUpdate Used only when `identity.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      # identity.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Identity Pods unavailable during the update process
       maxUnavailable: 25%
-      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      # identity.updateStrategy.rollingUpdate.maxSurge Maximum number of Identity Pods created over the desired number of Pods
       maxSurge: 25%
-  # login.podManagementPolicy The Login Pods scaling operations policy
-  # Used if `login.kind` is set to `StatefulSet`
+  # identity.podManagementPolicy The Identity Pods scaling operations policy
+  # Used if `identity.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  # login.podAnnotations Map of annotations to add to the Login pods
+  # identity.podAnnotations Map of annotations to add to the Identity pods
   podAnnotations: {}
-  # Configure a Security Context for the Login Pods
+  # Configure a Security Context for the Identity Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
-    # login.podSecurityContext.enabled Enable security context for the Login pods
+    # identity.podSecurityContext.enabled Enable security context for the Identity pods
     enabled: false
-  # login.customPodAntiAffinity Prohibiting the scheduling of Login Pods relative to other Pods containing the specified labels on the same node
+  # identity.customPodAntiAffinity Prohibiting the scheduling of Identity Pods relative to other Pods containing the specified labels on the same node
   customPodAntiAffinity: {}
-  # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for Identity Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Identity Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2556,8 +2556,8 @@ identity:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Login Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Login Pods can be scheduled on based on node labels
+  # Node affinity rules for Identity Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Identity Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2571,87 +2571,87 @@ identity:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # login.nodeSelector Node labels for Login pods assignment
+  # identity.nodeSelector Node labels for Identity pods assignment
   # If set to, it takes priority over the `nodeSelector`
   nodeSelector: {}
-  # login.tolerations Tolerations for Login pods assignment
+  # identity.tolerations Tolerations for Identity pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
-  # Login container image parameters
+  # Identity container image parameters
   image:
-    # login.image.repository Login container image repository
-    repository: lemmav/identity-authorization
-    # login.image.tag Login container image tag
+    # identity.image.repository Identity container image repository
+    repository: onlyoffice/4testing-docspace-identity-authorization
+    # identity.image.tag Identity container image tag
     # If set to, it takes priority over the `images.tag`
     tag: "latest"
-    # login.image.pullPolicy Login container image pull policy
+    # identity.image.pullPolicy Identity container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Login Pods
+  # Configure a Security Context for containers in Identity Pods
   # If set to, it takes priority over the `containerSecurityContext`
   containerSecurityContext:
-    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    # identity.containerSecurityContext.enabled Enable security context for containers in Identity pods
     enabled: false
-  # login.lifecycleHooks Defines the Login container lifecycle hooks
+  # identity.lifecycleHooks Defines the Identity container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
   lifecycleHooks: {}
-  # login.containerPorts.login Login container port
+  # identity.containerPorts.login Identity container port
   containerPorts:
     identity: 8080
-  # Probe used for the Login container: startup, readiness and liveness probes
+  # Probe used for the Identity container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `login.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `identity.startupProbe.enabled=true`
   startupProbe:
-    # login.startupProbe.enabled Enable startupProbe for Login container
+    # identity.startupProbe.enabled Enable startupProbe for Identity container
     enabled: true
     httpGet:
-      # login.startupProbe.httpGet.path Checking the path for startupProbe
+      # identity.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
-      # login.startupProbe.httpGet.port Checking the port for startupProbe
+      # identity.startupProbe.httpGet.port Checking the port for startupProbe
       port: 8080
-    # login.startupProbe.failureThreshold Failure threshold for startupProbe
+    # identity.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # login.startupProbe.periodSeconds Period seconds for startupProbe
+    # identity.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `login.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `identity.readinessProbe.enabled=true`
   readinessProbe:
-    # login.readinessProbe.enabled Enable readinessProbe for Login container
+    # identity.readinessProbe.enabled Enable readinessProbe for Identity container
     enabled: true
-    # login.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # identity.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # login.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # identity.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /health
-      # login.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # identity.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 8080
-    # login.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # identity.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
-    # login.readinessProbe.successThreshold Success threshold for readinessProbe
+    # identity.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # login.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # identity.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `login.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `identity.livenessProbe.enabled=true`
   livenessProbe:
-    # login.livenessProbe.enabled Enable livenessProbe for Login container
+    # identity.livenessProbe.enabled Enable livenessProbe for Identity container
     enabled: true
-    # login.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # identity.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
-      # login.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # identity.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /health
-      # login.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # identity.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 8080
-    # login.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # identity.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
-    # login.livenessProbe.successThreshold Success threshold for livenessProbe
+    # identity.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # login.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # identity.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Login container resource requests and limits
+  # Identity container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # login.resources.requests The requested resources for the Login container
-  # login.resources.limits The resources limits for the Login container
+  # identity.resources.requests The requested resources for the Identity container
+  # identity.resources.limits The resources limits for the Identity container
   resources:
     requests:
       memory: "256Mi"
@@ -2659,55 +2659,53 @@ identity:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # login.mysqlUser Database user who will be used by the Login service to connect to the database
+  # identity.mysqlUser Database user who will be used by the Identity service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
-
-
-
+  springApplicationName: "ASC.Identity.Authorization"
 
 # DocSpace Identity API application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 identityApi:
-  # login.enabled Enables Login installation
+  # identityApi.enabled Enables IdentityApi installation
   enabled: true
-  # login.kind The controller used for deploy
+  # identityApi.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  # login.annotations Defines annotations that will be additionally added to Login deploy
+  # identityApi.annotations Defines annotations that will be additionally added to IdentityApi deploy
   # If set to, it takes priority over the `commonAnnotations`
   # You can also use `tpl` as the value for the key
   annotations: {}
-  # login.replicaCount Number of Login replicas to deploy
+  # identityApi.replicaCount Number of IdentityApi replicas to deploy
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # login.updateStrategy.type Login update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete` if `login.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `login.kind` is set to `Deployment`
+    # identityApi.updateStrategy.type IdentityApi update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `identityApi.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `identityApi.kind` is set to `Deployment`
     type: RollingUpdate
-    # login.updateStrategy.rollingUpdate Used only when `login.updateStrategy.type=RollingUpdate`
+    # identityApi.updateStrategy.rollingUpdate Used only when `identityApi.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # login.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Login Pods unavailable during the update process
+      # identityApi.updateStrategy.rollingUpdate.maxUnavailable Maximum number of IdentityApi Pods unavailable during the update process
       maxUnavailable: 25%
-      # login.updateStrategy.rollingUpdate.maxSurge Maximum number of Login Pods created over the desired number of Pods
+      # identityApi.updateStrategy.rollingUpdate.maxSurge Maximum number of IdentityApi Pods created over the desired number of Pods
       maxSurge: 25%
-  # login.podManagementPolicy The Login Pods scaling operations policy
-  # Used if `login.kind` is set to `StatefulSet`
+  # identityApi.podManagementPolicy The IdentityApi Pods scaling operations policy
+  # Used if `identityApi.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  # login.podAnnotations Map of annotations to add to the Login pods
+  # identityApi.podAnnotations Map of annotations to add to the IdentityApi pods
   podAnnotations: {}
-  # Configure a Security Context for the Login Pods
+  # Configure a Security Context for the IdentityApi Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
-    # login.podSecurityContext.enabled Enable security context for the Login pods
+    # identityApi.podSecurityContext.enabled Enable security context for the IdentityApi pods
     enabled: false
-  # login.customPodAntiAffinity Prohibiting the scheduling of Login Pods relative to other Pods containing the specified labels on the same node
+  # identityApi.customPodAntiAffinity Prohibiting the scheduling of IdentityApi Pods relative to other Pods containing the specified labels on the same node
   customPodAntiAffinity: {}
-  # Pod affinity rules for Login Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Login Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for IdentityApi Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes IdentityApi Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2722,8 +2720,8 @@ identityApi:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Login Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Login Pods can be scheduled on based on node labels
+  # Node affinity rules for IdentityApi Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes IdentityApi Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2737,87 +2735,87 @@ identityApi:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # login.nodeSelector Node labels for Login pods assignment
+  # identityApi.nodeSelector Node labels for IdentityApi pods assignment
   # If set to, it takes priority over the `nodeSelector`
   nodeSelector: {}
-  # login.tolerations Tolerations for Login pods assignment
+  # identityApi.tolerations Tolerations for IdentityApi pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
-  # Login container image parameters
+  # IdentityApi container image parameters
   image:
-    # login.image.repository Login container image repository
-    repository: lemmav/identity-api
-    # login.image.tag Login container image tag
+    # identityApi.image.repository IdentityApi container image repository
+    repository: onlyoffice/4testing-docspace-identity-api
+    # identityApi.image.tag IdentityApi container image tag
     # If set to, it takes priority over the `images.tag`
     tag: "latest"
-    # login.image.pullPolicy Login container image pull policy
+    # identityApi.image.pullPolicy IdentityApi container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Login Pods
+  # Configure a Security Context for containers in IdentityApi Pods
   # If set to, it takes priority over the `containerSecurityContext`
   containerSecurityContext:
-    # login.containerSecurityContext.enabled Enable security context for containers in Login pods
+    # identityApi.containerSecurityContext.enabled Enable security context for containers in IdentityApi pods
     enabled: false
-  # login.lifecycleHooks Defines the Login container lifecycle hooks
+  # identityApi.lifecycleHooks Defines the IdentityApi container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
   lifecycleHooks: {}
-  # login.containerPorts.login Login container port
+  # identityApi.containerPorts.login IdentityApi container port
   containerPorts:
-    identityApi: 9090
-  # Probe used for the Login container: startup, readiness and liveness probes
+    app: 9090
+  # Probe used for the IdentityApi container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `login.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `identityApi.startupProbe.enabled=true`
   startupProbe:
-    # login.startupProbe.enabled Enable startupProbe for Login container
+    # identityApi.startupProbe.enabled Enable startupProbe for IdentityApi container
     enabled: true
     httpGet:
-      # login.startupProbe.httpGet.path Checking the path for startupProbe
+      # identityApi.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
-      # login.startupProbe.httpGet.port Checking the port for startupProbe
+      # identityApi.startupProbe.httpGet.port Checking the port for startupProbe
       port: 9090
-    # login.startupProbe.failureThreshold Failure threshold for startupProbe
+    # identityApi.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # login.startupProbe.periodSeconds Period seconds for startupProbe
+    # identityApi.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `login.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `identityApi.readinessProbe.enabled=true`
   readinessProbe:
-    # login.readinessProbe.enabled Enable readinessProbe for Login container
+    # identityApi.readinessProbe.enabled Enable readinessProbe for IdentityApi container
     enabled: true
-    # login.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # identityApi.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # login.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # identityApi.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /health
-      # login.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # identityApi.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 9090
-    # login.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # identityApi.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
-    # login.readinessProbe.successThreshold Success threshold for readinessProbe
+    # identityApi.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # login.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # identityApi.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `login.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `identityApi.livenessProbe.enabled=true`
   livenessProbe:
-    # login.livenessProbe.enabled Enable livenessProbe for Login container
+    # identityApi.livenessProbe.enabled Enable livenessProbe for IdentityApi container
     enabled: true
-    # login.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # identityApi.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
-      # login.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # identityApi.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /health
-      # login.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # identityApi.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 9090
-    # login.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # identityApi.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
-    # login.livenessProbe.successThreshold Success threshold for livenessProbe
+    # identityApi.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # login.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # identityApi.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Login container resource requests and limits
+  # IdentityApi container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # login.resources.requests The requested resources for the Login container
-  # login.resources.limits The resources limits for the Login container
+  # identityApi.resources.requests The requested resources for the IdentityApi container
+  # identityApi.resources.limits The resources limits for the IdentityApi container
   resources:
     requests:
       memory: "256Mi"
@@ -2825,13 +2823,11 @@ identityApi:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # login.mysqlUser Database user who will be used by the Login service to connect to the database
+  # identityApi.mysqlUser Database user who will be used by the IdentityApi service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
-
-
-
+  springApplicationName: "ASC.Identity.Registration"
 
 # DocSpace Notify application parameters
 # This block defines the parameters common to all the Pods of this application
@@ -4142,29 +4138,6 @@ install:
           limits:
             memory: "1Gi"
             cpu: "1000m"
-      identityMigration:
-        # install.job.initContainers.identityMigration.enabled Enable database initialization
-        enabled: true
-        image:
-          # install.job.initContainers.identityMigration.image.repository Job by pre-install Identity Migration container image repository
-          repository: lemmav/identity-migration
-          # install.job.initContainers.identityMigration.image.tag Job by pre-install Identity Migration container image tag
-          # If set to, it takes priority over the `images.tag`
-          tag: "latest"
-          # install.job.initContainers.identityMigration.image.pullPolicy Job by pre-install Identity Migration container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-install Identity Migration container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # install.job.initContainers.identityMigration.resources.requests The requested resources for the Job pre-install Identity Migration container
-        # install.job.initContainers.identityMigration.resources.limits The resources limits for the Job pre-install Identity Migration container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
-
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
 # He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
@@ -4250,28 +4223,6 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
-      identityMigration:
-        # upgrade.job.initContainers.identityMigration.enabled Enable database initialization
-        enabled: true
-        image:
-          # upgrade.job.initContainers.identityMigration.image.repository Job by pre-upgrade Identity Migration container image repository
-          repository: lemmav/identity-migration
-          # upgrade.job.initContainers.identityMigration.image.tag Job by pre-upgrade Identity Migration container image tag
-          # If set to, it takes priority over the `images.tag`
-          tag: "test"
-          # upgrade.job.initContainers.identityMigration.image.pullPolicy Job by pre-upgrade Identity Migration container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-upgrade Identity Migration container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # upgrade.job.initContainers.identityMigration.resources.requests The requested resources for the Job pre-upgrade Identity Migration container
-        # upgrade.job.initContainers.identityMigration.resources.limits The resources limits for the Job pre-upgrade Identity Migration container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
 
 # Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
 # He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
@@ -4324,6 +4275,65 @@ elasticsearchClearIndexes:
     # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     # elasticsearchClearIndexes.job.resources.requests The requested resources for the Job elasticsearchClearIndexes container
     # elasticsearchClearIndexes.job.resources.limits The resources limits for the Job elasticsearchClearIndexes container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
+# The job by identityMigration has a pre-upgrade and pre-install hook, executing on upgrade or install requests.
+# Migration Runner is a migration service that creates identity tables, triggers, and events for the physical removal of logically deleted records.
+identityMigration:
+  job:
+    # identityMigration.job.enabled Enable the execution of job identityMigration before upgrading DocSpace
+    # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
+    enabled: true
+    # identityMigration container image parameters
+    image:
+      # identityMigration.job.image.repository identityMigration container image repository
+      repository: onlyoffice/4testing-docspace-identity-migration
+      # identityMigration.job.image.tag identityMigration container image tag
+      tag: "latest"
+      # identityMigration.job.image.pullPolicy identityMigration container image pull policy
+      pullPolicy: IfNotPresent
+    # identityMigration.job.annotations Defines annotations that will be additionally added to identityMigration Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # identityMigration.job.podAnnotations Map of annotations to add to the identityMigration Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the identityMigration Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # identityMigration.job.podSecurityContext.enabled Enable security context for the identityMigration Job pod
+      enabled: false
+    # identityMigration.job.customPodAntiAffinity Prohibiting the scheduling of identityMigration Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for identityMigration Job Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes identityMigration Job Pod can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    podAffinity: {}
+    # Node affinity rules for identityMigration Job Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes identityMigration Job Pod can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    nodeAffinity: {}
+    # identityMigration.job.nodeSelector Node labels for identityMigration Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # identityMigration.job.tolerations Tolerations for identityMigration Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in identityMigration Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # identityMigration.job.containerSecurityContext.enabled Enable security context for containers in identityMigration Job pod
+      enabled: false
+    # Job identityMigration container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # identityMigration.job.resources.requests The requested resources for the Job identityMigration container
+    # identityMigration.job.resources.limits The resources limits for the Job identityMigration container
     resources:
       requests:
         memory: "256Mi"
