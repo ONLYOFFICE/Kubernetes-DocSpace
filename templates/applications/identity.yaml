@@ -131,7 +131,10 @@ spec:
         resources: {{- toYaml .Values.identity.resources | nindent 10 }}
         env:
         - name: SPRING_APPLICATION_NAME
-          value: {{ .Values.identity.springApplicationName }}
+          valueFrom:
+            configMapKeyRef:
+              name: identity
+              key: SERVER_PORT_IDENTITY
         - name: SERVER_PORT
           value: {{ .Values.identity.containerPorts.identity | quote }}
         - name: JDBC_PASSWORD

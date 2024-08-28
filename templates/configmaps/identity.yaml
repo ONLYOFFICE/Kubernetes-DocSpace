@@ -21,6 +21,8 @@ data:
   RABBIT_HOST: {{ .Values.connections.brokerHost | quote }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser | quote }}
   REDIS_HOST: {{ .Values.connections.redisHost | quote }}
+  SERVER_PORT_IDENTITY: "ASC.Identity.Authorization"
+  SERVER_PORT_IDENTITY_API: "ASC.Identity.Registration"
   SPRING_PROFILES_ACTIVE: "dev"
   JDBC_USER_NAME: "root"  
 

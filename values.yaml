@@ -2663,7 +2663,6 @@ identity:
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
-  springApplicationName: "ASC.Identity.Authorization"
 
 # DocSpace Identity API application parameters
 # This block defines the parameters common to all the Pods of this application
@@ -2827,7 +2826,6 @@ identityApi:
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
-  springApplicationName: "ASC.Identity.Registration"
 
 # DocSpace Notify application parameters
 # This block defines the parameters common to all the Pods of this application
