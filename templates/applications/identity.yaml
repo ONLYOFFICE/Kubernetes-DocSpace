@@ -147,6 +147,11 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
         - name: RABBIT_PASSWORD
           valueFrom:
             secretKeyRef:

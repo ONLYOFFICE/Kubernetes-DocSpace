@@ -17,8 +17,6 @@ metadata:
 data:
   JDBC_URL: {{ .Values.connections.mysqlHost | quote  }}
   JDBC_DATABASE: {{ .Values.connections.mysqlDatabase | quote }}
-  RABBIT_HOST: {{ .Values.connections.brokerHost | quote }}
-  RABBIT_USER_NAME: {{ .Values.connections.brokerUser | quote }}
   REDIS_HOST: {{ .Values.connections.redisHost | quote }}
   SERVER_PORT_IDENTITY: "ASC.Identity.Authorization"
   SERVER_PORT_IDENTITY_API: "ASC.Identity.Registration"
