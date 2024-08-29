@@ -18,6 +18,7 @@ data:
   JDBC_URL: {{ .Values.connections.mysqlHost | quote  }}
   JDBC_DATABASE: {{ .Values.connections.mysqlDatabase | quote }}
   REDIS_HOST: {{ .Values.connections.redisHost | quote }}
+  REDIS_DB: {{ .Values.connections.redisDB | quote }}
   SERVER_PORT_IDENTITY: "ASC.Identity.Authorization"
   SERVER_PORT_IDENTITY_API: "ASC.Identity.Registration"
   SPRING_PROFILES_ACTIVE: "dev"
