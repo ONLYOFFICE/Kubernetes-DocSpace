@@ -145,13 +145,13 @@ spec:
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: redis
-              key: redis-password
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
         - name: RABBIT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: rabbitmq
-              key: rabbitmq-password
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         envFrom:
         - configMapRef:
             name: identity
