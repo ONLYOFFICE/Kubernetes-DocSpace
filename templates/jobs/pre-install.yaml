@@ -120,7 +120,6 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
-
       containers:
       - name: app-init-storage
         image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
