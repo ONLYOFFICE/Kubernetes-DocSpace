@@ -17,6 +17,7 @@ metadata:
 data:
   JDBC_URL: {{ .Values.connections.mysqlHost | quote  }}
   JDBC_DATABASE: {{ .Values.connections.mysqlDatabase | quote }}
+  JDBC_PORT: {{ .Values.connections.mysqlPort | quote }}
   REDIS_HOST: {{ .Values.connections.redisHost | quote }}
   REDIS_USERNAME: {{ .Values.connections.redisUser | quote }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
