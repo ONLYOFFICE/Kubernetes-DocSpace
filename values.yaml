@@ -4136,6 +4136,7 @@ install:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
 # He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
