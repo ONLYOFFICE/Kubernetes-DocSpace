@@ -137,6 +137,8 @@ spec:
               key: SERVER_PORT_IDENTITY
         - name: SERVER_PORT
           value: {{ .Values.identity.containerPorts.identity | quote }}
+        - name: JDBC_USER_NAME
+          value: {{ default .Values.connections.mysqlUser .Values.identity.mysqlUser }}
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:

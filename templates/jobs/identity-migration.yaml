@@ -80,6 +80,8 @@ spec:
           {{- end }}
           resources: {{- toYaml .Values.identityMigration.job.resources | nindent 12 }}
           env:
+          - name: JDBC_USER_NAME
+            value: {{ default .Values.connections.mysqlUser .Values.identityMigration.mysqlUser }}
           - name: JDBC_PASSWORD
             valueFrom:
               secretKeyRef:
