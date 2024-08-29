@@ -140,8 +140,8 @@ spec:
         - name: JDBC_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql
-              key: mysql-root-password
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
