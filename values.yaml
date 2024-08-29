@@ -2659,10 +2659,6 @@ identity:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # identity.mysqlUser Database user who will be used by the Identity service to connect to the database
-  # If not set, `connections.mysqlUser` will be used
-  # If set to, it takes priority over the `connections.mysqlUser`
-  mysqlUser: ""
 
 # DocSpace Identity API application parameters
 # This block defines the parameters common to all the Pods of this application
@@ -2822,10 +2818,6 @@ identityApi:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # identityApi.mysqlUser Database user who will be used by the IdentityApi service to connect to the database
-  # If not set, `connections.mysqlUser` will be used
-  # If set to, it takes priority over the `connections.mysqlUser`
-  mysqlUser: ""
 
 # DocSpace Notify application parameters
 # This block defines the parameters common to all the Pods of this application
