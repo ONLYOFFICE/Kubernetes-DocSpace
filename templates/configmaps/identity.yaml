@@ -15,7 +15,7 @@ metadata:
     {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
 data:
-  JDBC_URL: {{ .Values.connections.mysqlHost | quote  }}:{{ .Values.connections.mysqlPort | quote }}
+  JDBC_URL: {{ printf "%s:%s" .Values.connections.mysqlHost .Values.connections.mysqlPort | quote }}
   JDBC_DATABASE: {{ .Values.connections.mysqlDatabase | quote }}
   REDIS_HOST: {{ .Values.connections.redisHost | quote }}
   REDIS_USERNAME: {{ .Values.connections.redisUser | quote }}
