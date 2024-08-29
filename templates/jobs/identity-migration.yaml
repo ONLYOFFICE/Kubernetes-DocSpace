@@ -68,7 +68,7 @@ spec:
       {{- end }}
       containers:
         - name: identity-migration
-          image: {{ .Values.identityMigration.job.image.repository }}:{{ .Values.identityMigration.job.image.tag }}
+          image: {{ .Values.identityMigration.job.image.repository }}:{{ default .Values.images.tag .Values.identityMigration.job.image.tag }}
           {{- if or .Values.containerSecurityContext.enabled .Values.identityMigration.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
           {{- if .Values.identityMigration.job.containerSecurityContext.enabled }}
