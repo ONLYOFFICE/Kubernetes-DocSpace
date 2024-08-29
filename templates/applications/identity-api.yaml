@@ -152,11 +152,6 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
-        - name: RABBIT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "docspace.broker.secretName" . }}
-              key: {{ .Values.connections.brokerSecretKeyName }}
         envFrom:
         - configMapRef:
             name: identity
