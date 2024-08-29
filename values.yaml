@@ -2580,10 +2580,10 @@ identity:
   # Identity container image parameters
   image:
     # identity.image.repository Identity container image repository
-    repository: onlyoffice/4testing-docspace-identity-authorization
+    repository: onlyoffice/docspace-identity-authorization
     # identity.image.tag Identity container image tag
     # If set to, it takes priority over the `images.tag`
-    tag: "latest"
+    tag: ""
     # identity.image.pullPolicy Identity container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for containers in Identity Pods
@@ -2739,10 +2739,10 @@ identityApi:
   # IdentityApi container image parameters
   image:
     # identityApi.image.repository IdentityApi container image repository
-    repository: onlyoffice/4testing-docspace-identity-api
+    repository: onlyoffice/docspace-identity-api
     # identityApi.image.tag IdentityApi container image tag
     # If set to, it takes priority over the `images.tag`
-    tag: "latest"
+    tag: ""
     # identityApi.image.pullPolicy IdentityApi container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for containers in IdentityApi Pods
@@ -4284,9 +4284,9 @@ identityMigration:
     # identityMigration container image parameters
     image:
       # identityMigration.job.image.repository identityMigration container image repository
-      repository: onlyoffice/4testing-docspace-identity-migration
+      repository: onlyoffice/docspace-identity-migration
       # identityMigration.job.image.tag identityMigration container image tag
-      tag: "latest"
+      tag: ""
       # identityMigration.job.image.pullPolicy identityMigration container image pull policy
       pullPolicy: IfNotPresent
     # identityMigration.job.annotations Defines annotations that will be additionally added to identityMigration Job
