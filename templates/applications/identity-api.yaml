@@ -103,8 +103,6 @@ spec:
       containers:
       - name: identity-api
         image: {{ include "docspace.imageRepository" (list . .Values.identityApi.image.repository) }}:{{ default .Values.images.tag .Values.identityApi.image.tag }}
-        # command: ["sh"]
-        # args: ["-c", "sleep"]
         imagePullPolicy: {{ .Values.identityApi.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.identityApi.containerSecurityContext.enabled }}
         {{- $csc := dict }}
