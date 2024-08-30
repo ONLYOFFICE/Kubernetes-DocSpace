@@ -2662,7 +2662,7 @@ identity:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # identity.mysqlUser Database user who will be used by the Files service to connect to the database
+  # identity.mysqlUser Database user who will be used by the Identity to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
@@ -2825,7 +2825,7 @@ identityApi:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  # identityApi.mysqlUser Database user who will be used by the Files service to connect to the database
+  # identityApi.mysqlUser Database user who will be used by the IdentityApi to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
@@ -4343,7 +4343,7 @@ identityMigration:
       limits:
         memory: "1Gi"
         cpu: "1000m"
-  # identityMigration.mysqlUser Database user who will be used by the Files service to connect to the database
+  # identityMigration.mysqlUser Database user who will be used by the identityMigration to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
