@@ -24,8 +24,8 @@ data:
     sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:9090/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_identity/{{ .Values.connections.identityHost }}\:8080/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:{{ .Values.identityApi.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_identity/{{ .Values.connections.identityHost }}\:{{ .Values.identity.containerPorts.identity }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}
