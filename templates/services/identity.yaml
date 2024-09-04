@@ -13,9 +13,9 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.identity.containerPorts.identity }}
+  - port: {{ .Values.identity.containerPorts.app }}
     name: app
-    targetPort: {{ .Values.identity.containerPorts.identity }}
+    targetPort: {{ .Values.identity.containerPorts.app }}
   selector:
     app: identity
     {{- if .Values.commonLabels }}

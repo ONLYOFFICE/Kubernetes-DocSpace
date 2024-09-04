@@ -117,7 +117,7 @@ spec:
         lifecycle: {{- toYaml .Values.identity.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.identity.containerPorts.identity }}
+        - containerPort: {{ .Values.identity.containerPorts.app }}
           name: identity
         {{- if .Values.identity.startupProbe.enabled }}
         startupProbe: {{- omit .Values.identity.startupProbe "enabled" | toYaml | nindent 10 }}
@@ -136,7 +136,7 @@ spec:
               name: identity
               key: SERVER_PORT_IDENTITY
         - name: SERVER_PORT
-          value: {{ .Values.identity.containerPorts.identity | quote }}
+          value: {{ .Values.identity.containerPorts.app | quote }}
         - name: JDBC_USER_NAME
           value: {{ default .Values.connections.mysqlUser .Values.identity.mysqlUser }}
         - name: JDBC_PASSWORD

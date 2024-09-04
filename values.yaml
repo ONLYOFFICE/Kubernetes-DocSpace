@@ -2599,9 +2599,9 @@ identity:
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
   lifecycleHooks: {}
-  # identity.containerPorts.identity Identity container port
+  # identity.containerPorts.app Identity container port
   containerPorts:
-    identity: 8080
+    app: 8080
   # Probe used for the Identity container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `identity.startupProbe.enabled=true`
