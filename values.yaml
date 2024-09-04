@@ -2667,7 +2667,7 @@ identity:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
   env:
-    # identity.env.springApplicationName is the name of the current service (used in audits and logs)
+    # identity.env.springApplicationName is the name of the Identity service (used in audits and logs)
     springApplicationName: "ASC.Identity.Authorization"
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "dev"
@@ -2835,7 +2835,7 @@ identityApi:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
   env:
-    # identityApi.env.springApplicationName is the name of the current service (used in audits and logs)
+    # identityApi.env.springApplicationName is the name of the Identity API service (used in audits and logs)
     springApplicationName: "ASC.Identity.Registration"
 
 # DocSpace Notify application parameters

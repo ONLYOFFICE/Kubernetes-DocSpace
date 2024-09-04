@@ -442,7 +442,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`                                 | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity` and `identityApi`                                 | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -451,7 +451,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs` and `opensearch`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity` and `identityApi`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -498,6 +498,22 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `ssoauth.containerPorts.sso`                             | Ssoauth additional container port                                                                               | `9834`               |
+
+### ONLYOFFICE DocSpace Identity Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `identity.containerPorts.authorization`                             | Identity additional container port                                                                               | `8080`               |
+| `identity.env.springApplicationName`                         | Defines the name of the Identity service (used in audits and logs)                                                                       | `ASC.Identity.Authorization`              |
+| `identityApi.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
+
+### ONLYOFFICE DocSpace Identity API Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `identityApi.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
+| `identityApi.env.springApplicationName`                         | Defines the name of the current service (used in audits and logs)                                                                       | `ASC.Identity.Registration`              |
+
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 
