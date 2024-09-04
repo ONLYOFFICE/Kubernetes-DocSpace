@@ -21,7 +21,7 @@ data:
   REDIS_USERNAME: {{ .Values.connections.redisUser | quote }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_DB: {{ .Values.connections.redisDB | quote }}
-  SERVER_PORT_IDENTITY: "ASC.Identity.Authorization"
-  SERVER_PORT_IDENTITY_API: "ASC.Identity.Registration"
-  SPRING_PROFILES_ACTIVE: "dev"
+  SPRING_APPLICATION_NAME: {{ .Values.identity.env.springApplicationName | quote }}
+  SPRING_APPLICATION_NAME_API: {{ .Values.identity.env.springApplicationName | quote }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.identity.env.springProfilesActive | quote }}
 {{- end }}

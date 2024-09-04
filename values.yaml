@@ -2666,6 +2666,11 @@ identity:
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
+  env:
+    # identity.env.springApplicationName is the name of the current service (used in audits and logs)
+    springApplicationName: "ASC.Identity.Authorization"
+    # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
+    springProfilesActive: "dev"
 
 # DocSpace Identity API application parameters
 # This block defines the parameters common to all the Pods of this application
@@ -2829,6 +2834,9 @@ identityApi:
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
+  env:
+    # identityApi.env.springApplicationName is the name of the current service (used in audits and logs)
+    springApplicationName: "ASC.Identity.Registration"
 
 # DocSpace Notify application parameters
 # This block defines the parameters common to all the Pods of this application
