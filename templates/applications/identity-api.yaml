@@ -134,7 +134,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: identity
-              key: SERVER_PORT_IDENTITY_API
+              key: SPRING_APPLICATION_NAME_API
         - name: SERVER_PORT
           value: {{ .Values.identity.identityApi.containerPorts.api | quote }}
         - name: JDBC_USER_NAME

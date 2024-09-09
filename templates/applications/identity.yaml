@@ -133,8 +133,8 @@ spec:
         - name: SPRING_APPLICATION_NAME
           valueFrom:
             configMapKeyRef:
-              name: identity-authorization
-              key: SERVER_PORT_IDENTITY
+              name: identity
+              key: SPRING_APPLICATION_NAME
         - name: SERVER_PORT
           value: {{ .Values.identity.identityAuthorization.containerPorts.authorization | quote }}
         - name: JDBC_USER_NAME
