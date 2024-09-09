@@ -2509,7 +2509,7 @@ login:
 #
 identity:
   # identity.enabled Enables Identity installation
-  enabled: true
+  enabled: false
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "dev"
