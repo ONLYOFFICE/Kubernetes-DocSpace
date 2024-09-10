@@ -13,9 +13,9 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.identity.identityApi.containerPorts.api }}
+  - port: {{ .Values.identity.api.containerPorts.api }}
     name: api
-    targetPort: {{ .Values.identity.identityApi.containerPorts.api }}
+    targetPort: {{ .Values.identity.api.containerPorts.api }}
   selector:
     app: identity-api
     {{- if .Values.commonLabels }}
