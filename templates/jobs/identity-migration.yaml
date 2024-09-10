@@ -13,8 +13,8 @@ metadata:
     "helm.sh/hook": pre-install, pre-upgrade
     "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-    {{- if or .Values.commonAnnotations .Values.identity.identityMigration.job.annotations }}
-    {{- $dictValue := default .Values.commonAnnotations .Values.identity.identityMigration.job.annotations }}
+    {{- if or .Values.commonAnnotations .Values.identity.migration.job.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.identity.migration.job.annotations }}
     {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
@@ -26,41 +26,41 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.identity.identityMigration.job.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.identity.identityMigration.job.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.identity.migration.job.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.identity.migration.job.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.identity.identityMigration.job.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.identity.migration.job.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.identity.identityMigration.job.podSecurityContext.enabled }}
-      {{- $psc = .Values.identity.identityMigration.job.podSecurityContext }}
+      {{- if .Values.identity.migration.job.podSecurityContext.enabled }}
+      {{- $psc = .Values.identity.migration.job.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
       securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
-      {{- if or .Values.identity.identityMigration.job.customPodAntiAffinity .Values.identity.identityMigration.job.podAffinity .Values.identity.identityMigration.job.nodeAffinity }}
+      {{- if or .Values.identity.migration.job.customPodAntiAffinity .Values.identity.migration.job.podAffinity .Values.identity.migration.job.nodeAffinity }}
       affinity:
-        {{- with .Values.identity.identityMigration.job.customPodAntiAffinity }}
+        {{- with .Values.identity.migration.job.customPodAntiAffinity }}
         podAntiAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.identity.identityMigration.job.podAffinity }}
+        {{- with .Values.identity.migration.job.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.identity.identityMigration.job.nodeAffinity }}
+        {{- with .Values.identity.migration.job.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
-      {{- if or .Values.nodeSelector .Values.identity.identityMigration.job.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.identity.identityMigration.job.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.identity.migration.job.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.identity.migration.job.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.identity.identityMigration.job.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.identity.identityMigration.job.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.identity.migration.job.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.identity.migration.job.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -68,20 +68,20 @@ spec:
       {{- end }}
       containers:
         - name: identity-migration
-          image: {{ .Values.identity.identityMigration.job.image.repository }}:{{ default .Values.images.tag .Values.identity.identityMigration.job.image.tag }}
-          {{- if or .Values.containerSecurityContext.enabled .Values.identity.identityMigration.job.containerSecurityContext.enabled }}
+          image: {{ .Values.identity.migration.job.image.repository }}:{{ default .Values.images.tag .Values.identity.migration.job.image.tag }}
+          {{- if or .Values.containerSecurityContext.enabled .Values.identity.migration.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
-          {{- if .Values.identity.identityMigration.job.containerSecurityContext.enabled }}
-          {{- $csc = .Values.identity.identityMigration.job.containerSecurityContext }}
+          {{- if .Values.identity.migration.job.containerSecurityContext.enabled }}
+          {{- $csc = .Values.identity.migration.job.containerSecurityContext }}
           {{- else }}
           {{- $csc = .Values.containerSecurityContext }}
           {{- end }}
           securityContext: {{- include "docspace.securityContext" $csc | nindent 12 }}
           {{- end }}
-          resources: {{- toYaml .Values.identity.identityMigration.job.resources | nindent 12 }}
+          resources: {{- toYaml .Values.identity.migration.job.resources | nindent 12 }}
           env:
           - name: JDBC_USER_NAME
-            value: {{ default .Values.connections.mysqlUser .Values.identity.identityMigration.mysqlUser }}
+            value: {{ default .Values.connections.mysqlUser .Values.identity.migration.mysqlUser }}
           - name: JDBC_PASSWORD
             valueFrom:
               secretKeyRef:

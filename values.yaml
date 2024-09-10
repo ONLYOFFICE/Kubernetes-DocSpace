@@ -2513,54 +2513,54 @@ identity:
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "dev"
-  # The job by identityMigration has a pre-upgrade and pre-install hook, executing on upgrade or install requests.
+  # The job by Identity Migration has a pre-upgrade and pre-install hook, executing on upgrade or install requests.
   # Migration Runner is a migration service that creates identity tables, triggers, and events for the physical removal of logically deleted records.
-  identityMigration:
+  migration:
     job:
-      # identityMigration container image parameters
+      # Identity Migration container image parameters
       image:
-        # identity.identityMigration.job.image.repository identityMigration container image repository
+        # identity.migration.job.image.repository Identity Migration container image repository
         repository: onlyoffice/docspace-identity-migration
-        # identity.identityMigration.job.image.tag identityMigration container image tag
+        # identity.migration.job.image.tag Identity Migration container image tag
         tag: ""
-        # identity.identityMigration.job.image.pullPolicy identityMigration container image pull policy
+        # identity.migration.job.image.pullPolicy Identity Migration container image pull policy
         pullPolicy: IfNotPresent
-      # identity.identityMigration.job.annotations Defines annotations that will be additionally added to identityMigration Job
+      # identity.migration.job.annotations Defines annotations that will be additionally added to Identity Migration Job
       # If set to, it takes priority over the `commonAnnotations`
       # You can also use `tpl` as the value for the key
       annotations: {}
-      # identity.identityMigration.job.podAnnotations Map of annotations to add to the identityMigration Job Pod
+      # identity.migration.job.podAnnotations Map of annotations to add to the Identity Migration Job Pod
       podAnnotations: {}
-      # Configure a Security Context for the identityMigration Job Pod
+      # Configure a Security Context for the Identity Migration Job Pod
       # If set to, it takes priority over the `podSecurityContext`
       podSecurityContext:
-        # identity.identityMigration.job.podSecurityContext.enabled Enable security context for the identityMigration Job pod
+        # identity.migration.job.podSecurityContext.enabled Enable security context for the Identity Migration Job pod
         enabled: false
-      # identity.identityMigration.job.customPodAntiAffinity Prohibiting the scheduling of identityMigration Job Pod relative to other Pods containing the specified labels on the same node
+      # identity.migration.job.customPodAntiAffinity Prohibiting the scheduling of Identity Migration Job Pod relative to other Pods containing the specified labels on the same node
       customPodAntiAffinity: {}
-      # Pod affinity rules for identityMigration Job Pod scheduling by nodes relative to other Pods
-      # Pod affinity allow you to constrain which nodes identityMigration Job Pod can be scheduled on based on the labels of Pods already running on that node
+      # Pod affinity rules for Identity Migration Job Pod scheduling by nodes relative to other Pods
+      # Pod affinity allow you to constrain which nodes Identity Migration Job Pod can be scheduled on based on the labels of Pods already running on that node
       # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
       podAffinity: {}
-      # Node affinity rules for identityMigration Job Pod scheduling by nodes
-      # Node affinity allow you to constrain which nodes identityMigration Job Pod can be scheduled on based on node labels
+      # Node affinity rules for Identity Migration Job Pod scheduling by nodes
+      # Node affinity allow you to constrain which nodes Identity Migration Job Pod can be scheduled on based on node labels
       # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
       nodeAffinity: {}
-      # identity.identityMigration.job.nodeSelector Node labels for identityMigration Job pod assignment
+      # identity.migration.job.nodeSelector Node labels for Identity Migration Job pod assignment
       # If set to, it takes priority over the `nodeSelector`
       nodeSelector: {}
-      # identity.identityMigration.job.tolerations Tolerations for identityMigration Job pod assignment
+      # identity.migration.job.tolerations Tolerations for Identity Migration Job pod assignment
       # If set to, it takes priority over the `tolerations`
       tolerations: []
-      # Configure a Security Context for containers in identityMigration Job Pod
+      # Configure a Security Context for containers in Identity Migration Job Pod
       # If set to, it takes priority over the `containerSecurityContext`
       containerSecurityContext:
-        # identity.identityMigration.job.containerSecurityContext.enabled Enable security context for containers in identityMigration Job pod
+        # identity.migration.job.containerSecurityContext.enabled Enable security context for containers in Identity Migration Job pod
         enabled: false
-      # Job identityMigration container resource requests and limits
+      # Job Identity Migration container resource requests and limits
       # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-      # identity.identityMigration.job.resources.requests The requested resources for the Job identityMigration container
-      # identity.identityMigration.job.resources.limits The resources limits for the Job identityMigration container
+      # identity.migration.job.resources.requests The requested resources for the Job Identity Migration container
+      # identity.migration.job.resources.limits The resources limits for the Job Identity Migration container
       resources:
         requests:
           memory: "256Mi"
@@ -2568,7 +2568,7 @@ identity:
         limits:
           memory: "1Gi"
           cpu: "1000m"
-    # identity.identityMigration.mysqlUser Database user who will be used by the identityMigration to connect to the database
+    # identity.migration.mysqlUser Database user who will be used by the Identity Migration to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
     mysqlUser: ""
