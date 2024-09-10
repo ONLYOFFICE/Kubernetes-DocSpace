@@ -21,7 +21,7 @@ data:
   REDIS_USERNAME: {{ .Values.connections.redisUser | quote }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_DB: {{ .Values.connections.redisDB | quote }}
-  SPRING_APPLICATION_NAME: {{ .Values.identity.identityAuthorization.env.springApplicationName | quote }}
-  SPRING_APPLICATION_NAME_API: {{ .Values.identity.identityAuthorization.env.springApplicationName | quote }}
+  SPRING_APPLICATION_NAME: {{ .Values.identity.authorization.env.springApplicationName | quote }}
+  SPRING_APPLICATION_NAME_API: {{ .Values.identity.authorization.env.springApplicationName | quote }}
   SPRING_PROFILES_ACTIVE: {{ .Values.identity.env.springProfilesActive | quote }}
 {{- end }}
