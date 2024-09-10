@@ -124,8 +124,8 @@ connections:
   healthchecksHost: healthchecks
   # connections.identityApiHost The name of the DocSpace IdentityApi service
   identityApiHost: identity-api
-  # connections.identityHost The name of the DocSpace Identity service
-  identityHost: identity-authorization
+  # connections.identityAuthorizationHost The name of the DocSpace Identity service
+  identityAuthorizationHost: identity-authorization
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   documentServerHost: document-server
