@@ -152,6 +152,8 @@ connections:
   nginxSnvsubstTemplateSuffix: ".template"
   # connections.wrongPortalNameURL
   wrongPortalNameURL: ""
+  # connections.oauthOrigin The address of the OAUTH2 server
+  oauthOrigin: ""
   # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for DocSpace services
   # In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here
   # Provide IP ranges using CIDR notation

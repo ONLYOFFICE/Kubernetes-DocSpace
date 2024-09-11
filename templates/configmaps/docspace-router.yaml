@@ -14,3 +14,4 @@ data:
   COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
   NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
   WRONG_PORTAL_NAME_URL: {{ .Values.connections.wrongPortalNameURL | quote }}
+  OAUTH_ORIGIN: {{ .Values.connections.oauthOrigin | quote }}

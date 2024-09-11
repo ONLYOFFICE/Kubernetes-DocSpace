@@ -38,6 +38,7 @@ data:
     sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- end }}
     sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed '/"oauth2"/,/}/{s|"origin": "[^"]*"|"origin": "'"$OAUTH_ORIGIN"'"|}' -i /var/www/public/scripts/config.json
     rm -rf /etc/nginx/conf.d/upstream.conf
     rm -rf /etc/nginx/conf.d/default.conf
     rm -rf /etc/nginx/includes/server-dashboards.conf
