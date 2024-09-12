@@ -113,6 +113,16 @@ See more details about installing MySQL via Helm [here](https://github.com/bitna
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
 
+NOTE: If you are planning to install the Identity module (including Identity Migration, Identity Authorization and Identity API), you need to add the `log_bin_trust_function_creators=1` flag in MySQL beforehand to perform the migration. For installing MySQL with the flag you can use command:
+```bash
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_extended_values.yaml bitnami/mysql \
+  --set auth.database=docspace \
+  --set auth.username=onlyoffice_user \
+  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
+  --set primary.persistence.size=PERSISTENT_SIZE \
+  --set metrics.enabled=false
+```
+
 ### 4. Install RabbitMQ
 
 To install RabbitMQ to your cluster, run the following command:
@@ -333,6 +343,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.backupBackgroundTasksHost`                | The name of the ONLYOFFICE DocSpace Backup Background Tasks service                                                         | `backup-background-tasks`     |
 | `connections.loginHost`                                | The name of the ONLYOFFICE DocSpace Login service                                                                           | `login`                       |
 | `connections.healthchecksHost`                         | The name of the ONLYOFFICE DocSpace Healthchecks service                                                                    | `healthchecks`                |
+| `connections.identityApiHost`                         | The name of the ONLYOFFICE DocSpace Identity API service                                                                     | `identity-api`                |
+| `connections.identityAuthorizationHost`                         | The name of the ONLYOFFICE DocSpace Identity service                                                                     | `identity-authorization`                |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
@@ -410,7 +422,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Application.enabled`                                     | Enables Application installation                                                                                | `true`                                    |
+| `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
 | `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`                                 | `2`                                       |
@@ -430,7 +442,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`                                 | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity.authorization` and `identity.api`                                 | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -439,7 +451,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs` and `opensearch`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization` and `identity.api`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -486,6 +498,29 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `ssoauth.containerPorts.sso`                             | Ssoauth additional container port                                                                               | `9834`               |
+
+### ONLYOFFICE DocSpace Identity Authorization and Identity API Applications common parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `identity.enabled`                             | Enables Identity appications: `identity.authorization`, `identity.api`, `identity.migration`                                                                                 | `false`               |
+| `identity.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
+
+### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `identity.authorization.containerPorts.authorization`                             | Identity additional container port                                                                               | `8080`               |
+| `identity.authorization.env.springApplicationName`                         | Defines the name of the Identity service (used in audits and logs)                                                                       | `ASC.Identity.Authorization`              |
+| `identity.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
+
+### ONLYOFFICE DocSpace Identity API Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
+| `identity.api.env.springApplicationName`                         | Defines the name of the current service (used in audits and logs)                                                                       | `ASC.Identity.Registration`              |
+
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 
@@ -582,6 +617,19 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
+| `install.job.initContainers.migrationRunner.image.tag`          | Job by Identity Migration container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
+| `identity.migration.job.image.repository`   | Job by Identity Migration container image repository repository                                                                                                                                             | `onlyoffice/docspace-identity-migration`          |
+| `identity.migration.job.annotations`                     | Defines annotations that will be additionally added to Identity Migration  Job. If set to, it takes priority over the `commonAnnotations`                                                            | `{}`                                            |
+| `identity.migration.job.podAnnotations`                  | Map of annotations to add to the Identity Migration  Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                 | `{}`                                            |
+| `identity.migration.job.podSecurityContext.enabled`      | Enable security context for the Identity Migration  Job pod                                                                                                                                          | `false`                                         |
+| `identity.migration.job.customPodAntiAffinity`           | Prohibiting the scheduling of Identity Migration  Job Pod relative to other Pods containing the specified labels on the same node                                                                    | `{}`                                            |
+| `identity.migration.job.podAffinity`                     | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for Identity Migration  Job Pod scheduling by nodes relative to other Pods | `{}`                          |
+| `identity.migration.job.nodeAffinity`                    | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for Identity Migration  Job Pod scheduling by nodes                            | `{}`                                            |
+| `identity.migration.job.nodeSelector`                    | Node labels for Identity Migration  Job pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                         | `{}`                                            |
+| `identity.migration.job.tolerations`                     | Tolerations for Identity Migration  Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                          | `[]`                                            |
+| `identity.migration.job.containerSecurityContext.enabled`| Enable security context for containers in Identity Migration  Job pod                                                                                                                                | `false`                                         |
+| `identity.migration.job.resources.requests`              | The requested resources for the Job Identity Migration  container                                                                                                                                    | `memory, cpu`                                   |
+| `identity.migration.job.resources.limits`                | The resources limits for the Job Identity Migration  container                                                                                                                                       | `memory, cpu`                                   |
 
 ### ONLYOFFICE DocSpace Opensearch parameters
 

@@ -1,20 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: identity
+  name: identity-authorization
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: identity
+    app: identity-authorization
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
-  - port: 8080
-    name: identity
-    targetPort: 8080
+  - port: {{ .Values.identity.authorization.containerPorts.authorization }}
+    name: authorization
+    targetPort: {{ .Values.identity.authorization.containerPorts.authorization }}
   selector:
-    app: identity
+    app: identity-authorization
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}

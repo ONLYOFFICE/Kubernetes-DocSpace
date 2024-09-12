@@ -8,11 +8,14 @@ metadata:
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 spec:
   ports:
-  - port: 9090
-    name: identity-api
-    targetPort: 9090
+  - port: {{ .Values.identity.api.containerPorts.api }}
+    name: api
+    targetPort: {{ .Values.identity.api.containerPorts.api }}
   selector:
     app: identity-api
     {{- if .Values.commonLabels }}
