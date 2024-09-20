@@ -15,10 +15,10 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.proxyFrontend.containerPorts.http }}
+  - port: {{ .Values.proxyFrontend.service.port.http }}
     name: http
     targetPort: {{ .Values.proxyFrontend.containerPorts.http }}
-  - port: {{ .Values.proxyFrontend.containerPorts.https }}
+  - port: {{ .Values.proxyFrontend.service.port.https }}
     name: https
     targetPort: {{ .Values.proxyFrontend.containerPorts.https }}
   selector:
