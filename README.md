@@ -207,7 +207,7 @@ $ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 
 ```
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabled=true
 ```
 
 ### 1. Add a license
