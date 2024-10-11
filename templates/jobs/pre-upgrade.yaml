@@ -135,7 +135,7 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.initContainers.rootless.resources | nindent 10 }}
         command: ["/bin/sh", "-c"]
-        args: ["chown -R 104:107  /var/docspace-data/ && chown -R 104:107  /var/router-log/"]
+        args: ["chown -R 104:107  /var/docspace-data/* && chown -R 104:107  /var/router-log/*"]
         volumeMounts:
         - name: docspace-data
           mountPath: /var/docspace-data
