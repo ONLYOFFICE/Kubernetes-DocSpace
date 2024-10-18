@@ -275,6 +275,8 @@ log:
 # debug.enabled Enable debug
 debug:
   enabled: "false"
+# nodeOptions
+nodeOptions: "--max_old_space_size=4096"
 # DocSpace Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
