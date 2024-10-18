@@ -246,7 +246,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 2.6.2
+  tag: 2.6.3
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
