@@ -246,7 +246,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 2.6.2
+  tag: 2.6.3
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -275,6 +275,8 @@ log:
 # debug.enabled Enable debug
 debug:
   enabled: "false"
+# nodeOptions
+nodeOptions: "--max_old_space_size=4096"
 # DocSpace Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
