@@ -130,16 +130,11 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.identity.api.resources | nindent 10 }}
         env:
-        - name: SPRING_APPLICATION_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: identity
-              key: SPRING_APPLICATION_NAME_API
         - name: SERVER_PORT
           value: {{ .Values.identity.api.containerPorts.api | quote }}
-        - name: JDBC_USER_NAME
+        - name: MYSQL_USER
           value: {{ default .Values.connections.mysqlUser .Values.identity.api.mysqlUser }}
-        - name: JDBC_PASSWORD
+        - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "docspace.mysql.secretName" . }}
@@ -156,5 +151,5 @@ spec:
               key: broker_uri
         envFrom:
         - configMapRef:
-            name: identity
+            name: docspace
 {{- end }}

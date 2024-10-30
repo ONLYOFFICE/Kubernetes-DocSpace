@@ -29,10 +29,12 @@ data:
   REDIS_HOST: {{ .Values.connections.redisHost }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
+  REDIS_DB: {{ .Values.connections.redisDB | quote }}
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.identity.env.springProfilesActive | quote }}
   APP_URL_PORTAL: {{ include "docspace.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
   {{- if not (empty .Values.connections.documentServerHost) }}

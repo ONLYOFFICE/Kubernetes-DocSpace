@@ -80,15 +80,15 @@ spec:
           {{- end }}
           resources: {{- toYaml .Values.identity.migration.job.resources | nindent 12 }}
           env:
-          - name: JDBC_USER_NAME
+          - name: MYSQL_USER
             value: {{ default .Values.connections.mysqlUser .Values.identity.migration.mysqlUser }}
-          - name: JDBC_PASSWORD
+          - name: MYSQL_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ template "docspace.mysql.secretName" . }}
                 key: {{ .Values.connections.mysqlSecretKeyPassword }}
           envFrom:
           - configMapRef:
-              name: identity
+              name: docspace
       restartPolicy: Never
 {{- end }}
