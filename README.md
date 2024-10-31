@@ -113,7 +113,7 @@ See more details about installing MySQL via Helm [here](https://github.com/bitna
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
 
-NOTE: If you are planning to install the Identity module (including Identity Migration, Identity Authorization and Identity API), you need to add the `log_bin_trust_function_creators=1` flag in MySQL beforehand to perform the migration. For installing MySQL with the flag you can use command:
+NOTE: If you are planning to install the Identity module (including Identity Authorization and Identity API), you need to add the `log_bin_trust_function_creators=1` flag in MySQL beforehand to perform the migration. For installing MySQL with the flag you can use command:
 ```bash
 $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_extended_values.yaml bitnami/mysql \
   --set auth.database=docspace \
@@ -503,7 +503,7 @@ Instead of `Application`, the parameter name should have the following values: `
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `identity.enabled`                             | Enables Identity appications: `identity.authorization`, `identity.api`, `identity.migration`                                                                                 | `false`               |
+| `identity.enabled`                             | Enables Identity appications: `identity.authorization`, `identity.api`                                                                                 | `false`               |
 | `identity.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
@@ -618,18 +618,6 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
 | `install.job.initContainers.migrationRunner.image.tag`          | Job by Identity Migration container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
-| `identity.migration.job.image.repository`   | Job by Identity Migration container image repository repository                                                                                                                                             | `onlyoffice/docspace-identity-migration`          |
-| `identity.migration.job.annotations`                     | Defines annotations that will be additionally added to Identity Migration  Job. If set to, it takes priority over the `commonAnnotations`                                                            | `{}`                                            |
-| `identity.migration.job.podAnnotations`                  | Map of annotations to add to the Identity Migration  Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                 | `{}`                                            |
-| `identity.migration.job.podSecurityContext.enabled`      | Enable security context for the Identity Migration  Job pod                                                                                                                                          | `false`                                         |
-| `identity.migration.job.customPodAntiAffinity`           | Prohibiting the scheduling of Identity Migration  Job Pod relative to other Pods containing the specified labels on the same node                                                                    | `{}`                                            |
-| `identity.migration.job.podAffinity`                     | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for Identity Migration  Job Pod scheduling by nodes relative to other Pods | `{}`                          |
-| `identity.migration.job.nodeAffinity`                    | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for Identity Migration  Job Pod scheduling by nodes                            | `{}`                                            |
-| `identity.migration.job.nodeSelector`                    | Node labels for Identity Migration  Job pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                         | `{}`                                            |
-| `identity.migration.job.tolerations`                     | Tolerations for Identity Migration  Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                          | `[]`                                            |
-| `identity.migration.job.containerSecurityContext.enabled`| Enable security context for containers in Identity Migration  Job pod                                                                                                                                | `false`                                         |
-| `identity.migration.job.resources.requests`              | The requested resources for the Job Identity Migration  container                                                                                                                                    | `memory, cpu`                                   |
-| `identity.migration.job.resources.limits`                | The resources limits for the Job Identity Migration  container                                                                                                                                       | `memory, cpu`                                   |
 
 ### ONLYOFFICE DocSpace Opensearch parameters
 
