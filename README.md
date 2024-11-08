@@ -113,16 +113,6 @@ See more details about installing MySQL via Helm [here](https://github.com/bitna
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
 
-NOTE: If you are planning to install the Identity module (including Identity Authorization and Identity API), you need to add the `log_bin_trust_function_creators=1` flag in MySQL beforehand to perform the migration. For installing MySQL with the flag you can use command:
-```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_extended_values.yaml bitnami/mysql \
-  --set auth.database=docspace \
-  --set auth.username=onlyoffice_user \
-  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
-  --set primary.persistence.size=PERSISTENT_SIZE \
-  --set metrics.enabled=false
-```
-
 ### 4. Install RabbitMQ
 
 To install RabbitMQ to your cluster, run the following command:
