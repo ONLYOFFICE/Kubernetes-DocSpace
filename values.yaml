@@ -376,7 +376,8 @@ initContainers:
       # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
       enabled: true
       # initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
-      runAsUser: 0
+      runAsUser: 104
+      runAsGroup: 107
       # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
       allowPrivilegeEscalation: false
       # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
