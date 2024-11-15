@@ -199,13 +199,6 @@ Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 ```
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabled=true
 ```
-Note: When performing a clean installation of images 3.0+ or upgrading from version 3.0+ to a later version, you can specify the following fields to ensure proper user and group settings for the init containers:
-
-```bash
-$ helm upgrade [RELEASE_NAME] onlyoffice/docspace \
-  --set initContainers.rootless.containerSecurityContext.runAsUser=104 \
-  --set initContainers.rootless.containerSecurityContext.runAsGroup=107
-```
 
 ### 1. Add a license
 
