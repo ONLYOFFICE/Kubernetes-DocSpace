@@ -350,47 +350,6 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
-  rootless:
-    # initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
-    enabled: true
-    image:
-      # initContainers.rootless.image.repository Rootless initContainer image repository
-      repository: onlyoffice/docs-utils
-      # initContainers.rootless.image.tag Rootless initContainer image tag
-      # If set to, it takes priority over the `images.tag`
-      tag: 8.0.1-1
-      # initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
-      pullPolicy: IfNotPresent
-    # Rootless initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # initContainers.rootless.resources.requests The requested resources for the rootless initContainer
-    # initContainers.rootless.resources.limits The resources limits for the rootless initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
-    containerSecurityContext:
-      # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
-      enabled: true
-      # initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
-      # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104
-      runAsUser: 0
-      # initContainers.rootless.containerSecurityContext.runAsGroup Group ID for the DocSpace rootless initContainer
-      # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107
-      runAsGroup: 0
-      # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-      allowPrivilegeEscalation: false
-      # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
-      seLinuxOptions: {}
-      # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
-      seccompProfile:
-        type: RuntimeDefault
-      # containerSecurityContext.capabilities Defines the privileges granted to the process
-      capabilities:
-        drop: ["ALL"]
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
@@ -4235,6 +4194,47 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+      rootless:
+        # upgrade.job.initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
+        enabled: true
+        image:
+          # upgrade.job.initContainers.rootless.image.repository Rootless initContainer image repository
+          repository: onlyoffice/docs-utils
+          # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
+          # If set to, it takes priority over the `images.tag`
+          tag: 8.0.1-1
+          # upgrade.job.initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
+          pullPolicy: IfNotPresent
+        # Rootless initContainer resource requests and limits
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+        # upgrade.job.initContainers.rootless.resources.requests The requested resources for the rootless initContainer
+        # upgrade.job.initContainers.rootless.resources.limits The resources limits for the rootless initContainer
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        containerSecurityContext:
+          # upgrade.job.initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
+          enabled: true
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
+          # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104
+          runAsUser: 0
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup Group ID for the DocSpace rootless initContainer
+          # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107
+          runAsGroup: 0
+          # upgrade.job.initContainers.rootless.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+          allowPrivilegeEscalation: false
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
+          seLinuxOptions: {}
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
+          seccompProfile:
+            type: RuntimeDefault
+          # upgrade.job.initContainers.rootless.containerSecurityContext.capabilities Defines the privileges granted to the process
+          capabilities:
+            drop: ["ALL"]
 
 # Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
 # He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch

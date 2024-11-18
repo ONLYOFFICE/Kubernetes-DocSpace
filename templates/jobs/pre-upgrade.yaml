@@ -92,20 +92,20 @@ spec:
           subPath: checkdb.sh
         command: ["/bin/sh", "-c"]
         args: ["/scripts/checkdb.sh"]
-      {{- if .Values.initContainers.rootless.enabled }}
+      {{- if .Values.upgrade.job.initContainers.rootless.enabled }}
       - name: rootless
-        image: {{ .Values.initContainers.rootless.image.repository }}:{{ .Values.initContainers.rootless.image.tag }}
-        imagePullPolicy: {{ .Values.initContainers.rootless.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.initContainers.rootless.containerSecurityContext.enabled }}
+        image: {{ .Values.upgrade.job.initContainers.rootless.image.repository }}:{{ .Values.upgrade.job.initContainers.rootless.image.tag }}
+        imagePullPolicy: {{ .Values.upgrade.job.initContainers.rootless.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.initContainers.rootless.containerSecurityContext.enabled }}
         {{- $icrlsc := dict }}
-        {{- if .Values.initContainers.rootless.containerSecurityContext.enabled }}
-        {{- $icrlsc = .Values.initContainers.rootless.containerSecurityContext }}
+        {{- if .Values.upgrade.job.initContainers.rootless.containerSecurityContext.enabled }}
+        {{- $icrlsc = .Values.upgrade.job.initContainers.rootless.containerSecurityContext }}
         {{- else }}
         {{- $icrlsc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $icrlsc | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.initContainers.rootless.resources | nindent 10 }}
+        resources: {{- toYaml .Values.upgrade.job.initContainers.rootless.resources | nindent 10 }}
         command: ["/bin/sh", "-c"]
         args: ["[ \"$(ls -A /var/docspace-data)\" ] && chown -R 104:107 /var/docspace-data/*; [ \"$(ls -A /var/router-log)\" ] && chown -R 104:107 /var/router-log/*"]
         volumeMounts:
