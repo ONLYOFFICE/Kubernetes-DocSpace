@@ -2,5 +2,10 @@ apiVersion: v2
 name: docspace
 description: Helm chart for installing ONLYOFFICE DocSpace in Kubernetes
 type: application
+dependencies:
+- name: docs
+  version: 4.4.0
+  repository: https://download.onlyoffice.com/charts/stable
+  condition: docs.enabled
 version: 2.3.0
 appVersion: 2.6.0

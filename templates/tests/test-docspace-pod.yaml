@@ -106,7 +106,7 @@ spec:
     - name: LOGIN_SERVICE
       value: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
     - name: DOCS_SERVICE
-      value: {{ .Values.connections.documentServerHost }}:{{ .Values.docs.containerPorts.http }}
+      value: {{ .Values.connections.documentServerHost }}
     {{- if .Values.apiSystem.enabled }}
     - name: APISYSTEM_SERVICE
       value: {{ .Values.connections.apiSystemHost }}:{{ .Values.apiSystem.containerPorts.app }}

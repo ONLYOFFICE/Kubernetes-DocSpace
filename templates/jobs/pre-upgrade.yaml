@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: pre-upgrade
+  name: docspace-pre-upgrade
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: upgrade
@@ -179,7 +179,7 @@ spec:
           defaultMode: 0755
       - name: update-scripts
         configMap:
-          name: pre-upgrade
+          name: docspace-pre-upgrade
           defaultMode: 0755
       - name: docspace-data
         persistentVolumeClaim:

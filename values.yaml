@@ -1,3 +1,94 @@
+# Default values for subchart Onlyoffice Docs
+# ref: https://github.com/ONLYOFFICE/Kubernetes-Docs/blob/master/values.yaml
+#
+docs:
+  # docs.enabled Enables Onlyoffice Docs subchart installation
+  # Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it
+  enabled: true
+  connections:
+    # Onlyoffice Docs Database connection parameters
+    # By default, the same Database connection is used as for DocSpace
+    # docs.connections.dbType The Database type
+    dbType: mysql
+    # docs.connections.dbHost The IP address or the name of the Database host
+    dbHost: mysql
+    # docs.connections.dbUser Database user
+    dbUser: onlyoffice_user
+    # docs.connections.dbPort Database server port number
+    dbPort: "3306"
+    # docs.connections.dbName Name of the Database database the application will be connected with
+    # The database must already exist
+    dbName: docspace
+    # docs.connections.dbExistingSecret Name of existing secret to use for Database password
+    # Must contain the key specified in `docs.connections.dbSecretKeyName`
+    dbExistingSecret: mysql
+    # docs.connections.dbSecretKeyName The name of the key that contains the Database user password
+    # If you set a password in `docs.connections.dbPassword`, a secret will be automatically created, the key name of which will be the value set here
+    dbSecretKeyName: mysql-password
+    # docs.connections.dbPassword Database user password
+    # If set to, it takes priority over the `docs.connections.dbExistingSecret`
+    dbPassword: ""
+    # Onlyoffice Docs Redis connection parameters
+    # By default, the same Redis connection is used as for DocSpace, except for `docs.connections.redisDBNum`
+    # docs.connections.redisHost The IP address or the name of the Redis host
+    redisHost: redis-master
+    # docs.connections.redisPort The Redis server port number
+    redisPort: "6379"
+    # docs.connections.redisUser The Redis user name
+    # ref: https://redis.io/docs/management/security/acl/
+    redisUser: default
+    # docs.connections.redisDBNum Number of the Redis logical database to be selected
+    # ref: https://redis.io/commands/select/
+    redisDBNum: "1"
+    # docs.connections.redisExistingSecret Name of existing secret to use for Redis password
+    # Must contain the key specified in `docs.connections.redisSecretKeyName`
+    redisExistingSecret: redis
+    # docs.connections.redisSecretKeyName The name of the key that contains the Redis user password
+    # If you set a password in `docs.connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here
+    redisSecretKeyName: redis-password
+    # docs.connections.redisPassword The password set for the Redis account
+    # If set to, it takes priority over the `docs.connections.redisExistingSecret`
+    redisPassword: ""
+    # docs.connections.redisNoPass Defines whether to use a Redis auth without a password
+    # If the connection to Redis server does not require a password, set the value to `true`
+    redisNoPass: false
+    # Onlyoffice Docs RabbitMQ connection parameters
+    # By default, the same RabbitMQ connection is used as for DocSpace
+    # docs.connections.amqpType Defines the AMQP server type
+    amqpType: rabbitmq
+    # docs.connections.amqpHost The IP address or the name of the AMQP server
+    amqpHost: rabbitmq
+    # docs.connections.amqpPort The port for the connection to AMQP server
+    amqpPort: "5672"
+    # docs.connections.amqpVhost The virtual host for the connection to AMQP server
+    amqpVhost: "/"
+    # docs.connections.amqpUser The username for the AMQP server account
+    amqpUser: user
+    # docs.connections.amqpProto The protocol for the connection to AMQP server
+    amqpProto: amqp
+    # docs.connections.amqpExistingSecret The name of existing secret to use for AMQP server password
+    # Must contain the key specified in `docs.connections.amqpSecretKeyName`
+    amqpExistingSecret: rabbitmq
+    # docs.connections.amqpSecretKeyName The name of the key that contains the AMQP server user password
+    # If you set a password in `docs.connections.amqpPassword`, a secret will be automatically created, the key name of which will be the value set here
+    amqpSecretKeyName: rabbitmq-password
+    # docs.connections.amqpPassword AMQP server user password
+    # If set to, it takes priority over the `docs.connections.amqpExistingSecret`
+    amqpPassword: ""
+  # docs.service.port ONLYOFFICE Docs service port
+  service:
+    port: "80"
+  # docs.license.existingClaim Name of the existing PVC in which the license is stored
+  # Must contain the file `license.lic`
+  # By default, a PVC is connected, in which a license is added when using DocSpace Enterprise
+  license:
+    existingClaim: "docspace-data"
+  # docs.jwt.existingSecret The name of an existing secret containing variables for jwt
+  # If not specified, a secret named `jwt` will be created
+  # By default, the jwt secret is used, which will be created with values from the jwt DocSpace
+  jwt:
+    existingSecret: "docspace-jwt"
+
 # Default values for DocSpace
 
 ## product.name Specifies name of the product
@@ -125,7 +216,7 @@ connections:
   identityAuthorizationHost: identity-authorization
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
-  documentServerHost: document-server
+  documentServerHost: documentserver
   # connections.documentServerUrlExternal The address of the external Document Server
   # If set, the local Document Server will not be installed
   # The address must be in the `http(s)://<documentserver-address>/` format
@@ -3824,177 +3915,6 @@ proxyFrontend:
       https: 443
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
-
-# DocSpace Document Server StatefulSet parameters
-#
-docs:
-  # docs.enabled Enables local installation of Document Server in k8s cluster
-  enabled: true
-  # docs.annotations Defines annotations that will be additionally added to Document Server deploy
-  # If set to, it takes priority over the `commonAnnotations`
-  # You can also use `tpl` as the value for the key
-  annotations: {}
-  # Update strategy used to replace old Pod by new ones
-  updateStrategy:
-    # docs.updateStrategy.type Document Server update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
-    type: RollingUpdate
-  # docs.podAnnotations Map of annotations to add to the Document Server pod
-  podAnnotations: {}
-  # Configure a Security Context for the Document Server Pod
-  podSecurityContext:
-    # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
-    enabled: false
-    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
-    fsGroup: 101
-  # docs.customPodAntiAffinity Prohibiting the scheduling of Document Server Pod relative to other Pods containing the specified labels on the same node
-  customPodAntiAffinity: {}
-  # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-  # Example:
-  # podAffinity:
-  #   preferredDuringSchedulingIgnoredDuringExecution:
-  #   - weight: 100
-  #     podAffinityTerm:
-  #       labelSelector:
-  #         matchExpressions:
-  #         - key: app
-  #           operator: NotIn
-  #           values:
-  #           - database
-  #       topologyKey: kubernetes.io/hostname
-  podAffinity: {}
-  # Node affinity rules for Document Server Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on node labels
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
-  # Example:
-  # nodeAffinity:
-  #   preferredDuringSchedulingIgnoredDuringExecution:
-  #   - weight: 100
-  #     preference:
-  #       matchExpressions:
-  #       - key: kubernetes.io/name
-  #         operator: In
-  #         values:
-  #         - name1
-  #         - name2
-  nodeAffinity: {}
-  # docs.nodeSelector Node labels for Document Server pod assignment
-  # If set to, it takes priority over the `nodeSelector`
-  nodeSelector: {}
-  # docs.tolerations Tolerations for Document Server pod assignment
-  # If set to, it takes priority over the `tolerations`
-  tolerations: []
-  # Document Server initContainers parameters
-  # docs.initContainers Containers that run before Document Server container in a Pod
-  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  # Example:
-  # initContainers:
-  #   - name: custom-init-container
-  #     image: busybox:latest
-  #     command: ['sh', '-c', 'sleep 180']
-  initContainers: []
-  # docs container image parameters
-  image:
-    # docs.image.repository Document Server container image repository
-    repository: onlyoffice/documentserver
-    # docs.image.tag Document Server container image tag
-    tag: latest
-    # docs.image.pullPolicy Document Server container image pull policy
-    pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Document Server Pod
-  containerSecurityContext:
-    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
-    enabled: false
-    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
-    runAsUser: 101
-    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
-    runAsGroup: 101
-    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
-    runAsNonRoot: true
-    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-    allowPrivilegeEscalation: false
-    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
-    seLinuxOptions: {}
-    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
-    seccompProfile:
-      type: RuntimeDefault
-    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
-    capabilities:
-      drop: ["ALL"]
-  # docs.lifecycleHooks Defines the Document Server container lifecycle hooks
-  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
-  # It is used to trigger events to run at certain points in a container's lifecycle
-  # There are two hooks that are exposed: `PostStart` and `PreStop`
-  lifecycleHooks: {}
-  containerPorts:
-    # docs.containerPorts.http Document Server HTTP container port
-    http: 80
-    # docs.containerPorts.https Document Server HTTPS container port
-    https: 443
-    # docs.containerPorts.docservice Document Server docservice container port
-    docservice: 8000
-  # Probe used for the Document Server container: startup, readiness and liveness probes
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `docs.startupProbe.enabled=true`
-  startupProbe:
-    # docs.startupProbe.enabled Enable startupProbe for Document Server container
-    enabled: true
-    httpGet:
-      # docs.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /index.html
-      # docs.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 80
-    # docs.startupProbe.failureThreshold Failure threshold for startupProbe
-    failureThreshold: 30
-    # docs.startupProbe.periodSeconds Period seconds for startupProbe
-    periodSeconds: 20
-  # The parameters below for readiness probes are used only when `docs.readinessProbe.enabled=true`
-  readinessProbe:
-    # docs.readinessProbe.enabled Enable readinessProbe for Document Server container
-    enabled: true
-    # docs.readinessProbe.failureThreshold Failure threshold for readinessProbe
-    failureThreshold: 2
-    httpGet:
-      # docs.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /index.html
-      # docs.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 80
-    # docs.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 20
-    # docs.readinessProbe.successThreshold Success threshold for readinessProbe
-    successThreshold: 1
-    # docs.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `docs.livenessProbe.enabled=true`
-  livenessProbe:
-    # docs.livenessProbe.enabled Enable livenessProbe for Document Server container
-    enabled: true
-    # docs.livenessProbe.failureThreshold Failure threshold for livenessProbe
-    failureThreshold: 3
-    httpGet:
-      # docs.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /index.html
-      # docs.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 80
-    # docs.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 20
-    # docs.livenessProbe.successThreshold Success threshold for livenessProbe
-    successThreshold: 1
-    # docs.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
-    timeoutSeconds: 5
-  # Document Server container resource requests and limits
-  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # docs.resources.requests The requested resources for the Document Server container
-  # docs.resources.limits The resources limits for the Document Server container
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "4Gi"
-      cpu: "4000m"
 
 # DocSpace ingress parameters
 # NGINX Ingress Controller must be installed

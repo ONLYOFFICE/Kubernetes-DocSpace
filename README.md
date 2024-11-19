@@ -28,7 +28,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [ONLYOFFICE DocSpace Socket Application additional parameters](#onlyoffice-docspace-socket-application-additional-parameters)
   * [ONLYOFFICE DocSpace Ssoauth Application additional parameters](#onlyoffice-docspace-ssoauth-application-additional-parameters)
   * [ONLYOFFICE DocSpace Proxy Frontend Application additional parameters](#onlyoffice-docspace-proxy-frontend-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Document Server StatefulSet additional parameters](#onlyoffice-docspace-document-server-statefulset-additional-parameters)
+  * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
   * [ONLYOFFICE DocSpace Ingress parameters](#onlyoffice-docspace-ingress-parameters)
   * [ONLYOFFICE DocSpace Jobs parameters](#onlyoffice-docspace-jobs-parameters)
   * [ONLYOFFICE DocSpace Elasticsearch parameters](#onlyoffice-docspace-opensearch-parameters)
@@ -49,7 +49,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   - A minimum of two hosts is required for the Kubernetes cluster
   - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-  - Helm v3.7+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
+  - Helm v3.15+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
   - If the installation of components external to ‘ONLYOFFICE DocSpace’ is performed from Helm Chart in an OpenShift cluster, then it is recommended to install them from a user who has the `cluster-admin` role, in order to avoid possible problems with access rights. See [this](https://docs.openshift.com/container-platform/4.7/authentication/using-rbac.html) guide to add the necessary roles to the user.
 
@@ -146,16 +146,15 @@ If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance,
 
 ### 7. Install ONLYOFFICE Docs
 
-NOTE: It is recommended to use an installation made specifically for Kubernetes. See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs).
-Use the [built-in Document Server](#onlyoffice-docspace-document-server-statefulset-additional-parameters) only for the test environment.
+NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs).
 
-If Kubernetes-Docs is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then in the `connections.documentServerHost` parameter you can specify the service name `documentserver:8888`.
+if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE DocSpace is planned, for example, `documentserver.ds:8888`.
 Also, in the `connections.appUrlPortal` parameter, specify the router service name of the ONLYOFFICE DocSpace and the Namespace in which ONLYOFFICE DocSpace will be deployed, for example, `http://router.default:8092`.
 
 If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE DocSpace is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE DocSpace](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-docspace), for example, `https://docspace.example.com`.
 
-Also, when using Kubernetes-Docs, specify the [JWT parameters](values.yaml#L238-L250) the same as in Docs in `jwt.secret`, `jwt.header`, etc.
+Also, when using Kubernetes-Docs, installed not as a subchart, specify the DocSpace JWT parameters the same as in Docs in `jwt.secret`, `jwt.header`, etc.
 
 ### 8. Make changes to the configuration files (optional)
 
@@ -536,17 +535,39 @@ Instead of `Application`, the parameter name should have the following values: `
 | `proxyFrontend.service.sessionAffinityConfig`            | [Configuration](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-stickiness-timeout) for Proxy Frontend service Session Affinity. Used if the `proxyFrontend.service.sessionAffinity` is set | `{}` |
 | `proxyFrontend.service.externalTrafficPolicy`            | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
 
-### ONLYOFFICE DocSpace Document Server StatefulSet additional parameters
+### ONLYOFFICE Docs parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `docs.enabled`                                           | Enables local installation of Document Server in k8s cluster                                                    | `true`                |
-| `docs.initContainers`                                    | Defines containers that run before Document Server container in the Document Server pod                         | `[]`                  |
-| `docs.image.repository`                                  | Document Server container image repository                                                                      | `onlyoffice/documentserver` |
-| `docs.image.tag`                                         | Document Server container image tag                                                                             | `7.4.0`               |
-| `docs.containerPorts.http`                               | Document Server HTTP container port                                                                             | `80`                  |
-| `docs.containerPorts.https`                              | Document Server HTTPS container port                                                                            | `443`                 |
-| `docs.containerPorts.docservice`                         | Document Server docservice container port                                                                       | `8000`                |
+| `docs.enabled`                                           | Enables Onlyoffice Docs subchart installation. Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it | `true`                |
+| `docs.connections.dbType`                                | The Database type. By default, the same Database connection is used as for DocSpace                             | `mysql`                  |
+| `docs.connections.dbHost`                                | The IP address or the name of the Database host                                                                 | `mysql`                  |
+| `docs.connections.dbUser`                                | Database user                                                                                                   | `onlyoffice_user`        |
+| `docs.connections.dbPort`                                | Database server port number                                                                                     | `3306`                   |
+| `docs.connections.dbName`                                | Name of the Database database the application will be connected with. The database must already exist           | `docspace`               |
+| `docs.connections.dbExistingSecret`                      | Name of existing secret to use for Database password. Must contain the key specified in `docs.connections.dbSecretKeyName` | `mysql`       |
+| `docs.connections.dbSecretKeyName`                       | The name of the key that contains the Database user password. If you set a password in `docs.connections.dbPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
+| `docs.connections.dbPassword`                            | Database user password. If set to, it takes priority over the `docs.connections.dbExistingSecret`               | `""`                     |
+| `docs.connections.redisHost`                             | The IP address or the name of the Redis host. By default, the same Redis connection is used as for DocSpace, except for `docs.connections.redisDBNum` | `redis-master` |
+| `docs.connections.redisPort`                             | The Redis server port number                                                                                    | `6379`                   |
+| `docs.connections.redisUser`                             | The Redis [user](https://redis.io/docs/management/security/acl/) name                                           | `default`                |
+| `docs.connections.redisDBNum`                            | Number of the Redis logical [database](https://redis.io/commands/select/) to be selected                        | `1`                      |
+| `docs.connections.redisExistingSecret`                   | Name of existing secret to use for Redis password. Must contain the key specified in `docs.connections.redisSecretKeyName` | `redis`       |
+| `docs.connections.redisSecretKeyName`                    | The name of the key that contains the Redis user password. If you set a password in `docs.connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here | `redis-password` |
+| `docs.connections.redisPassword`                         | The password set for the Redis account. If set to, it takes priority over the `docs.connections.redisExistingSecret` | `""`                |
+| `docs.connections.redisNoPass`                           | Defines whether to use a Redis auth without a password. If the connection to Redis server does not require a password, set the value to `true` | `false` |
+| `docs.connections.amqpType`                              | Defines the AMQP server type. By default, the same RabbitMQ connection is used as for DocSpace                  | `rabbitmq`               |
+| `docs.connections.amqpHost`                              | The IP address or the name of the AMQP server                                                                   | `rabbitmq`               |
+| `docs.connections.amqpPort`                              | The port for the connection to AMQP server                                                                      | `5672`                   |
+| `docs.connections.amqpVhost`                             | The virtual host for the connection to AMQP server                                                              | `/`                      |
+| `docs.connections.amqpUser`                              | The username for the AMQP server account                                                                        | `user`                   |
+| `docs.connections.amqpProto`                             | The protocol for the connection to AMQP server                                                                  | `amqp`                   |
+| `docs.connections.amqpExistingSecret`                    | The name of existing secret to use for AMQP server password. Must contain the key specified in `docs.connections.amqpSecretKeyName` | `rabbitmq` |
+| `docs.connections.amqpSecretKeyName`                     | The name of the key that contains the AMQP server user password. If you set a password in `docs.connections.amqpPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
+| `docs.connections.amqpPassword`                          | AMQP server user password. If set to, it takes priority over the `docs.connections.amqpExistingSecret`          | `""`                     |
+| `docs.service.port`                                      | ONLYOFFICE Docs service port                                                                                    | `80`                     |
+| `docs.license.existingClaim`                             | Name of the existing PVC in which the license is stored. Must contain the file `license.lic`. By default, a PVC is connected, in which a license is added when using DocSpace Enterprise | `docspace-data` |
+| `docs.jwt.existingSecret`                                | The name of an existing secret containing variables for jwt. By default, the jwt secret is used, which will be created with values from the jwt DocSpace | `docspace-jwt` |
 
 ### ONLYOFFICE DocSpace Ingress parameters
 
