@@ -102,7 +102,7 @@ product:
 # Connection parameters to services
 connections:
   # connections.envExtension Defines whether an environment will be used
-  envExtension: "none"
+  envExtension: ""
   # connections.installationType Defines solution type
   installationType: COMMUNITY
   # connections.migrationType Defines migration type

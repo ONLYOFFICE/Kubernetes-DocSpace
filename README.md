@@ -285,7 +285,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `none`                        |
+| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | ``                            |
 | `connections.installationType`                         | Defines solution type                                                                                                       | `COMMUNITY`                   |
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
