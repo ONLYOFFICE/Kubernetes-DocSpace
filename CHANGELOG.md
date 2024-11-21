@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.4.1
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v2.6.3
+
+## 2.4.0
+
+### New Features
+
+* Added the ability to run rootless containers
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v2.6.2
+
 ## 2.3.0
 
 ### New Features
