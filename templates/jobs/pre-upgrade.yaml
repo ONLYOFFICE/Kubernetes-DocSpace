@@ -142,28 +142,6 @@ spec:
         - configMapRef:
             name: docspace
       {{- end }}
-      {{- if .Values.initContainers.rootless.enabled }}
-      - name: rootless
-        image: {{ .Values.initContainers.rootless.image.repository }}:{{ .Values.initContainers.rootless.image.tag }}
-        imagePullPolicy: {{ .Values.initContainers.rootless.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.initContainers.rootless.containerSecurityContext.enabled }}
-        {{- $icrlsc := dict }}
-        {{- if .Values.initContainers.rootless.containerSecurityContext.enabled }}
-        {{- $icrlsc = .Values.initContainers.rootless.containerSecurityContext }}
-        {{- else }}
-        {{- $icrlsc = .Values.containerSecurityContext }}
-        {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icrlsc | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.initContainers.rootless.resources | nindent 10 }}
-        command: ["/bin/sh", "-c"]
-        args: ["chown -R 104:107  /var/docspace-data/ && chown -R 104:107  /var/router-log/"]
-        volumeMounts:
-        - name: docspace-data
-          mountPath: /var/docspace-data
-        - name: router-log
-          mountPath: /var/router-log
-      {{- end }}
       containers:
       - name: app-init-storage
         image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
