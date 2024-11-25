@@ -493,22 +493,22 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.enabled`                             | Enables Identity appications: `identity.authorization`, `identity.api`                                                                                 | `false`               |
-| `identity.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
+| `identity.serviceAccount.create`               | Enable Identity ServiceAccount creation. The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied. If disabled, the common `serviceAccount` will be used | `true` |
+| `identity.env.springProfilesActive`            | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
+| `identity.env.multicast.enabled`               | Defines whether multicast discovery will be used                                                                          | `false`              |
+| `identity.env.kubernetes.enabled`              | Defines whether k8s service discovery will be used                                                                        | `true`               |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.authorization.containerPorts.authorization`                             | Identity additional container port                                                                               | `8080`               |
-| `identity.authorization.env.springApplicationName`                         | Defines the name of the Identity service (used in audits and logs)                                                                       | `ASC.Identity.Authorization`              |
-| `identity.env.springProfilesActive`                         | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
 
 ### ONLYOFFICE DocSpace Identity API Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
-| `identity.api.env.springApplicationName`                         | Defines the name of the current service (used in audits and logs)                                                                       | `ASC.Identity.Registration`              |
 
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters

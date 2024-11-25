@@ -1,0 +1,15 @@
+{{- if .Values.identity.serviceAccount.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: identity-sa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: true
+{{- end }}

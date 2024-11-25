@@ -2583,9 +2583,20 @@ login:
 identity:
   # identity.enabled Enables Identity installation
   enabled: false
+  # identity.serviceAccount.create Enable Identity ServiceAccount creation
+  # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
+  # If disabled, the common `serviceAccount` will be used
+  serviceAccount:
+    create: true
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "dev"
+    # identity.env.multicast.enabled Defines whether multicast discovery will be used
+    multicast:
+      enabled: "false"
+    # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
+    kubernetes:
+      enabled: "true"
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #

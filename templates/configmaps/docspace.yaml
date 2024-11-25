@@ -35,7 +35,6 @@ data:
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
-  SPRING_PROFILES_ACTIVE: {{ .Values.identity.env.springProfilesActive | quote }}
   APP_URL_PORTAL: {{ include "docspace.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}
   {{- if not (empty .Values.connections.documentServerHost) }}

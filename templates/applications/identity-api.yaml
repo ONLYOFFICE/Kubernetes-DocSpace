@@ -6,6 +6,7 @@ metadata:
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: identity-api
+    identity: cache
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -18,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: identity-api
+      identity: cache
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
@@ -38,6 +40,7 @@ spec:
     metadata:
       labels:
         app: identity-api
+        identity: cache
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
@@ -46,7 +49,7 @@ spec:
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.identity.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.identity.api.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.identity.api.podSecurityContext.enabled }}
@@ -152,4 +155,6 @@ spec:
         envFrom:
         - configMapRef:
             name: docspace
+        - configMapRef:
+            name: identity
 {{- end }}
