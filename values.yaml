@@ -88,6 +88,24 @@ docs:
   # By default, the jwt secret is used, which will be created with values from the jwt DocSpace
   jwt:
     existingSecret: "docspace-jwt"
+  # docs.docservice.image.repository Docservice container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  docservice:
+    image:
+      repository: onlyoffice/docs-docservice
+  # docs.proxy.image.repository Proxy container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  proxy:
+    image:
+      repository: onlyoffice/docs-proxy
+  # docs.converter.image.repository Converter container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  converter:
+    image:
+      repository: onlyoffice/docs-converter
 
 # Default values for DocSpace
 

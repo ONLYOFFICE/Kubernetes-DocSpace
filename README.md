@@ -568,6 +568,9 @@ Instead of `Application`, the parameter name should have the following values: `
 | `docs.service.port`                                      | ONLYOFFICE Docs service port                                                                                    | `80`                     |
 | `docs.license.existingClaim`                             | Name of the existing PVC in which the license is stored. Must contain the file `license.lic`. By default, a PVC is connected, in which a license is added when using DocSpace Enterprise | `docspace-data` |
 | `docs.jwt.existingSecret`                                | The name of an existing secret containing variables for jwt. By default, the jwt secret is used, which will be created with values from the jwt DocSpace | `docspace-jwt` |
+| `docs.docservice.image.repository`                       | Docservice container image repository.Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-docservice` |
+| `docs.proxy.image.repository`                            | Proxy container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-proxy` |
+| `docs.converter.image.repository`                        | Converter container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-converter` |
 
 ### ONLYOFFICE DocSpace Ingress parameters
 
