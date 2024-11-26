@@ -1,4 +1,4 @@
-{{- if .Values.identity.serviceAccount.create }}
+{{- if and .Values.identity.enabled .Values.identity.serviceAccount.create }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
