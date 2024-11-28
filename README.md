@@ -146,7 +146,7 @@ If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance,
 
 ### 7. Install ONLYOFFICE Docs
 
-NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs).
+NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, add the suffix `-de` - Developer Edition or `-ee` Enterprise Edition in the parameters: `docs.docservice.image.repository`, `docs.proxy.image.repository` and `docs.converter.image.repository` for Docs. By default - Community version.
 
 if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE DocSpace is planned, for example, `documentserver.ds:8888`.
@@ -570,7 +570,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `docs.service.port`                                      | ONLYOFFICE Docs service port                                                                                    | `80`                     |
 | `docs.license.existingClaim`                             | Name of the existing PVC in which the license is stored. Must contain the file `license.lic`. By default, a PVC is connected, in which a license is added when using DocSpace Enterprise | `docspace-data` |
 | `docs.jwt.existingSecret`                                | The name of an existing secret containing variables for jwt. By default, the jwt secret is used, which will be created with values from the jwt DocSpace | `docspace-jwt` |
-| `docs.docservice.image.repository`                       | Docservice container image repository.Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-docservice` |
+| `docs.docservice.image.repository`                       | Docservice container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-docservice` |
 | `docs.proxy.image.repository`                            | Proxy container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-proxy` |
 | `docs.converter.image.repository`                        | Converter container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-converter` |
 
