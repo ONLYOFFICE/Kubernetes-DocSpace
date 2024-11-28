@@ -139,6 +139,9 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        {{- with .Values.router.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: docspace

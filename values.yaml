@@ -1024,6 +1024,12 @@ router:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## router.extraEnvVars An array with extra env variables for the Router container
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: my_env
+  ##     value: "my_value"
+  extraEnvVars: []
   # Additional configuration files for Router
   extraConf:
     customInitScripts:
