@@ -213,8 +213,6 @@ If you have initially installed Community version and plan to switch to Enterpri
 
 ### 2. Install ONLYOFFICE DocSpace
 
-*NOTE: When you deploy in production you should turn off the built-in Document Server by setting `docs.enabled` parameter to `false` and use the Document Server installation designed specifically for Kubernetes. For more information, see [here](#7-install-onlyoffice-docs).*
-
 To install ONLYOFFICE DocSpace to your cluster, run the following command:
 
 ```bash
@@ -240,6 +238,8 @@ _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command doc
 ### 4. Upgrade ONLYOFFICE DocSpace
 
 Note: If you have Elasticsearch installed, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
+
+Note: When upgrading to version `3.0.0` from an earlier version, set the parameters `docs.upgrade.job.enabled` and `docs.clearCache.job.enabled` to `false`. When installing version `3.0.0` or upgrading from version `3.0.0` to a later version, these parameters should be set to `true`. Additionally, when upgrading to version `3.0.0` from an earlier version, set the parameter `upgrade.job.docsInitDB.enabled` to `true`. However, when installing version `3.0.0` or upgrading from version "3.0.0" to a later version, this parameter should be set to `false`.
 
 It's necessary to set the parameters for updating. For example,
 
@@ -370,7 +370,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `log.level`                                            | Defines the type and severity of a logged event                                                                             | `Warning`                     |
 | `debug.enabled`                                        | Enable debug                                                                                                                | `false`                       |
 | `initContainers.checkDB.image.repository`              | check-db initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `7.5.1-2`                     |
+| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `8.2.2-1`                     |
 | `initContainers.checkDB.image.pullPolicy`              | check-db initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `initContainers.checkDB.resources.requests.memory`     | The requested Memory for the check-db initContainer                                                                         | `256Mi`                       |
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
@@ -573,6 +573,8 @@ Instead of `Application`, the parameter name should have the following values: `
 | `docs.docservice.image.repository`                       | Docservice container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-docservice` |
 | `docs.proxy.image.repository`                            | Proxy container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-proxy` |
 | `docs.converter.image.repository`                        | Converter container image repository. Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition. By default - Community version | `onlyoffice/docs-converter` |
+| `docs.upgrade.job.enabled`                               | Enable the execution of job Docs pre-upgrade before upgrading. Set to `false` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `true` | `true` |
+| `docs.clearCache.job.enabled`                            | Enable the execution of job Docs Clear Cache after upgrading. Set to `false` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `true` | `true` |
 
 ### ONLYOFFICE DocSpace Ingress parameters
 
@@ -623,7 +625,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-upgrade Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
 | `upgrade.job.initContainers.rootless.enabled`                      | Enable the rootless initContainer to change file ownership                                                                  | `true`                        |
 | `upgrade.job.initContainers.rootless.image.repository`             | rootless initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `8.0.1-1`                     |
+| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `8.2.2-1`                     |
 | `upgrade.job.initContainers.rootless.image.pullPolicy`             | rootless initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `upgrade.job.initContainers.rootless.resources.requests.memory`    | The requested Memory for the rootless initContainer                                                                         | `256Mi`                       |
 | `upgrade.job.initContainers.rootless.resources.requests.cpu`       | The requested CPU for the rootless initContainer                                                                            | `100m`                        |
@@ -635,6 +637,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions`           | Defines SELinux labels for the DocSpace rootless initContainer                                         | `{}`                          |
 | `upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile`           | Defines the Seccomp profile for the DocSpace rootless initContainer                                    | `type: RuntimeDefault`        |
 | `upgrade.job.initContainers.rootless.containerSecurityContext.capabilities`             | Defines the privileges granted to the process                                                          | `drop: ["ALL"]`               |
+| `upgrade.job.docsInitDB.enabled`                                | Enable the Init DB for Docs container to create tables required for Docs to work. Set to `true` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `false` | `false` |
 | `elasticsearchClearIndexes.job.enabled`                         | Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace. If you are using Opensearch or an external Elasticsearch, you can set it to `false`                                       | `true`                                          |
 | `elasticsearchClearIndexes.job.annotations`                     | Defines annotations that will be additionally added to elasticsearchClearIndexes Job. If set to, it takes priority over the `commonAnnotations`                                                            | `{}`                                            |
 | `elasticsearchClearIndexes.job.podAnnotations`                  | Map of annotations to add to the elasticsearchClearIndexes Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                 | `{}`                                            |
@@ -684,7 +687,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `tests.nodeSelector`                                     | Node labels for Test pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                              | `{}`                             |
 | `tests.tolerations`                                      | Tolerations for Test pod assignment. If set to, it takes priority over the `tolerations`                                                                                               | `[]`                             |
 | `tests.image.repository`                                 | Test container image name                                                                                                                                                              | `onlyoffice/docs-utils`          |
-| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `8.0.1-1`                        |
+| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `8.2.2-1`                        |
 | `tests.image.pullPolicy`                                 | Test container image pull policy                                                                                                                                                       | `IfNotPresent`                   |
 | `tests.containerSecurityContext.enabled`                 | Enable security context for the Test container                                                                                                                                         | `false`                          |
 | `tests.resources.requests`                               | The requested resources for the Test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
