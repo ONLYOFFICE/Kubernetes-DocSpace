@@ -246,6 +246,7 @@ connections:
   identityAuthorizationHost: identity-authorization
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
+  # If you want to install DocSpace without Document Server then specify an empty value
   documentServerHost: documentserver
   # connections.documentServerUrlExternal The address of the external Document Server
   # If set, the local Document Server will not be installed

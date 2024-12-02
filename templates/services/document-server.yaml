@@ -1,4 +1,4 @@
-{{- if and (not .Values.docs.enabled) (not .Values.connections.documentServerUrlExternal) }}
+{{- if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
 kind: Service
 apiVersion: v1
 metadata:
