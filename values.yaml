@@ -1,3 +1,124 @@
+# Default values for subchart Onlyoffice Docs
+# ref: https://github.com/ONLYOFFICE/Kubernetes-Docs/blob/master/values.yaml
+#
+docs:
+  # docs.enabled Enables Onlyoffice Docs subchart installation
+  # Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it
+  enabled: true
+  connections:
+    # Onlyoffice Docs Database connection parameters
+    # By default, the same Database connection is used as for DocSpace
+    # docs.connections.dbType The Database type
+    dbType: mysql
+    # docs.connections.dbHost The IP address or the name of the Database host
+    dbHost: mysql
+    # docs.connections.dbUser Database user
+    dbUser: onlyoffice_user
+    # docs.connections.dbPort Database server port number
+    dbPort: "3306"
+    # docs.connections.dbName Name of the Database database the application will be connected with
+    # The database must already exist
+    dbName: docspace
+    # docs.connections.dbExistingSecret Name of existing secret to use for Database password
+    # Must contain the key specified in `docs.connections.dbSecretKeyName`
+    dbExistingSecret: mysql
+    # docs.connections.dbSecretKeyName The name of the key that contains the Database user password
+    # If you set a password in `docs.connections.dbPassword`, a secret will be automatically created, the key name of which will be the value set here
+    dbSecretKeyName: mysql-password
+    # docs.connections.dbPassword Database user password
+    # If set to, it takes priority over the `docs.connections.dbExistingSecret`
+    dbPassword: ""
+    # Onlyoffice Docs Redis connection parameters
+    # By default, the same Redis connection is used as for DocSpace, except for `docs.connections.redisDBNum`
+    # docs.connections.redisHost The IP address or the name of the Redis host
+    redisHost: redis-master
+    # docs.connections.redisPort The Redis server port number
+    redisPort: "6379"
+    # docs.connections.redisUser The Redis user name
+    # ref: https://redis.io/docs/management/security/acl/
+    redisUser: default
+    # docs.connections.redisDBNum Number of the Redis logical database to be selected
+    # ref: https://redis.io/commands/select/
+    redisDBNum: "1"
+    # docs.connections.redisExistingSecret Name of existing secret to use for Redis password
+    # Must contain the key specified in `docs.connections.redisSecretKeyName`
+    redisExistingSecret: redis
+    # docs.connections.redisSecretKeyName The name of the key that contains the Redis user password
+    # If you set a password in `docs.connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here
+    redisSecretKeyName: redis-password
+    # docs.connections.redisPassword The password set for the Redis account
+    # If set to, it takes priority over the `docs.connections.redisExistingSecret`
+    redisPassword: ""
+    # docs.connections.redisNoPass Defines whether to use a Redis auth without a password
+    # If the connection to Redis server does not require a password, set the value to `true`
+    redisNoPass: false
+    # Onlyoffice Docs RabbitMQ connection parameters
+    # By default, the same RabbitMQ connection is used as for DocSpace
+    # docs.connections.amqpType Defines the AMQP server type
+    amqpType: rabbitmq
+    # docs.connections.amqpHost The IP address or the name of the AMQP server
+    amqpHost: rabbitmq
+    # docs.connections.amqpPort The port for the connection to AMQP server
+    amqpPort: "5672"
+    # docs.connections.amqpVhost The virtual host for the connection to AMQP server
+    amqpVhost: "/"
+    # docs.connections.amqpUser The username for the AMQP server account
+    amqpUser: user
+    # docs.connections.amqpProto The protocol for the connection to AMQP server
+    amqpProto: amqp
+    # docs.connections.amqpExistingSecret The name of existing secret to use for AMQP server password
+    # Must contain the key specified in `docs.connections.amqpSecretKeyName`
+    amqpExistingSecret: rabbitmq
+    # docs.connections.amqpSecretKeyName The name of the key that contains the AMQP server user password
+    # If you set a password in `docs.connections.amqpPassword`, a secret will be automatically created, the key name of which will be the value set here
+    amqpSecretKeyName: rabbitmq-password
+    # docs.connections.amqpPassword AMQP server user password
+    # If set to, it takes priority over the `docs.connections.amqpExistingSecret`
+    amqpPassword: ""
+  # docs.service.port ONLYOFFICE Docs service port
+  service:
+    port: "80"
+  # docs.license.existingClaim Name of the existing PVC in which the license is stored
+  # Must contain the file `license.lic`
+  # By default, a PVC is connected, in which a license is added when using DocSpace Enterprise
+  license:
+    existingClaim: "docspace-data"
+  # docs.jwt.existingSecret The name of an existing secret containing variables for jwt
+  # If not specified, a secret named `jwt` will be created
+  # By default, the jwt secret is used, which will be created with values from the jwt DocSpace
+  jwt:
+    existingSecret: "docspace-jwt"
+  # docs.docservice.image.repository Docservice container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  docservice:
+    image:
+      repository: onlyoffice/docs-docservice
+  # docs.proxy.image.repository Proxy container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  proxy:
+    image:
+      repository: onlyoffice/docs-proxy
+  # docs.converter.image.repository Converter container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  converter:
+    image:
+      repository: onlyoffice/docs-converter
+  # docs.upgrade.job.enabled Enable the execution of job Docs pre-upgrade before upgrading
+  # Set to `false` when upgrading to version `3.0.0` from earlier
+  # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `true`
+  upgrade:
+    job:
+      enabled: true
+  # docs.clearCache.job.enabled Enable the execution of job Docs Clear Cache after upgrading
+  # Set to `false` when upgrading to version `3.0.0` from earlier
+  # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `true`
+  clearCache:
+    job:
+      enabled: true
+
 # Default values for DocSpace
 
 ## product.name Specifies name of the product
@@ -11,7 +132,7 @@ product:
 # Connection parameters to services
 connections:
   # connections.envExtension Defines whether an environment will be used
-  envExtension: "none"
+  envExtension: ""
   # connections.installationType Defines solution type
   installationType: COMMUNITY
   # connections.migrationType Defines migration type
@@ -119,9 +240,14 @@ connections:
   loginHost: login
   # connections.healthchecksHost The name of the DocSpace Healthchecks service
   healthchecksHost: healthchecks
+  # connections.identityApiHost The name of the DocSpace Identity Api service
+  identityApiHost: identity-api
+  # connections.identityAuthorizationHost The name of the DocSpace Identity service
+  identityAuthorizationHost: identity-authorization
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
-  documentServerHost: document-server
+  # If you want to install DocSpace without Document Server then specify an empty value
+  documentServerHost: documentserver
   # connections.documentServerUrlExternal The address of the external Document Server
   # If set, the local Document Server will not be installed
   # The address must be in the `http(s)://<documentserver-address>/` format
@@ -145,6 +271,8 @@ connections:
   nginxSnvsubstTemplateSuffix: ".template"
   # connections.wrongPortalNameURL
   wrongPortalNameURL: ""
+  # connections.oauthOrigin The address of the OAUTH2 server
+  oauthOrigin: ""
   # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for DocSpace services
   # In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here
   # Provide IP ranges using CIDR notation
@@ -246,7 +374,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 2.6.3
+  tag: 3.0.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -287,7 +415,7 @@ initContainers:
       # initContainers.checkDB.image.repository check-db initContainer image repository
       repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: 8.0.1-1
+      tag: 8.2.2-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -343,43 +471,6 @@ initContainers:
       limits:
         memory: "2Gi"
         cpu: "1000m"
-  rootless:
-    # initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
-    enabled: true
-    image:
-      # initContainers.rootless.image.repository Rootless initContainer image repository
-      repository: onlyoffice/docs-utils
-      # initContainers.rootless.image.tag Rootless initContainer image tag
-      # If set to, it takes priority over the `images.tag`
-      tag: 8.0.1-1
-      # initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
-      pullPolicy: IfNotPresent
-    # Rootless initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # initContainers.rootless.resources.requests The requested resources for the rootless initContainer
-    # initContainers.rootless.resources.limits The resources limits for the rootless initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
-    containerSecurityContext:
-      # initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
-      enabled: true
-      # initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
-      runAsUser: 0
-      # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-      allowPrivilegeEscalation: false
-      # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
-      seLinuxOptions: {}
-      # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
-      seccompProfile:
-        type: RuntimeDefault
-      # containerSecurityContext.capabilities Defines the privileges granted to the process
-      capabilities:
-        drop: ["ALL"]
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
@@ -946,6 +1037,12 @@ router:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## router.extraEnvVars An array with extra env variables for the Router container
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: my_env
+  ##     value: "my_value"
+  extraEnvVars: []
   # Additional configuration files for Router
   extraConf:
     customInitScripts:
@@ -2499,6 +2596,347 @@ login:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
+# DocSpace Identity application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+identity:
+  # identity.enabled Enables Identity installation
+  enabled: false
+  # identity.serviceAccount.create Enable Identity ServiceAccount creation
+  # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
+  # If disabled, the common `serviceAccount` will be used
+  serviceAccount:
+    create: true
+  env:
+    # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
+    springProfilesActive: "dev"
+    # identity.env.multicast.enabled Defines whether multicast discovery will be used
+    multicast:
+      enabled: "false"
+    # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
+    kubernetes:
+      enabled: "true"
+  # DocSpace Identity Authorization application parameters
+  # This block defines the parameters common to all the Pods of this application
+  #
+  authorization:
+    # identity.authorization.kind The controller used for deploy
+    # Possible values are `Deployment` (default) or `StatefulSet`
+    kind: Deployment
+    # identity.authorization.annotations Defines annotations that will be additionally added to Identity deploy
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # identity.authorization.replicaCount Number of Identity replicas to deploy
+    replicaCount: 2
+    # Update strategy used to replace old Pods by new ones
+    updateStrategy:
+      # identity.authorization.updateStrategy.type Identity update strategy type
+      # Allowed values: `RollingUpdate` or `OnDelete` if `identity.authorization.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `identity.authorization.kind` is set to `Deployment`
+      type: RollingUpdate
+      # identity.authorization.updateStrategy.rollingUpdate Used only when `identity.authorization.updateStrategy.type=RollingUpdate`
+      rollingUpdate:
+        # identity.authorization.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Identity Pods unavailable during the update process
+        maxUnavailable: 25%
+        # identity.authorization.updateStrategy.rollingUpdate.maxSurge Maximum number of Identity Pods created over the desired number of Pods
+        maxSurge: 25%
+    # identity.authorization.podManagementPolicy The Identity Pods scaling operations policy
+    # Used if `identity.authorization.kind` is set to `StatefulSet`
+    # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+    podManagementPolicy: OrderedReady
+    # identity.authorization.podAnnotations Map of annotations to add to the Identity pods
+    podAnnotations: {}
+    # Configure a Security Context for the Identity Pods
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # identity.authorization.podSecurityContext.enabled Enable security context for the Identity pods
+      enabled: false
+    # identity.authorization.customPodAntiAffinity Prohibiting the scheduling of Identity Pods relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for Identity Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes Identity Pods can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    # Example:
+    # podAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     podAffinityTerm:
+    #       labelSelector:
+    #         matchExpressions:
+    #         - key: app
+    #           operator: NotIn
+    #           values:
+    #           - database
+    #       topologyKey: kubernetes.io/hostname
+    podAffinity: {}
+    # Node affinity rules for Identity Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes Identity Pods can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    # Example:
+    # nodeAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     preference:
+    #       matchExpressions:
+    #       - key: kubernetes.io/name
+    #         operator: In
+    #         values:
+    #         - name1
+    #         - name2
+    nodeAffinity: {}
+    # identity.authorization.nodeSelector Node labels for Identity pods assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # identity.authorization.tolerations Tolerations for Identity pods assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Identity container image parameters
+    image:
+      # identity.authorization.image.repository Identity container image repository
+      repository: onlyoffice/docspace-identity-authorization
+      # identity.authorization.image.tag Identity container image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: ""
+      # identity.authorization.image.pullPolicy Identity container image pull policy
+      pullPolicy: IfNotPresent
+    # Configure a Security Context for containers in Identity Pods
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # identity.authorization.containerSecurityContext.enabled Enable security context for containers in Identity pods
+      enabled: false
+    # identity.authorization.lifecycleHooks Defines the Identity container lifecycle hooks
+    # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+    # It is used to trigger events to run at certain points in a container's lifecycle
+    # There are two hooks that are exposed: `PostStart` and `PreStop`
+    lifecycleHooks: {}
+    # identity.authorization.containerPorts.authorization Identity container port
+    containerPorts:
+      authorization: 8080
+    # Probe used for the Identity container: startup, readiness and liveness probes
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    # The parameters below for startup probes are used only when `identity.authorization.startupProbe.enabled=true`
+    startupProbe:
+      # identity.authorization.startupProbe.enabled Enable startupProbe for Identity container
+      enabled: true
+      httpGet:
+        # identity.authorization.startupProbe.httpGet.path Checking the path for startupProbe
+        path: /health
+        # identity.authorization.startupProbe.httpGet.port Checking the port for startupProbe
+        port: 8080
+      # identity.authorization.startupProbe.failureThreshold Failure threshold for startupProbe
+      failureThreshold: 30
+      # identity.authorization.startupProbe.periodSeconds Period seconds for startupProbe
+      periodSeconds: 10
+    # The parameters below for readiness probes are used only when `identity.authorization.readinessProbe.enabled=true`
+    readinessProbe:
+      # identity.authorization.readinessProbe.enabled Enable readinessProbe for Identity container
+      enabled: true
+      # identity.authorization.readinessProbe.failureThreshold Failure threshold for readinessProbe
+      failureThreshold: 2
+      httpGet:
+        # identity.authorization.readinessProbe.httpGet.path Checking the path for readinessProbe
+        path: /health
+        # identity.authorization.readinessProbe.httpGet.port Checking the port for readinessProbe
+        port: 8080
+      # identity.authorization.readinessProbe.periodSeconds Period seconds for readinessProbe
+      periodSeconds: 10
+      # identity.authorization.readinessProbe.successThreshold Success threshold for readinessProbe
+      successThreshold: 1
+      # identity.authorization.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+      timeoutSeconds: 5
+    # The parameters below for liveness probes are used only when `identity.authorization.livenessProbe.enabled=true`
+    livenessProbe:
+      # identity.authorization.livenessProbe.enabled Enable livenessProbe for Identity container
+      enabled: true
+      # identity.authorization.livenessProbe.failureThreshold Failure threshold for livenessProbe
+      failureThreshold: 3
+      httpGet:
+        # identity.authorization.livenessProbe.httpGet.path Checking the path for livenessProbe
+        path: /health
+        # identity.authorization.livenessProbe.httpGet.port Checking the port for livenessProbe
+        port: 8080
+      # identity.authorization.livenessProbe.periodSeconds Period seconds for livenessProbe
+      periodSeconds: 10
+      # identity.authorization.livenessProbe.successThreshold Success threshold for livenessProbe
+      successThreshold: 1
+      # identity.authorization.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+      timeoutSeconds: 5
+    # Identity container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # identity.authorization.resources.requests The requested resources for the Identity container
+    # identity.authorization.resources.limits The resources limits for the Identity container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+    # identity.authorization.mysqlUser Database user who will be used by the Identity to connect to the database
+    # If not set, `connections.mysqlUser` will be used
+    # If set to, it takes priority over the `connections.mysqlUser`
+    mysqlUser: ""
+  # DocSpace Identity API application parameters
+  # This block defines the parameters common to all the Pods of this application
+  #
+  api:
+    # identity.api.kind The controller used for deploy
+    # Possible values are `Deployment` (default) or `StatefulSet`
+    kind: Deployment
+    # identity.api.annotations Defines annotations that will be additionally added to Identity Api deploy
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # identity.api.replicaCount Number of Identity Api replicas to deploy
+    replicaCount: 2
+    # Update strategy used to replace old Pods by new ones
+    updateStrategy:
+      # identity.api.updateStrategy.type Identity Api update strategy type
+      # Allowed values: `RollingUpdate` or `OnDelete` if `identity.api.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `identity.api.kind` is set to `Deployment`
+      type: RollingUpdate
+      # identity.api.updateStrategy.rollingUpdate Used only when `identity.api.updateStrategy.type=RollingUpdate`
+      rollingUpdate:
+        # identity.api.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Identity Api Pods unavailable during the update process
+        maxUnavailable: 25%
+        # identity.api.updateStrategy.rollingUpdate.maxSurge Maximum number of Identity Api Pods created over the desired number of Pods
+        maxSurge: 25%
+    # identity.api.podManagementPolicy The Identity Api Pods scaling operations policy
+    # Used if `identity.api.kind` is set to `StatefulSet`
+    # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+    podManagementPolicy: OrderedReady
+    # identity.api.podAnnotations Map of annotations to add to the Identity Api pods
+    podAnnotations: {}
+    # Configure a Security Context for the Identity Api Pods
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # identity.api.podSecurityContext.enabled Enable security context for the Identity Api pods
+      enabled: false
+    # identity.api.customPodAntiAffinity Prohibiting the scheduling of Identity Api Pods relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for Identity Api Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes Identity Api Pods can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    # Example:
+    # podAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     podAffinityTerm:
+    #       labelSelector:
+    #         matchExpressions:
+    #         - key: app
+    #           operator: NotIn
+    #           values:
+    #           - database
+    #       topologyKey: kubernetes.io/hostname
+    podAffinity: {}
+    # Node affinity rules for Identity Api Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes Identity Api Pods can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    # Example:
+    # nodeAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     preference:
+    #       matchExpressions:
+    #       - key: kubernetes.io/name
+    #         operator: In
+    #         values:
+    #         - name1
+    #         - name2
+    nodeAffinity: {}
+    # identity.api.nodeSelector Node labels for Identity Api pods assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # identity.api.tolerations Tolerations for Identity Api pods assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Identity Api container image parameters
+    image:
+      # identity.api.image.repository Identity Api container image repository
+      repository: onlyoffice/docspace-identity-api
+      # identity.api.image.tag Identity Api container image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: ""
+      # identity.api.image.pullPolicy Identity Api container image pull policy
+      pullPolicy: IfNotPresent
+    # Configure a Security Context for containers in Identity Api Pods
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # identity.api.containerSecurityContext.enabled Enable security context for containers in Identity Api pods
+      enabled: false
+    # identity.api.lifecycleHooks Defines the Identity Api container lifecycle hooks
+    # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+    # It is used to trigger events to run at certain points in a container's lifecycle
+    # There are two hooks that are exposed: `PostStart` and `PreStop`
+    lifecycleHooks: {}
+    # identity.api.containerPorts.api Identity Api container port
+    containerPorts:
+      api: 9090
+    # Probe used for the Identity Api container: startup, readiness and liveness probes
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    # The parameters below for startup probes are used only when `identity.api.startupProbe.enabled=true`
+    startupProbe:
+      # identity.api.startupProbe.enabled Enable startupProbe for Identity Api container
+      enabled: true
+      httpGet:
+        # identity.api.startupProbe.httpGet.path Checking the path for startupProbe
+        path: /health
+        # identity.api.startupProbe.httpGet.port Checking the port for startupProbe
+        port: 9090
+      # identity.api.startupProbe.failureThreshold Failure threshold for startupProbe
+      failureThreshold: 30
+      # identity.api.startupProbe.periodSeconds Period seconds for startupProbe
+      periodSeconds: 10
+    # The parameters below for readiness probes are used only when `identity.api.readinessProbe.enabled=true`
+    readinessProbe:
+      # identity.api.readinessProbe.enabled Enable readinessProbe for Identity Api container
+      enabled: true
+      # identity.api.readinessProbe.failureThreshold Failure threshold for readinessProbe
+      failureThreshold: 2
+      httpGet:
+        # identity.api.readinessProbe.httpGet.path Checking the path for readinessProbe
+        path: /health
+        # identity.api.readinessProbe.httpGet.port Checking the port for readinessProbe
+        port: 9090
+      # identity.api.readinessProbe.periodSeconds Period seconds for readinessProbe
+      periodSeconds: 10
+      # identity.api.readinessProbe.successThreshold Success threshold for readinessProbe
+      successThreshold: 1
+      # identity.api.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+      timeoutSeconds: 5
+    # The parameters below for liveness probes are used only when `identity.api.livenessProbe.enabled=true`
+    livenessProbe:
+      # identity.api.livenessProbe.enabled Enable livenessProbe for Identity Api container
+      enabled: true
+      # identity.api.livenessProbe.failureThreshold Failure threshold for livenessProbe
+      failureThreshold: 3
+      httpGet:
+        # identity.api.livenessProbe.httpGet.path Checking the path for livenessProbe
+        path: /health
+        # identity.api.livenessProbe.httpGet.port Checking the port for livenessProbe
+        port: 9090
+      # identity.api.livenessProbe.periodSeconds Period seconds for livenessProbe
+      periodSeconds: 10
+      # identity.api.livenessProbe.successThreshold Success threshold for livenessProbe
+      successThreshold: 1
+      # identity.api.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+      timeoutSeconds: 5
+    # Identity Api container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # identity.api.resources.requests The requested resources for the Identity Api container
+    # identity.api.resources.limits The resources limits for the Identity Api container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+    # identity.api.mysqlUser Database user who will be used by the Identity Api to connect to the database
+    # If not set, `connections.mysqlUser` will be used
+    # If set to, it takes priority over the `connections.mysqlUser`
+    mysqlUser: ""
+
 # DocSpace Notify application parameters
 # This block defines the parameters common to all the Pods of this application
 #
@@ -2770,7 +3208,7 @@ socket:
     enabled: true
     httpGet:
       # socket.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
+      path: /health
       # socket.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # socket.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -2785,7 +3223,7 @@ socket:
     failureThreshold: 2
     httpGet:
       # socket.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
+      path: /health
       # socket.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # socket.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -2802,7 +3240,7 @@ socket:
     failureThreshold: 3
     httpGet:
       # socket.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
+      path: /health
       # socket.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # socket.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -2933,8 +3371,10 @@ ssoauth:
   startupProbe:
     # ssoauth.startupProbe.enabled Enable startupProbe for ssoauth container
     enabled: true
-    tcpSocket:
-      # ssoauth.startupProbe.tcpSocket.port Checking the port for startupProbe
+    httpGet:
+      # ssoauth.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health
+      # ssoauth.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # ssoauth.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -2946,8 +3386,10 @@ ssoauth:
     enabled: true
     # ssoauth.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    tcpSocket:
-      # ssoauth.readinessProbe.tcpSocket.port Checking the port for readinessProbe
+    httpGet:
+      # ssoauth.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health
+      # ssoauth.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # ssoauth.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
@@ -2961,8 +3403,10 @@ ssoauth:
     enabled: true
     # ssoauth.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    tcpSocket:
-      # ssoauth.livenessProbe.tcpSocket.port Checking the port for livenessProbe
+    httpGet:
+      # ssoauth.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health
+      # ssoauth.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # ssoauth.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
@@ -3528,177 +3972,6 @@ proxyFrontend:
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
 
-# DocSpace Document Server StatefulSet parameters
-#
-docs:
-  # docs.enabled Enables local installation of Document Server in k8s cluster
-  enabled: true
-  # docs.annotations Defines annotations that will be additionally added to Document Server deploy
-  # If set to, it takes priority over the `commonAnnotations`
-  # You can also use `tpl` as the value for the key
-  annotations: {}
-  # Update strategy used to replace old Pod by new ones
-  updateStrategy:
-    # docs.updateStrategy.type Document Server update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete`
-    type: RollingUpdate
-  # docs.podAnnotations Map of annotations to add to the Document Server pod
-  podAnnotations: {}
-  # Configure a Security Context for the Document Server Pod
-  podSecurityContext:
-    # docs.podSecurityContext.enabled Enable security context for the Document Server Pod
-    enabled: false
-    # docs.podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the Document Server Pod
-    fsGroup: 101
-  # docs.customPodAntiAffinity Prohibiting the scheduling of Document Server Pod relative to other Pods containing the specified labels on the same node
-  customPodAntiAffinity: {}
-  # Pod affinity rules for Document Server Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on the labels of Pods already running on that node
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
-  # Example:
-  # podAffinity:
-  #   preferredDuringSchedulingIgnoredDuringExecution:
-  #   - weight: 100
-  #     podAffinityTerm:
-  #       labelSelector:
-  #         matchExpressions:
-  #         - key: app
-  #           operator: NotIn
-  #           values:
-  #           - database
-  #       topologyKey: kubernetes.io/hostname
-  podAffinity: {}
-  # Node affinity rules for Document Server Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Document Server Pod can be scheduled on based on node labels
-  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
-  # Example:
-  # nodeAffinity:
-  #   preferredDuringSchedulingIgnoredDuringExecution:
-  #   - weight: 100
-  #     preference:
-  #       matchExpressions:
-  #       - key: kubernetes.io/name
-  #         operator: In
-  #         values:
-  #         - name1
-  #         - name2
-  nodeAffinity: {}
-  # docs.nodeSelector Node labels for Document Server pod assignment
-  # If set to, it takes priority over the `nodeSelector`
-  nodeSelector: {}
-  # docs.tolerations Tolerations for Document Server pod assignment
-  # If set to, it takes priority over the `tolerations`
-  tolerations: []
-  # Document Server initContainers parameters
-  # docs.initContainers Containers that run before Document Server container in a Pod
-  # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  # Example:
-  # initContainers:
-  #   - name: custom-init-container
-  #     image: busybox:latest
-  #     command: ['sh', '-c', 'sleep 180']
-  initContainers: []
-  # docs container image parameters
-  image:
-    # docs.image.repository Document Server container image repository
-    repository: onlyoffice/documentserver
-    # docs.image.tag Document Server container image tag
-    tag: latest
-    # docs.image.pullPolicy Document Server container image pull policy
-    pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Document Server Pod
-  containerSecurityContext:
-    # docs.containerSecurityContext.enabled Enable security context for container in Document Server pod
-    enabled: false
-    # docs.containerSecurityContext.runAsUser User ID for the Document Server container
-    runAsUser: 101
-    # docs.containerSecurityContext.runAsGroup Group ID for the Document Server container
-    runAsGroup: 101
-    # docs.containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
-    runAsNonRoot: true
-    # docs.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
-    allowPrivilegeEscalation: false
-    # docs.containerSecurityContext.seLinuxOptions Defines SELinux labels for the Document Server container
-    seLinuxOptions: {}
-    # docs.containerSecurityContext.seccompProfile Defines the Seccomp profile for the Document Server container
-    seccompProfile:
-      type: RuntimeDefault
-    # docs.containerSecurityContext.capabilities Defines the privileges granted to the process
-    capabilities:
-      drop: ["ALL"]
-  # docs.lifecycleHooks Defines the Document Server container lifecycle hooks
-  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
-  # It is used to trigger events to run at certain points in a container's lifecycle
-  # There are two hooks that are exposed: `PostStart` and `PreStop`
-  lifecycleHooks: {}
-  containerPorts:
-    # docs.containerPorts.http Document Server HTTP container port
-    http: 80
-    # docs.containerPorts.https Document Server HTTPS container port
-    https: 443
-    # docs.containerPorts.docservice Document Server docservice container port
-    docservice: 8000
-  # Probe used for the Document Server container: startup, readiness and liveness probes
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `docs.startupProbe.enabled=true`
-  startupProbe:
-    # docs.startupProbe.enabled Enable startupProbe for Document Server container
-    enabled: true
-    httpGet:
-      # docs.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /index.html
-      # docs.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 80
-    # docs.startupProbe.failureThreshold Failure threshold for startupProbe
-    failureThreshold: 30
-    # docs.startupProbe.periodSeconds Period seconds for startupProbe
-    periodSeconds: 20
-  # The parameters below for readiness probes are used only when `docs.readinessProbe.enabled=true`
-  readinessProbe:
-    # docs.readinessProbe.enabled Enable readinessProbe for Document Server container
-    enabled: true
-    # docs.readinessProbe.failureThreshold Failure threshold for readinessProbe
-    failureThreshold: 2
-    httpGet:
-      # docs.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /index.html
-      # docs.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 80
-    # docs.readinessProbe.periodSeconds Period seconds for readinessProbe
-    periodSeconds: 20
-    # docs.readinessProbe.successThreshold Success threshold for readinessProbe
-    successThreshold: 1
-    # docs.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
-    timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `docs.livenessProbe.enabled=true`
-  livenessProbe:
-    # docs.livenessProbe.enabled Enable livenessProbe for Document Server container
-    enabled: true
-    # docs.livenessProbe.failureThreshold Failure threshold for livenessProbe
-    failureThreshold: 3
-    httpGet:
-      # docs.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /index.html
-      # docs.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 80
-    # docs.livenessProbe.periodSeconds Period seconds for livenessProbe
-    periodSeconds: 20
-    # docs.livenessProbe.successThreshold Success threshold for livenessProbe
-    successThreshold: 1
-    # docs.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
-    timeoutSeconds: 5
-  # Document Server container resource requests and limits
-  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # docs.resources.requests The requested resources for the Document Server container
-  # docs.resources.limits The resources limits for the Document Server container
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "4Gi"
-      cpu: "4000m"
-
 # DocSpace ingress parameters
 # NGINX Ingress Controller must be installed
 # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-the-kubernetes-nginx-ingress-controller
@@ -3872,6 +4145,47 @@ upgrade:
       # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
       enabled: false
     initContainers:
+      rootless:
+        # upgrade.job.initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
+        enabled: true
+        image:
+          # upgrade.job.initContainers.rootless.image.repository Rootless initContainer image repository
+          repository: onlyoffice/docs-utils
+          # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
+          # If set to, it takes priority over the `images.tag`
+          tag: 8.2.2-1
+          # upgrade.job.initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
+          pullPolicy: IfNotPresent
+        # Rootless initContainer resource requests and limits
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+        # upgrade.job.initContainers.rootless.resources.requests The requested resources for the rootless initContainer
+        # upgrade.job.initContainers.rootless.resources.limits The resources limits for the rootless initContainer
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        containerSecurityContext:
+          # upgrade.job.initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
+          enabled: true
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
+          # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104
+          runAsUser: 0
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup Group ID for the DocSpace rootless initContainer
+          # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107
+          runAsGroup: 0
+          # upgrade.job.initContainers.rootless.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+          allowPrivilegeEscalation: false
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
+          seLinuxOptions: {}
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
+          seccompProfile:
+            type: RuntimeDefault
+          # upgrade.job.initContainers.rootless.containerSecurityContext.capabilities Defines the privileges granted to the process
+          capabilities:
+            drop: ["ALL"]
       migrationRunner:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
         enabled: true
@@ -3894,6 +4208,29 @@ upgrade:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+    docsInitDB:
+      # upgrade.job.docsInitDB.enabled Enable the Init DB for Docs container to create tables required for Docs to work
+      # Set to `true` when upgrading to version `3.0.0` from earlier
+      # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `false`
+      enabled: false
+      image:
+        # upgrade.job.docsInitDB.image.repository Init DB for Docs container image repository
+        repository: onlyoffice/docs-utils
+        # upgrade.job.docsInitDB.image.tag Init DB for Docs container image tag
+        tag: 8.2.2-1
+        # upgrade.job.docsInitDB.image.pullPolicy Init DB for Docs container image pull policy
+        pullPolicy: IfNotPresent
+      # Init DB for Docs resource requests and limits
+      # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      # upgrade.job.docsInitDB.resources.requests The requested resources for the Init DB for Docs container
+      # upgrade.job.docsInitDB.resources.limits The resources limits for the Init DB for Docs container
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
 
 # Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
 # He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
@@ -3907,7 +4244,7 @@ elasticsearchClearIndexes:
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
       # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
-      tag: 8.1.0-1
+      tag: 8.2.2-1
       # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
       pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
@@ -4024,7 +4361,7 @@ opensearch:
         # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
         # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
-        tag: 8.1.0-1
+        tag: 8.2.2-1
         # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
       # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
@@ -4209,7 +4546,7 @@ tests:
     # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
     # tests.image.tag test container image tag
-    tag: 8.0.1-1
+    tag: 8.2.2-1
     # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for the Test container

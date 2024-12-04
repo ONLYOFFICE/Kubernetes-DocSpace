@@ -1,32 +1,26 @@
-{{- if and (eq .Values.connections.documentServerHost "document-server") (not .Values.connections.documentServerUrlExternal) }}
-apiVersion: v1
+{{- if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
 kind: Service
+apiVersion: v1
 metadata:
-  name: document-server
+  name: documentserver
   namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
   labels:
-    app: document-server
-    {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
-    {{- end }}
+  {{- end }}
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  ports:
-  - port: {{ .Values.docs.containerPorts.http }}
-    name: http
-    targetPort: {{ .Values.docs.containerPorts.http }}
-  - port: {{ .Values.docs.containerPorts.https }}
-    name: https
-    targetPort: {{ .Values.docs.containerPorts.https }}
-  - port: {{ .Values.docs.containerPorts.docservice }}
-    name: docservice
-    targetPort: {{ .Values.docs.containerPorts.docservice }}
   selector:
-    statefulset.kubernetes.io/pod-name: document-server-0
+    app: docservice
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8888
+      targetPort: 8888
   type: ClusterIP
 {{- end }}

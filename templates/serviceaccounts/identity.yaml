@@ -1,7 +1,8 @@
+{{- if and .Values.identity.enabled .Values.identity.serviceAccount.create }}
 apiVersion: v1
-kind: ConfigMap
+kind: ServiceAccount
 metadata:
-  name: docspace-router
+  name: identity-sa
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
@@ -10,8 +11,5 @@ metadata:
   {{- if .Values.commonAnnotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
-data:
-  COUNT_WORKER_CONNECTIONS: {{ .Values.connections.countWorkerConnections | quote }}
-  NGINX_ENVSUBST_TEMPLATE_SUFFIX: {{ .Values.connections.nginxSnvsubstTemplateSuffix }}
-  WRONG_PORTAL_NAME_URL: {{ .Values.connections.wrongPortalNameURL | quote }}
-  OAUTH_ORIGIN: {{ .Values.connections.oauthOrigin | quote }}
+automountServiceAccountToken: true
+{{- end }}

@@ -53,6 +53,17 @@ Get the DocSpace Service Account name
 {{- end -}}
 
 {{/*
+Get the DocSpace Identity Service Account name
+*/}}
+{{- define "docspace.identity.serviceAccountName" -}}
+{{- if .Values.identity.serviceAccount.create -}}
+    {{- printf "identity-sa" -}}
+{{- else -}}
+    {{ include "docspace.serviceAccountName" . }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the DocSpace Security Context
 */}}
 {{- define "docspace.securityContext" -}}
@@ -217,7 +228,7 @@ Get the jwt secret name
 {{- if .Values.jwt.existingSecret -}}
     {{- printf "%s" (tpl .Values.jwt.existingSecret $) -}}
 {{- else }}
-    {{- printf "%s-jwt" .Release.Name -}}
+    {{- printf "docspace-jwt" -}}
 {{- end -}}
 {{- end -}}
 

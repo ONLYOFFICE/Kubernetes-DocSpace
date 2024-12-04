@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-api
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: identity-api
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.identity.api.containerPorts.api }}
+    name: api
+    targetPort: {{ .Values.identity.api.containerPorts.api }}
+  selector:
+    app: identity-api
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: ClusterIP

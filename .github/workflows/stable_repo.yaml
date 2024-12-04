@@ -27,6 +27,7 @@ jobs:
         with:
           repo: ${{ secrets.AWS_BUCKET_URL }}/charts/stable
           chart: ./
+          packageExtraArgs: --dependency-update
 
       - name: Reindex index.yaml
         run: |
