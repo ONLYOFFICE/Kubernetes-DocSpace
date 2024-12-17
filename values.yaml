@@ -552,6 +552,7 @@ files:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # files.replicaCount Number of Files replicas to deploy
+  # If the `files.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -786,6 +787,7 @@ peopleServer:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
+  # If the `peopleServer.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1005,6 +1007,7 @@ router:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # router.replicaCount Number of Router replicas to deploy
+  # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1305,6 +1308,7 @@ healthchecks:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
+  # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1516,7 +1520,7 @@ apiSystem:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
-  ## If the `converter.autoscaling.enabled` parameter is enabled, it is ignored
+  # If the `apiSystem.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1749,6 +1753,7 @@ api:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # api.replicaCount Number of Api replicas to deploy
+  # If the `api.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1986,6 +1991,7 @@ backup:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # backup.replicaCount Number of Backup replicas to deploy
+  # If the `backup.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2208,6 +2214,7 @@ backupBackgroundTasks:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  # If the `backupBackgroundTasks.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2430,6 +2437,7 @@ clearEvents:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  # If the `clearEvents.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2652,6 +2660,7 @@ doceditor:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
+  # If the `doceditor.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2876,6 +2885,7 @@ filesServices:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
+  # If the `filesServices.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3098,6 +3108,7 @@ login:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # login.replicaCount Number of Login replicas to deploy
+  # If the `login.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3338,6 +3349,7 @@ identity:
     # You can also use `tpl` as the value for the key
     annotations: {}
     # identity.authorization.replicaCount Number of Identity replicas to deploy
+    # If the `identity.authorization.autoscaling.enabled` parameter is enabled, it is ignored
     replicaCount: 2
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
@@ -3557,6 +3569,7 @@ identity:
     # You can also use `tpl` as the value for the key
     annotations: {}
     # identity.api.replicaCount Number of Identity Api replicas to deploy
+    # If the `identity.api.autoscaling.enabled` parameter is enabled, it is ignored
     replicaCount: 2
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
@@ -3779,6 +3792,7 @@ notify:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # notify.replicaCount Number of Notify replicas to deploy
+  # If the `notify.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -4001,6 +4015,7 @@ socket:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # socket.replicaCount Number of Socket replicas to deploy
+  # If the `socket.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -4225,6 +4240,7 @@ ssoauth:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  # If the `ssoauth.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -4449,6 +4465,7 @@ studio:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # studio.replicaCount Number of Studio replicas to deploy
+  # If the `studio.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -4671,6 +4688,7 @@ studioNotify:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  # If the `studioNotify.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -4893,6 +4911,7 @@ proxyFrontend:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  # If the `proxyFrontend.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:

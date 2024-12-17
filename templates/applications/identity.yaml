@@ -15,7 +15,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.identity.authorization.autoscaling.enabled }}
   replicas: {{ .Values.identity.authorization.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: identity-authorization

@@ -14,7 +14,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.socket.autoscaling.enabled }}
   replicas: {{ .Values.socket.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: socket

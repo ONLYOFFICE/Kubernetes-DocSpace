@@ -14,7 +14,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.filesServices.autoscaling.enabled }}
   replicas: {{ .Values.filesServices.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: files-services
