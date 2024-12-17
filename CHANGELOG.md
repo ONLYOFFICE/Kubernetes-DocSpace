@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.0.1
+
 ## 3.0.0
 
 ### New Features
