@@ -874,37 +874,10 @@ peopleServer:
       utilizationPercentage: 70
     ## peopleServer.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the People Server deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## peopleServer.autoscaling.behavior Configuring People Server deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # People Server container image parameters
   image:
@@ -1094,37 +1067,10 @@ router:
       utilizationPercentage: 70
     ## router.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Router deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## router.autoscaling.behavior Configuring Router deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # People Server container image parameters
   # Router initContainers parameters
@@ -1395,37 +1341,10 @@ healthchecks:
       utilizationPercentage: 70
     ## healthchecks.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Healthchecks deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## healthchecks.autoscaling.behavior Configuring Healthchecks deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Healthchecks container image parameters
   image:
@@ -1620,37 +1539,10 @@ apiSystem:
       utilizationPercentage: 70
     ## apiSystem.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Api deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## apiSystem.autoscaling.behavior Configuring Api deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Api System container image parameters
   image:
@@ -1853,37 +1745,10 @@ api:
       utilizationPercentage: 70
     ## api.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Api System deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## api.autoscaling.behavior Configuring Api System deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Api container image parameters
   image:
@@ -2081,37 +1946,10 @@ backup:
       utilizationPercentage: 70
     ## backup.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## backup.autoscaling.behavior Configuring Backup deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Backup container image parameters
   image:
@@ -2304,37 +2142,10 @@ backupBackgroundTasks:
       utilizationPercentage: 70
     ## backupBackgroundTasks.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup Background Tasks deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## backupBackgroundTasks.autoscaling.behavior Configuring Backup Background Tasks deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Backup Background Tasks container image parameters
   image:
@@ -2527,37 +2338,10 @@ clearEvents:
       utilizationPercentage: 70
     ## clearEvents.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Clear Events deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## clearEvents.autoscaling.behavior Configuring Clear Events deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Clear Events container image parameters
   image:
@@ -2750,37 +2534,10 @@ doceditor:
       utilizationPercentage: 70
     ## doceditor.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Doceditor deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## doceditor.autoscaling.behavior Configuring Doceditor deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Doceditor container image parameters
   image:
@@ -2975,37 +2732,10 @@ filesServices:
       utilizationPercentage: 70
     ## filesServices.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Files Services deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## filesServices.autoscaling.behavior Configuring Files Services deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Files Services container image parameters
   image:
@@ -3198,37 +2928,10 @@ login:
       utilizationPercentage: 70
     ## login.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Login deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## login.autoscaling.behavior Configuring Login deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Login container image parameters
   image:
@@ -3439,37 +3142,10 @@ identity:
         utilizationPercentage: 70
       ## identity.authorization.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Identity deployment
       ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-      ## Example:
-      ## customMetricsType:
-      ##   - type: Pods
-      ##     pods:
-      ##       metric:
-      ##         name: packets-per-second
-      ##       target:
-      ##         type: AverageValue
-      ##         averageValue: 1k
       customMetricsType: []
       ## identity.authorization.autoscaling.behavior Configuring Identity deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
       ## If not set the default values are used:
       ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-      ## Example:
-      ## behavior:
-      ##   scaleDown:
-      ##     stabilizationWindowSeconds: 300
-      ##     policies:
-      ##     - type: Percent
-      ##       value: 10
-      ##       periodSeconds: 60
-      ##   scaleUp:
-      ##     stabilizationWindowSeconds: 0
-      ##     policies:
-      ##     - type: Percent
-      ##       value: 10
-      ##       periodSeconds: 15
-      ##     - type: Pods
-      ##       value: 2
-      ##       periodSeconds: 15
-      ##     selectPolicy: Max
       behavior: {}
     # Identity container image parameters
     image:
@@ -3659,37 +3335,10 @@ identity:
         utilizationPercentage: 70
       ## identity.api.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Identity Api deployment
       ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-      ## Example:
-      ## customMetricsType:
-      ##   - type: Pods
-      ##     pods:
-      ##       metric:
-      ##         name: packets-per-second
-      ##       target:
-      ##         type: AverageValue
-      ##         averageValue: 1k
       customMetricsType: []
       ## identity.api.autoscaling.behavior Configuring Identity Api deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
       ## If not set the default values are used:
       ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-      ## Example:
-      ## behavior:
-      ##   scaleDown:
-      ##     stabilizationWindowSeconds: 300
-      ##     policies:
-      ##     - type: Percent
-      ##       value: 10
-      ##       periodSeconds: 60
-      ##   scaleUp:
-      ##     stabilizationWindowSeconds: 0
-      ##     policies:
-      ##     - type: Percent
-      ##       value: 10
-      ##       periodSeconds: 15
-      ##     - type: Pods
-      ##       value: 2
-      ##       periodSeconds: 15
-      ##     selectPolicy: Max
       behavior: {}
     # Identity Api container image parameters
     image:
@@ -3882,37 +3531,10 @@ notify:
       utilizationPercentage: 70
     ## notify.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Notify deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## notify.autoscaling.behavior Configuring Notify deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Notify container image parameters
   image:
@@ -4105,37 +3727,10 @@ socket:
       utilizationPercentage: 70
     ## socket.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Socket deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## socket.autoscaling.behavior Configuring Socket deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Socket container image parameters
   image:
@@ -4330,37 +3925,10 @@ ssoauth:
       utilizationPercentage: 70
     ## ssoauth.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the ssoauth deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## ssoauth.autoscaling.behavior Configuring ssoauth deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # ssoauth container image parameters
   image:
@@ -4555,37 +4123,10 @@ studio:
       utilizationPercentage: 70
     ## studio.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Studio deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## studio.autoscaling.behavior Configuring Studio deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Studio container image parameters
   image:
@@ -4778,37 +4319,10 @@ studioNotify:
       utilizationPercentage: 70
     ## studioNotify.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Studio Notify deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## studioNotify.autoscaling.behavior Configuring Studio Notify deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Studio Notify container image parameters
   image:
@@ -5001,37 +4515,10 @@ proxyFrontend:
       utilizationPercentage: 70
     ## proxyFrontend.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Proxy Frontend deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
-    ## Example:
-    ## customMetricsType:
-    ##   - type: Pods
-    ##     pods:
-    ##       metric:
-    ##         name: packets-per-second
-    ##       target:
-    ##         type: AverageValue
-    ##         averageValue: 1k
     customMetricsType: []
     ## proxyFrontend.autoscaling.behavior Configuring Proxy Frontend deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
-    ## Example:
-    ## behavior:
-    ##   scaleDown:
-    ##     stabilizationWindowSeconds: 300
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 60
-    ##   scaleUp:
-    ##     stabilizationWindowSeconds: 0
-    ##     policies:
-    ##     - type: Percent
-    ##       value: 10
-    ##       periodSeconds: 15
-    ##     - type: Pods
-    ##       value: 2
-    ##       periodSeconds: 15
-    ##     selectPolicy: Max
     behavior: {}
   # Proxy Frontend initContainers parameters
   # proxyFrontend.initContainers Containers that run before Proxy Frontend container in a Pod
