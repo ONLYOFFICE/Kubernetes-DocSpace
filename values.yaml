@@ -708,6 +708,26 @@ files:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## files.extraEnvVars An array with extra env variables for the files container
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: my_env
+  ##     value: "my_value"
+  extraEnvVars: []
+  ## files.extraVolumes An array with extra volumes for the files container
+  ## Example:
+  ## extraVolumes:
+  ##   - name: my-volume
+  ##     configMap:
+  ##       name: my-cm
+  extraVolumes: []
+  ## files.extraVolumeMounts An array with extra volume mounts for the files container
+  ## Example:
+  ## extraVolumeMounts:
+  ##   - name: my-volume
+  ##     mountPath: /my_dir/my_cm.txt
+  ##     subPath: my_cm.txt
+  extraVolumeMounts: []
   # files.mysqlUser Database user who will be used by the Files service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -868,6 +888,12 @@ peopleServer:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## peopleServer.extraEnvVars An array with extra env variables for the People Server container
+  extraEnvVars: []
+  ## peopleServer.extraVolumes An array with extra volumes for the People Server container
+  extraVolumes: []
+  ## peopleServer.extraVolumeMounts An array with extra volume mounts for the People Server container
+  extraVolumeMounts: []
   # peopleServer.mysqlUser Database user who will be used by the People Server service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1038,11 +1064,11 @@ router:
       memory: "2Gi"
       cpu: "2000m"
   ## router.extraEnvVars An array with extra env variables for the Router container
-  ## Example:
-  ## extraEnvVars:
-  ##   - name: my_env
-  ##     value: "my_value"
   extraEnvVars: []
+  ## router.extraVolumes An array with extra volumes for the Router container
+  extraVolumes: []
+  ## router.extraVolumeMounts An array with extra volume mounts for the Router container
+  extraVolumeMounts: []
   # Additional configuration files for Router
   extraConf:
     customInitScripts:
@@ -1262,6 +1288,12 @@ healthchecks:
     limits:
       memory: "1Gi"
       cpu: "1000m"
+  ## healthchecks.extraEnvVars An array with extra env variables for the Healthchecks container
+  extraEnvVars: []
+  ## healthchecks.extraVolumes An array with extra volumes for the Healthchecks container
+  extraVolumes: []
+  ## healthchecks.extraVolumeMounts An array with extra volume mounts for the Healthchecks container
+  extraVolumeMounts: []
 
 # DocSpace statefulsets
 #
@@ -1433,6 +1465,12 @@ apiSystem:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## apiSystem.extraEnvVars An array with extra env variables for the Api System container
+  extraEnvVars: []
+  ## apiSystem.extraVolumes An array with extra volumes for the Api System container
+  extraVolumes: []
+  ## apiSystem.extraVolumeMounts An array with extra volume mounts for the Api System container
+  extraVolumeMounts: []
   # apiSystem.mysqlUser Database user who will be used by the Api System service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1611,6 +1649,12 @@ api:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## api.extraEnvVars An array with extra env variables for the Api container
+  extraEnvVars: []
+  ## api.extraVolumes An array with extra volumes for the Api container
+  extraVolumes: []
+  ## api.extraVolumeMounts An array with extra volume mounts for the Api container
+  extraVolumeMounts: []
   # api.mysqlUser Database user who will be used by the Api service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1774,6 +1818,12 @@ backup:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## backup.extraEnvVars An array with extra env variables for the Backup container
+  extraEnvVars: []
+  ## backup.extraVolumes An array with extra volumes for the Backup container
+  extraVolumes: []
+  ## backup.extraVolumeMounts An array with extra volume mounts for the Backup container
+  extraVolumeMounts: []
   # backup.mysqlUser Database user who will be used by the Backup service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1937,6 +1987,12 @@ backupBackgroundTasks:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## backupBackgroundTasks.extraEnvVars An array with extra env variables for the Backup Background Tasks container
+  extraEnvVars: []
+  ## backupBackgroundTasks.extraVolumes An array with extra volumes for the Backup Background Tasks container
+  extraVolumes: []
+  ## backupBackgroundTasks.extraVolumeMounts An array with extra volume mounts for the Backup Background Tasks container
+  extraVolumeMounts: []
   # backupBackgroundTasks.mysqlUser Database user who will be used by the Backup Background Tasks service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2100,6 +2156,12 @@ clearEvents:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## clearEvents.extraEnvVars An array with extra env variables for the Clear Events container
+  extraEnvVars: []
+  ## clearEvents.extraVolumes An array with extra volumes for the Clear Events container
+  extraVolumes: []
+  ## clearEvents.extraVolumeMounts An array with extra volume mounts for the Clear Events container
+  extraVolumeMounts: []
   # clearEvents.mysqlUser Database user who will be used by the Clear Events service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2265,6 +2327,12 @@ doceditor:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## doceditor.extraEnvVars An array with extra env variables for the Doceditor container
+  extraEnvVars: []
+  ## doceditor.extraVolumes An array with extra volumes for the Doceditor container
+  extraVolumes: []
+  ## doceditor.extraVolumeMounts An array with extra volume mounts for the Doceditor container
+  extraVolumeMounts: []
   # doceditor.mysqlUser Database user who will be used by the Doceditor service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2428,6 +2496,12 @@ filesServices:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## filesServices.extraEnvVars An array with extra env variables for the Files Services container
+  extraEnvVars: []
+  ## filesServices.extraVolumes An array with extra volumes for the Files Services container
+  extraVolumes: []
+  ## filesServices.extraVolumeMounts An array with extra volume mounts for the Files Services container
+  extraVolumeMounts: []
   # filesServices.mysqlUser Database user who will be used by the Files Services service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2591,6 +2665,12 @@ login:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## login.extraEnvVars An array with extra env variables for the Login container
+  extraEnvVars: []
+  ## login.extraVolumes An array with extra volumes for the Login container
+  extraVolumes: []
+  ## login.extraVolumeMounts An array with extra volume mounts for the Login container
+  extraVolumeMounts: []
   # login.mysqlUser Database user who will be used by the Login service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2772,6 +2852,12 @@ identity:
       limits:
         memory: "2Gi"
         cpu: "2000m"
+    ## identity.authorization.extraEnvVars An array with extra env variables for the Identity container
+    extraEnvVars: []
+    ## identity.authorization.extraVolumes An array with extra volumes for the Identity container
+    extraVolumes: []
+    ## identity.authorization.extraVolumeMounts An array with extra volume mounts for the Identity container
+    extraVolumeMounts: []
     # identity.authorization.mysqlUser Database user who will be used by the Identity to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
@@ -2932,6 +3018,12 @@ identity:
       limits:
         memory: "2Gi"
         cpu: "2000m"
+    ## identity.api.extraEnvVars An array with extra env variables for the Identity Api container
+    extraEnvVars: []
+    ## identity.api.extraVolumes An array with extra volumes for the Identity Api container
+    extraVolumes: []
+    ## identity.api.extraVolumeMounts An array with extra volume mounts for the Identity Api container
+    extraVolumeMounts: []
     # identity.api.mysqlUser Database user who will be used by the Identity Api to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
@@ -3095,6 +3187,12 @@ notify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## notify.extraEnvVars An array with extra env variables for the Notify container
+  extraEnvVars: []
+  ## notify.extraVolumes An array with extra volumes for the Notify container
+  extraVolumes: []
+  ## notify.extraVolumeMounts An array with extra volume mounts for the Notify container
+  extraVolumeMounts: []
   # notify.mysqlUser Database user who will be used by the Notify service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3260,6 +3358,12 @@ socket:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## socket.extraEnvVars An array with extra env variables for the Socket container
+  extraEnvVars: []
+  ## socket.extraVolumes An array with extra volumes for the Socket container
+  extraVolumes: []
+  ## socket.extraVolumeMounts An array with extra volume mounts for the Socket container
+  extraVolumeMounts: []
   # socket.mysqlUser Database user who will be used by the Socket service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3425,6 +3529,12 @@ ssoauth:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## ssoauth.extraEnvVars An array with extra env variables for the ssoauth container
+  extraEnvVars: []
+  ## ssoauth.extraVolumes An array with extra volumes for the ssoauth container
+  extraVolumes: []
+  ## ssoauth.extraVolumeMounts An array with extra volume mounts for the ssoauth container
+  extraVolumeMounts: []
   # ssoauth.mysqlUser Database user who will be used by the ssoauth service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3588,6 +3698,12 @@ studio:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## studio.extraEnvVars An array with extra env variables for the Studio container
+  extraEnvVars: []
+  ## studio.extraVolumes An array with extra volumes for the Studio container
+  extraVolumes: []
+  ## studio.extraVolumeMounts An array with extra volume mounts for the Studio container
+  extraVolumeMounts: []
   # studio.mysqlUser Database user who will be used by the Studio service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3751,6 +3867,12 @@ studioNotify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## studioNotify.extraEnvVars An array with extra env variables for the Studio Notify container
+  extraEnvVars: []
+  ## studioNotify.extraVolumes An array with extra volumes for the Studio Notify container
+  extraVolumes: []
+  ## studioNotify.extraVolumeMounts An array with extra volume mounts for the Studio Notify container
+  extraVolumeMounts: []
   # studioNotify.mysqlUser Database user who will be used by the Studio Notify service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3924,6 +4046,12 @@ proxyFrontend:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## proxyFrontend.extraEnvVars An array with extra env variables for the Proxy Frontend container
+  extraEnvVars: []
+  ## proxyFrontend.extraVolumes An array with extra volumes for the Proxy Frontend container
+  extraVolumes: []
+  ## proxyFrontend.extraVolumeMounts An array with extra volume mounts for the Proxy Frontend container
+  extraVolumeMounts: []
   # Additional configuration files for Proxy Frontend
   extraConf:
     confd:
@@ -4481,6 +4609,12 @@ opensearch:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## opensearch.extraEnvVars An array with extra env variables for the opensearch container
+  extraEnvVars: []
+  ## opensearch.extraVolumes An array with extra volumes for the opensearch container
+  extraVolumes: []
+  ## opensearch.extraVolumeMounts An array with extra volume mounts for the opensearch container
+  extraVolumeMounts: []
   env:
     # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
     discoveryType: "single-node"

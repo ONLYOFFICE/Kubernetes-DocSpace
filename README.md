@@ -438,6 +438,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
 | `Application.resources.requests`                          | The requested resources for the "Application" container                                                         | `memory, cpu`                             |
 | `Application.resources.limits`                            | The resources limits for the "Application" container                                                            | `memory, cpu`                             |
+| `Application.extraEnvVars`                                | An array with extra env variables for the "Application" container                                               | `[]`                                      |
+| `Application.extraVolumes`                                | An array with extra volumes for the "Application" Pod                                                           | `[]`                                      |
+| `Application.extraVolumeMounts`                           | An array with extra volume mounts for the "Application" container                                               | `[]`                                      |
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
@@ -650,15 +653,14 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
-
 ### ONLYOFFICE DocSpace Opensearch parameters
 
 | Parameter                                             | Description                                                                                                  | Default                                                        |
 |-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
 | `opensearch.enabled`                                  | Enables Opensearch installation                                                                              | `true`                                                         |
-| `opensearch.initContainers.securityContext.enabled`   | Enable security context for Opensearch change-volume-owner initContainer container in pod                    | `false`                                                        |
-| `opensearch.initContainers.resources.requests`        | The requested resources for the Opensearch change-volume-owner initContainer                                 | `memory, cpu`                                                  |
-| `opensearch.initContainers.resources.limits`          | The resources limits for the Opensearch change-volume-owner initContainer                                    | `memory, cpu`                                                  |
+| `opensearch.initContainers.changeVolumeOwner.securityContext.enabled`   | Enable security context for Opensearch change-volume-owner initContainer container in pod                    | `false`                                                        |
+| `opensearch.initContainers.changeVolumeOwner.resources.requests`        | The requested resources for the Opensearch change-volume-owner initContainer                                 | `memory, cpu`                                                  |
+| `opensearch.initContainers.changeVolumeOwner.resources.limits`          | The resources limits for the Opensearch change-volume-owner initContainer                                    | `memory, cpu`                                                  |
 | `opensearch.initContainers.custom`                    | Custom Opensearch initContainers parameters. Additional containers that run before Elasticsearch container in a Pod | `[]`                                                    |
 | `opensearch.image.repository`                         | Opensearch container image repository                                                                        | `onlyoffice/opensearch`                                        |
 | `opensearch.image.tag`                                | Opensearch container image tag                                                                               | `7.16.3`                                                       |

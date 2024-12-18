@@ -134,6 +134,12 @@ spec:
         livenessProbe: {{- omit .Values.proxyFrontend.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.proxyFrontend.resources | nindent 10 }}
+        {{ if .Values.proxyFrontend.extraEnvVars }}
+        env:
+        {{- with .Values.proxyFrontend.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- if .Values.proxyFrontend.extraConf.confd.configMap }}
         {{- range .Values.proxyFrontend.extraConf.confd.fileName }}
@@ -154,6 +160,9 @@ spec:
           mountPath: {{ .Values.proxyFrontend.tls.mountPath }}
           readOnly: true
         {{- end }}
+        {{- with .Values.proxyFrontend.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
       {{- if .Values.proxyFrontend.extraConf.confd.configMap }}
       - name: confd-file
@@ -164,6 +173,9 @@ spec:
       - name: custom-confd-file
         configMap:
           name: {{ .Values.proxyFrontend.extraConf.customConfd.configMap }}
+      {{- end }}
+      {{- with .Values.proxyFrontend.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       {{- if .Values.proxyFrontend.tls.secretName }}
       - name: tls
