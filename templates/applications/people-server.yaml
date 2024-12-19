@@ -182,6 +182,9 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
+        {{- with .Values.peopleServer.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: docspace
@@ -198,6 +201,9 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
+        {{- with .Values.peopleServer.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: docspace-data
           mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
@@ -207,6 +213,9 @@ spec:
       - name: custom-file
         secret:
           secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      {{- with .Values.peopleServer.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data
         persistentVolumeClaim:

@@ -88,6 +88,36 @@ docs:
   # By default, the jwt secret is used, which will be created with values from the jwt DocSpace
   jwt:
     existingSecret: "docspace-jwt"
+  # docs.docservice.image.repository Docservice container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  docservice:
+    image:
+      repository: onlyoffice/docs-docservice
+  # docs.proxy.image.repository Proxy container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  proxy:
+    image:
+      repository: onlyoffice/docs-proxy
+  # docs.converter.image.repository Converter container image repository
+  # Depending on your license type, add the suffix "-de" - Developer Edition or "-ee" Enterprise Edition
+  # By default - Community version
+  converter:
+    image:
+      repository: onlyoffice/docs-converter
+  # docs.upgrade.job.enabled Enable the execution of job Docs pre-upgrade before upgrading
+  # Set to `false` when upgrading to version `3.0.0` from earlier
+  # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `true`
+  upgrade:
+    job:
+      enabled: true
+  # docs.clearCache.job.enabled Enable the execution of job Docs Clear Cache after upgrading
+  # Set to `false` when upgrading to version `3.0.0` from earlier
+  # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `true`
+  clearCache:
+    job:
+      enabled: true
 
 # Default values for DocSpace
 
@@ -219,6 +249,7 @@ connections:
   identityAuthorizationHost: identity-authorization
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
+  # If you want to install DocSpace without Document Server then specify an empty value
   documentServerHost: documentserver
   # connections.documentServerUrlExternal The address of the external Document Server
   # If set, the local Document Server will not be installed
@@ -346,7 +377,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 2.6.0
+  tag: 3.0.1
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -375,6 +406,8 @@ log:
 # debug.enabled Enable debug
 debug:
   enabled: "false"
+# nodeOptions
+nodeOptions: "--max_old_space_size=4096"
 # DocSpace Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -385,7 +418,7 @@ initContainers:
       # initContainers.checkDB.image.repository check-db initContainer image repository
       repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: 8.0.1-1
+      tag: 8.2.2-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -678,6 +711,26 @@ files:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## files.extraEnvVars An array with extra env variables for the files container
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: my_env
+  ##     value: "my_value"
+  extraEnvVars: []
+  ## files.extraVolumes An array with extra volumes for the files container
+  ## Example:
+  ## extraVolumes:
+  ##   - name: my-volume
+  ##     configMap:
+  ##       name: my-cm
+  extraVolumes: []
+  ## files.extraVolumeMounts An array with extra volume mounts for the files container
+  ## Example:
+  ## extraVolumeMounts:
+  ##   - name: my-volume
+  ##     mountPath: /my_dir/my_cm.txt
+  ##     subPath: my_cm.txt
+  extraVolumeMounts: []
   # files.mysqlUser Database user who will be used by the Files service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -838,6 +891,12 @@ peopleServer:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## peopleServer.extraEnvVars An array with extra env variables for the People Server container
+  extraEnvVars: []
+  ## peopleServer.extraVolumes An array with extra volumes for the People Server container
+  extraVolumes: []
+  ## peopleServer.extraVolumeMounts An array with extra volume mounts for the People Server container
+  extraVolumeMounts: []
   # peopleServer.mysqlUser Database user who will be used by the People Server service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1007,6 +1066,12 @@ router:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## router.extraEnvVars An array with extra env variables for the Router container
+  extraEnvVars: []
+  ## router.extraVolumes An array with extra volumes for the Router container
+  extraVolumes: []
+  ## router.extraVolumeMounts An array with extra volume mounts for the Router container
+  extraVolumeMounts: []
   # Additional configuration files for Router
   extraConf:
     customInitScripts:
@@ -1226,6 +1291,12 @@ healthchecks:
     limits:
       memory: "1Gi"
       cpu: "1000m"
+  ## healthchecks.extraEnvVars An array with extra env variables for the Healthchecks container
+  extraEnvVars: []
+  ## healthchecks.extraVolumes An array with extra volumes for the Healthchecks container
+  extraVolumes: []
+  ## healthchecks.extraVolumeMounts An array with extra volume mounts for the Healthchecks container
+  extraVolumeMounts: []
 
 # DocSpace statefulsets
 #
@@ -1397,6 +1468,12 @@ apiSystem:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## apiSystem.extraEnvVars An array with extra env variables for the Api System container
+  extraEnvVars: []
+  ## apiSystem.extraVolumes An array with extra volumes for the Api System container
+  extraVolumes: []
+  ## apiSystem.extraVolumeMounts An array with extra volume mounts for the Api System container
+  extraVolumeMounts: []
   # apiSystem.mysqlUser Database user who will be used by the Api System service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1575,6 +1652,12 @@ api:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## api.extraEnvVars An array with extra env variables for the Api container
+  extraEnvVars: []
+  ## api.extraVolumes An array with extra volumes for the Api container
+  extraVolumes: []
+  ## api.extraVolumeMounts An array with extra volume mounts for the Api container
+  extraVolumeMounts: []
   # api.mysqlUser Database user who will be used by the Api service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1738,6 +1821,12 @@ backup:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## backup.extraEnvVars An array with extra env variables for the Backup container
+  extraEnvVars: []
+  ## backup.extraVolumes An array with extra volumes for the Backup container
+  extraVolumes: []
+  ## backup.extraVolumeMounts An array with extra volume mounts for the Backup container
+  extraVolumeMounts: []
   # backup.mysqlUser Database user who will be used by the Backup service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -1901,6 +1990,12 @@ backupBackgroundTasks:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## backupBackgroundTasks.extraEnvVars An array with extra env variables for the Backup Background Tasks container
+  extraEnvVars: []
+  ## backupBackgroundTasks.extraVolumes An array with extra volumes for the Backup Background Tasks container
+  extraVolumes: []
+  ## backupBackgroundTasks.extraVolumeMounts An array with extra volume mounts for the Backup Background Tasks container
+  extraVolumeMounts: []
   # backupBackgroundTasks.mysqlUser Database user who will be used by the Backup Background Tasks service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2064,6 +2159,12 @@ clearEvents:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## clearEvents.extraEnvVars An array with extra env variables for the Clear Events container
+  extraEnvVars: []
+  ## clearEvents.extraVolumes An array with extra volumes for the Clear Events container
+  extraVolumes: []
+  ## clearEvents.extraVolumeMounts An array with extra volume mounts for the Clear Events container
+  extraVolumeMounts: []
   # clearEvents.mysqlUser Database user who will be used by the Clear Events service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2229,6 +2330,12 @@ doceditor:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## doceditor.extraEnvVars An array with extra env variables for the Doceditor container
+  extraEnvVars: []
+  ## doceditor.extraVolumes An array with extra volumes for the Doceditor container
+  extraVolumes: []
+  ## doceditor.extraVolumeMounts An array with extra volume mounts for the Doceditor container
+  extraVolumeMounts: []
   # doceditor.mysqlUser Database user who will be used by the Doceditor service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2392,6 +2499,12 @@ filesServices:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## filesServices.extraEnvVars An array with extra env variables for the Files Services container
+  extraEnvVars: []
+  ## filesServices.extraVolumes An array with extra volumes for the Files Services container
+  extraVolumes: []
+  ## filesServices.extraVolumeMounts An array with extra volume mounts for the Files Services container
+  extraVolumeMounts: []
   # filesServices.mysqlUser Database user who will be used by the Files Services service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2555,6 +2668,12 @@ login:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## login.extraEnvVars An array with extra env variables for the Login container
+  extraEnvVars: []
+  ## login.extraVolumes An array with extra volumes for the Login container
+  extraVolumes: []
+  ## login.extraVolumeMounts An array with extra volume mounts for the Login container
+  extraVolumeMounts: []
   # login.mysqlUser Database user who will be used by the Login service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -2566,9 +2685,20 @@ login:
 identity:
   # identity.enabled Enables Identity installation
   enabled: false
+  # identity.serviceAccount.create Enable Identity ServiceAccount creation
+  # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
+  # If disabled, the common `serviceAccount` will be used
+  serviceAccount:
+    create: true
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "dev"
+    # identity.env.multicast.enabled Defines whether multicast discovery will be used
+    multicast:
+      enabled: "false"
+    # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
+    kubernetes:
+      enabled: "true"
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #
@@ -2725,6 +2855,12 @@ identity:
       limits:
         memory: "2Gi"
         cpu: "2000m"
+    ## identity.authorization.extraEnvVars An array with extra env variables for the Identity container
+    extraEnvVars: []
+    ## identity.authorization.extraVolumes An array with extra volumes for the Identity container
+    extraVolumes: []
+    ## identity.authorization.extraVolumeMounts An array with extra volume mounts for the Identity container
+    extraVolumeMounts: []
     # identity.authorization.mysqlUser Database user who will be used by the Identity to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
@@ -2885,6 +3021,12 @@ identity:
       limits:
         memory: "2Gi"
         cpu: "2000m"
+    ## identity.api.extraEnvVars An array with extra env variables for the Identity Api container
+    extraEnvVars: []
+    ## identity.api.extraVolumes An array with extra volumes for the Identity Api container
+    extraVolumes: []
+    ## identity.api.extraVolumeMounts An array with extra volume mounts for the Identity Api container
+    extraVolumeMounts: []
     # identity.api.mysqlUser Database user who will be used by the Identity Api to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
@@ -3048,6 +3190,12 @@ notify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## notify.extraEnvVars An array with extra env variables for the Notify container
+  extraEnvVars: []
+  ## notify.extraVolumes An array with extra volumes for the Notify container
+  extraVolumes: []
+  ## notify.extraVolumeMounts An array with extra volume mounts for the Notify container
+  extraVolumeMounts: []
   # notify.mysqlUser Database user who will be used by the Notify service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3161,7 +3309,7 @@ socket:
     enabled: true
     httpGet:
       # socket.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /
+      path: /health
       # socket.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # socket.startupProbe.failureThreshold Failure threshold for startupProbe
@@ -3176,7 +3324,7 @@ socket:
     failureThreshold: 2
     httpGet:
       # socket.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /
+      path: /health
       # socket.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # socket.readinessProbe.periodSeconds Period seconds for readinessProbe
@@ -3193,7 +3341,7 @@ socket:
     failureThreshold: 3
     httpGet:
       # socket.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /
+      path: /health
       # socket.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # socket.livenessProbe.periodSeconds Period seconds for livenessProbe
@@ -3213,6 +3361,12 @@ socket:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## socket.extraEnvVars An array with extra env variables for the Socket container
+  extraEnvVars: []
+  ## socket.extraVolumes An array with extra volumes for the Socket container
+  extraVolumes: []
+  ## socket.extraVolumeMounts An array with extra volume mounts for the Socket container
+  extraVolumeMounts: []
   # socket.mysqlUser Database user who will be used by the Socket service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3324,8 +3478,10 @@ ssoauth:
   startupProbe:
     # ssoauth.startupProbe.enabled Enable startupProbe for ssoauth container
     enabled: true
-    tcpSocket:
-      # ssoauth.startupProbe.tcpSocket.port Checking the port for startupProbe
+    httpGet:
+      # ssoauth.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health
+      # ssoauth.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
     # ssoauth.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
@@ -3337,8 +3493,10 @@ ssoauth:
     enabled: true
     # ssoauth.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    tcpSocket:
-      # ssoauth.readinessProbe.tcpSocket.port Checking the port for readinessProbe
+    httpGet:
+      # ssoauth.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health
+      # ssoauth.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
     # ssoauth.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
@@ -3352,8 +3510,10 @@ ssoauth:
     enabled: true
     # ssoauth.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    tcpSocket:
-      # ssoauth.livenessProbe.tcpSocket.port Checking the port for livenessProbe
+    httpGet:
+      # ssoauth.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health
+      # ssoauth.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
     # ssoauth.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
@@ -3372,6 +3532,12 @@ ssoauth:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## ssoauth.extraEnvVars An array with extra env variables for the ssoauth container
+  extraEnvVars: []
+  ## ssoauth.extraVolumes An array with extra volumes for the ssoauth container
+  extraVolumes: []
+  ## ssoauth.extraVolumeMounts An array with extra volume mounts for the ssoauth container
+  extraVolumeMounts: []
   # ssoauth.mysqlUser Database user who will be used by the ssoauth service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3535,6 +3701,12 @@ studio:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## studio.extraEnvVars An array with extra env variables for the Studio container
+  extraEnvVars: []
+  ## studio.extraVolumes An array with extra volumes for the Studio container
+  extraVolumes: []
+  ## studio.extraVolumeMounts An array with extra volume mounts for the Studio container
+  extraVolumeMounts: []
   # studio.mysqlUser Database user who will be used by the Studio service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3698,6 +3870,12 @@ studioNotify:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## studioNotify.extraEnvVars An array with extra env variables for the Studio Notify container
+  extraEnvVars: []
+  ## studioNotify.extraVolumes An array with extra volumes for the Studio Notify container
+  extraVolumes: []
+  ## studioNotify.extraVolumeMounts An array with extra volume mounts for the Studio Notify container
+  extraVolumeMounts: []
   # studioNotify.mysqlUser Database user who will be used by the Studio Notify service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
@@ -3871,6 +4049,12 @@ proxyFrontend:
     limits:
       memory: "2Gi"
       cpu: "2000m"
+  ## proxyFrontend.extraEnvVars An array with extra env variables for the Proxy Frontend container
+  extraEnvVars: []
+  ## proxyFrontend.extraVolumes An array with extra volumes for the Proxy Frontend container
+  extraVolumes: []
+  ## proxyFrontend.extraVolumeMounts An array with extra volume mounts for the Proxy Frontend container
+  extraVolumeMounts: []
   # Additional configuration files for Proxy Frontend
   extraConf:
     confd:
@@ -4092,28 +4276,6 @@ upgrade:
       # upgrade.job.containerSecurityContext.enabled Enable security context for containers in Upgrade Job pod
       enabled: false
     initContainers:
-      migrationRunner:
-        # upgrade.job.initContainers.migrationRunner.enabled Enable database update
-        enabled: true
-        image:
-          # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
-          repository: onlyoffice/docspace-migration-runner
-          # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
-          # If set to, it takes priority over the `images.tag`
-          tag: ""
-          # upgrade.job.initContainers.migrationRunner.image.pullPolicy Job by pre-upgrade Migration Runner container image pull policy
-          pullPolicy: IfNotPresent
-        # Job pre-upgrade Migration Runner container resource requests and limits
-        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-        # upgrade.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
-        # upgrade.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
       rootless:
         # upgrade.job.initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
         enabled: true
@@ -4122,7 +4284,7 @@ upgrade:
           repository: onlyoffice/docs-utils
           # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
           # If set to, it takes priority over the `images.tag`
-          tag: 8.0.1-1
+          tag: 8.2.2-1
           # upgrade.job.initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
           pullPolicy: IfNotPresent
         # Rootless initContainer resource requests and limits
@@ -4155,6 +4317,51 @@ upgrade:
           # upgrade.job.initContainers.rootless.containerSecurityContext.capabilities Defines the privileges granted to the process
           capabilities:
             drop: ["ALL"]
+      migrationRunner:
+        # upgrade.job.initContainers.migrationRunner.enabled Enable database update
+        enabled: true
+        image:
+          # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
+          repository: onlyoffice/docspace-migration-runner
+          # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
+          # If set to, it takes priority over the `images.tag`
+          tag: ""
+          # upgrade.job.initContainers.migrationRunner.image.pullPolicy Job by pre-upgrade Migration Runner container image pull policy
+          pullPolicy: IfNotPresent
+        # Job pre-upgrade Migration Runner container resource requests and limits
+        # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+        # upgrade.job.initContainers.migrationRunner.resources.requests The requested resources for the Job pre-upgrade Migration Runner container
+        # upgrade.job.initContainers.migrationRunner.resources.limits The resources limits for the Job pre-upgrade Migration Runner container
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+    docsInitDB:
+      # upgrade.job.docsInitDB.enabled Enable the Init DB for Docs container to create tables required for Docs to work
+      # Set to `true` when upgrading to version `3.0.0` from earlier
+      # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `false`
+      enabled: false
+      image:
+        # upgrade.job.docsInitDB.image.repository Init DB for Docs container image repository
+        repository: onlyoffice/docs-utils
+        # upgrade.job.docsInitDB.image.tag Init DB for Docs container image tag
+        tag: 8.2.2-1
+        # upgrade.job.docsInitDB.image.pullPolicy Init DB for Docs container image pull policy
+        pullPolicy: IfNotPresent
+      # Init DB for Docs resource requests and limits
+      # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      # upgrade.job.docsInitDB.resources.requests The requested resources for the Init DB for Docs container
+      # upgrade.job.docsInitDB.resources.limits The resources limits for the Init DB for Docs container
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
 
 # Job by elasticsearchClearIndexes has a pre-upgrade hook and executes on an upgrade request before the Upgrade job is launched
 # He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
@@ -4168,7 +4375,7 @@ elasticsearchClearIndexes:
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
       # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
-      tag: 8.1.0-1
+      tag: 8.2.2-1
       # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
       pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
@@ -4285,7 +4492,7 @@ opensearch:
         # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
         # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
-        tag: 8.1.0-1
+        tag: 8.2.2-1
         # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
       # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
@@ -4405,6 +4612,12 @@ opensearch:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+  ## opensearch.extraEnvVars An array with extra env variables for the opensearch container
+  extraEnvVars: []
+  ## opensearch.extraVolumes An array with extra volumes for the opensearch container
+  extraVolumes: []
+  ## opensearch.extraVolumeMounts An array with extra volume mounts for the opensearch container
+  extraVolumeMounts: []
   env:
     # opensearch.env.discoveryType determines the cluster discovery type. Set to "single-node" for a single-node cluster
     discoveryType: "single-node"
@@ -4470,7 +4683,7 @@ tests:
     # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
     # tests.image.tag test container image tag
-    tag: 8.0.1-1
+    tag: 8.2.2-1
     # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for the Test container

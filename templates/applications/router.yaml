@@ -139,6 +139,9 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        {{- with .Values.router.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: docspace
@@ -173,6 +176,9 @@ spec:
         {{- end }}
         - name: router-log
           mountPath: /var/log/nginx
+        {{- with .Values.router.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
       - name: init-scripts
         configMap:
@@ -193,6 +199,9 @@ spec:
       - name: confd-file
         configMap:
           name: {{ .Values.router.extraConf.confd.configMap }}
+      {{- end }}
+      {{- with .Values.router.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: router-log
         persistentVolumeClaim:

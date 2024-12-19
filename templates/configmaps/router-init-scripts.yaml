@@ -33,9 +33,9 @@ data:
     {{- else if .Values.connections.documentServerUrlExternal }}
     sed -i 's/$document_server/{{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
-    {{- fail "You need to specify a value in the connections.documentServerHost or connections.documentServerUrlExternal parameter!" }}
+    sed -i 's/$document_server/http\:\/\/documentserver/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else }}
-    sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- end }}
     sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed '/"oauth2"/,/}/{s|"origin": "[^"]*"|"origin": "'"$OAUTH_ORIGIN"'"|}' -i /var/www/public/scripts/config.json

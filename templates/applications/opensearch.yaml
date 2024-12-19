@@ -126,10 +126,19 @@ spec:
           value: {{ .Values.opensearch.env.indicesFieldDataCacheSize | quote }}
         - name: indices.memory.index_buffer_size
           value: {{ .Values.opensearch.env.indicesMemoryIndexBufferSize | quote }}
+        {{- with .Values.opensearch.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         volumeMounts:
         - name: opensearch-data
           mountPath: /usr/share/opensearch/data
+        {{- with .Values.opensearch.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
+      {{- with .Values.opensearch.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       - name: opensearch-data
         persistentVolumeClaim:
           claimName: opensearch-data

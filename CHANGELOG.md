@@ -1,5 +1,39 @@
 # Changelog
 
+## 3.0.1
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.0.1
+
+## 3.0.0
+
+### New Features
+
+* Added OAuth2.0 service
+* Added [Helm Docs](https://github.com/ONLYOFFICE/Kubernetes-Docs/tree/master) Subchart
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.0.0
+* Docker version of the Docs for DocSpace has been changed with Kubernetes Docs version
+
+## 2.4.1
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v2.6.3
+
+## 2.4.0
+
+### New Features
+
+* Added the ability to run rootless containers
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v2.6.2
+
 ## 2.3.0
 
 ### New Features

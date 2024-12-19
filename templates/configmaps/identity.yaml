@@ -1,0 +1,20 @@
+{{- if .Values.identity.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.identity.env.springProfilesActive | quote }}
+  HZ_NETWORK_JOIN_MULTICAST_ENABLED: {{ .Values.identity.env.multicast.enabled | quote }}
+  HZ_NETWORK_JOIN_KUBERNETES_ENABLED: {{ .Values.identity.env.kubernetes.enabled | quote }}
+  HZ_NETWORK_JOIN_KUBERNETES_SERVICENAME: "identity-cache"
+  HZ_NETWORK_JOIN_KUBERNETES_NAMESPACE: {{ include "docspace.namespace" . | quote }}
+{{- end }}
