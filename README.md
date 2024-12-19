@@ -873,21 +873,15 @@ For other configurable Autoscaling parameters, see the [Parameters](#4-parameter
 
 #### 3.2 Manual scaling
 
-The `docservice` and `converter` deployments consist of 2 pods each other by default.
+The *Application* deployment consists of 2 pods by default.
 
-To scale the `docservice` deployment, use the following command:
-
-```bash
-$ kubectl scale -n default deployment docservice --replicas=POD_COUNT
-```
-
-where `POD_COUNT` is a number of the `docservice` pods.
-
-Do the same to scale the `converter` deployment:
+To scale the specific *Application* deployment individually, use the following command:
 
 ```bash
-$ kubectl scale -n default deployment converter --replicas=POD_COUNT
+$ kubectl scale -n default deployment APPLICATION --replicas=POD_COUNT
 ```
+
+where `POD_COUNT` is a number of the `APPLICATION` pods.
 
 ## ONLYOFFICE DocSpace installation test (optional)
 
