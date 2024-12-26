@@ -654,11 +654,13 @@ files:
   startupProbe:
     # files.startupProbe.enabled Enable startupProbe for files container
     enabled: true
-    httpGet:
-      # files.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # files.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # files.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # files.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # files.startupProbe.periodSeconds Period seconds for startupProbe
@@ -669,11 +671,13 @@ files:
     enabled: true
     # files.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # files.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # files.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # files.readinessProbe.exec The startupProbe checking command
+    # The `balancer_probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # files.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
     # files.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -686,11 +690,13 @@ files:
     enabled: true
     # files.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # files.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # files.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # files.livenessProbe.exec The startupProbe checking command
+    # The `balancer_probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # files.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
     # files.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -834,11 +840,13 @@ peopleServer:
   startupProbe:
     # peopleServer.startupProbe.enabled Enable startupProbe for People Server container
     enabled: true
-    httpGet:
-      # peopleServer.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # peopleServer.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # peopleServer.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # peopleServer.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # peopleServer.startupProbe.periodSeconds Period seconds for startupProbe
@@ -849,11 +857,13 @@ peopleServer:
     enabled: true
     # peopleServer.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # peopleServer.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # peopleServer.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # peopleServer.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # peopleServer.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # peopleServer.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -866,11 +876,13 @@ peopleServer:
     enabled: true
     # peopleServer.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # peopleServer.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # peopleServer.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # peopleServer.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # peopleServer.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # peopleServer.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -1411,11 +1423,13 @@ apiSystem:
   startupProbe:
     # apiSystem.startupProbe.enabled Enable startupProbe for Api System container
     enabled: true
-    httpGet:
-      # apiSystem.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # apiSystem.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # apiSystem.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # apiSystem.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # apiSystem.startupProbe.periodSeconds Period seconds for startupProbe
@@ -1426,11 +1440,13 @@ apiSystem:
     enabled: true
     # apiSystem.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # apiSystem.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # apiSystem.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # apiSystem.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # apiSystem.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # apiSystem.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -1443,11 +1459,13 @@ apiSystem:
     enabled: true
     # apiSystem.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # apiSystem.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # apiSystem.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # apiSystem.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # apiSystem.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # apiSystem.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -1595,11 +1613,13 @@ api:
   startupProbe:
     # api.startupProbe.enabled Enable startupProbe for Api container
     enabled: true
-    httpGet:
-      # api.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # api.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # api.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # api.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # api.startupProbe.periodSeconds Period seconds for startupProbe
@@ -1610,11 +1630,13 @@ api:
     enabled: true
     # api.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # api.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # api.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # api.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # api.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
     # api.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -1627,11 +1649,13 @@ api:
     enabled: true
     # api.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # api.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # api.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # api.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # api.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
     # api.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -1764,11 +1788,13 @@ backup:
   startupProbe:
     # backup.startupProbe.enabled Enable startupProbe for Backup container
     enabled: true
-    httpGet:
-      # backup.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # backup.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # backup.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backup.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # backup.startupProbe.periodSeconds Period seconds for startupProbe
@@ -1779,11 +1805,13 @@ backup:
     enabled: true
     # backup.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # backup.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # backup.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # backup.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backup.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # backup.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -1796,11 +1824,13 @@ backup:
     enabled: true
     # backup.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # backup.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # backup.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # backup.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backup.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # backup.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -1933,11 +1963,13 @@ backupBackgroundTasks:
   startupProbe:
     # backupBackgroundTasks.startupProbe.enabled Enable startupProbe for Backup Background Tasks container
     enabled: true
-    httpGet:
-      # backupBackgroundTasks.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # backupBackgroundTasks.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # backupBackgroundTasks.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backupBackgroundTasks.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # backupBackgroundTasks.startupProbe.periodSeconds Period seconds for startupProbe
@@ -1948,11 +1980,13 @@ backupBackgroundTasks:
     enabled: true
     # backupBackgroundTasks.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # backupBackgroundTasks.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # backupBackgroundTasks.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # backupBackgroundTasks.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backupBackgroundTasks.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # backupBackgroundTasks.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -1965,11 +1999,13 @@ backupBackgroundTasks:
     enabled: true
     # backupBackgroundTasks.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # backupBackgroundTasks.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # backupBackgroundTasks.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # backupBackgroundTasks.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # backupBackgroundTasks.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # backupBackgroundTasks.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -2102,11 +2138,13 @@ clearEvents:
   startupProbe:
     # clearEvents.startupProbe.enabled Enable startupProbe for Clear Events container
     enabled: true
-    httpGet:
-      # clearEvents.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # clearEvents.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # clearEvents.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # clearEvents.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # clearEvents.startupProbe.periodSeconds Period seconds for startupProbe
@@ -2117,11 +2155,13 @@ clearEvents:
     enabled: true
     # clearEvents.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # clearEvents.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # clearEvents.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # clearEvents.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # clearEvents.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # clearEvents.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -2134,11 +2174,13 @@ clearEvents:
     enabled: true
     # clearEvents.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # clearEvents.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # clearEvents.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # clearEvents.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # clearEvents.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # clearEvents.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -2442,11 +2484,13 @@ filesServices:
   startupProbe:
     # filesServices.startupProbe.enabled Enable startupProbe for Files Services container
     enabled: true
-    httpGet:
-      # filesServices.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # filesServices.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # filesServices.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # filesServices.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # filesServices.startupProbe.periodSeconds Period seconds for startupProbe
@@ -2457,11 +2501,13 @@ filesServices:
     enabled: true
     # filesServices.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # filesServices.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # filesServices.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # filesServices.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # filesServices.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
     # filesServices.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -2474,11 +2520,13 @@ filesServices:
     enabled: true
     # filesServices.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # filesServices.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # filesServices.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # filesServices.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # filesServices.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
     # filesServices.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -3133,11 +3181,13 @@ notify:
   startupProbe:
     # notify.startupProbe.enabled Enable startupProbe for Notify container
     enabled: true
-    httpGet:
-      # notify.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # notify.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # notify.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # notify.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # notify.startupProbe.periodSeconds Period seconds for startupProbe
@@ -3148,11 +3198,13 @@ notify:
     enabled: true
     # notify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # notify.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # notify.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # notify.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # notify.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # notify.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -3165,11 +3217,13 @@ notify:
     enabled: true
     # notify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # notify.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # notify.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # notify.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # notify.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # notify.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -3644,11 +3698,13 @@ studio:
   startupProbe:
     # studio.startupProbe.enabled Enable startupProbe for Studio container
     enabled: true
-    httpGet:
-      # studio.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # studio.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # studio.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studio.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # studio.startupProbe.periodSeconds Period seconds for startupProbe
@@ -3659,11 +3715,13 @@ studio:
     enabled: true
     # studio.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # studio.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # studio.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # studio.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studio.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # studio.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -3676,11 +3734,13 @@ studio:
     enabled: true
     # studio.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # studio.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # studio.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # studio.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studio.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # studio.livenessProbe.successThreshold Success threshold for livenessProbe
@@ -3813,11 +3873,13 @@ studioNotify:
   startupProbe:
     # studioNotify.startupProbe.enabled Enable Startup Probe for studioNotify container
     enabled: true
-    httpGet:
-      # studioNotify.startupProbe.httpGet.path Checking the path for startupProbe
-      path: /health
-      # studioNotify.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5050
+    # studioNotify.startupProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studioNotify.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # studioNotify.startupProbe.periodSeconds Period seconds for startupProbe
@@ -3828,11 +3890,13 @@ studioNotify:
     enabled: true
     # studioNotify.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
-    httpGet:
-      # studioNotify.readinessProbe.httpGet.path Checking the path for readinessProbe
-      path: /health
-      # studioNotify.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5050
+    # studioNotify.readinessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studioNotify.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # studioNotify.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -3845,11 +3909,13 @@ studioNotify:
     enabled: true
     # studioNotify.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
-    httpGet:
-      # studioNotify.livenessProbe.httpGet.path Checking the path for livenessProbe
-      path: /health
-      # studioNotify.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5050
+    # studioNotify.livenessProbe.exec The startupProbe checking command
+    # The `probes.py` script will be executed, which is mapped during installation
+    # It checks that all the necessary processes are running and there is access to the k8s api
+    exec:
+      command:
+      - python3
+      - /scripts/probes.py
     # studioNotify.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # studioNotify.livenessProbe.successThreshold Success threshold for livenessProbe
