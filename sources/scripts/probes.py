@@ -27,15 +27,14 @@ def check_health():
             sys.exit(1)
 
         response = json.loads(result.stdout)
-        entries = response.get("entries", {})
 
         unhealthy_components = []
-        for component, details in entries.items():
+        for component, details in response.get("entries", {}).items():
             if details.get("status") != "Healthy":
                 unhealthy_components.append(component)
+
         if unhealthy_components:
-            message = f"Unhealthy components found: {', '.join(unhealthy_components)}"
-            logger.error(message)
+            logger.error(json.dumps(response, indent=4))
             sys.exit(1)
 
     except Exception as e:
