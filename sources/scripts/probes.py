@@ -1,6 +1,17 @@
 import subprocess
 import json
+import logging
 import sys
+
+def init_logger(name):
+    logger = logging.getLogger(name)
+    formatter = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logger.setLevel(logging.DEBUG)
+    stderr = logging.StreamHandler(sys.stderr)
+    stderr.setFormatter(logging.Formatter(formatter))
+    stderr.setLevel(logging.DEBUG)
+    logger.addHandler(stderr)
+    return logger
 
 def check_health():
     try:
@@ -12,20 +23,25 @@ def check_health():
         )
 
         if result.returncode != 0:
-            print(f"Error executing curl: {result.stderr.strip()}", file=sys.stderr)
+            logger.error(f"Error executing healthcheck: {result.stderr.strip()}")
             sys.exit(1)
 
         response = json.loads(result.stdout)
         entries = response.get("entries", {})
 
+        unhealthy_components = []
         for component, details in entries.items():
             if details.get("status") != "Healthy":
-                print(f"Unhealthy component detected: {component}", file=sys.stderr)
-                sys.exit(1)
+                unhealthy_components.append(component)
+        if unhealthy_components:
+            message = f"Unhealthy components found: {', '.join(unhealthy_components)}"
+            logger.error(message)
+            sys.exit(1)
 
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
+    logger = init_logger('health_checker')
     check_health()
