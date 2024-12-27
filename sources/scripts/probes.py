@@ -43,6 +43,5 @@ def check_health():
         logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
-    logger = init_logger('health_checker')
-    check_health()
+logger = init_logger('health_checker')
+check_health()
