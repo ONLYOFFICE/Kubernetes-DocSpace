@@ -198,13 +198,13 @@ spec:
         {{- if .Values.extraConf.secretName }}
         {{- $context := . }}
         {{- range .Values.extraConf.fileName }}
-        {{- with .Values.backup.extraVolumeMounts }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
         - name: custom-file
           mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
           subPath: {{ . }}
         {{- end }}
+        {{- end }}
+        {{- with .Values.backup.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
           mountPath: /app/{{ .Values.product.name }}/data
