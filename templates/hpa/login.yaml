@@ -1,0 +1,46 @@
+{{- if .Values.login.autoscaling.enabled }}
+apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: login-hpa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+  {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.login.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.login.autoscaling.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: login
+  minReplicas: {{ .Values.login.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.login.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.login.autoscaling.targetCPU.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.login.autoscaling.targetCPU.utilizationPercentage }}
+  {{- end }}
+  {{- if .Values.login.autoscaling.targetMemory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.login.autoscaling.targetMemory.utilizationPercentage }}
+  {{- end }}
+  {{- with .Values.login.autoscaling.customMetricsType }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.login.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

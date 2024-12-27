@@ -555,6 +555,7 @@ files:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # files.replicaCount Number of Files replicas to deploy
+  # If the `files.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -624,6 +625,65 @@ files:
   # files.tolerations Tolerations for Files pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Files deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `files.autoscaling.enabled=true`
+  autoscaling:
+    ## files.autoscaling.enabled Enable Files deployment autoscaling
+    enabled: false
+    ## files.autoscaling.annotations Defines annotations that will be additionally added to Files deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## files.autoscaling.minReplicas Files deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## files.autoscaling.maxReplicas Files deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## files.autoscaling.targetCPU.enabled Enable autoscaling of Files deployment by CPU usage percentage
+      enabled: true
+      ## files.autoscaling.targetCPU.utilizationPercentage Files deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## files.autoscaling.targetMemory.enabled Enable autoscaling of Files deployment by memory usage percentage
+      enabled: false
+      ## files.autoscaling.targetMemory.utilizationPercentage Files deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## files.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Files deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    ## Example:
+    ## customMetricsType:
+    ##   - type: Pods
+    ##     pods:
+    ##       metric:
+    ##         name: packets-per-second
+    ##       target:
+    ##         type: AverageValue
+    ##         averageValue: 1k
+    customMetricsType: []
+    ## files.autoscaling.behavior Configuring Files deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    ## Example:
+    ## behavior:
+    ##   scaleDown:
+    ##     stabilizationWindowSeconds: 300
+    ##     policies:
+    ##     - type: Percent
+    ##       value: 10
+    ##       periodSeconds: 60
+    ##   scaleUp:
+    ##     stabilizationWindowSeconds: 0
+    ##     policies:
+    ##     - type: Percent
+    ##       value: 10
+    ##       periodSeconds: 15
+    ##     - type: Pods
+    ##       value: 2
+    ##       periodSeconds: 15
+    ##     selectPolicy: Max
+    behavior: {}
   # Files container image parameters
   image:
     # files.image.repository files container image repository
@@ -750,6 +810,7 @@ peopleServer:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
+  # If the `peopleServer.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -809,6 +870,38 @@ peopleServer:
   # peopleServer.tolerations Tolerations for People Server pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the People Server deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `peopleServer.autoscaling.enabled=true`
+  autoscaling:
+    ## peopleServer.autoscaling.enabled Enable People Server deployment autoscaling
+    enabled: false
+    ## peopleServer.autoscaling.annotations Defines annotations that will be additionally added to People Server deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## peopleServer.autoscaling.minReplicas People Server deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## peopleServer.autoscaling.maxReplicas People Server deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## peopleServer.autoscaling.targetCPU.enabled Enable autoscaling of People Server deployment by CPU usage percentage
+      enabled: true
+      ## peopleServer.autoscaling.targetCPU.utilizationPercentage People Server deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## peopleServer.autoscaling.targetMemory.enabled Enable autoscaling of People Server deployment by memory usage percentage
+      enabled: false
+      ## peopleServer.autoscaling.targetMemory.utilizationPercentage People Server deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## peopleServer.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the People Server deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## peopleServer.autoscaling.behavior Configuring People Server deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # People Server container image parameters
   image:
     # peopleServer.image.repository People Server container image repository
@@ -916,6 +1009,7 @@ router:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # router.replicaCount Number of Router replicas to deploy
+  # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -975,6 +1069,39 @@ router:
   # router.tolerations Tolerations for Router pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Router deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `router.autoscaling.enabled=true`
+  autoscaling:
+    ## router.autoscaling.enabled Enable Router deployment autoscaling
+    enabled: false
+    ## router.autoscaling.annotations Defines annotations that will be additionally added to Router deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## router.autoscaling.minReplicas Router deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## router.autoscaling.maxReplicas Router deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## router.autoscaling.targetCPU.enabled Enable autoscaling of Router deployment by CPU usage percentage
+      enabled: true
+      ## router.autoscaling.targetCPU.utilizationPercentage Router deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## router.autoscaling.targetMemory.enabled Enable autoscaling of Router deployment by memory usage percentage
+      enabled: false
+      ## router.autoscaling.targetMemory.utilizationPercentage Router deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## router.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Router deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## router.autoscaling.behavior Configuring Router deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # People Server container image parameters
   # Router initContainers parameters
   # router.initContainers Containers that run before Router container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
@@ -1156,6 +1283,7 @@ healthchecks:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
+  # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1215,6 +1343,38 @@ healthchecks:
   # healthchecks.tolerations Tolerations for Healthchecks pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Healthchecks deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `healthchecks.autoscaling.enabled=true`
+  autoscaling:
+    ## healthchecks.autoscaling.enabled Enable Healthchecks deployment autoscaling
+    enabled: false
+    ## healthchecks.autoscaling.annotations Defines annotations that will be additionally added to Healthchecks deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## healthchecks.autoscaling.minReplicas Healthchecks deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## healthchecks.autoscaling.maxReplicas Healthchecks deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## healthchecks.autoscaling.targetCPU.enabled Enable autoscaling of Healthchecks deployment by CPU usage percentage
+      enabled: true
+      ## healthchecks.autoscaling.targetCPU.utilizationPercentage Healthchecks deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## healthchecks.autoscaling.targetMemory.enabled Enable autoscaling of Healthchecks deployment by memory usage percentage
+      enabled: false
+      ## healthchecks.autoscaling.targetMemory.utilizationPercentage Healthchecks deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## healthchecks.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Healthchecks deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## healthchecks.autoscaling.behavior Configuring Healthchecks deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Healthchecks container image parameters
   image:
     # healthchecks.image.repository Healthchecks container image repository
@@ -1314,6 +1474,7 @@ apiSystem:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
+  # If the `apiSystem.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1386,6 +1547,38 @@ apiSystem:
   # apiSystem.tolerations Tolerations for Api System pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Api deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `apiSystem.autoscaling.enabled=true`
+  autoscaling:
+    ## apiSystem.autoscaling.enabled Enable Api deployment autoscaling
+    enabled: false
+    ## apiSystem.autoscaling.annotations Defines annotations that will be additionally added to Api deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## apiSystem.autoscaling.minReplicas Api deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## apiSystem.autoscaling.maxReplicas Api deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## apiSystem.autoscaling.targetCPU.enabled Enable autoscaling of Api deployment by CPU usage percentage
+      enabled: true
+      ## apiSystem.autoscaling.targetCPU.utilizationPercentage Api deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## apiSystem.autoscaling.targetMemory.enabled Enable autoscaling of Api deployment by memory usage percentage
+      enabled: false
+      ## apiSystem.autoscaling.targetMemory.utilizationPercentage Api deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## apiSystem.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Api deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## apiSystem.autoscaling.behavior Configuring Api deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Api System container image parameters
   image:
     # apiSystem.image.repository Api System container image repository
@@ -1493,6 +1686,7 @@ api:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # api.replicaCount Number of Api replicas to deploy
+  # If the `api.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1565,6 +1759,38 @@ api:
   # api.tolerations Tolerations for Api pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Api deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `api.autoscaling.enabled=true`
+  autoscaling:
+    ## api.autoscaling.enabled Enable Api System deployment autoscaling
+    enabled: false
+    ## api.autoscaling.annotations Defines annotations that will be additionally added to Api System deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## api.autoscaling.minReplicas Api System deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## api.autoscaling.maxReplicas Api System deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## api.autoscaling.targetCPU.enabled Enable autoscaling of Api System deployment by CPU usage percentage
+      enabled: true
+      ## api.autoscaling.targetCPU.utilizationPercentage Api System deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## api.autoscaling.targetMemory.enabled Enable autoscaling of Api System deployment by memory usage percentage
+      enabled: false
+      ## api.autoscaling.targetMemory.utilizationPercentage Api System deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## api.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Api System deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## api.autoscaling.behavior Configuring Api System deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Api container image parameters
   image:
     # api.image.repository Api container image repository
@@ -1677,6 +1903,7 @@ backup:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # backup.replicaCount Number of Backup replicas to deploy
+  # If the `backup.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1739,6 +1966,38 @@ backup:
   # backup.tolerations Tolerations for Backup pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Backup deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `backup.autoscaling.enabled=true`
+  autoscaling:
+    ## backup.autoscaling.enabled Enable Backup deployment autoscaling
+    enabled: false
+    ## backup.autoscaling.annotations Defines annotations that will be additionally added to Backup deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## backup.autoscaling.minReplicas Backup deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## backup.autoscaling.maxReplicas Backup deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## backup.autoscaling.targetCPU.enabled Enable autoscaling of Backup deployment by CPU usage percentage
+      enabled: true
+      ## backup.autoscaling.targetCPU.utilizationPercentage Backup deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## backup.autoscaling.targetMemory.enabled Enable autoscaling of Backup deployment by memory usage percentage
+      enabled: false
+      ## backup.autoscaling.targetMemory.utilizationPercentage Backup deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## backup.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## backup.autoscaling.behavior Configuring Backup deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Backup container image parameters
   image:
     # backup.image.repository Backup container image repository
@@ -1846,6 +2105,7 @@ backupBackgroundTasks:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
+  # If the `backupBackgroundTasks.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -1908,6 +2168,38 @@ backupBackgroundTasks:
   # backupBackgroundTasks.tolerations Tolerations for Backup Background Tasks pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Backup Background Tasks deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `backupBackgroundTasks.autoscaling.enabled=true`
+  autoscaling:
+    ## backupBackgroundTasks.autoscaling.enabled Enable Backup Background Tasks deployment autoscaling
+    enabled: false
+    ## backupBackgroundTasks.autoscaling.annotations Defines annotations that will be additionally added to Backup Background Tasks deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## backupBackgroundTasks.autoscaling.minReplicas Backup Background Tasks deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## backupBackgroundTasks.autoscaling.maxReplicas Backup Background Tasks deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## backupBackgroundTasks.autoscaling.targetCPU.enabled Enable autoscaling of Backup Background Tasks deployment by CPU usage percentage
+      enabled: true
+      ## backupBackgroundTasks.autoscaling.targetCPU.utilizationPercentage Backup Background Tasks deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## backupBackgroundTasks.autoscaling.targetMemory.enabled Enable autoscaling of Backup Background Tasks deployment by memory usage percentage
+      enabled: false
+      ## backupBackgroundTasks.autoscaling.targetMemory.utilizationPercentage Backup Background Tasks deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## backupBackgroundTasks.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup Background Tasks deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## backupBackgroundTasks.autoscaling.behavior Configuring Backup Background Tasks deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
@@ -2015,6 +2307,7 @@ clearEvents:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
+  # If the `clearEvents.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2077,6 +2370,38 @@ clearEvents:
   # clearEvents.tolerations Tolerations for Clear Events pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Clear Events deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `clearEvents.autoscaling.enabled=true`
+  autoscaling:
+    ## clearEvents.autoscaling.enabled Enable Clear Events deployment autoscaling
+    enabled: false
+    ## clearEvents.autoscaling.annotations Defines annotations that will be additionally added to Clear Events deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## clearEvents.autoscaling.minReplicas Clear Events deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## clearEvents.autoscaling.maxReplicas Clear Events deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## clearEvents.autoscaling.targetCPU.enabled Enable autoscaling of Clear Events deployment by CPU usage percentage
+      enabled: true
+      ## clearEvents.autoscaling.targetCPU.utilizationPercentage Clear Events deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## clearEvents.autoscaling.targetMemory.enabled Enable autoscaling of Clear Events deployment by memory usage percentage
+      enabled: false
+      ## clearEvents.autoscaling.targetMemory.utilizationPercentage Clear Events deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## clearEvents.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Clear Events deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## clearEvents.autoscaling.behavior Configuring Clear Events deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Clear Events container image parameters
   image:
     # clearEvents.image.repository Clear Events container image repository
@@ -2184,6 +2509,7 @@ doceditor:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
+  # If the `doceditor.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2246,6 +2572,38 @@ doceditor:
   # doceditor.tolerations Tolerations for Doceditor pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Doceditor deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `doceditor.autoscaling.enabled=true`
+  autoscaling:
+    ## doceditor.autoscaling.enabled Enable Doceditor deployment autoscaling
+    enabled: false
+    ## doceditor.autoscaling.annotations Defines annotations that will be additionally added to Doceditor deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## doceditor.autoscaling.minReplicas Doceditor deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## doceditor.autoscaling.maxReplicas Doceditor deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## doceditor.autoscaling.targetCPU.enabled Enable autoscaling of Doceditor deployment by CPU usage percentage
+      enabled: true
+      ## doceditor.autoscaling.targetCPU.utilizationPercentage Doceditor deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## doceditor.autoscaling.targetMemory.enabled Enable autoscaling of Doceditor deployment by memory usage percentage
+      enabled: false
+      ## doceditor.autoscaling.targetMemory.utilizationPercentage Doceditor deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## doceditor.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Doceditor deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## doceditor.autoscaling.behavior Configuring Doceditor deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Doceditor container image parameters
   image:
     # doceditor.image.repository Doceditor container image repository
@@ -2355,6 +2713,7 @@ filesServices:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
+  # If the `filesServices.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2417,6 +2776,38 @@ filesServices:
   # filesServices.tolerations Tolerations for Files Services pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Files Services deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `filesServices.autoscaling.enabled=true`
+  autoscaling:
+    ## filesServices.autoscaling.enabled Enable Files Services deployment autoscaling
+    enabled: false
+    ## filesServices.autoscaling.annotations Defines annotations that will be additionally added to Files Services deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## filesServices.autoscaling.minReplicas Files Services deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## filesServices.autoscaling.maxReplicas Files Services deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## filesServices.autoscaling.targetCPU.enabled Enable autoscaling of Files Services deployment by CPU usage percentage
+      enabled: true
+      ## filesServices.autoscaling.targetCPU.utilizationPercentage Files Services deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## filesServices.autoscaling.targetMemory.enabled Enable autoscaling of Files Services deployment by memory usage percentage
+      enabled: false
+      ## filesServices.autoscaling.targetMemory.utilizationPercentage Files Services deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## filesServices.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Files Services deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## filesServices.autoscaling.behavior Configuring Files Services deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
@@ -2524,6 +2915,7 @@ login:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # login.replicaCount Number of Login replicas to deploy
+  # If the `login.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -2586,6 +2978,38 @@ login:
   # login.tolerations Tolerations for Login pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Login deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `login.autoscaling.enabled=true`
+  autoscaling:
+    ## login.autoscaling.enabled Enable Login deployment autoscaling
+    enabled: false
+    ## login.autoscaling.annotations Defines annotations that will be additionally added to Login deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## login.autoscaling.minReplicas Login deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## login.autoscaling.maxReplicas Login deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## login.autoscaling.targetCPU.enabled Enable autoscaling of Login deployment by CPU usage percentage
+      enabled: true
+      ## login.autoscaling.targetCPU.utilizationPercentage Login deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## login.autoscaling.targetMemory.enabled Enable autoscaling of Login deployment by memory usage percentage
+      enabled: false
+      ## login.autoscaling.targetMemory.utilizationPercentage Login deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## login.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Login deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## login.autoscaling.behavior Configuring Login deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Login container image parameters
   image:
     # login.image.repository Login container image repository
@@ -2711,6 +3135,7 @@ identity:
     # You can also use `tpl` as the value for the key
     annotations: {}
     # identity.authorization.replicaCount Number of Identity replicas to deploy
+    # If the `identity.authorization.autoscaling.enabled` parameter is enabled, it is ignored
     replicaCount: 2
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
@@ -2773,6 +3198,38 @@ identity:
     # identity.authorization.tolerations Tolerations for Identity pods assignment
     # If set to, it takes priority over the `tolerations`
     tolerations: []
+    ## Horizontal Pod Autoscaling parameters
+    ## Horizontal Pod Autoscaling is used for autoscaling of the Identity deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+    ## The parameters below for autoscaling are used only when `identity.authorization.autoscaling.enabled=true`
+    autoscaling:
+      ## identity.authorization.autoscaling.enabled Enable Identity deployment autoscaling
+      enabled: false
+      ## identity.authorization.autoscaling.annotations Defines annotations that will be additionally added to Identity deployment HPA
+      ## If set to, it takes priority over the `commonAnnotations`
+      ## You can also use `tpl` as the value for the key
+      annotations: {}
+      ## identity.authorization.autoscaling.minReplicas Identity deployment autoscaling minimum number of replicas
+      minReplicas: 2
+      ## identity.authorization.autoscaling.maxReplicas Identity deployment autoscaling maximum number of replicas
+      maxReplicas: 16
+      targetCPU:
+        ## identity.authorization.autoscaling.targetCPU.enabled Enable autoscaling of Identity deployment by CPU usage percentage
+        enabled: true
+        ## identity.authorization.autoscaling.targetCPU.utilizationPercentage Identity deployment autoscaling target CPU percentage
+        utilizationPercentage: 70
+      targetMemory:
+        ## identity.authorization.autoscaling.targetMemory.enabled Enable autoscaling of Identity deployment by memory usage percentage
+        enabled: false
+        ## identity.authorization.autoscaling.targetMemory.utilizationPercentage Identity deployment autoscaling target memory percentage
+        utilizationPercentage: 70
+      ## identity.authorization.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Identity deployment
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+      customMetricsType: []
+      ## identity.authorization.autoscaling.behavior Configuring Identity deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+      ## If not set the default values are used:
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+      behavior: {}
     # Identity container image parameters
     image:
       # identity.authorization.image.repository Identity container image repository
@@ -2877,6 +3334,7 @@ identity:
     # You can also use `tpl` as the value for the key
     annotations: {}
     # identity.api.replicaCount Number of Identity Api replicas to deploy
+    # If the `identity.api.autoscaling.enabled` parameter is enabled, it is ignored
     replicaCount: 2
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
@@ -2939,6 +3397,38 @@ identity:
     # identity.api.tolerations Tolerations for Identity Api pods assignment
     # If set to, it takes priority over the `tolerations`
     tolerations: []
+    ## Horizontal Pod Autoscaling parameters
+    ## Horizontal Pod Autoscaling is used for autoscaling of the Identity Api deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+    ## The parameters below for autoscaling are used only when `identity.api.autoscaling.enabled=true`
+    autoscaling:
+      ## identity.api.autoscaling.enabled Enable Identity Api deployment autoscaling
+      enabled: false
+      ## identity.api.autoscaling.annotations Defines annotations that will be additionally added to Identity Api deployment HPA
+      ## If set to, it takes priority over the `commonAnnotations`
+      ## You can also use `tpl` as the value for the key
+      annotations: {}
+      ## identity.api.autoscaling.minReplicas Identity Api deployment autoscaling minimum number of replicas
+      minReplicas: 2
+      ## identity.api.autoscaling.maxReplicas Identity Api deployment autoscaling maximum number of replicas
+      maxReplicas: 16
+      targetCPU:
+        ## identity.api.autoscaling.targetCPU.enabled Enable autoscaling of Identity Api deployment by CPU usage percentage
+        enabled: true
+        ## identity.api.autoscaling.targetCPU.utilizationPercentage Identity Api deployment autoscaling target CPU percentage
+        utilizationPercentage: 70
+      targetMemory:
+        ## identity.api.autoscaling.targetMemory.enabled Enable autoscaling of Identity Api deployment by memory usage percentage
+        enabled: false
+        ## identity.api.autoscaling.targetMemory.utilizationPercentage Identity Api deployment autoscaling target memory percentage
+        utilizationPercentage: 70
+      ## identity.api.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Identity Api deployment
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+      customMetricsType: []
+      ## identity.api.autoscaling.behavior Configuring Identity Api deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+      ## If not set the default values are used:
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+      behavior: {}
     # Identity Api container image parameters
     image:
       # identity.api.image.repository Identity Api container image repository
@@ -3046,6 +3536,7 @@ notify:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # notify.replicaCount Number of Notify replicas to deploy
+  # If the `notify.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3108,6 +3599,38 @@ notify:
   # notify.tolerations Tolerations for Notify pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Notify deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `notify.autoscaling.enabled=true`
+  autoscaling:
+    ## notify.autoscaling.enabled Enable Notify deployment autoscaling
+    enabled: false
+    ## notify.autoscaling.annotations Defines annotations that will be additionally added to Notify deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## notify.autoscaling.minReplicas Notify deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## notify.autoscaling.maxReplicas Notify deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## notify.autoscaling.targetCPU.enabled Enable autoscaling of Notify deployment by CPU usage percentage
+      enabled: true
+      ## notify.autoscaling.targetCPU.utilizationPercentage Notify deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## notify.autoscaling.targetMemory.enabled Enable autoscaling of Notify deployment by memory usage percentage
+      enabled: false
+      ## notify.autoscaling.targetMemory.utilizationPercentage Notify deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## notify.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Notify deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## notify.autoscaling.behavior Configuring Notify deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Notify container image parameters
   image:
     # notify.image.repository Notify container image repository
@@ -3215,6 +3738,7 @@ socket:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # socket.replicaCount Number of Socket replicas to deploy
+  # If the `socket.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3277,6 +3801,38 @@ socket:
   # socket.tolerations Tolerations for Socket pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Socket deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `socket.autoscaling.enabled=true`
+  autoscaling:
+    ## socket.autoscaling.enabled Enable Socket deployment autoscaling
+    enabled: false
+    ## socket.autoscaling.annotations Defines annotations that will be additionally added to Socket deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## socket.autoscaling.minReplicas Socket deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## socket.autoscaling.maxReplicas Socket deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## socket.autoscaling.targetCPU.enabled Enable autoscaling of Socket deployment by CPU usage percentage
+      enabled: true
+      ## socket.autoscaling.targetCPU.utilizationPercentage Socket deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## socket.autoscaling.targetMemory.enabled Enable autoscaling of Socket deployment by memory usage percentage
+      enabled: false
+      ## socket.autoscaling.targetMemory.utilizationPercentage Socket deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## socket.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Socket deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## socket.autoscaling.behavior Configuring Socket deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Socket container image parameters
   image:
     # socket.image.repository Socket container image repository
@@ -3386,6 +3942,7 @@ ssoauth:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
+  # If the `ssoauth.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3448,6 +4005,38 @@ ssoauth:
   # ssoauth.tolerations Tolerations for ssoauth pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the ssoauth deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `ssoauth.autoscaling.enabled=true`
+  autoscaling:
+    ## ssoauth.autoscaling.enabled Enable ssoauth deployment autoscaling
+    enabled: false
+    ## ssoauth.autoscaling.annotations Defines annotations that will be additionally added to ssoauth deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## ssoauth.autoscaling.minReplicas ssoauth deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## ssoauth.autoscaling.maxReplicas ssoauth deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## ssoauth.autoscaling.targetCPU.enabled Enable autoscaling of ssoauth deployment by CPU usage percentage
+      enabled: true
+      ## ssoauth.autoscaling.targetCPU.utilizationPercentage ssoauth deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## ssoauth.autoscaling.targetMemory.enabled Enable autoscaling of ssoauth deployment by memory usage percentage
+      enabled: false
+      ## ssoauth.autoscaling.targetMemory.utilizationPercentage ssoauth deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## ssoauth.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the ssoauth deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## ssoauth.autoscaling.behavior Configuring ssoauth deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # ssoauth container image parameters
   image:
     # ssoauth.image.repository ssoauth container image repository
@@ -3557,6 +4146,7 @@ studio:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # studio.replicaCount Number of Studio replicas to deploy
+  # If the `studio.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3619,6 +4209,38 @@ studio:
   # studio.tolerations Tolerations for Studio pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Studio deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `studio.autoscaling.enabled=true`
+  autoscaling:
+    ## studio.autoscaling.enabled Enable Studio deployment autoscaling
+    enabled: false
+    ## studio.autoscaling.annotations Defines annotations that will be additionally added to Studio deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## studio.autoscaling.minReplicas Studio deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## studio.autoscaling.maxReplicas Studio deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## studio.autoscaling.targetCPU.enabled Enable autoscaling of Studio deployment by CPU usage percentage
+      enabled: true
+      ## studio.autoscaling.targetCPU.utilizationPercentage Studio deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## studio.autoscaling.targetMemory.enabled Enable autoscaling of Studio deployment by memory usage percentage
+      enabled: false
+      ## studio.autoscaling.targetMemory.utilizationPercentage Studio deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## studio.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Studio deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## studio.autoscaling.behavior Configuring Studio deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Studio container image parameters
   image:
     # studio.image.repository Studio container image repository
@@ -3726,6 +4348,7 @@ studioNotify:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
+  # If the `studioNotify.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3788,6 +4411,38 @@ studioNotify:
   # studioNotify.tolerations Tolerations for Studio Notify pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Studio Notify deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `studioNotify.autoscaling.enabled=true`
+  autoscaling:
+    ## studioNotify.autoscaling.enabled Enable Studio Notify deployment autoscaling
+    enabled: false
+    ## studioNotify.autoscaling.annotations Defines annotations that will be additionally added to Studio Notify deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## studioNotify.autoscaling.minReplicas Studio Notify deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## studioNotify.autoscaling.maxReplicas Studio Notify deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## studioNotify.autoscaling.targetCPU.enabled Enable autoscaling of Studio Notify deployment by CPU usage percentage
+      enabled: true
+      ## studioNotify.autoscaling.targetCPU.utilizationPercentage Studio Notify deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## studioNotify.autoscaling.targetMemory.enabled Enable autoscaling of Studio Notify deployment by memory usage percentage
+      enabled: false
+      ## studioNotify.autoscaling.targetMemory.utilizationPercentage Studio Notify deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## studioNotify.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Studio Notify deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## studioNotify.autoscaling.behavior Configuring Studio Notify deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Studio Notify container image parameters
   image:
     # studioNotify.image.repository Studio Notify container image repository
@@ -3895,6 +4550,7 @@ proxyFrontend:
   # You can also use `tpl` as the value for the key
   annotations: {}
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
+  # If the `proxyFrontend.autoscaling.enabled` parameter is enabled, it is ignored
   replicaCount: 2
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
@@ -3957,6 +4613,38 @@ proxyFrontend:
   # proxyFrontend.tolerations Tolerations for Proxy Frontend pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Proxy Frontend deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `proxyFrontend.autoscaling.enabled=true`
+  autoscaling:
+    ## proxyFrontend.autoscaling.enabled Enable Proxy Frontend deployment autoscaling
+    enabled: false
+    ## proxyFrontend.autoscaling.annotations Defines annotations that will be additionally added to Proxy Frontend deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## proxyFrontend.autoscaling.minReplicas Proxy Frontend deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## proxyFrontend.autoscaling.maxReplicas Proxy Frontend deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## proxyFrontend.autoscaling.targetCPU.enabled Enable autoscaling of Proxy Frontend deployment by CPU usage percentage
+      enabled: true
+      ## proxyFrontend.autoscaling.targetCPU.utilizationPercentage Proxy Frontend deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## proxyFrontend.autoscaling.targetMemory.enabled Enable autoscaling of Proxy Frontend deployment by memory usage percentage
+      enabled: false
+      ## proxyFrontend.autoscaling.targetMemory.utilizationPercentage Proxy Frontend deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## proxyFrontend.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Proxy Frontend deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## proxyFrontend.autoscaling.behavior Configuring Proxy Frontend deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
   # Proxy Frontend initContainers parameters
   # proxyFrontend.initContainers Containers that run before Proxy Frontend container in a Pod
   # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/

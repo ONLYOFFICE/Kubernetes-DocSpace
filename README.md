@@ -41,6 +41,9 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
+  * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
+    + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
+    + [3.2 Manual scaling](#32-manual-scaling)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -416,7 +419,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
-| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`                                 | `2`                                       |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
@@ -428,6 +431,16 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Application" Pods scheduling by nodes | `{}` |
 | `Application.nodeSelector`                                | Node labels for Api System pods assignment. If set to, it takes priority over the `nodeSelector`                | `{}`                                      |
 | `Application.tolerations`                                 | Tolerations for Api System pods assignment. If set to, it takes priority over the `tolerations`                 | `[]`                                      |
+| `Application.autoscaling.enabled`                         | Enable "Application" deployment autoscaling                                                                                                                                       | `false`                                                                                   |
+| `Application.autoscaling.annotations`                     | Defines annotations that will be additionally added to "Application" deployment HPA. If set to, it takes priority over the `commonAnnotations`                                    | `{}`                                                                                      |
+| `Application.autoscaling.minReplicas`                     | "Application" deployment autoscaling minimum number of replicas                                                                                                                   | `2`                                                                                       |
+| `Application.autoscaling.maxReplicas`                     | "Application" deployment autoscaling maximum number of replicas                                                                                                                   | `4`                                                                                       |
+| `Application.autoscaling.targetCPU.enabled`               | Enable autoscaling of "Application" deployment by CPU usage percentage                                                                                                            | `true`                                                                                    |
+| `Application.autoscaling.targetCPU.utilizationPercentage` | "Application" deployment autoscaling target CPU percentage                                                                                                                        | `70`                                                                                      |
+| `Application.autoscaling.targetMemory.enabled`            | Enable autoscaling of "Application" deployment by memory usage percentage                                                                                                         | `false`                                                                                   |
+| `Application.autoscaling.targetMemory.utilizationPercentage` | "Application" deployment autoscaling target memory percentage                                                                                                                     | `70`                                                                                      |
+| `Application.autoscaling.customMetricsType`               | Custom, additional or external autoscaling metrics for the "Application" deployment                                                                                               | `[]`                                                                                      |
+| `Application.autoscaling.behavior`                        | Configuring "Application" deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields                                                                           | `{}`                                                                                      |
 | `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/docspace-Application`         |
 | `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
@@ -839,6 +852,40 @@ After successfully executing the Pod `elasticsearch-clear-indexes` that created 
   ``` bash
   kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
   ```
+### 3. Scale ONLYOFFICE DocSpace (optional)
+
+*This step is optional. You can skip step [3](#3-scale-onlyoffice-docspace-optional) entirely if you want to use default deployment settings.*
+
+*The term Application will be used to refer to application deployments. You can find more details and the full list of Applications [here](#onlyoffice-docspace-application-parameters), with the exception of `opensearch`.*
+
+#### 3.1 Horizontal Pod Autoscaling
+
+You can enable Autoscaling so that the number of replicas of *Application* deployments is calculated automatically based on the values and type of metrics.
+
+For resource metrics, API metrics.k8s.io must be registered, which is generally provided by [metrics-server](https://github.com/kubernetes-sigs/metrics-server). It can be launched as a cluster add-on.
+
+To use the target utilization value (`target.type==Utilization`), it is necessary that the values for `resources.requests` are specified in the deployment.
+
+For more information about Horizontal Pod Autoscaling, see [here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
+
+To enable HPA for the *Application* deployment, specify the `APPLICATION.autoscaling.enabled=true` parameter. 
+In this case, the `APPLICATION.replicaCount` parameter is ignored and the number of replicas is controlled by HPA.
+
+With the `autoscaling.enabled` parameter enabled, by default Autoscaling will adjust the number of replicas based on the average percentage of CPU Utilization.
+For other configurable Autoscaling parameters, see the [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters) table.
+
+#### 3.2 Manual scaling
+
+The *Application* deployment consists of 2 pods by default.
+
+To scale the specific *Application* deployment individually, use the following command:
+
+```bash
+$ kubectl scale -n default deployment APPLICATION --replicas=POD_COUNT
+```
+
+where `POD_COUNT` is a number of the `APPLICATION` pods.
+
 ## ONLYOFFICE DocSpace installation test (optional)
 
 You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:

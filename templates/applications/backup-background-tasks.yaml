@@ -14,7 +14,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.backupBackgroundTasks.autoscaling.enabled }}
   replicas: {{ .Values.backupBackgroundTasks.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: backup-background-tasks

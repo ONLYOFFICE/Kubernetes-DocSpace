@@ -1,0 +1,46 @@
+{{- if .Values.doceditor.autoscaling.enabled }}
+apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: doceditor-hpa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+  {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.doceditor.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.doceditor.autoscaling.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: doceditor
+  minReplicas: {{ .Values.doceditor.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.doceditor.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.doceditor.autoscaling.targetCPU.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.doceditor.autoscaling.targetCPU.utilizationPercentage }}
+  {{- end }}
+  {{- if .Values.doceditor.autoscaling.targetMemory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.doceditor.autoscaling.targetMemory.utilizationPercentage }}
+  {{- end }}
+  {{- with .Values.doceditor.autoscaling.customMetricsType }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.doceditor.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
