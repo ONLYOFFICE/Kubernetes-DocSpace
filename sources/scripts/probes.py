@@ -31,10 +31,12 @@ def check_health():
         unhealthy_components = []
         for component, details in response.get("entries", {}).items():
             if details.get("status") != "Healthy":
-                unhealthy_components.append(component)
+                colored_component = f"\033[31m{component}\033[0m"
+                unhealthy_components.append(colored_component)
 
         if unhealthy_components:
-            logger.error(json.dumps(response, indent=4))
+            logger.error("Unhealthy components: " + ", ".join(unhealthy_components))
+            logger.error(json.dumps(response))
             sys.exit(1)
 
     except Exception as e:
