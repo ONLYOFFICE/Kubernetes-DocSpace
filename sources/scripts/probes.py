@@ -35,8 +35,11 @@ def check_health():
                 unhealthy_components.append(colored_component)
 
         if unhealthy_components:
-            logger.error("Unhealthy components: " + ", ".join(unhealthy_components))
-            logger.error(json.dumps(response))
+            log_message = (
+                f"Unhealthy components: {', '.join(unhealthy_components)}\n"
+                f"Response: {json.dumps(response)}"
+            )
+            logger.error(log_message)
             sys.exit(1)
 
     except Exception as e:
