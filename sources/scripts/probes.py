@@ -31,8 +31,7 @@ def check_health():
         unhealthy_components = []
         for component, details in response.get("entries", {}).items():
             if details.get("status") != "Healthy":
-                colored_component = f"\033[31m{component}\033[0m"
-                unhealthy_components.append(colored_component)
+                unhealthy_components.append(component)
 
         if unhealthy_components:
             log_message = (
