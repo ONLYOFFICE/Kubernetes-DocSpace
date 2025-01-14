@@ -49,7 +49,11 @@ data:
   {{- else }}
   APP_KNOWN_PROXIES: ""
   {{- end }}
-  INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
+  {{- if .Values.global.installationType }}
+  INSTALLATION_TYPE: {{ include "docspace.installation.type" . | quote }}
+  {{- else }}
+  INSTALLATION_TYPE: {{ tpl .Values.connections.installationType . | quote }}
+  {{- end }}
   OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
   LOG_LEVEL: {{ .Values.log.level | quote }}
   DEBUG_INFO: {{ .Values.debug.enabled | quote }}

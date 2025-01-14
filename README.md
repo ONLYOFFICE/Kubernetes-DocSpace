@@ -149,7 +149,7 @@ If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance,
 
 ### 7. Install ONLYOFFICE Docs
 
-NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, add the suffix `-de` - Developer Edition or `-ee` Enterprise Edition in the parameters: `docs.docservice.image.repository`, `docs.proxy.image.repository` and `docs.converter.image.repository` for Docs. By default - Community version.
+NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, set the value in the `global.installationType` parameter. Possible values are `DEVELOPER` - Developer Edition, `ENTERPRISE` - Enterprise Edition or `COMMUNITY` - open-source Community version. By default - `COMMUNITY`. According to the specified value, Docs with the same solution type will be installed.
 
 if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE DocSpace is planned, for example, `documentserver.ds:8888`.
@@ -204,15 +204,15 @@ $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabl
 
 ### 1. Add a license
 
-If you have a valid ONLYOFFICE DocSpace license, set the `connections.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
+If you have a valid ONLYOFFICE DocSpace license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set connections.installationType=ENTERPRISE
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set global.installationType=ENTERPRISE
 ```
 
 At the wizard page during the first login please add your license using the corresponding field.
 
-If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `connections.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
+If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `global.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
 
 ### 2. Install ONLYOFFICE DocSpace
 
@@ -288,8 +288,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | ``                            |
-| `connections.installationType`                         | Defines solution type                                                                                                       | `COMMUNITY`                   |
+| `global.installationType`                              | Defines solution type for DocSpace and Docs. Possible values are `COMMUNITY`, `DEVELOPER` or `ENTERPRISE`                   | `COMMUNITY`                   |
+| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `""`                          |
+| `connections.installationType`                         | Deprecated. Use `global.installationType` instead. The parameter is evaluated as a template and is equal to `global.installationType` | {{ .Values.global.installationType }} |
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
