@@ -3123,6 +3123,10 @@ identity:
     # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
     kubernetes:
       enabled: "true"
+  # identity.brokerUriExistingSecret The name of the existing secret that contains the connection URI to the broker
+  # If set to, it takes priority over those specified in `connections`
+  # Must contain the `broker_uri` key
+  brokerUriExistingSecret: ""
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #

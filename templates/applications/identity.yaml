@@ -149,11 +149,19 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        {{- if .Values.identity.brokerUriExistingSecret }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.identity.brokerUriExistingSecret }}
+              key: broker_uri
+        {{- else }}
         - name: RABBIT_URI
           valueFrom:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        {{- end }}
         {{- with .Values.identity.authorization.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -162,13 +170,13 @@ spec:
             name: docspace
         - configMapRef:
             name: identity
-        {{ if .Values.identity.authorization.extraVolumeMounts}}
+        {{- if .Values.identity.authorization.extraVolumeMounts}}
         volumeMounts:
         {{- with .Values.identity.authorization.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- end }}
-      {{ if .Values.identity.authorization.extraVolumes}}
+      {{- if .Values.identity.authorization.extraVolumes}}
       volumes:
       {{- with .Values.identity.authorization.extraVolumes }}
       {{- toYaml . | nindent 6 }}
