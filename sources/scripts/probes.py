@@ -18,7 +18,7 @@ def check_health():
     try:
         pod_name = socket.gethostname()
         result = subprocess.run(
-            ["curl", "-s", "http://localhost:5050/health"],
+            ["curl", "-s", "-S", "http://localhost:5050/health"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
