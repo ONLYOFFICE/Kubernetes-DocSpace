@@ -25,7 +25,7 @@ def check_health():
         )
 
         if result.returncode != 0:
-            logger.error(f"Error executing healthcheck in pod {pod_name}: {result.stderr.strip()}")
+            logger.error(f"Pod {pod_name} - Error executing healthcheck: returncode={result.returncode}, stderr={result.stderr.strip()}, stdout={result.stdout.strip()}")
             sys.exit(1)
 
         response = json.loads(result.stdout)
