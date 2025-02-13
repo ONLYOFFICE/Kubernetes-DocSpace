@@ -170,6 +170,9 @@ spec:
             name: docspace
         - configMapRef:
             name: identity
+        {{- with .Values.identity.authorization.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.identity.authorization.extraVolumeMounts}}
         volumeMounts:
         {{- with .Values.identity.authorization.extraVolumeMounts }}

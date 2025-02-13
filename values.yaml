@@ -3307,6 +3307,8 @@ identity:
         cpu: "2000m"
     ## identity.authorization.extraEnvVars An array with extra env variables for the Identity container
     extraEnvVars: []
+    ## identity.authorization.extraEnvFrom An array containing extra existing `ConfigMap` or `Secret` that contain variables for the Identity container
+    extraEnvFrom: []
     ## identity.authorization.extraVolumes An array with extra volumes for the Identity container
     extraVolumes: []
     ## identity.authorization.extraVolumeMounts An array with extra volume mounts for the Identity container
@@ -3506,6 +3508,8 @@ identity:
         cpu: "2000m"
     ## identity.api.extraEnvVars An array with extra env variables for the Identity Api container
     extraEnvVars: []
+    ## identity.api.extraEnvFrom An array containing extra existing `ConfigMap` or `Secret` that contain variables for the Identity Api container
+    extraEnvFrom: []
     ## identity.api.extraVolumes An array with extra volumes for the Identity Api container
     extraVolumes: []
     ## identity.api.extraVolumeMounts An array with extra volume mounts for the Identity Api container
