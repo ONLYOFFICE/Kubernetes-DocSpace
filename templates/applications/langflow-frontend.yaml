@@ -1,0 +1,160 @@
+{{- if .Values.langflow.enabled }}
+apiVersion: apps/v1
+kind: {{ .Values.langflow.frontend.kind }}
+metadata:
+  name: langflow-frontend
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: langflow-frontend
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.langflow.frontend.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.langflow.frontend.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.langflow.frontend.autoscaling.enabled }}
+  replicas: {{ .Values.langflow.frontend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: langflow-frontend
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if eq .Values.langflow.frontend.kind "StatefulSet" }}
+  serviceName: langflow-frontend
+  {{- end }}
+  {{- if .Values.langflow.frontend.updateStrategy }}
+  {{- if eq .Values.langflow.frontend.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.langflow.frontend.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.langflow.frontend.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.langflow.frontend.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.langflow.frontend.podManagementPolicy }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: langflow-frontend
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.langflow.frontend.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.langflow.frontend.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if or .Values.podSecurityContext.enabled .Values.langflow.frontend.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.langflow.frontend.podSecurityContext.enabled }}
+      {{- $psc = .Values.langflow.frontend.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - langflow-frontend
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - langflow-frontend
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.langflow.frontend.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.langflow.frontend.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.langflow.frontend.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if or .Values.nodeSelector .Values.langflow.frontend.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.langflow.frontend.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.langflow.frontend.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.langflow.frontend.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+      - name: langflow-frontend
+        image: {{ include "docspace.imageRepository" (list . .Values.langflow.frontend.image.repository) }}:{{ default .Values.images.tag .Values.langflow.frontend.image.tag }}
+        imagePullPolicy: {{ .Values.langflow.frontend.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.langflow.frontend.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.langflow.frontend.containerSecurityContext.enabled }}
+        {{- $csc = .Values.langflow.frontend.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.langflow.frontend.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.langflow.frontend.lifecycleHooks | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.langflow.frontend.containerPorts.frontend }}
+          name: langflow
+        {{- if .Values.langflow.frontend.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.langflow.frontend.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.langflow.frontend.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.langflow.frontend.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.langflow.frontend.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.langflow.frontend.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.langflow.frontend.resources | nindent 10 }}
+        env:
+        - name: BACKEND_URL
+          value: {{ include "docspace.langflow.backendURL" . | quote }}
+        - name: FRONTEND_PORT
+          value: {{ .Values.langflow.frontend.containerPorts.frontend | quote }}
+        {{- with .Values.langflow.frontend.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.langflow.frontend.extraEnvFrom }}
+        envFrom:
+        {{- with .Values.langflow.frontend.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.langflow.frontend.extraVolumeMounts}}
+        volumeMounts:
+        {{- with .Values.langflow.frontend.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.langflow.frontend.extraVolumes}}
+      volumes:
+      {{- with .Values.langflow.frontend.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- end }}
+{{- end }}

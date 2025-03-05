@@ -236,6 +236,10 @@ connections:
   identityApiHost: identity-api
   # connections.identityAuthorizationHost The name of the DocSpace Identity service
   identityAuthorizationHost: identity-authorization
+  # connections.langflowFrontendHost The name of the DocSpace Langflow Frontend service
+  langflowFrontendHost: langflow-frontend
+  # connections.langflowBackendHost The name of the DocSpace Langflow Backend service
+  langflowBackendHost: langflow-backend
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   # If you want to install DocSpace without Document Server then specify an empty value
@@ -3515,6 +3519,423 @@ identity:
     ## identity.api.extraVolumeMounts An array with extra volume mounts for the Identity Api container
     extraVolumeMounts: []
     # identity.api.mysqlUser Database user who will be used by the Identity Api to connect to the database
+    # If not set, `connections.mysqlUser` will be used
+    # If set to, it takes priority over the `connections.mysqlUser`
+    mysqlUser: ""
+
+# DocSpace Langflow application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+langflow:
+  # langflow.enabled Enables Langflow installation
+  enabled: true
+  # langflow.secret Defines the secrets used for encryption and signature validation
+  secret:
+    ## langflow.secret.existingSecret Name of the existing secret file that must contain the variable 
+    ## SPRING_APPLICATION_ENCRYPTION_SECRET
+    ## If not specified, a new secret will be automatically generated.
+    existingSecret: ""
+    # langflow.secret.langflowSecretKey Key used for encrypting sensitive data like API keys
+    langflowSecretKey: "67576576"
+  # DocSpace Langflow Backend application parameters
+  # This block defines the parameters common to all the Pods of this application
+  #
+  backend:
+    # langflow.backend.kind The controller used for deploy
+    # Possible values are `Deployment` (default) or `StatefulSet`
+    kind: Deployment
+    # langflow.backend.annotations Defines annotations that will be additionally added to Langflow deploy
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # langflow.backend.replicaCount Number of Langflow replicas to deploy
+    # If the `langflow.backend.autoscaling.enabled` parameter is enabled, it is ignored
+    replicaCount: 2
+    # Update strategy used to replace old Pods by new ones
+    updateStrategy:
+      # langflow.backend.updateStrategy.type Langflow update strategy type
+      # Allowed values: `RollingUpdate` or `OnDelete` if `langflow.backend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `langflow.backend.kind` is set to `Deployment`
+      type: RollingUpdate
+      # langflow.backend.updateStrategy.rollingUpdate Used only when `langflow.backend.updateStrategy.type=RollingUpdate`
+      rollingUpdate:
+        # langflow.backend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Langflow Pods unavailable during the update process
+        maxUnavailable: 25%
+        # langflow.backend.updateStrategy.rollingUpdate.maxSurge Maximum number of Langflow Pods created over the desired number of Pods
+        maxSurge: 25%
+    # langflow.backend.podManagementPolicy The Langflow Pods scaling operations policy
+    # Used if `langflow.backend.kind` is set to `StatefulSet`
+    # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+    podManagementPolicy: OrderedReady
+    # langflow.backend.podAnnotations Map of annotations to add to the Langflow pods
+    podAnnotations: {}
+    # Configure a Security Context for the Langflow Pods
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # langflow.backend.podSecurityContext.enabled Enable security context for the Langflow pods
+      enabled: false
+    # langflow.backend.customPodAntiAffinity Prohibiting the scheduling of Langflow Pods relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for Langflow Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes Langflow Pods can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    # Example:
+    # podAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     podAffinityTerm:
+    #       labelSelector:
+    #         matchExpressions:
+    #         - key: app
+    #           operator: NotIn
+    #           values:
+    #           - database
+    #       topologyKey: kubernetes.io/hostname
+    podAffinity: {}
+    # Node affinity rules for Langflow Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes Langflow Pods can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    # Example:
+    # nodeAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     preference:
+    #       matchExpressions:
+    #       - key: kubernetes.io/name
+    #         operator: In
+    #         values:
+    #         - name1
+    #         - name2
+    nodeAffinity: {}
+    # langflow.backend.nodeSelector Node labels for Langflow pods assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # langflow.backend.tolerations Tolerations for Langflow pods assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    ## Horizontal Pod Autoscaling parameters
+    ## Horizontal Pod Autoscaling is used for autoscaling of the Langflow deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+    ## The parameters below for autoscaling are used only when `langflow.backend.autoscaling.enabled=true`
+    autoscaling:
+      ## langflow.backend.autoscaling.enabled Enable Langflow deployment autoscaling
+      enabled: false
+      ## langflow.backend.autoscaling.annotations Defines annotations that will be additionally added to Langflow deployment HPA
+      ## If set to, it takes priority over the `commonAnnotations`
+      ## You can also use `tpl` as the value for the key
+      annotations: {}
+      ## langflow.backend.autoscaling.minReplicas Langflow deployment autoscaling minimum number of replicas
+      minReplicas: 2
+      ## langflow.backend.autoscaling.maxReplicas Langflow deployment autoscaling maximum number of replicas
+      maxReplicas: 16
+      targetCPU:
+        ## langflow.backend.autoscaling.targetCPU.enabled Enable autoscaling of Langflow deployment by CPU usage percentage
+        enabled: true
+        ## langflow.backend.autoscaling.targetCPU.utilizationPercentage Langflow deployment autoscaling target CPU percentage
+        utilizationPercentage: 70
+      targetMemory:
+        ## langflow.backend.autoscaling.targetMemory.enabled Enable autoscaling of Langflow deployment by memory usage percentage
+        enabled: false
+        ## langflow.backend.autoscaling.targetMemory.utilizationPercentage Langflow deployment autoscaling target memory percentage
+        utilizationPercentage: 70
+      ## langflow.backend.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Langflow deployment
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+      customMetricsType: []
+      ## langflow.backend.autoscaling.behavior Configuring Langflow deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+      ## If not set the default values are used:
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+      behavior: {}
+    # Langflow container image parameters
+    image:
+      # langflow.backend.image.repository Langflow container image repository
+      repository: onlyoffice/4testing-flow-backend
+      # langflow.backend.image.tag Langflow container image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: "latest"
+      # langflow.backend.image.pullPolicy Langflow container image pull policy
+      pullPolicy: IfNotPresent
+    # Configure a Security Context for containers in Langflow Pods
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # langflow.backend.containerSecurityContext.enabled Enable security context for containers in Langflow pods
+      enabled: false
+    # langflow.backend.lifecycleHooks Defines the Langflow container lifecycle hooks
+    # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+    # It is used to trigger events to run at certain points in a container's lifecycle
+    # There are two hooks that are exposed: `PostStart` and `PreStop`
+    lifecycleHooks: {}
+    # langflow.backend.containerPorts.backend Langflow container port
+    containerPorts:
+      backend: 7860
+    # Probe used for the Langflow container: startup, readiness and liveness probes
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    # The parameters below for startup probes are used only when `langflow.backend.startupProbe.enabled=true`
+    startupProbe:
+      # langflow.backend.startupProbe.enabled Enable startupProbe for Langflow container
+      enabled: true
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:7860/health_check')\" || exit 1"
+      # langflow.backend.startupProbe.failureThreshold Failure threshold for startupProbe
+      failureThreshold: 30
+      # langflow.backend.startupProbe.periodSeconds Period seconds for startupProbe
+      periodSeconds: 10
+    # The parameters below for readiness probes are used only when `langflow.backend.readinessProbe.enabled=true`
+    readinessProbe:
+      # langflow.backend.readinessProbe.enabled Enable readinessProbe for Langflow container
+      enabled: true
+      # langflow.backend.readinessProbe.failureThreshold Failure threshold for readinessProbe
+      failureThreshold: 2
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:7860/health_check')\" || exit 1"
+      # langflow.backend.readinessProbe.periodSeconds Period seconds for readinessProbe
+      periodSeconds: 10
+      # langflow.backend.readinessProbe.successThreshold Success threshold for readinessProbe
+      successThreshold: 1
+      # langflow.backend.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+      timeoutSeconds: 5
+    # The parameters below for liveness probes are used only when `langflow.backend.livenessProbe.enabled=true`
+    livenessProbe:
+      # langflow.backend.livenessProbe.enabled Enable livenessProbe for Langflow container
+      enabled: true
+      # langflow.backend.livenessProbe.failureThreshold Failure threshold for livenessProbe
+      failureThreshold: 3
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:7860/health_check')\" || exit 1"
+      # langflow.backend.livenessProbe.periodSeconds Period seconds for livenessProbe
+      periodSeconds: 10
+      # langflow.backend.livenessProbe.successThreshold Success threshold for livenessProbe
+      successThreshold: 1
+      # langflow.backend.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+      timeoutSeconds: 5
+    # Langflow container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # langflow.backend.resources.requests The requested resources for the Langflow container
+    # langflow.backend.resources.limits The resources limits for the Langflow container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+    ## langflow.backend.extraEnvVars An array with extra env variables for the Langflow container
+    extraEnvVars: []
+    ## langflow.backend.extraEnvFrom An array containing extra existing `ConfigMap` or `Secret` that contain variables for the Langflow container
+    extraEnvFrom: []
+    ## langflow.backend.extraVolumes An array with extra volumes for the Langflow container
+    extraVolumes: []
+    ## langflow.backend.extraVolumeMounts An array with extra volume mounts for the Langflow container
+    extraVolumeMounts: []
+    # langflow.backend.mysqlUser Database user who will be used by the Langflow to connect to the database
+    # If not set, `connections.mysqlUser` will be used
+    # If set to, it takes priority over the `connections.mysqlUser`
+    mysqlUser: ""
+  # DocSpace Langflow API application parameters
+  # This block defines the parameters common to all the Pods of this application
+  #
+  frontend:
+    # langflow.frontend.kind The controller used for deploy
+    # Possible values are `Deployment` (default) or `StatefulSet`
+    kind: Deployment
+    # langflow.frontend.annotations Defines annotations that will be additionally added to Langflow Frontend deploy
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # langflow.frontend.replicaCount Number of Langflow Frontend replicas to deploy
+    # If the `langflow.frontend.autoscaling.enabled` parameter is enabled, it is ignored
+    replicaCount: 2
+    # Update strategy used to replace old Pods by new ones
+    updateStrategy:
+      # langflow.frontend.updateStrategy.type Langflow Frontend update strategy type
+      # Allowed values: `RollingUpdate` or `OnDelete` if `langflow.frontend.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `langflow.frontend.kind` is set to `Deployment`
+      type: RollingUpdate
+      # langflow.frontend.updateStrategy.rollingUpdate Used only when `langflow.frontend.updateStrategy.type=RollingUpdate`
+      rollingUpdate:
+        # langflow.frontend.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Langflow Frontend Pods unavailable during the update process
+        maxUnavailable: 25%
+        # langflow.frontend.updateStrategy.rollingUpdate.maxSurge Maximum number of Langflow Frontend Pods created over the desired number of Pods
+        maxSurge: 25%
+    # langflow.frontend.podManagementPolicy The Langflow Frontend Pods scaling operations policy
+    # Used if `langflow.frontend.kind` is set to `StatefulSet`
+    # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+    podManagementPolicy: OrderedReady
+    # langflow.frontend.podAnnotations Map of annotations to add to the Langflow Frontend pods
+    podAnnotations: {}
+    # Configure a Security Context for the Langflow Frontend Pods
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # langflow.frontend.podSecurityContext.enabled Enable security context for the Langflow Frontend pods
+      enabled: false
+    # langflow.frontend.customPodAntiAffinity Prohibiting the scheduling of Langflow Frontend Pods relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for Langflow Frontend Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes Langflow Frontend Pods can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    # Example:
+    # podAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     podAffinityTerm:
+    #       labelSelector:
+    #         matchExpressions:
+    #         - key: app
+    #           operator: NotIn
+    #           values:
+    #           - database
+    #       topologyKey: kubernetes.io/hostname
+    podAffinity: {}
+    # Node affinity rules for Langflow Frontend Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes Langflow Frontend Pods can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    # Example:
+    # nodeAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 100
+    #     preference:
+    #       matchExpressions:
+    #       - key: kubernetes.io/name
+    #         operator: In
+    #         values:
+    #         - name1
+    #         - name2
+    nodeAffinity: {}
+    # langflow.frontend.nodeSelector Node labels for Langflow Frontend pods assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # langflow.frontend.tolerations Tolerations for Langflow Frontend pods assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    ## Horizontal Pod Autoscaling parameters
+    ## Horizontal Pod Autoscaling is used for autoscaling of the Langflow Frontend deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+    ## The parameters below for autoscaling are used only when `langflow.frontend.autoscaling.enabled=true`
+    autoscaling:
+      ## langflow.frontend.autoscaling.enabled Enable Langflow Frontend deployment autoscaling
+      enabled: false
+      ## langflow.frontend.autoscaling.annotations Defines annotations that will be additionally added to Langflow Frontend deployment HPA
+      ## If set to, it takes priority over the `commonAnnotations`
+      ## You can also use `tpl` as the value for the key
+      annotations: {}
+      ## langflow.frontend.autoscaling.minReplicas Langflow Frontend deployment autoscaling minimum number of replicas
+      minReplicas: 2
+      ## langflow.frontend.autoscaling.maxReplicas Langflow Frontend deployment autoscaling maximum number of replicas
+      maxReplicas: 16
+      targetCPU:
+        ## langflow.frontend.autoscaling.targetCPU.enabled Enable autoscaling of Langflow Frontend deployment by CPU usage percentage
+        enabled: true
+        ## langflow.frontend.autoscaling.targetCPU.utilizationPercentage Langflow Frontend deployment autoscaling target CPU percentage
+        utilizationPercentage: 70
+      targetMemory:
+        ## langflow.frontend.autoscaling.targetMemory.enabled Enable autoscaling of Langflow Frontend deployment by memory usage percentage
+        enabled: false
+        ## langflow.frontend.autoscaling.targetMemory.utilizationPercentage Langflow Frontend deployment autoscaling target memory percentage
+        utilizationPercentage: 70
+      ## langflow.frontend.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Langflow Frontend deployment
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+      customMetricsType: []
+      ## langflow.frontend.autoscaling.behavior Configuring Langflow Frontend deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+      ## If not set the default values are used:
+      ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+      behavior: {}
+    # Langflow Frontend container image parameters
+    image:
+      # langflow.frontend.image.repository Langflow Frontend container image repository
+      repository: onlyoffice/4testing-flow-frontend
+      # langflow.frontend.image.tag Langflow Frontend container image tag
+      # If set to, it takes priority over the `images.tag`
+      tag: "latest"
+      # langflow.frontend.image.pullPolicy Langflow Frontend container image pull policy
+      pullPolicy: IfNotPresent
+    # Configure a Security Context for containers in Langflow Frontend Pods
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # langflow.frontend.containerSecurityContext.enabled Enable security context for containers in Langflow Frontend pods
+      enabled: false
+    # langflow.frontend.lifecycleHooks Defines the Langflow Frontend container lifecycle hooks
+    # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+    # It is used to trigger events to run at certain points in a container's lifecycle
+    # There are two hooks that are exposed: `PostStart` and `PreStop`
+    lifecycleHooks: {}
+    # langflow.frontend.containerPorts.frontend Langflow Frontend container port
+    containerPorts:
+      frontend: 3000
+    # Probe used for the Langflow Frontend container: startup, readiness and liveness probes
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    # The parameters below for startup probes are used only when `langflow.frontend.startupProbe.enabled=true`
+    startupProbe:
+      # langflow.frontend.startupProbe.enabled Enable startupProbe for Langflow Frontend container
+      enabled: true
+      httpGet:
+        # langflow.frontend.startupProbe.httpGet.path Checking the path for startupProbe
+        path: /onlyflow/health
+        # langflow.frontend.startupProbe.httpGet.port Checking the port for startupProbe
+        port: 3000
+      # langflow.frontend.startupProbe.failureThreshold Failure threshold for startupProbe
+      failureThreshold: 30
+      # langflow.frontend.startupProbe.periodSeconds Period seconds for startupProbe
+      periodSeconds: 10
+    # The parameters below for readiness probes are used only when `langflow.frontend.readinessProbe.enabled=true`
+    readinessProbe:
+      # langflow.frontend.readinessProbe.enabled Enable readinessProbe for Langflow Frontend container
+      enabled: true
+      # langflow.frontend.readinessProbe.failureThreshold Failure threshold for readinessProbe
+      failureThreshold: 2
+      httpGet:
+        # langflow.frontend.readinessProbe.httpGet.path Checking the path for readinessProbe
+        path: /onlyflow/health
+        # langflow.frontend.readinessProbe.httpGet.port Checking the port for readinessProbe
+        port: 3000
+      # langflow.frontend.readinessProbe.periodSeconds Period seconds for readinessProbe
+      periodSeconds: 10
+      # langflow.frontend.readinessProbe.successThreshold Success threshold for readinessProbe
+      successThreshold: 1
+      # langflow.frontend.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+      timeoutSeconds: 5
+    # The parameters below for liveness probes are used only when `langflow.frontend.livenessProbe.enabled=true`
+    livenessProbe:
+      # langflow.frontend.livenessProbe.enabled Enable livenessProbe for Langflow Frontend container
+      enabled: true
+      # langflow.frontend.livenessProbe.failureThreshold Failure threshold for livenessProbe
+      failureThreshold: 3
+      httpGet:
+        # langflow.frontend.livenessProbe.httpGet.path Checking the path for livenessProbe
+        path: /onlyflow/health
+        # langflow.frontend.livenessProbe.httpGet.port Checking the port for livenessProbe
+        port: 3000
+      # langflow.frontend.livenessProbe.periodSeconds Period seconds for livenessProbe
+      periodSeconds: 10
+      # langflow.frontend.livenessProbe.successThreshold Success threshold for livenessProbe
+      successThreshold: 1
+      # langflow.frontend.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+      timeoutSeconds: 5
+    # Langflow Frontend container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # langflow.frontend.resources.requests The requested resources for the Langflow Frontend container
+    # langflow.frontend.resources.limits The resources limits for the Langflow Frontend container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+    ## langflow.frontend.extraEnvVars An array with extra env variables for the Langflow Frontend container
+    extraEnvVars: []
+    ## langflow.frontend.extraEnvFrom An array containing extra existing `ConfigMap` or `Secret` that contain variables for the Langflow Frontend container
+    extraEnvFrom: []
+    ## langflow.frontend.extraVolumes An array with extra volumes for the Langflow Frontend container
+    extraVolumes: []
+    ## langflow.frontend.extraVolumeMounts An array with extra volume mounts for the Langflow Frontend container
+    extraVolumeMounts: []
+    # langflow.frontend.mysqlUser Database user who will be used by the Langflow Frontend to connect to the database
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
     mysqlUser: ""

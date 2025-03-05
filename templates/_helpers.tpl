@@ -415,3 +415,51 @@ Return true if a pvc object should be created for DocSpace Router log
     {{- true -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "docspace.langflow.databaseUrl" -}}
+{{- $secretData := (lookup "v1" "Secret" .Release.Namespace "postgresql").data -}}
+{{- $password := (get $secretData "password") | b64dec }}
+{{- printf "postgresql://langflow:%s@%s:5432/langflow" $password "postgresql" -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for Langflow
+*/}}
+{{- define "docspace.langflow.createSecret" -}}
+{{- if empty .Values.langflow.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "docspace.langflow.secretName" -}}
+  {{- if .Values.langflow.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.langflow.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-langflow" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random 512-bit secret if the secret does not already exist
+*/}}
+{{- define "docspace.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 64) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "docspace.langflow.backendURL" -}}
+    {{- printf "http://%s:%v" .Values.connections.langflowBackendHost  .Values.langflow.backend.containerPorts.backend -}}
+{{- end -}}
