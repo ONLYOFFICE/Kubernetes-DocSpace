@@ -1,4 +1,17 @@
 {{/*
+Check the Installation type
+*/}}
+{{- define "docspace.installation.type" -}}
+{{- $installationType := .Values.global.installationType -}}
+{{- $possibleInstallationTypes := list "COMMUNITY" "DEVELOPER" "ENTERPRISE" -}}
+{{- if has $installationType $possibleInstallationTypes }}
+    {{- $installationType -}}
+{{- else -}}
+    {{- fail "You have specified an unsupported Installation type! Possible values: COMMUNITY, DEVELOPER and ENTERPRISE" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Get the DocSpace Namespace
 */}}
 {{- define "docspace.namespace" -}}

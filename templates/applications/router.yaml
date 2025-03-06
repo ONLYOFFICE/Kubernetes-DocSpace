@@ -14,7 +14,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.router.autoscaling.enabled }}
   replicas: {{ .Values.router.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: router
@@ -176,6 +178,9 @@ spec:
         {{- end }}
         - name: router-log
           mountPath: /var/log/nginx
+        {{- with .Values.router.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
       - name: init-scripts
         configMap:
@@ -196,6 +201,9 @@ spec:
       - name: confd-file
         configMap:
           name: {{ .Values.router.extraConf.confd.configMap }}
+      {{- end }}
+      {{- with .Values.router.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: router-log
         persistentVolumeClaim:

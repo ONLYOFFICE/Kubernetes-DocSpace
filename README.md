@@ -41,6 +41,9 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
+  * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
+    + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
+    + [3.2 Manual scaling](#32-manual-scaling)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -146,7 +149,7 @@ If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance,
 
 ### 7. Install ONLYOFFICE Docs
 
-NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, add the suffix `-de` - Developer Edition or `-ee` Enterprise Edition in the parameters: `docs.docservice.image.repository`, `docs.proxy.image.repository` and `docs.converter.image.repository` for Docs. By default - Community version.
+NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, set the value in the `global.installationType` parameter. Possible values are `DEVELOPER` - Developer Edition, `ENTERPRISE` - Enterprise Edition or `COMMUNITY` - open-source Community version. By default - `COMMUNITY`. According to the specified value, Docs with the same solution type will be installed.
 
 if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE DocSpace is planned, for example, `documentserver.ds:8888`.
@@ -201,15 +204,15 @@ $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabl
 
 ### 1. Add a license
 
-If you have a valid ONLYOFFICE DocSpace license, set the `connections.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
+If you have a valid ONLYOFFICE DocSpace license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set connections.installationType=ENTERPRISE
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set global.installationType=ENTERPRISE
 ```
 
 At the wizard page during the first login please add your license using the corresponding field.
 
-If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `connections.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
+If you have initially installed Community version and plan to switch to Enterprise version using the corresponding license, please perform an update using `global.installationType=ENTERPRISE` parameter, then add your license using the corresponding field in Payments section.
 
 ### 2. Install ONLYOFFICE DocSpace
 
@@ -285,8 +288,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | ``                            |
-| `connections.installationType`                         | Defines solution type                                                                                                       | `COMMUNITY`                   |
+| `global.installationType`                              | Defines solution type for DocSpace and Docs. Possible values are `COMMUNITY`, `DEVELOPER` or `ENTERPRISE`                   | `COMMUNITY`                   |
+| `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `""`                          |
+| `connections.installationType`                         | Deprecated. Use `global.installationType` instead. The parameter is evaluated as a template and is equal to `global.installationType` | {{ .Values.global.installationType }} |
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
@@ -299,6 +303,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.redisHost`                                | The IP address or the name of the Redis host. If Redis is deployed inside a k8s cluster, then you need to specify the [FQDN](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#services) name of the service | `redis-master.default.svc.cluster.local` |
 | `connections.redisPort`                                | The Redis server port number                                                                                                | `6379`                        |
 | `connections.redisUser`                                | The Redis [user](https://redis.io/docs/management/security/acl/) name                                                       | `default`                     |
+| `connections.redisDB`                                  | Number of the redis logical database to be [selected](https://redis.io/commands/select/)                                                                     | `0`                           |
 | `connections.redisExistingSecret`                      | Name of existing secret to use for Redis password. Must contain the key specified in `connections.redisSecretKeyName`       | `redis`                       |
 | `connections.redisSecretKeyName`                       | The name of the key that contains the Redis user password. If you set a password in `connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here | `redis-password` |
 | `connections.redisPassword`                            | The password set for the Redis account. If set to, it takes priority over the `connections.redisExistingSecret`             | `""`                          |
@@ -359,7 +364,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.0.1`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.0.4`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -415,7 +420,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
-| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`                                 | `2`                                       |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
@@ -427,6 +432,16 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.nodeAffinity`                                | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for "Application" Pods scheduling by nodes | `{}` |
 | `Application.nodeSelector`                                | Node labels for Api System pods assignment. If set to, it takes priority over the `nodeSelector`                | `{}`                                      |
 | `Application.tolerations`                                 | Tolerations for Api System pods assignment. If set to, it takes priority over the `tolerations`                 | `[]`                                      |
+| `Application.autoscaling.enabled`                         | Enable "Application" deployment autoscaling                                                                                                                                       | `false`                                                                                   |
+| `Application.autoscaling.annotations`                     | Defines annotations that will be additionally added to "Application" deployment HPA. If set to, it takes priority over the `commonAnnotations`                                    | `{}`                                                                                      |
+| `Application.autoscaling.minReplicas`                     | "Application" deployment autoscaling minimum number of replicas                                                                                                                   | `2`                                                                                       |
+| `Application.autoscaling.maxReplicas`                     | "Application" deployment autoscaling maximum number of replicas                                                                                                                   | `4`                                                                                       |
+| `Application.autoscaling.targetCPU.enabled`               | Enable autoscaling of "Application" deployment by CPU usage percentage                                                                                                            | `true`                                                                                    |
+| `Application.autoscaling.targetCPU.utilizationPercentage` | "Application" deployment autoscaling target CPU percentage                                                                                                                        | `70`                                                                                      |
+| `Application.autoscaling.targetMemory.enabled`            | Enable autoscaling of "Application" deployment by memory usage percentage                                                                                                         | `false`                                                                                   |
+| `Application.autoscaling.targetMemory.utilizationPercentage` | "Application" deployment autoscaling target memory percentage                                                                                                                     | `70`                                                                                      |
+| `Application.autoscaling.customMetricsType`               | Custom, additional or external autoscaling metrics for the "Application" deployment                                                                                               | `[]`                                                                                      |
+| `Application.autoscaling.behavior`                        | Configuring "Application" deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields                                                                           | `{}`                                                                                      |
 | `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/docspace-Application`         |
 | `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
@@ -438,6 +453,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
 | `Application.resources.requests`                          | The requested resources for the "Application" container                                                         | `memory, cpu`                             |
 | `Application.resources.limits`                            | The resources limits for the "Application" container                                                            | `memory, cpu`                             |
+| `Application.extraEnvVars`                                | An array with extra env variables for the "Application" container                                               | `[]`                                      |
+| `Application.extraVolumes`                                | An array with extra volumes for the "Application" Pod                                                           | `[]`                                      |
+| `Application.extraVolumeMounts`                           | An array with extra volume mounts for the "Application" container                                               | `[]`                                      |
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
@@ -650,15 +668,14 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
-
 ### ONLYOFFICE DocSpace Opensearch parameters
 
 | Parameter                                             | Description                                                                                                  | Default                                                        |
 |-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
 | `opensearch.enabled`                                  | Enables Opensearch installation                                                                              | `true`                                                         |
-| `opensearch.initContainers.securityContext.enabled`   | Enable security context for Opensearch change-volume-owner initContainer container in pod                    | `false`                                                        |
-| `opensearch.initContainers.resources.requests`        | The requested resources for the Opensearch change-volume-owner initContainer                                 | `memory, cpu`                                                  |
-| `opensearch.initContainers.resources.limits`          | The resources limits for the Opensearch change-volume-owner initContainer                                    | `memory, cpu`                                                  |
+| `opensearch.initContainers.changeVolumeOwner.securityContext.enabled`   | Enable security context for Opensearch change-volume-owner initContainer container in pod                    | `false`                                                        |
+| `opensearch.initContainers.changeVolumeOwner.resources.requests`        | The requested resources for the Opensearch change-volume-owner initContainer                                 | `memory, cpu`                                                  |
+| `opensearch.initContainers.changeVolumeOwner.resources.limits`          | The resources limits for the Opensearch change-volume-owner initContainer                                    | `memory, cpu`                                                  |
 | `opensearch.initContainers.custom`                    | Custom Opensearch initContainers parameters. Additional containers that run before Elasticsearch container in a Pod | `[]`                                                    |
 | `opensearch.image.repository`                         | Opensearch container image repository                                                                        | `onlyoffice/opensearch`                                        |
 | `opensearch.image.tag`                                | Opensearch container image tag                                                                               | `7.16.3`                                                       |
@@ -836,6 +853,40 @@ After successfully executing the Pod `elasticsearch-clear-indexes` that created 
   ``` bash
   kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
   ```
+### 3. Scale ONLYOFFICE DocSpace (optional)
+
+*This step is optional. You can skip step [3](#3-scale-onlyoffice-docspace-optional) entirely if you want to use default deployment settings.*
+
+*The term Application will be used to refer to application deployments. You can find more details and the full list of Applications [here](#onlyoffice-docspace-application-parameters), with the exception of `opensearch`.*
+
+#### 3.1 Horizontal Pod Autoscaling
+
+You can enable Autoscaling so that the number of replicas of *Application* deployments is calculated automatically based on the values and type of metrics.
+
+For resource metrics, API metrics.k8s.io must be registered, which is generally provided by [metrics-server](https://github.com/kubernetes-sigs/metrics-server). It can be launched as a cluster add-on.
+
+To use the target utilization value (`target.type==Utilization`), it is necessary that the values for `resources.requests` are specified in the deployment.
+
+For more information about Horizontal Pod Autoscaling, see [here](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
+
+To enable HPA for the *Application* deployment, specify the `APPLICATION.autoscaling.enabled=true` parameter. 
+In this case, the `APPLICATION.replicaCount` parameter is ignored and the number of replicas is controlled by HPA.
+
+With the `autoscaling.enabled` parameter enabled, by default Autoscaling will adjust the number of replicas based on the average percentage of CPU Utilization.
+For other configurable Autoscaling parameters, see the [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters) table.
+
+#### 3.2 Manual scaling
+
+The *Application* deployment consists of 2 pods by default.
+
+To scale the specific *Application* deployment individually, use the following command:
+
+```bash
+$ kubectl scale -n default deployment APPLICATION --replicas=POD_COUNT
+```
+
+where `POD_COUNT` is a number of the `APPLICATION` pods.
+
 ## ONLYOFFICE DocSpace installation test (optional)
 
 You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:

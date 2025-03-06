@@ -14,7 +14,9 @@ metadata:
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  {{- if not .Values.doceditor.autoscaling.enabled }}
   replicas: {{ .Values.doceditor.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: doceditor
@@ -184,6 +186,9 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
+        {{- with .Values.doceditor.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: docspace
@@ -200,6 +205,9 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
+        {{- with .Values.doceditor.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: docspace-data
           mountPath: /app/{{ .Values.product.name }}/data
         - name: files-data
@@ -211,6 +219,9 @@ spec:
       - name: custom-file
         secret:
           secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      {{- with .Values.doceditor.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data
         persistentVolumeClaim:

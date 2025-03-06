@@ -1,0 +1,46 @@
+{{- if .Values.notify.autoscaling.enabled }}
+apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notify-hpa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+  {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.notify.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.notify.autoscaling.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notify
+  minReplicas: {{ .Values.notify.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.notify.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.notify.autoscaling.targetCPU.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.notify.autoscaling.targetCPU.utilizationPercentage }}
+  {{- end }}
+  {{- if .Values.notify.autoscaling.targetMemory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.notify.autoscaling.targetMemory.utilizationPercentage }}
+  {{- end }}
+  {{- with .Values.notify.autoscaling.customMetricsType }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.notify.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,46 @@
+{{- if .Values.studio.autoscaling.enabled }}
+apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: studio-hpa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+  {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.studio.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.studio.autoscaling.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: studio
+  minReplicas: {{ .Values.studio.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.studio.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.studio.autoscaling.targetCPU.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.studio.autoscaling.targetCPU.utilizationPercentage }}
+  {{- end }}
+  {{- if .Values.studio.autoscaling.targetMemory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.studio.autoscaling.targetMemory.utilizationPercentage }}
+  {{- end }}
+  {{- with .Values.studio.autoscaling.customMetricsType }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.studio.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

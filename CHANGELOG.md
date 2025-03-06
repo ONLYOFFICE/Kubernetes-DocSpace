@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.1.0
+
+### New Features
+
+* Added the ability set up Horizontal Pod Autoscaling
+* Added the `global.installationType` parameter, which also affects the edition type (Community/Enterprise/Developer) of the built-in Docs if its installation is enabled (docs.enabled=true)
+* Added the ability to set additional custom env variables for containers
+* Added the ability to add additional custom volumes for containers
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.0.4
+* The `connections.installationType` parameter has been replaced with `global.installationType`. The value for `connections.installationType` is now derived from `global.installationType`
+
 ## 3.0.1
 
 ### Changes

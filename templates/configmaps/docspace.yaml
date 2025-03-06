@@ -30,7 +30,7 @@ data:
   REDIS_HOST: {{ .Values.connections.redisHost }}
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
-  REDIS_DB: "0"
+  REDIS_DB: {{ .Values.connections.redisDB | quote }}
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
@@ -49,7 +49,11 @@ data:
   {{- else }}
   APP_KNOWN_PROXIES: ""
   {{- end }}
-  INSTALLATION_TYPE: {{ .Values.connections.installationType | quote }}
+  {{- if .Values.global.installationType }}
+  INSTALLATION_TYPE: {{ include "docspace.installation.type" . | quote }}
+  {{- else }}
+  INSTALLATION_TYPE: {{ tpl .Values.connections.installationType . | quote }}
+  {{- end }}
   OAUTH_REDIRECT_URL: {{ .Values.connections.oauthRedirectURL | quote }}
   LOG_LEVEL: {{ .Values.log.level | quote }}
   DEBUG_INFO: {{ .Values.debug.enabled | quote }}

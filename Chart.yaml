@@ -4,8 +4,8 @@ description: Helm chart for installing ONLYOFFICE DocSpace in Kubernetes
 type: application
 dependencies:
 - name: docs
-  version: 4.4.1
+  version: 4.5.0
   repository: https://download.onlyoffice.com/charts/stable
   condition: docs.enabled
-version: 3.0.1
-appVersion: 3.0.1
+version: 3.1.0
+appVersion: 3.0.4

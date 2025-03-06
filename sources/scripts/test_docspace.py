@@ -34,7 +34,7 @@ redisHost = os.environ.get('REDIS_HOST')
 redisPort = os.environ.get('REDIS_PORT')
 redisUser = os.environ.get('REDIS_USER_NAME')
 redisPassword = os.environ.get('REDIS_PASSWORD')
-redisDBNum = '0'
+redisDBNum = os.environ.get('REDIS_DB')
 redisConnectTimeout = 15
 
 dbType = 'mysql'
