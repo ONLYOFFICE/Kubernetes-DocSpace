@@ -1,0 +1,46 @@
+{{- if .Values.sdk.autoscaling.enabled }}
+apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sdk-hpa
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+  {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.sdk.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.sdk.autoscaling.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sdk
+  minReplicas: {{ .Values.sdk.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.sdk.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.sdk.autoscaling.targetCPU.enabled }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.sdk.autoscaling.targetCPU.utilizationPercentage }}
+  {{- end }}
+  {{- if .Values.sdk.autoscaling.targetMemory.enabled }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.sdk.autoscaling.targetMemory.utilizationPercentage }}
+  {{- end }}
+  {{- with .Values.sdk.autoscaling.customMetricsType }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .Values.sdk.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

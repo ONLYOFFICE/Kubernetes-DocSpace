@@ -26,6 +26,7 @@ data:
     sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}

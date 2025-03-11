@@ -236,6 +236,8 @@ connections:
   identityApiHost: identity-api
   # connections.identityAuthorizationHost The name of the DocSpace Identity service
   identityAuthorizationHost: identity-authorization
+  # connections.sdkHost The name of the DocSpace SDK service
+  sdkHost: sdk
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   # If you want to install DocSpace without Document Server then specify an empty value
@@ -4533,6 +4535,208 @@ studioNotify:
   ## studioNotify.extraVolumeMounts An array with extra volume mounts for the Studio Notify container
   extraVolumeMounts: []
   # studioNotify.mysqlUser Database user who will be used by the Studio Notify service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace SDK application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+sdk:
+  # sdk.enabled Enables SDK installation
+  enabled: true
+  # sdk.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # sdk.annotations Defines annotations that will be additionally added to SDK deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # sdk.replicaCount Number of SDK replicas to deploy
+  # If the `sdk.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 2
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # sdk.updateStrategy.type SDK update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `sdk.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `sdk.kind` is set to `Deployment`
+    type: RollingUpdate
+    # sdk.updateStrategy.rollingUpdate Used only when `sdk.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # sdk.updateStrategy.rollingUpdate.maxUnavailable Maximum number of SDK Pods unavailable during the update process
+      maxUnavailable: 25%
+      # sdk.updateStrategy.rollingUpdate.maxSurge Maximum number of SDK Pods created over the desired number of Pods
+      maxSurge: 25%
+  # sdk.podManagementPolicy The SDK Pods scaling operations policy
+  # Used if `sdk.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # sdk.podAnnotations Map of annotations to add to the SDK pods
+  podAnnotations: {}
+  # Configure a Security Context for the SDK Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # sdk.podSecurityContext.enabled Enable security context for the SDK pods
+    enabled: false
+  # sdk.customPodAntiAffinity Prohibiting the scheduling of SDK Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for SDK Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes SDK Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for SDK Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes SDK Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # sdk.nodeSelector Node labels for SDK pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # sdk.tolerations Tolerations for SDK pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the SDK deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `sdk.autoscaling.enabled=true`
+  autoscaling:
+    ## sdk.autoscaling.enabled Enable SDK deployment autoscaling
+    enabled: false
+    ## sdk.autoscaling.annotations Defines annotations that will be additionally added to SDK deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## sdk.autoscaling.minReplicas SDK deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## sdk.autoscaling.maxReplicas SDK deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## sdk.autoscaling.targetCPU.enabled Enable autoscaling of SDK deployment by CPU usage percentage
+      enabled: true
+      ## sdk.autoscaling.targetCPU.utilizationPercentage SDK deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## sdk.autoscaling.targetMemory.enabled Enable autoscaling of SDK deployment by memory usage percentage
+      enabled: false
+      ## sdk.autoscaling.targetMemory.utilizationPercentage SDK deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## sdk.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the SDK deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## sdk.autoscaling.behavior Configuring SDK deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # SDK container image parameters
+  image:
+    # sdk.image.repository SDK container image repository
+    repository: onlyoffice/docspace-sdk
+    # sdk.image.tag SDK container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # sdk.image.pullPolicy SDK container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in SDK Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # sdk.containerSecurityContext.enabled Enable security context for containers in SDK pods
+    enabled: false
+  # sdk.lifecycleHooks Defines the SDK container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
+  # sdk.containerPorts.sdk SDK container port
+  containerPorts:
+    sdk: 5050
+  # Probe used for the SDK container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `sdk.startupProbe.enabled=true`
+  startupProbe:
+    # sdk.startupProbe.enabled Enable startupProbe for SDK container
+    enabled: true
+    httpGet:
+      # sdk.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /sdk/health
+      # sdk.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # sdk.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # sdk.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `sdk.readinessProbe.enabled=true`
+  readinessProbe:
+    # sdk.readinessProbe.enabled Enable readinessProbe for SDK container
+    enabled: true
+    # sdk.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # sdk.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /sdk/health
+      # sdk.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # sdk.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # sdk.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # sdk.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `sdk.livenessProbe.enabled=true`
+  livenessProbe:
+    # sdk.livenessProbe.enabled Enable livenessProbe for SDK container
+    enabled: true
+    # sdk.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # sdk.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /sdk/health
+      # sdk.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # sdk.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # sdk.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # sdk.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # SDK container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # sdk.resources.requests The requested resources for the SDK container
+  # sdk.resources.limits The resources limits for the SDK container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  ## sdk.extraEnvVars An array with extra env variables for the SDK container
+  extraEnvVars: []
+  ## sdk.extraVolumes An array with extra volumes for the SDK container
+  extraVolumes: []
+  ## sdk.extraVolumeMounts An array with extra volume mounts for the SDK container
+  extraVolumeMounts: []
+  # sdk.mysqlUser Database user who will be used by the SDK service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
