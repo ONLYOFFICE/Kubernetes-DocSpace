@@ -16,6 +16,9 @@ spec:
   - port: {{ .Values.identity.api.containerPorts.api }}
     name: api
     targetPort: {{ .Values.identity.api.containerPorts.api }}
+  - port: {{ .Values.identity.api.containerPorts.grpc }}
+    name: grpc
+    targetPort: {{ .Values.identity.api.containerPorts.grpc }}
   selector:
     app: identity-api
     {{- if .Values.commonLabels }}

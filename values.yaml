@@ -3242,9 +3242,11 @@ identity:
     # It is used to trigger events to run at certain points in a container's lifecycle
     # There are two hooks that are exposed: `PostStart` and `PreStop`
     lifecycleHooks: {}
-    # identity.authorization.containerPorts.authorization Identity container port
     containerPorts:
+      # identity.authorization.containerPorts.authorization Identity authorization container port
       authorization: 8080
+      # identity.authorization.containerPorts.grpc Identity authorization grpc port
+      grpc: 9999
     # Probe used for the Identity container: startup, readiness and liveness probes
     # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
     # The parameters below for startup probes are used only when `identity.authorization.startupProbe.enabled=true`
@@ -3443,9 +3445,11 @@ identity:
     # It is used to trigger events to run at certain points in a container's lifecycle
     # There are two hooks that are exposed: `PostStart` and `PreStop`
     lifecycleHooks: {}
-    # identity.api.containerPorts.api Identity Api container port
     containerPorts:
+      # identity.api.containerPorts.api Identity Api container port
       api: 9090
+      # identity.api.containerPorts.grpc Identity Api grpc port
+      grpc: 8888
     # Probe used for the Identity Api container: startup, readiness and liveness probes
     # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
     # The parameters below for startup probes are used only when `identity.api.startupProbe.enabled=true`

@@ -124,6 +124,8 @@ spec:
         ports:
         - containerPort: {{ .Values.identity.api.containerPorts.api }}
           name: api
+        - containerPort: {{ .Values.identity.api.containerPorts.grpc }}
+          name: grpc
         {{- if .Values.identity.api.startupProbe.enabled }}
         startupProbe: {{- omit .Values.identity.api.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -149,6 +151,11 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        - name: SPRING_APPLICATION_SIGNATURE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.coreMachineKey.secretName" . }}
+              key: APP_CORE_MACHINEKEY
         {{- if .Values.identity.brokerUriExistingSecret }}
         - name: RABBIT_URI
           valueFrom:
