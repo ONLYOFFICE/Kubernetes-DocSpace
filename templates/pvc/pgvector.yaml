@@ -1,0 +1,25 @@
+{{- if .Values.pgvector.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgdata
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.pgvector.persistence.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.pgvector.persistence.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  storageClassName: {{ .Values.pgvector.persistence.storageClass }}
+  accessModes:
+  {{- range .Values.pgvector.persistence.accessModes }}
+  - {{ . }}
+  {{- end }}
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.pgvector.persistence.size }}
+{{- end }}
