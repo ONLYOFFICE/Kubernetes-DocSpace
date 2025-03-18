@@ -131,24 +131,21 @@ spec:
         livenessProbe: {{- omit .Values.langflow.backend.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.langflow.backend.resources | nindent 10 }}
-        env:
-        - name: LANGFLOW_LOG_LEVEL
-          value: "INFO"
-        - name: LANGFLOW_DATABASE_URL
-          value: {{ include "docspace.langflow.databaseUrl" . | quote }}
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgresql
-              key: password
         {{- with .Values.langflow.backend.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
+        - configMapRef:
+            name: langflow
         - secretRef:
             name: {{ template "docspace.langflow.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.pgvector.secretName" . }}
+        {{- if .Values.langflow.backend.extraEnvFrom}}
+        env:
         {{- with .Values.langflow.backend.extraEnvFrom }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- end }}
         {{- if .Values.langflow.backend.extraVolumeMounts}}
         volumeMounts:
