@@ -5755,8 +5755,6 @@ opensearch:
 # DocSpace pgvector StatefulSet parameters
 #
 pgvector:
-  # pgvector.enabled Enables pgvector installation
-  enabled: false
   # pgvector.secret Defines the secrets used for encryption and signature validation
   secret:
     ## pgvector.secret.existingSecret Name of the existing secret file that must contain the variable 
