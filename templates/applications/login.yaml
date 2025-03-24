@@ -139,8 +139,8 @@ spec:
         lifecycle: {{- toYaml .Values.login.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.login.containerPorts.login }}
-          name: login
+        - containerPort: {{ .Values.login.containerPorts.app }}
+          name: app
         {{- if .Values.login.startupProbe.enabled }}
         startupProbe: {{- omit .Values.login.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
