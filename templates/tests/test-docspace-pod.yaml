@@ -100,11 +100,11 @@ spec:
     - name: SSO_SERVICE
       value: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
     - name: DOCEDITOR_SERVICE
-      value: {{ .Values.connections.doceditorHost }}:{{ .Values.doceditor.containerPorts.doceditor }}
+      value: {{ .Values.connections.doceditorHost }}:{{ .Values.doceditor.containerPorts.app }}
     - name: CLEAREVENTS_SERVICE
       value: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
     - name: LOGIN_SERVICE
-      value: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.login }}
+      value: {{ .Values.connections.loginHost }}:{{ .Values.login.containerPorts.app }}
     - name: DOCS_SERVICE
       value: {{ .Values.connections.documentServerHost }}
     {{- if .Values.apiSystem.enabled }}
