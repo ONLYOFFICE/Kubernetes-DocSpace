@@ -339,6 +339,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.healthchecksHost`                         | The name of the ONLYOFFICE DocSpace Healthchecks service                                                                    | `healthchecks`                |
 | `connections.identityApiHost`                         | The name of the ONLYOFFICE DocSpace Identity API service                                                                     | `identity-api`                |
 | `connections.identityAuthorizationHost`                         | The name of the ONLYOFFICE DocSpace Identity service                                                                     | `identity-authorization`                |
+| `connections.langflowFrontendHost`                     | The name of the DocSpace Langflow Frontend service                                                                          | `langflow-frontend`           |
+| `connections.langflowBackendHost`                      | The name of the DocSpace Langflow Backend service                                                                           | `langflow-backend`            |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
@@ -417,7 +419,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
+| `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`                   | `true`  |
 | `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
 | `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
@@ -447,7 +449,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity.authorization` and `identity.api`                                 | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`      | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -459,7 +461,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization` and `identity.api`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -530,6 +532,25 @@ Instead of `Application`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
 
+### ONLYOFFICE DocSpace Langflow Frontend and DocSpace Langflow Backend Applications common parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `langflow.enabled`                             | Enables Langflow appications: `langflow.frontend`, `langflow.backend`                                                                                  | `false`|
+| `langflow.secret.existingSecret`               | Name of the existing secret file that must contain the variable `LANGFLOW_SECRET_KEY`. If not specified, a new secret will be automatically generated  | `""` |
+| `langflow.secret.langflowSecretKey`            | Key used for encrypting sensitive data like API keys                                                                                                   | `""` |
+
+### ONLYOFFICE DocSpace Langflow Frontend additional parameters
+
+| Parameter                                             | Description                                                                                                  | Default                                                        |
+|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| `langflow.frontend.containerPorts.frontend`           | Langflow Frontend additional container port                                                                               | `3000`               |
+
+### ONLYOFFICE DocSpace Langflow Backend parameters
+
+| Parameter                                             | Description                                                                                                  | Default                                                        |
+|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| `langflow.backend.containerPorts.backend`             | Langflow Backend additional container port                                                                               | `7860`               |
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 
