@@ -16,9 +16,6 @@ spec:
   - port: {{ .Values.doceditor.containerPorts.app }}
     name: app
     targetPort: {{ .Values.doceditor.containerPorts.app }}
-  - port: {{ .Values.doceditor.containerPorts.doceditor }}
-    name: doceditor
-    targetPort: {{ .Values.doceditor.containerPorts.doceditor }}
   selector:
     app: doceditor
     {{- if .Values.commonLabels }}

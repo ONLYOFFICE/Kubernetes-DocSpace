@@ -23,8 +23,6 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [Common parameters](#common-parameters)
   * [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters)
   * [ONLYOFFICE DocSpace Router Application additional parameters](#onlyoffice-docspace-router-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Doceditor Application additional parameters](#onlyoffice-docspace-doceditor-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Login Application additional parameters](#onlyoffice-docspace-login-application-additional-parameters)
   * [ONLYOFFICE DocSpace Socket Application additional parameters](#onlyoffice-docspace-socket-application-additional-parameters)
   * [ONLYOFFICE DocSpace Ssoauth Application additional parameters](#onlyoffice-docspace-ssoauth-application-additional-parameters)
   * [ONLYOFFICE DocSpace Proxy Frontend Application additional parameters](#onlyoffice-docspace-proxy-frontend-application-additional-parameters)
@@ -337,8 +335,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.backupBackgroundTasksHost`                | The name of the ONLYOFFICE DocSpace Backup Background Tasks service                                                         | `backup-background-tasks`     |
 | `connections.loginHost`                                | The name of the ONLYOFFICE DocSpace Login service                                                                           | `login`                       |
 | `connections.healthchecksHost`                         | The name of the ONLYOFFICE DocSpace Healthchecks service                                                                    | `healthchecks`                |
-| `connections.identityApiHost`                         | The name of the ONLYOFFICE DocSpace Identity API service                                                                     | `identity-api`                |
-| `connections.identityAuthorizationHost`                         | The name of the ONLYOFFICE DocSpace Identity service                                                                     | `identity-authorization`                |
+| `connections.identityApiHost`                          | The name of the ONLYOFFICE DocSpace Identity API service                                                                    | `identity-api`                |
+| `connections.identityAuthorizationHost`                | The name of the ONLYOFFICE DocSpace Identity service                                                                        | `identity-authorization`                |
+| `connections.sdkHost`                                  | The name of the DocSpace SDK service                                                                                        | `sdk`                         |
 | `connections.langflowFrontendHost`                     | The name of the DocSpace Langflow Frontend service                                                                          | `langflow-frontend`           |
 | `connections.langflowBackendHost`                      | The name of the DocSpace Langflow Backend service                                                                           | `langflow-backend`            |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
@@ -461,7 +460,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `langflow.frontend`, `langflow.backend`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -485,18 +484,6 @@ Instead of `Application`, the parameter name should have the following values: `
 | `router.service.externalTrafficPolicy`                   | Enable preservation of the client source IP. There are two [available options](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip): `Cluster` (default) and `Local`. Not [supported](https://kubernetes.io/docs/tutorials/services/source-ip/) for service type - `ClusterIP` | `""` |
 | `router.resolver.dns`                                    | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `router.resolver.local` | `""` |
 | `router.resolver.local`                                  | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
-
-### ONLYOFFICE DocSpace Doceditor Application additional parameters
-
-| Parameter                                                | Description                                                                                                     | Default              |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `doceditor.containerPorts.doceditor`                     | Doceditor container port                                                                                        | `5013`               |
-
-### ONLYOFFICE DocSpace Login Application additional parameters
-
-| Parameter                                                | Description                                                                                                     | Default              |
-|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `login.containerPorts.login`                             | Login container port                                                                                            | `5011`               |
 
 ### ONLYOFFICE DocSpace Socket Application additional parameters
 

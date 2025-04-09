@@ -21,11 +21,12 @@ data:
     sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.doceditor }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.login }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_onlyflow_frontend/{{ .Values.connections.langflowFrontendHost }}\:{{ .Values.langflow.frontend.containerPorts.frontend }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_onlyflow_backend/{{ .Values.connections.langflowBackendHost }}\:{{ .Values.langflow.backend.containerPorts.backend }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}

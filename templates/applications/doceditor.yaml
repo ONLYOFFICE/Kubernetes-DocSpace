@@ -141,8 +141,6 @@ spec:
         ports:
         - containerPort: {{ .Values.doceditor.containerPorts.app }}
           name: app
-        - containerPort: {{ .Values.doceditor.containerPorts.doceditor }}
-          name: doceditor
         {{- if .Values.doceditor.startupProbe.enabled }}
         startupProbe: {{- omit .Values.doceditor.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
