@@ -3105,17 +3105,35 @@ identity:
     create: true
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
-    springProfilesActive: "dev"
+    springProfilesActive: "prod,server"
     # identity.env.multicast.enabled Defines whether multicast discovery will be used
     multicast:
       enabled: "false"
     # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
     kubernetes:
       enabled: "true"
+    # identity.env.region defines the deployment region
+    # Use "local" for local deployment or specify a region (e.g., "eu", "us") for regional queues
+    region: "local"
+    # identity.env.grpcClientRegistrationAddress defines the gRPC client registration addresses  
+    # These addresses are used to connect to the corresponding services  
+    grpcClientAddress:
+      # identity.env.grpcClientAddress.authorization specifies the gRPC address for the Identity Authorization service 
+      authorization: "static://identity-authorization:9999"
+      # identity.env.grpcClientAddress.registration specifies the gRPC address for the Identity API service  
+      registration: "static://identity-api:8888"
   # identity.brokerUriExistingSecret The name of the existing secret that contains the connection URI to the broker
   # If set to, it takes priority over those specified in `connections`
   # Must contain the `broker_uri` key
   brokerUriExistingSecret: ""
+  # identity.secret Defines the secrets used for encryption
+  secret:
+    ## identity.secret.existingSecret Name of the existing secret file that must contain the variables  
+    ## SPRING_APPLICATION_ENCRYPTION_SECRET
+    ## If not specified, a new secret will be automatically generated.
+    existingSecret: ""
+    # identity.secret.springEncryptionValue The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token
+    springEncryptionValue: ""
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #

@@ -504,6 +504,11 @@ Instead of `Application`, the parameter name should have the following values: `
 | `identity.env.springProfilesActive`            | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
 | `identity.env.multicast.enabled`               | Defines whether multicast discovery will be used                                                                          | `false`              |
 | `identity.env.kubernetes.enabled`              | Defines whether k8s service discovery will be used                                                                        | `true`               |
+| `identity.env.region            `              | Defines the deployment region. Use "local" for local deployment or specify a region (e.g., "eu", "us") for regional queues| `local`               |
+| `identity.env.grpcClientAddress.authorization` | Defines the gRPC client registration addresses. These addresses are used to connect to the corresponding services. `authorization` specifies the gRPC address for the Identity Authorization service  | `static://identity-authorization:9999`    |
+| `identity.env.grpcClientAddress.registration`  | Specifies the gRPC address for the Identity API service                                                                   | `static://identity-api:8888`               |
+| `identity.secret.existingSecret`               | Name of the existing secret file that must contain the variable SPRING_APPLICATION_ENCRYPTION_SECRET. If not specified, a new secret will be automatically generated. | `""`               |
+| `identity.secret.springEncryptionValue`        | The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token                  | `true`               |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
 

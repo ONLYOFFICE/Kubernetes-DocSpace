@@ -137,6 +137,8 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.identity.authorization.resources | nindent 10 }}
         env:
+        - name: GRPC_CLIENT_REGISTRATION_ADDRESS
+          value: {{ .Values.identity.env.grpcClientAddress.registration | quote }}
         - name: SERVER_PORT
           value: {{ .Values.identity.authorization.containerPorts.authorization | quote }}
         - name: MYSQL_USER
@@ -173,6 +175,8 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
+        - secretRef:
+            name: {{ template "docspace.identity.secretName" . }}
         - configMapRef:
             name: docspace
         - configMapRef:

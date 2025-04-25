@@ -415,3 +415,44 @@ Return true if a pvc object should be created for DocSpace Router log
     {{- true -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return true if a secret object should be created for Identity
+*/}}
+{{- define "docspace.identity.createSecret" -}}
+{{- if empty .Values.identity.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get a secret name containing Spring encryption secret
+*/}}
+{{- define "docspace.identity.secretName" -}}
+  {{- if .Values.identity.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.identity.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-identity" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random 512-bit secret if the secret does not already exist
+*/}}
+{{- define "docspace.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 64) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
