@@ -119,7 +119,7 @@ Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example
 To install RabbitMQ to your cluster, run the following command:
 
 ```bash
-$ helm install rabbitmq bitnami/rabbitmq \
+$ helm install rabbitmq --version 15.5.3 bitnami/rabbitmq \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
