@@ -3134,6 +3134,7 @@ identity:
     existingSecret: ""
     # identity.secret.springEncryptionValue The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token
     springEncryptionValue: ""
+    generate: "true"
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #

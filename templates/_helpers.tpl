@@ -456,3 +456,22 @@ Generate a random 512-bit secret if the secret does not already exist
     {{- printf "%s" $existValue -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Determine the desired secret value to pass into generateSecret function
+Handles logic for generate: false / reset / springEncryptionValue
+*/}}
+{{- define "docspace.identity.secretValue" -}}
+{{- $context := index . 0 -}}
+{{- $val := index . 1 -}}
+{{- $mode := $context.Values.identity.secret.generate | toString }}
+
+{{- if eq $mode "reset" }}
+  {{- "secret" }}
+{{- else if eq $mode "false" }}
+  {{- $val | default "secret" }}
+{{- else }}
+  {{- $val }}
+{{- end }}
+{{- end }}
+
