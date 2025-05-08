@@ -458,20 +458,13 @@ Generate a random 512-bit secret if the secret does not already exist
 {{- end -}}
 
 {{/*
-Determine the desired secret value to pass into generateSecret function
-Handles logic for generate: false / reset / springEncryptionValue
+Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION_SECRET
 */}}
-{{- define "docspace.identity.secretValue" -}}
-{{- $context := index . 0 -}}
-{{- $val := index . 1 -}}
-{{- $mode := $context.Values.identity.secret.generate | toString }}
-
-{{- if eq $mode "reset" }}
-  {{- "secret" }}
-{{- else if eq $mode "false" }}
-  {{- $val | default "secret" }}
+{{- define "docspace.identity.springEncryptionValue" -}}
+{{- $mode := .Values.identity.secret.generate | toString }}
+{{- if eq $mode "true" }}
+  {{- .Values.identity.secret.springEncryptionValue }}
 {{- else }}
-  {{- $val }}
+  {{- "secret" }}
 {{- end }}
 {{- end }}
-
