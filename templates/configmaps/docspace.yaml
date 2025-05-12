@@ -17,7 +17,9 @@ data:
   ENV_EXTENSION: {{ .Values.connections.envExtension | quote }}
   NODE_OPTIONS: {{ .Values.nodeOptions | quote }}
   DATABASE_MIGRATION: {{ .Values.connections.mysqlDatabaseMigration | quote }}
+  {{- if .Values.connections.apiHostInternalRequests }}
   API_HOST: "http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}"
+  {{- end }}
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}

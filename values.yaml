@@ -202,6 +202,8 @@ connections:
   elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
+  # connections.apiHostInternalRequests Enables sending some Api requests over the internal network
+  apiHostInternalRequests: false
   # connections.apiSystemHost The name of the DocSpace Api System service
   apiSystemHost: api-system
   # connections.notifyHost The name of the DocSpace Notify service
