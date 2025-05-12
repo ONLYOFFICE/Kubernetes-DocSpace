@@ -509,6 +509,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `identity.env.grpcClientAddress.registration`  | Specifies the gRPC address for the Identity API service                                                                   | `static://identity-api:8888`               |
 | `identity.secret.existingSecret`               | Name of the existing secret file that must contain the variable SPRING_APPLICATION_ENCRYPTION_SECRET. If not specified, a new secret will be automatically generated. | `""`               |
 | `identity.secret.springEncryptionValue`        | The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token                  | `true`               |
+| `identity.secret.generate`                     | If `true`, a new secret will be automatically generated. If you experience OAuth2 access issues, set this to `false`        | `true`               |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
 
