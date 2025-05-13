@@ -42,6 +42,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
+  * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -509,6 +510,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `identity.env.grpcClientAddress.registration`  | Specifies the gRPC address for the Identity API service                                                                   | `static://identity-api:8888`               |
 | `identity.secret.existingSecret`               | Name of the existing secret file that must contain the variable SPRING_APPLICATION_ENCRYPTION_SECRET. If not specified, a new secret will be automatically generated. | `""`               |
 | `identity.secret.springEncryptionValue`        | The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token                  | `true`               |
+| `identity.secret.generate`                     | If `true`, a new secret will be automatically generated. If you experience OAuth2 access issues, set this to `false`        | `true`               |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
 
@@ -910,3 +912,52 @@ $ kubectl delete pod test-docspace -n <NAMESPACE>
 Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
 It may be that even though all checks are completed successfully, an error occurs in the application.
 In this case, more detailed information can be found in the application logs.
+
+### 4. Encryption Key Management for Identity
+
+Starting from **chart version 3.2.0**, the encryption key used by the Identity service (`SPRING_APPLICATION_ENCRYPTION_SECRET`) is now created automatically and stored in a Kubernetes Secret.
+
+#### Upgrading from earlier versions
+
+If you are upgrading from a version older than 3.2.0, and you have already created applications or configured OAuth2 integrations, we recommend disabling automatic key generation to preserve compatibility with existing data:
+
+```bash
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
+```
+
+This setting ensures consistent encryption behavior during the upgrade.
+
+> **Note:** If you experience issues with authentication or access after the upgrade, try setting `generate: "false"` and re-deploying the chart.
+
+#### For new installations
+
+No additional configuration is required. A secure key will be generated automatically:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=true
+```
+#### Manual configuration
+
+Manual configuration of the encryption key is also supported if needed:
+
+- To use an existing Kubernetes Secret:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.existingSecret=secret-file
+```
+
+The specified Secret must contain the key `SPRING_APPLICATION_ENCRYPTION_SECRET`.
+
+- To explicitly set the secret value:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.springEncryptionValue=secret-value
+```
+#### Parameter priority
+
+When multiple encryption-related settings are defined, the following order of precedence applies:
+
+1. `existingSecret`  
+2. `springEncryptionValue`  
+3. `generate`  
+> **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.

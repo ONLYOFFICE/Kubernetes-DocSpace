@@ -456,3 +456,17 @@ Generate a random 512-bit secret if the secret does not already exist
     {{- printf "%s" $existValue -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION_SECRET
+*/}}
+{{- define "docspace.identity.springEncryptionValue" -}}
+{{- $val := .Values.identity.secret.springEncryptionValue }}
+{{- if and $val (ne $val "") }}
+  {{- $val }}
+{{- else if eq (.Values.identity.secret.generate | toString) "true" }}
+  {{- "" }}
+{{- else }}
+  {{- "secret" }}
+{{- end }}
+{{- end }}
