@@ -936,3 +936,28 @@ No additional configuration is required. A secure key will be generated automati
 ```bash
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=true
 ```
+#### Manual configuration
+
+Manual configuration of the encryption key is also supported if needed:
+
+- To use an existing Kubernetes Secret:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.existingSecret=secret-file
+```
+
+The specified Secret must contain the key `SPRING_APPLICATION_ENCRYPTION_SECRET`.
+
+- To explicitly set the secret value:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.springEncryptionValue=secret-value
+```
+#### Parameter priority
+
+When multiple encryption-related settings are defined, the following order of precedence applies:
+
+1. `existingSecret`  
+2. `springEncryptionValue`  
+3. `generate`  
+> **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
