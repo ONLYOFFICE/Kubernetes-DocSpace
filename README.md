@@ -922,7 +922,7 @@ Starting from **chart version 3.2.0**, the encryption key used by the Identity s
 If you are upgrading from a version older than 3.2.0, and you have already created applications or configured OAuth2 integrations, we recommend disabling automatic key generation to preserve compatibility with existing data:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
 ```
 
 This setting ensures consistent encryption behavior during the upgrade.
