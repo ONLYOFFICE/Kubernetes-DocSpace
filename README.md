@@ -42,6 +42,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
+  * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -911,3 +912,27 @@ $ kubectl delete pod test-docspace -n <NAMESPACE>
 Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
 It may be that even though all checks are completed successfully, an error occurs in the application.
 In this case, more detailed information can be found in the application logs.
+
+### 4. Encryption Key Management for Identity
+
+Starting from **chart version 3.2.0**, the encryption key used by the Identity service (`SPRING_APPLICATION_ENCRYPTION_SECRET`) is now created automatically and stored in a Kubernetes Secret.
+
+#### Upgrading from earlier versions
+
+If you are upgrading from a version older than 3.2.0, and you have already created applications or configured OAuth2 integrations, we recommend disabling automatic key generation to preserve compatibility with existing data:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
+```
+
+This setting ensures consistent encryption behavior during the upgrade.
+
+> **Note:** If you experience issues with authentication or access after the upgrade, try setting `generate: "false"` and re-deploying the chart.
+
+#### For new installations
+
+No additional configuration is required. A secure key will be generated automatically:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=true
+```
