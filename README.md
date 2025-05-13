@@ -881,38 +881,6 @@ $ kubectl scale -n default deployment APPLICATION --replicas=POD_COUNT
 
 where `POD_COUNT` is a number of the `APPLICATION` pods.
 
-## ONLYOFFICE DocSpace installation test (optional)
-
-You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:
-
-```bash
-$ helm test [RELEASE_NAME] -n <NAMESPACE>
-```
-
-The output should have the following line:
-
-```bash
-Phase: Succeeded
-```
-
-To view the log of the Pod running as a result of the `helm test` command, run the following command:
-
-```bash
-$ kubectl logs -f test-docspace -n <NAMESPACE>
-```
-
-The ONLYOFFICE DocSpace services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
-
-After this, you can delete the `test-docspace` Pod by running the following command:
-
-```bash
-$ kubectl delete pod test-docspace -n <NAMESPACE>
-```
-
-Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
-It may be that even though all checks are completed successfully, an error occurs in the application.
-In this case, more detailed information can be found in the application logs.
-
 ### 4. Encryption Key Management for Identity
 
 Starting from **chart version 3.2.0**, the encryption key used by the Identity service (`SPRING_APPLICATION_ENCRYPTION_SECRET`) is now created automatically and stored in a Kubernetes Secret.
@@ -961,3 +929,36 @@ When multiple encryption-related settings are defined, the following order of pr
 2. `springEncryptionValue`  
 3. `generate`  
 > **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
+
+## ONLYOFFICE DocSpace installation test (optional)
+
+You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:
+
+```bash
+$ helm test [RELEASE_NAME] -n <NAMESPACE>
+```
+
+The output should have the following line:
+
+```bash
+Phase: Succeeded
+```
+
+To view the log of the Pod running as a result of the `helm test` command, run the following command:
+
+```bash
+$ kubectl logs -f test-docspace -n <NAMESPACE>
+```
+
+The ONLYOFFICE DocSpace services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
+
+After this, you can delete the `test-docspace` Pod by running the following command:
+
+```bash
+$ kubectl delete pod test-docspace -n <NAMESPACE>
+```
+
+Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
+It may be that even though all checks are completed successfully, an error occurs in the application.
+In this case, more detailed information can be found in the application logs.
+
