@@ -3554,7 +3554,7 @@ langflow:
     annotations: {}
     # langflow.backend.replicaCount Number of Langflow replicas to deploy
     # If the `langflow.backend.autoscaling.enabled` parameter is enabled, it is ignored
-    replicaCount: 2
+    replicaCount: 1
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
       # langflow.backend.updateStrategy.type Langflow update strategy type
@@ -3755,7 +3755,7 @@ langflow:
     annotations: {}
     # langflow.frontend.replicaCount Number of Langflow Frontend replicas to deploy
     # If the `langflow.frontend.autoscaling.enabled` parameter is enabled, it is ignored
-    replicaCount: 2
+    replicaCount: 1
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
       # langflow.frontend.updateStrategy.type Langflow Frontend update strategy type
