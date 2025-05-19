@@ -242,6 +242,11 @@ connections:
   langflowFrontendHost: langflow-frontend
   # connections.langflowBackendHost The name of the DocSpace Langflow Backend service
   langflowBackendHost: langflow-backend
+  qdrant:
+    # connections.qdrant.host The name of the Qdrant service used for vector storage
+    host: "qdrant"
+    # connections.qdrant.port The HTTP port on which the Qdrant service accepts connections
+    port: "6333"
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   # If you want to install DocSpace without Document Server then specify an empty value
