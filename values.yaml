@@ -3541,11 +3541,13 @@ langflow:
   # langflow.secret Defines the secrets used for encryption and signature validation
   secret:
     ## langflow.secret.existingSecret Name of the existing secret file that must contain the variable 
-    ## LANGFLOW_SECRET_KEY
+    ## LANGFLOW_SECRET_KEY, OPENAI_API_KEY
     ## If not specified, a new secret will be automatically generated.
     existingSecret: ""
     # langflow.secret.langflowSecretKey Key used for encrypting sensitive data like API keys
     langflowSecretKey: ""
+    # langflow.secret.openaiApiKey is OpenAI API key
+    openaiApiKey: ""
   # DocSpace Langflow Backend application parameters
   # This block defines the parameters common to all the Pods of this application
   #

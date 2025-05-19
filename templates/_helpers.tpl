@@ -503,6 +503,52 @@ Generate a 32-byte base64-encoded Fernet-compatible secret if the secret does no
 {{- end -}}
 {{- end -}}
 
+{{/*
+Generate a random langflow key
+*/}}
+{{- define "docspace.langflow.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 32 | b64enc) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Use an existing langflow key from .Values or from a Kubernetes Secret if not set.
+*/}}
+{{- define "docspace.langflow.getExistingSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if $existValue }}
+  {{- printf "%s" $existValue }}
+{{- else }}
+  {{- $secret := lookup "v1" "Secret" $context.Release.Namespace $getSecretName }}
+  {{- if $secret }}
+    {{- $secretValue := get $secret.data $getSecretKey | b64dec }}
+    {{- if $secretValue }}
+      {{- printf "%s" $secretValue }}
+    {{- else }}
+      {{- printf "" }}
+    {{- end }}
+  {{- else }}
+    {{- printf "" }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
 {{- define "docspace.pgvector.password" -}}
 {{- $secretName := "docspace-pgvector" -}}
 {{- $secretKey := "POSTGRES_PASSWORD" -}}
