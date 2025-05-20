@@ -3661,7 +3661,7 @@ langflow:
       repository: onlyoffice/4testing-flow-backend
       # langflow.backend.image.tag Langflow container image tag
       # If set to, it takes priority over the `images.tag`
-      tag: "latest"
+      tag: ""
       # langflow.backend.image.pullPolicy Langflow container image pull policy
       pullPolicy: IfNotPresent
     # Configure a Security Context for containers in Langflow Pods
@@ -3874,7 +3874,7 @@ langflow:
       repository: onlyoffice/4testing-flow-frontend
       # langflow.frontend.image.tag Langflow Frontend container image tag
       # If set to, it takes priority over the `images.tag`
-      tag: "latest"
+      tag: ""
       # langflow.frontend.image.pullPolicy Langflow Frontend container image pull policy
       pullPolicy: IfNotPresent
     # Configure a Security Context for containers in Langflow Frontend Pods
