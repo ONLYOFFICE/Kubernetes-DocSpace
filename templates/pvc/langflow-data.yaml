@@ -1,0 +1,26 @@
+{{- if .Values.langflow.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: langflow-data
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: langflow
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.langflow.backend.persistence.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.langflow.backend.persistence.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  storageClassName: {{ .Values.langflow.backend.persistence.storageClass }}
+  accessModes:
+  {{- range .Values.langflow.backend.persistence.accessModes }}
+  - {{ . }}
+  {{- end }}
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.langflow.backend.persistence.size }}
+{{- end }}

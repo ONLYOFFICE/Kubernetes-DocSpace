@@ -3749,6 +3749,18 @@ langflow:
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
     mysqlUser: ""
+    persistence:
+      # langflow.backend.persistence.annotations Defines annotations that will be additionally added to Langflow PVC
+      # If set to, it takes priority over the `commonAnnotations`
+      # You can also use `tpl` as the value for the key
+      annotations: {}
+      # langflow.backend.persistence.storageClass PVC Storage Class for Langflow volume
+      storageClass: "nfs"
+      # langflow.backend.persistence.accessModes Langflow Persistent Volume access modes
+      accessModes:
+        - ReadWriteOnce
+      # langflow.backend.persistence.size PVC Storage Request for Langflow volume
+      size: 10Gi
   # DocSpace Langflow API application parameters
   # This block defines the parameters common to all the Pods of this application
   #

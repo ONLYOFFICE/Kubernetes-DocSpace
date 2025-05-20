@@ -147,12 +147,19 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- end }}
+        volumeMounts:
+          - name: langflow-data
+            mountPath: /app/langflow
         {{- if .Values.langflow.backend.extraVolumeMounts}}
         volumeMounts:
         {{- with .Values.langflow.backend.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- end }}
+      volumes:
+        - name: langflow-data
+          persistentVolumeClaim:
+            claimName: langflow-data
       {{- if .Values.langflow.backend.extraVolumes}}
       volumes:
       {{- with .Values.langflow.backend.extraVolumes }}
