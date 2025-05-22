@@ -3732,10 +3732,10 @@ langflow:
     # langflow.backend.resources.limits The resources limits for the Langflow container
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
         memory: "2Gi"
+        cpu: "1000m"
+      limits:
+        memory: "4Gi"
         cpu: "2000m"
     ## langflow.backend.extraEnvVars An array with extra env variables for the Langflow container
     extraEnvVars: []
