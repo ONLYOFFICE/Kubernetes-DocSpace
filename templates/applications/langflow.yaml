@@ -149,7 +149,7 @@ spec:
         {{- end }}
         volumeMounts:
           - name: langflow-data
-            mountPath: /app/langflow
+            mountPath: {{ .Values.langflow.env.langflowConfigDir | quote }}
         {{- if .Values.langflow.backend.extraVolumeMounts}}
         volumeMounts:
         {{- with .Values.langflow.backend.extraVolumeMounts }}
