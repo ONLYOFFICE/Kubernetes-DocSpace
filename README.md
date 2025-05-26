@@ -528,6 +528,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `langflow.enabled`                             | Enables Langflow appications: `langflow.frontend`, `langflow.backend`                                                                                  | `false`|
 | `langflow.secret.existingSecret`               | Name of the existing secret file that must contain the variable `LANGFLOW_SECRET_KEY`. If not specified, a new secret will be automatically generated  | `""` |
 | `langflow.secret.langflowSecretKey`            | Key used for encrypting sensitive data like API keys                                                                                                   | `""` |
+| `langflow.secret.openaiApiKey`                 | Is OpenAI API key                                                                                                                                      | `""` |
 
 ### ONLYOFFICE DocSpace Langflow Frontend additional parameters
 
