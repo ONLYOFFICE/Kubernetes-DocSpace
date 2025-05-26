@@ -202,6 +202,8 @@ connections:
   elkThreads: "1"
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
+  # connections.apiHostInternalRequests Enables sending some Api requests over the internal network
+  apiHostInternalRequests: false
   # connections.apiSystemHost The name of the DocSpace Api System service
   apiSystemHost: api-system
   # connections.notifyHost The name of the DocSpace Notify service
@@ -377,7 +379,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.0.4
+  tag: 3.1.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -3114,17 +3116,38 @@ identity:
     create: true
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
-    springProfilesActive: "dev"
+    springProfilesActive: "prod,server"
     # identity.env.multicast.enabled Defines whether multicast discovery will be used
     multicast:
       enabled: "false"
     # identity.env.kubernetes.enabled Defines whether k8s service discovery will be used
     kubernetes:
       enabled: "true"
+    # identity.env.region defines the deployment region
+    # Use "local" for local deployment or specify a region (e.g., "eu", "us") for regional queues
+    region: "local"
+    # identity.env.grpcClientRegistrationAddress defines the gRPC client registration addresses  
+    # These addresses are used to connect to the corresponding services  
+    grpcClientAddress:
+      # identity.env.grpcClientAddress.authorization specifies the gRPC address for the Identity Authorization service 
+      authorization: "static://identity-authorization:9999"
+      # identity.env.grpcClientAddress.registration specifies the gRPC address for the Identity API service  
+      registration: "static://identity-api:8888"
   # identity.brokerUriExistingSecret The name of the existing secret that contains the connection URI to the broker
   # If set to, it takes priority over those specified in `connections`
   # Must contain the `broker_uri` key
   brokerUriExistingSecret: ""
+  # identity.secret Defines the secrets used for encryption
+  secret:
+    ## identity.secret.existingSecret Name of the existing secret file that must contain the variables  
+    ## SPRING_APPLICATION_ENCRYPTION_SECRET
+    ## If not specified, a new secret will be automatically generated.
+    existingSecret: ""
+    # identity.secret.springEncryptionValue The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token
+    springEncryptionValue: ""
+    # identity.secret.generate If true, a new secret will be automatically generated
+    # If you experience OAuth2 access issues, set this to "false"
+    generate: "true"
   # DocSpace Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #

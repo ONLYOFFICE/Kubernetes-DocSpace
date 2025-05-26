@@ -559,3 +559,202 @@ Use an existing langflow key from .Values or from a Kubernetes Secret if not set
     {{- randAlphaNum 64 -}}
 {{- end -}}
 {{- end -}}
+
+
+{{- define "docspace.langflow.databaseUrl" -}}
+  {{- $password := . -}}
+  {{- printf "postgresql://langflow:%s@pgvector:5432/langflow" $password -}}
+{{- end -}}
+
+
+{{/*
+Return true if a secret object should be created for Langflow
+*/}}
+{{- define "docspace.langflow.createSecret" -}}
+{{- if empty .Values.langflow.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "docspace.langflow.secretName" -}}
+  {{- if .Values.langflow.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.langflow.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-langflow" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for pgvector
+*/}}
+{{- define "docspace.pgvector.createSecret" -}}
+{{- if empty .Values.pgvector.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "docspace.pgvector.secretName" -}}
+  {{- if .Values.pgvector.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.pgvector.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-pgvector" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random 512-bit secret if the secret does not already exist
+*/}}
+{{- define "docspace.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 64) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "docspace.langflow.backendURL" -}}
+    {{- printf "http://%s:%v" .Values.connections.langflowBackendHost  .Values.langflow.backend.containerPorts.backend -}}
+{{- end -}}
+
+{{/* 
+Generate a 32-byte base64-encoded Fernet-compatible secret if the secret does not already exist 
+*/}}
+{{- define "langflow.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randBytes 32 | b64enc) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random langflow key
+*/}}
+{{- define "docspace.langflow.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 32 | b64enc) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Use an existing langflow key from .Values or from a Kubernetes Secret if not set.
+*/}}
+{{- define "docspace.langflow.getExistingSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if $existValue }}
+  {{- printf "%s" $existValue }}
+{{- else }}
+  {{- $secret := lookup "v1" "Secret" $context.Release.Namespace $getSecretName }}
+  {{- if $secret }}
+    {{- $secretValue := get $secret.data $getSecretKey | b64dec }}
+    {{- if $secretValue }}
+      {{- printf "%s" $secretValue }}
+    {{- else }}
+      {{- printf "" }}
+    {{- end }}
+  {{- else }}
+    {{- printf "" }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{- define "docspace.pgvector.password" -}}
+{{- $secretName := "docspace-pgvector" -}}
+{{- $secretKey := "POSTGRES_PASSWORD" -}}
+{{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace $secretName).data -}}
+{{- if $existingSecret -}}
+    {{- get $existingSecret $secretKey | b64dec -}}
+{{- else -}}
+    {{- randAlphaNum 64 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for Identity
+*/}}
+{{- define "docspace.identity.createSecret" -}}
+{{- if empty .Values.identity.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get a secret name containing Spring encryption secret
+*/}}
+{{- define "docspace.identity.secretName" -}}
+  {{- if .Values.identity.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.identity.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-identity" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random 512-bit secret if the secret does not already exist
+*/}}
+{{- define "docspace.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 64) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION_SECRET
+*/}}
+{{- define "docspace.identity.springEncryptionValue" -}}
+{{- $val := .Values.identity.secret.springEncryptionValue }}
+{{- if and $val (ne $val "") }}
+  {{- $val }}
+{{- else if eq (.Values.identity.secret.generate | toString) "true" }}
+  {{- "" }}
+{{- else }}
+  {{- "secret" }}
+{{- end }}
+{{- end }}

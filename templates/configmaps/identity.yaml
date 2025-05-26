@@ -17,4 +17,5 @@ data:
   HZ_NETWORK_JOIN_KUBERNETES_ENABLED: {{ .Values.identity.env.kubernetes.enabled | quote }}
   HZ_NETWORK_JOIN_KUBERNETES_SERVICENAME: "identity-cache"
   HZ_NETWORK_JOIN_KUBERNETES_NAMESPACE: {{ include "docspace.namespace" . | quote }}
+  SPRING_APPLICATION_REGION: {{ .Values.identity.env.region | quote }}
 {{- end }}

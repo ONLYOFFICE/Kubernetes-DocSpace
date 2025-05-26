@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.0
+
+### New Features
+
+* Added SDK service
+* For Identity services, [the ability has been added](https://github.com/ONLYOFFICE/Kubernetes-DocSpace?tab=readme-ov-file#4-encryption-key-management-for-identity) to specify an existing secret containing encryption key, set a value, or generate a new one with a random value
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.1.0
+* Changed ports for Login and Doceditor services
+
 ## 3.1.0
 
 ### New Features

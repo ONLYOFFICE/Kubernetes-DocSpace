@@ -42,6 +42,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
+  * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -119,7 +120,7 @@ Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example
 To install RabbitMQ to your cluster, run the following command:
 
 ```bash
-$ helm install rabbitmq bitnami/rabbitmq \
+$ helm install rabbitmq --version 15.5.3 bitnami/rabbitmq \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
@@ -367,7 +368,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.0.4`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.1.0`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -508,6 +509,12 @@ Instead of `Application`, the parameter name should have the following values: `
 | `identity.env.springProfilesActive`            | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
 | `identity.env.multicast.enabled`               | Defines whether multicast discovery will be used                                                                          | `false`              |
 | `identity.env.kubernetes.enabled`              | Defines whether k8s service discovery will be used                                                                        | `true`               |
+| `identity.env.region            `              | Defines the deployment region. Use "local" for local deployment or specify a region (e.g., "eu", "us") for regional queues| `local`               |
+| `identity.env.grpcClientAddress.authorization` | Defines the gRPC client registration addresses. These addresses are used to connect to the corresponding services. `authorization` specifies the gRPC address for the Identity Authorization service  | `static://identity-authorization:9999`    |
+| `identity.env.grpcClientAddress.registration`  | Specifies the gRPC address for the Identity API service                                                                   | `static://identity-api:8888`               |
+| `identity.secret.existingSecret`               | Name of the existing secret file that must contain the variable SPRING_APPLICATION_ENCRYPTION_SECRET. If not specified, a new secret will be automatically generated. | `""`               |
+| `identity.secret.springEncryptionValue`        | The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token                  | `true`               |
+| `identity.secret.generate`                     | If `true`, a new secret will be automatically generated. If you experience OAuth2 access issues, set this to `false`        | `true`               |
 
 ### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
 
@@ -907,6 +914,55 @@ $ kubectl scale -n default deployment APPLICATION --replicas=POD_COUNT
 
 where `POD_COUNT` is a number of the `APPLICATION` pods.
 
+### 4. Encryption Key Management for Identity
+
+Starting from **chart version 3.2.0**, the encryption key used by the Identity service (`SPRING_APPLICATION_ENCRYPTION_SECRET`) is now created automatically and stored in a Kubernetes Secret.
+
+#### Upgrading from earlier versions
+
+If you are upgrading from a version older than 3.2.0, and you have already created applications or configured OAuth2 integrations, we recommend disabling automatic key generation to preserve compatibility with existing data:
+
+```bash
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
+```
+
+This setting ensures consistent encryption behavior during the upgrade.
+
+> **Note:** If you experience issues with authentication or access after the upgrade, try setting `generate: "false"` and re-deploying the chart.
+
+#### For new installations
+
+No additional configuration is required. A secure key will be generated automatically:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=true
+```
+#### Manual configuration
+
+Manual configuration of the encryption key is also supported if needed:
+
+- To use an existing Kubernetes Secret:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.existingSecret=secret-file
+```
+
+The specified Secret must contain the key `SPRING_APPLICATION_ENCRYPTION_SECRET`.
+
+- To explicitly set the secret value:
+
+```bash
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.springEncryptionValue=secret-value
+```
+#### Parameter priority
+
+When multiple encryption-related settings are defined, the following order of precedence applies:
+
+1. `existingSecret`  
+2. `springEncryptionValue`  
+3. `generate`  
+> **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
+
 ## ONLYOFFICE DocSpace installation test (optional)
 
 You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:
@@ -938,3 +994,4 @@ $ kubectl delete pod test-docspace -n <NAMESPACE>
 Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
 It may be that even though all checks are completed successfully, an error occurs in the application.
 In this case, more detailed information can be found in the application logs.
+
