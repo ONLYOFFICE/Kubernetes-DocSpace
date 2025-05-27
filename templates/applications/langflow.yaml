@@ -141,6 +141,14 @@ spec:
         {{- with .Values.langflow.backend.extraEnvFrom }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        env:
+        - name: LANGFLOW_DATABASE_URL
+          valueFrom: 
+            secretKeyRef:
+              name: docspace-langflow-url
+              key: LANGFLOW_DATABASE_URL
+        {{- with .Values.langflow.backend.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
         volumeMounts:
           - name: langflow-data

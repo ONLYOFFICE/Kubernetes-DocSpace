@@ -1,0 +1,23 @@
+{{- if .Values.langflow.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: langflow
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+{{ include "docspace.annotations" (dict "keyName" .Values.commonAnnotations "context" $) | nindent 4 }}
+  {{- end }}
+data:
+  LANGFLOW_LOG_LEVEL: {{ .Values.log.level | quote}}
+  HOST_QDRANT_SERVICE: {{ .Values.connections.qdrant.host | quote}}
+  HOST_QDRANT_PORT: {{ .Values.connections.qdrant.port | quote}}
+  API_ROUTER_HOST: {{ .Values.connections.appUrlPortal | quote }}
+  HOST_API_SERVICE: "http://{{ .Values.connections.apiHost }}.default.svc.cluster.local:{{ .Values.api.containerPorts.app }}"
+  HOST_FILES_SERVICE: "http://{{ .Values.connections.filesHost }}.default.svc.cluster.local:{{ .Values.files.containerPorts.app }}"
+  LANGFLOW_CONFIG_DIR: {{ .Values.langflow.env.langflowConfigDir | quote }}
+{{- end }}
