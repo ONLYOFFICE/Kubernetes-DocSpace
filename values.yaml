@@ -3570,6 +3570,7 @@ langflow:
     # langflow.secret.langflowSecretKey Key used for encrypting sensitive data like API keys
     langflowSecretKey: ""
     # langflow.secret.openaiApiKey is OpenAI API key
+  env:
     # langflow.env.langflowConfigDir Set the Langflow configuration directory where files, logs, and the Langflow database are stored
     langflowConfigDir: "/app/langflow"
   # DocSpace Langflow Backend application parameters
