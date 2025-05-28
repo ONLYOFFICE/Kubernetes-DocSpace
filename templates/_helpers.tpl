@@ -506,6 +506,9 @@ Use an existing langflow key from .Values or from a Kubernetes Secret if not set
 {{- end }}
 {{- end }}
 
+{{/*
+Get the password for pgvector from existing secret or generate a new one
+*/}}
 {{- define "docspace.pgvector.password" -}}
 {{- $secretName := "docspace-pgvector" -}}
 {{- $secretKey := "POSTGRES_PASSWORD" -}}
