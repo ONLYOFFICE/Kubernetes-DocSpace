@@ -460,27 +460,6 @@ Return true if a secret object should be created for pgvector
     {{- printf "http://%s:%v" .Values.connections.langflowBackendHost  .Values.langflow.backend.containerPorts.backend -}}
 {{- end -}}
 
-{{/* 
-Generate a 32-byte base64-encoded Fernet-compatible secret if the secret does not already exist 
-*/}}
-{{- define "langflow.generateSecret" -}}
-{{- $context := index . 0 -}}
-{{- $existValue := index . 1 -}}
-{{- $getSecretName := index . 2 -}}
-{{- $getSecretKey := index . 3 -}}
-{{- if not $existValue }}
-    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
-    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
-    {{- if $getSecretValue -}}
-        {{- printf "%s" $getSecretValue -}}
-    {{- else -}}
-        {{- printf "%s" (randBytes 32 | b64enc) -}}
-    {{- end -}}
-{{- else -}}
-    {{- printf "%s" $existValue -}}
-{{- end -}}
-{{- end -}}
-
 {{/*
 Generate a random langflow key
 */}}
