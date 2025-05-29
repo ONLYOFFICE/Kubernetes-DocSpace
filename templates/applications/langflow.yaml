@@ -136,8 +136,6 @@ spec:
             name: langflow
         - secretRef:
             name: {{ template "docspace.langflow.secretName" . }}
-        - secretRef:
-            name: {{ template "docspace.pgvector.secretName" . }}
         {{- with .Values.langflow.backend.extraEnvFrom }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

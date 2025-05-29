@@ -416,11 +416,14 @@ Return true if a pvc object should be created for DocSpace Router log
 {{- end -}}
 {{- end -}}
 
+{{/*
+Return Langflow PostgreSQL connection string
+*/}}
 {{- define "docspace.langflow.databaseUrl" -}}
-  {{- $password := . -}}
-  {{- printf "postgresql://langflow:%s@pgvector:5432/langflow" $password -}}
+  {{- $pgSecret := (lookup "v1" "Secret" .Release.Namespace "postgresql") -}}
+  {{- $pgPassword := (get $pgSecret.data "password") | b64dec -}}
+  {{- printf "postgresql://langflow:%s@postgresql:5432/langflow" $pgPassword -}}
 {{- end -}}
-
 
 {{/*
 Return true if a secret object should be created for Langflow
@@ -440,22 +443,8 @@ Return true if a secret object should be created for Langflow
 {{- end -}}
 
 {{/*
-Return true if a secret object should be created for pgvector
+Return Langflow backend service URL
 */}}
-{{- define "docspace.pgvector.createSecret" -}}
-{{- if empty .Values.pgvector.secret.existingSecret }}
-    {{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "docspace.pgvector.secretName" -}}
-  {{- if .Values.pgvector.secret.existingSecret -}}
-    {{- printf "%s" (tpl .Values.pgvector.secret.existingSecret $) -}}
-  {{- else -}}
-    {{- "docspace-pgvector" -}}
-  {{- end -}}
-{{- end -}}
-
 {{- define "docspace.langflow.backendURL" -}}
     {{- printf "http://%s:%v" .Values.connections.langflowBackendHost  .Values.langflow.backend.containerPorts.backend -}}
 {{- end -}}
@@ -505,20 +494,6 @@ Use an existing langflow key from .Values or from a Kubernetes Secret if not set
   {{- end }}
 {{- end }}
 {{- end }}
-
-{{/*
-Get the password for pgvector from existing secret or generate a new one
-*/}}
-{{- define "docspace.pgvector.password" -}}
-{{- $secretName := "docspace-pgvector" -}}
-{{- $secretKey := "POSTGRES_PASSWORD" -}}
-{{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace $secretName).data -}}
-{{- if $existingSecret -}}
-    {{- get $existingSecret $secretKey | b64dec -}}
-{{- else -}}
-    {{- randAlphaNum 64 -}}
-{{- end -}}
-{{- end -}}
 
 {{/*
 Return true if a secret object should be created for Identity

@@ -421,8 +421,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`. `pgvector` is enabled automatically with `langflow`                  | `true`  |
-| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs`, `opensearch` and `pgvector` | `Deployment`             |
+| `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`  is enabled automatically with `langflow`                  | `true`  |
+| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
 | `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
@@ -446,12 +446,12 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.autoscaling.targetMemory.utilizationPercentage` | "Application" deployment autoscaling target memory percentage                                                                                                                     | `70`                                                                                      |
 | `Application.autoscaling.customMetricsType`               | Custom, additional or external autoscaling metrics for the "Application" deployment                                                                                               | `[]`                                                                                      |
 | `Application.autoscaling.behavior`                        | Configuring "Application" deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields                                                                           | `{}`                                                                                      |
-| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs`, `opensearch` and `pgvector`        | `onlyoffice/docspace-Application`         |
-| `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs`, `opensearch` and `pgvector` | `""` |
+| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/docspace-Application`         |
+| `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`. `pgvector`      | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `login` and `proxyFrontend`, `identity.authorization`, `identity.api`, `langflow.frontend`, `langflow.backend`.       | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -548,15 +548,6 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                             | Description                                                                                                  | Default                                                        |
 |-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
 | `langflow.backend.containerPorts.backend`             | Langflow Backend additional container port                                                                               | `7860`               |
-
-### ONLYOFFICE DocSpace Pgvector additional parameters
-
-| Parameter                                             | Description                                                                                                  | Default                                                        |
-|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| `pgvector.secret.existingSecret`                      | Name of the existing secret file that must contain the variable `POSTGRES_PASSWORD`. If not specified, a new secret will be automatically generate     | `""`                 |
-| `pgvector.secret.pgvectorSecret`                      | `POSTGRES_PASSWORD` value                                                                                    | `""`                                                           |
-| `pgvector.image.repository`                           | `pgvector` container image repository                                                                        | `pgvector/pgvector`                                            |
-| `pgvector.image.tag`                                  | `pgvector` container image tag                                                                               | `pg16`                                                         |
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 
