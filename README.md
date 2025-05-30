@@ -954,6 +954,53 @@ When multiple encryption-related settings are defined, the following order of pr
 3. `generate`  
 > **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
 
+### 5. Install Langflow
+
+#### Requirements
+
+- Dual-core CPU and **at least 2 GB RAM** (recommended: multi-core CPU with **4 GB RAM** or more for intensive use)
+- Pre-installed **PostgreSQL**
+- Pre-installed **Qdrant**
+
+#### Install PostgreSQL
+
+To deploy PostgreSQL using Helm with a persistent volume:
+
+```bash
+$ helm install postgresql bitnami/postgresql \
+  --set auth.database=langflow \
+  --set auth.username=langflow \
+  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
+  --set primary.persistence.size=PERSISTENT_SIZE
+```
+
+Replace `PERSISTENT_STORAGE_CLASS` and `PERSISTENT_SIZE` with appropriate values for your environment.
+
+#### Install Qdrant
+
+To deploy Qdrant with recommended values:
+
+```bash
+$ helm install qdrant qdrant/qdrant \
+  -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/qdrant_values.yaml \
+  --set persistence.storageClassName=PERSISTENT_STORAGE_CLASS
+```
+#### Configure Secrets
+
+When installing **ONLYOFFICE DocSpace** with Langflow, you must specify an existing Kubernetes Secret using the following Helm value:
+
+```yaml
+langflow.secret.existingSecret=[SECRET_NAME]
+```
+
+This secret should include the following environment variables:
+
+- `LANGFLOW_SECRET_KEY`
+- `OPENAI_API_KEY`
+
+If no existing secret is specified, a new one will be automatically generated.
+
+
 ## ONLYOFFICE DocSpace installation test (optional)
 
 You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:
