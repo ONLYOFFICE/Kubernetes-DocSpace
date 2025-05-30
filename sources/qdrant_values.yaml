@@ -1,0 +1,10 @@
+
+env:
+   - name: QDRANT_ALLOW_PRIVATE_NETWORKS_ONLY
+     value: true
+   - name: QDRANT_SERVICE_HOST
+     value: "0.0.0.0"
+   - name: QDRANT_SERVICE_PORT
+     value: "6334"
+   - name: QDRANT_REST_PORT
+     value: "6333"
