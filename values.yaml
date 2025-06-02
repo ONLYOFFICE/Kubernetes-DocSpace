@@ -240,6 +240,8 @@ connections:
   identityAuthorizationHost: identity-authorization
   # connections.sdkHost The name of the DocSpace SDK service
   sdkHost: sdk
+  # connections.managementHost The name of the DocSpace Management service
+  managementHost: management
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   # If you want to install DocSpace without Document Server then specify an empty value
@@ -3099,7 +3101,7 @@ login:
 #
 identity:
   # identity.enabled Enables Identity installation
-  enabled: false
+  enabled: true
   # identity.serviceAccount.create Enable Identity ServiceAccount creation
   # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
   # If disabled, the common `serviceAccount` will be used
@@ -4758,6 +4760,208 @@ sdk:
   ## sdk.extraVolumeMounts An array with extra volume mounts for the SDK container
   extraVolumeMounts: []
   # sdk.mysqlUser Database user who will be used by the SDK service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace Management application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+management:
+  # management.enabled Enables Management installation
+  enabled: false
+  # management.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # management.annotations Defines annotations that will be additionally added to Management deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # management.replicaCount Number of Management replicas to deploy
+  # If the `management.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 2
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # management.updateStrategy.type Management update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `management.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `management.kind` is set to `Deployment`
+    type: RollingUpdate
+    # management.updateStrategy.rollingUpdate Used only when `management.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # management.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Management Pods unavailable during the update process
+      maxUnavailable: 25%
+      # management.updateStrategy.rollingUpdate.maxSurge Maximum number of Management Pods created over the desired number of Pods
+      maxSurge: 25%
+  # management.podManagementPolicy The Management Pods scaling operations policy
+  # Used if `management.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # management.podAnnotations Map of annotations to add to the Management pods
+  podAnnotations: {}
+  # Configure a Security Context for the Management Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # management.podSecurityContext.enabled Enable security context for the Management pods
+    enabled: false
+  # management.customPodAntiAffinity Prohibiting the scheduling of Management Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Management Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Management Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Management Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Management Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # management.nodeSelector Node labels for Management pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # management.tolerations Tolerations for Management pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Management deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `management.autoscaling.enabled=true`
+  autoscaling:
+    ## management.autoscaling.enabled Enable Management deployment autoscaling
+    enabled: false
+    ## management.autoscaling.annotations Defines annotations that will be additionally added to Management deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## management.autoscaling.minReplicas Management deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## management.autoscaling.maxReplicas Management deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## management.autoscaling.targetCPU.enabled Enable autoscaling of Management deployment by CPU usage percentage
+      enabled: true
+      ## management.autoscaling.targetCPU.utilizationPercentage Management deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## management.autoscaling.targetMemory.enabled Enable autoscaling of Management deployment by memory usage percentage
+      enabled: false
+      ## management.autoscaling.targetMemory.utilizationPercentage Management deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## management.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Management deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## management.autoscaling.behavior Configuring Management deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # Management container image parameters
+  image:
+    # management.image.repository Management container image repository
+    repository: onlyoffice/docspace-management
+    # management.image.tag Management container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # management.image.pullPolicy Management container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Management Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # management.containerSecurityContext.enabled Enable security context for containers in Management pods
+    enabled: false
+  # management.lifecycleHooks Defines the Management container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
+  # management.containerPorts.management Management container port
+  containerPorts:
+    management: 5015
+  # Probe used for the Management container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `management.startupProbe.enabled=true`
+  startupProbe:
+    # management.startupProbe.enabled Enable startupProbe for Management container
+    enabled: true
+    httpGet:
+      # management.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /management/health
+      # management.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5015
+    # management.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # management.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `management.readinessProbe.enabled=true`
+  readinessProbe:
+    # management.readinessProbe.enabled Enable readinessProbe for Management container
+    enabled: true
+    # management.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # management.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /management/health
+      # management.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5015
+    # management.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # management.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # management.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `management.livenessProbe.enabled=true`
+  livenessProbe:
+    # management.livenessProbe.enabled Enable livenessProbe for Management container
+    enabled: true
+    # management.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # management.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /management/health
+      # management.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5015
+    # management.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # management.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # management.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Management container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # management.resources.requests The requested resources for the Management container
+  # management.resources.limits The resources limits for the Management container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  ## management.extraEnvVars An array with extra env variables for the Management container
+  extraEnvVars: []
+  ## management.extraVolumes An array with extra volumes for the Management container
+  extraVolumes: []
+  ## management.extraVolumeMounts An array with extra volume mounts for the Management container
+  extraVolumeMounts: []
+  # management.mysqlUser Database user who will be used by the Management service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""

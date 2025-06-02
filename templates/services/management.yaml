@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: management
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: management
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.management.containerPorts.management }}
+    name: management
+    targetPort: {{ .Values.management.containerPorts.management }}
+  selector:
+    app: management
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: ClusterIP
