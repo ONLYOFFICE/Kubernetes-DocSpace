@@ -120,7 +120,7 @@ Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example
 To install RabbitMQ to your cluster, run the following command:
 
 ```bash
-$ helm install rabbitmq --version 15.5.3 bitnami/rabbitmq \
+$ helm install rabbitmq bitnami/rabbitmq \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set metrics.enabled=false
 ```
@@ -364,7 +364,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.1.0`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.2.0`                       |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -375,7 +375,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `log.level`                                            | Defines the type and severity of a logged event                                                                             | `Warning`                     |
 | `debug.enabled`                                        | Enable debug                                                                                                                | `false`                       |
 | `initContainers.checkDB.image.repository`              | check-db initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `8.2.2-1`                     |
+| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.0.2-1`                     |
 | `initContainers.checkDB.image.pullPolicy`              | check-db initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `initContainers.checkDB.resources.requests.memory`     | The requested Memory for the check-db initContainer                                                                         | `256Mi`                       |
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
@@ -634,7 +634,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-upgrade Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
 | `upgrade.job.initContainers.rootless.enabled`                      | Enable the rootless initContainer to change file ownership                                                                  | `true`                        |
 | `upgrade.job.initContainers.rootless.image.repository`             | rootless initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `8.2.2-1`                     |
+| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.0.2-1`                     |
 | `upgrade.job.initContainers.rootless.image.pullPolicy`             | rootless initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `upgrade.job.initContainers.rootless.resources.requests.memory`    | The requested Memory for the rootless initContainer                                                                         | `256Mi`                       |
 | `upgrade.job.initContainers.rootless.resources.requests.cpu`       | The requested CPU for the rootless initContainer                                                                            | `100m`                        |
@@ -695,7 +695,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `tests.nodeSelector`                                     | Node labels for Test pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                              | `{}`                             |
 | `tests.tolerations`                                      | Tolerations for Test pod assignment. If set to, it takes priority over the `tolerations`                                                                                               | `[]`                             |
 | `tests.image.repository`                                 | Test container image name                                                                                                                                                              | `onlyoffice/docs-utils`          |
-| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `8.2.2-1`                        |
+| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `9.0.2-1`                        |
 | `tests.image.pullPolicy`                                 | Test container image pull policy                                                                                                                                                       | `IfNotPresent`                   |
 | `tests.containerSecurityContext.enabled`                 | Enable security context for the Test container                                                                                                                                         | `false`                          |
 | `tests.resources.requests`                               | The requested resources for the Test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |

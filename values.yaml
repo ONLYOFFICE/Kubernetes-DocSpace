@@ -374,7 +374,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.1.0
+  tag: 3.2.0
 # JSON Web Token parameters
 jwt:
   # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
@@ -415,7 +415,7 @@ initContainers:
       # initContainers.checkDB.image.repository check-db initContainer image repository
       repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: 8.2.2-1
+      tag: 9.0.2-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -5404,7 +5404,7 @@ upgrade:
           repository: onlyoffice/docs-utils
           # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
           # If set to, it takes priority over the `images.tag`
-          tag: 8.2.2-1
+          tag: 9.0.2-1
           # upgrade.job.initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
           pullPolicy: IfNotPresent
         # Rootless initContainer resource requests and limits
@@ -5468,7 +5468,7 @@ upgrade:
         # upgrade.job.docsInitDB.image.repository Init DB for Docs container image repository
         repository: onlyoffice/docs-utils
         # upgrade.job.docsInitDB.image.tag Init DB for Docs container image tag
-        tag: 8.2.2-1
+        tag: 9.0.2-1
         # upgrade.job.docsInitDB.image.pullPolicy Init DB for Docs container image pull policy
         pullPolicy: IfNotPresent
       # Init DB for Docs resource requests and limits
@@ -5495,7 +5495,7 @@ elasticsearchClearIndexes:
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
       # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
-      tag: 8.2.2-1
+      tag: 9.0.2-1
       # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
       pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
@@ -5612,7 +5612,7 @@ opensearch:
         # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
         # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
-        tag: 8.2.2-1
+        tag: 9.0.2-1
         # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
       # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
@@ -5803,7 +5803,7 @@ tests:
     # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
     # tests.image.tag test container image tag
-    tag: 8.2.2-1
+    tag: 9.0.2-1
     # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for the Test container

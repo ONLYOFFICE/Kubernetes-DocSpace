@@ -9,7 +9,7 @@
 
 ### Changes
 
-* Released ONLYOFFICE DocSpace v3.1.0
+* Released ONLYOFFICE DocSpace v3.2.0
 * Changed ports for Login and Doceditor services
 
 ## 3.1.0
