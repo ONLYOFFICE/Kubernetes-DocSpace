@@ -138,6 +138,8 @@ spec:
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
+        - name: COMMAND_TIMEOUT
+          value: {{ .Values.connections.commandTimeout | quote }}
         envFrom:
         - configMapRef:
             name: docspace
