@@ -1,9 +1,9 @@
 # Global parameters for DocSpace and Docs
 #
 # global.installationType Defines solution type for DocSpace and Docs
-# Possible values are `COMMUNITY`, `DEVELOPER` or `ENTERPRISE`
+# Possible values are `DEVELOPER` or `ENTERPRISE`
 global:
-  installationType: "COMMUNITY"
+  installationType: "ENTERPRISE"
 
 # Default values for subchart Onlyoffice Docs
 # ref: https://github.com/ONLYOFFICE/Kubernetes-Docs/blob/master/values.yaml
