@@ -213,6 +213,8 @@ At the wizard page during the first login please add your license using the corr
 
 ### 2. Install ONLYOFFICE DocSpace
 
+Note: In the `connections.appKnownNetworks` parameter, specify the address ranges of the Kubernetes cluster networks, as well as the networks in which the proxies that you are using in front of DocSpace services, from which the forwarded headers for ONLYOFFICE DocSpace services will be received. Default value - `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`
+
 To install ONLYOFFICE DocSpace to your cluster, run the following command:
 
 ```bash
@@ -346,7 +348,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Router) service | `1024` |
 | `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Router) service                                          | `.template`                   |
 | `connections.oauthOrigin`                              | The address of the OAUTH2 server                                                                                            | `""`                          |
-| `connections.appKnownNetworks`                         | Defines the address ranges of known networks to accept forwarded headers from for ONLYOFFICE DocSpace services. In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here. Provide IP ranges using CIDR notation | `10.244.0.0/16` |
+| `connections.appKnownNetworks`                         | Defines the address ranges of known networks to accept forwarded headers from for ONLYOFFICE DocSpace services. In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here. Provide IP ranges using CIDR notation | `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` |
 | `connections.oauthRedirectURL`                         | Address of the oauth authorization server                                                                                   | `https://service.onlyoffice.com/oauth2.aspx` |
 | `namespaceOverride`                                    | The name of the namespace in which ONLYOFFICE DocSpace will be deployed. If not set, the name will be taken from `.Release.Namespace`  | `""`                          |
 | `commonLabels`                                         | Defines labels that will be additionally added to all the deployed resources. You can also use `tpl` as the value for the key | `{}`                        |

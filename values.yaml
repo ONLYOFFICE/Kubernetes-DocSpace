@@ -205,7 +205,7 @@ connections:
   # connections.apiHost The name of the DocSpace Api service
   apiHost: api
   # connections.apiHostInternalRequests Enables sending some Api requests over the internal network
-  apiHostInternalRequests: false
+  apiHostInternalRequests: true
   # connections.apiSystemHost The name of the DocSpace Api System service
   apiSystemHost: api-system
   # connections.notifyHost The name of the DocSpace Notify service
@@ -278,7 +278,7 @@ connections:
   # Provide IP ranges using CIDR notation
   # Example:
   # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
-  appKnownNetworks: "10.244.0.0/16"
+  appKnownNetworks: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
   # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
   appKnownProxies: ""
   # connections.oauthRedirectURL Address of the oauth authorization server
