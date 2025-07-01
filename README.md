@@ -594,7 +594,9 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
 | `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE DocSpace                                                                          | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
+| `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE DocSpace ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
 | `ingress.host`                                           | Ingress hostname for the ONLYOFFICE DocSpace                                                                    | `""`                                                                                      |
+| `ingress.tenants`                                        | Ingress hostnames if you need to use more than one name. For example, for multitenancy. If set to, it takes priority over the `ingress.host`. If `ingress.tls.enabled` is set to `true`, it is assumed that the certificate for all specified domains is kept secret by `ingress.tls.secretName` | `[]` |
 
 ### ONLYOFFICE DocSpace Jobs parameters
 

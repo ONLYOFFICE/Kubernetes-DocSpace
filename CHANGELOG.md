@@ -6,6 +6,7 @@
 
 * Added SDK service
 * For Identity services, [the ability has been added](https://github.com/ONLYOFFICE/Kubernetes-DocSpace?tab=readme-ov-file#4-encryption-key-management-for-identity) to specify an existing secret containing encryption key, set a value, or generate a new one with a random value
+* Added the ability to specify multiple hostname for Ingress
 
 ### Changes
 
