@@ -65,7 +65,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
-
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       {{- if or .Values.opensearch.initContainers.changeVolumeOwner.enabled (not (empty .Values.opensearch.initContainers.custom)) }}
       initContainers:
       {{- if .Values.opensearch.initContainers.changeVolumeOwner.enabled }}
@@ -85,7 +87,6 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       {{- end }}
-
       containers:
       - name: opensearch
         image: {{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}

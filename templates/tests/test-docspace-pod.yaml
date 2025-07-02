@@ -47,6 +47,9 @@ spec:
   imagePullSecrets:
   - name: {{ .Values.imagePullSecrets }}
   {{- end }}
+  {{- if .Values.connections.hostAliases }}
+  hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 4 }}
+  {{- end }}
   containers:
   - name: test-docspace
     image: {{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}

@@ -281,6 +281,14 @@ connections:
   appKnownNetworks: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
   # connections.appKnownProxies Deprecated parameter. Use `connections.appKnownNetworks` instead
   appKnownProxies: ""
+  # connections.hostAliases Adds additional entries to the hosts file in containers
+  # ref: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/
+  # Example:
+  # hostAliases:
+  # - ip: "192.168.2.5"
+  #   hostnames:
+  #   - "foo.local"
+  hostAliases: []
   # connections.oauthRedirectURL Address of the oauth authorization server
   oauthRedirectURL: "https://service.onlyoffice.com/oauth2.aspx"
 # namespaceOverride The name of the namespace in which DocSpace will be deployed

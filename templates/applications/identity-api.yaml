@@ -105,6 +105,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       containers:
       - name: identity-api
         image: {{ include "docspace.imageRepository" (list . .Values.identity.api.image.repository) }}:{{ default .Values.images.tag .Values.identity.api.image.tag }}
