@@ -8,10 +8,14 @@ metadata:
   labels:
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
-  {{- if or .Values.commonAnnotations .Values.ingress.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
-  {{- end }}
+  annotations:
+    {{- if or .Values.commonAnnotations .Values.ingress.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ingress.letsencrypt.enabled }}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    {{- end }}
 spec:
   {{- $context := . }}
   {{- if .Values.ingress.ingressClassName }}

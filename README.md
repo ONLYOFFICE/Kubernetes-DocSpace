@@ -38,6 +38,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
+    + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
@@ -598,6 +599,11 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE DocSpace ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
 | `ingress.host`                                           | Ingress hostname for the ONLYOFFICE DocSpace                                                                    | `""`                                                                                      |
 | `ingress.tenants`                                        | Ingress hostnames if you need to use more than one name. For example, for multitenancy. If set to, it takes priority over the `ingress.host`. If `ingress.tls.enabled` is set to `true`, it is assumed that the certificate for all specified domains is kept secret by `ingress.tls.secretName` | `[]` |
+| `ingress.letsencrypt.enabled                             | Enabling certificate request creation in Let's Encrypt. Used if `ingress.enabled` is set to `true`              | `false`                                                                                   |
+| `ingress.letsencrypt.clusterIssuerName                   | ClusterIssuer Name                                                                                              | `letsencrypt-prod`                                                                        |
+| `ingress.letsencrypt.email                               | Your email address used for ACME registration                                                                   | `""`                                                                                      |
+| `ingress.letsencrypt.server                              | The address of the Let's Encrypt server to which requests for certificates will be sent                         | `https://acme-v02.api.letsencrypt.org/directory`                                          |
+| `ingress.letsencrypt.secretName                          | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-private-key`                                                            |
 
 ### ONLYOFFICE DocSpace Jobs parameters
 
@@ -815,6 +821,23 @@ $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hos
 Associate the `docspace` ingress IP or hostname with your domain name through your DNS provider.
 
 After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`.
+
+#### 1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate
+
+- Add Helm repositories:
+  ```bash
+  $ helm repo add jetstack https://charts.jetstack.io
+  $ helm repo update
+  ```
+- Installing cert-manager
+  ```bash
+  $ helm install cert-manager --version v1.17.4 jetstack/cert-manager \
+    --namespace cert-manager \
+    --create-namespace \
+    --set crds.enabled=true \
+    --set crds.keep=false
+  ```
+Next, perform the installation or upgrade by setting the `ingress.enabled`, `ingress.tls.enabled` and `ingress.letsencrypt.enabled` parameters to `true`. Also set your own values in the parameters `ingress.letsencrypt.email`, `ingress.host` or `ingress.tenants`(for example, `--set "ingress.tenants={tenant1.example.com,tenant2.example.com}"`) if you want to use multiple domain names.
 
 ### 2. Transition from ElasticSearch to OpenSearch
 

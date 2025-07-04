@@ -5260,6 +5260,18 @@ ingress:
   # If set to, it takes priority over the `ingress.host`
   # If `ingress.tls.enabled` is set to `true`, it is assumed that the certificate for all specified domains is kept secret by `ingress.tls.secretName`
   tenants: []
+  letsencrypt:
+    # ingress.letsencrypt.enabled Enabling certificate request creation in Let's Encrypt
+    # Used if `ingress.enabled` is set to `true`
+    enabled: false
+    # ingress.letsencrypt.clusterIssuerName ClusterIssuer Name
+    clusterIssuerName: "letsencrypt-prod"
+    # ingress.letsencrypt.email Your email address used for ACME registration
+    email: ""
+    # ingress.letsencrypt.server The address of the Let's Encrypt server to which requests for certificates will be sent
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    # ingress.letsencrypt.secretName Name of a secret used to store the ACME account private key
+    secretName: "letsencrypt-prod-private-key"
 
 # DocSpace jobs parameters
 #
