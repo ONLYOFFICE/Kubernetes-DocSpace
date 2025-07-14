@@ -14,16 +14,21 @@ jobs:
       - name: Set chart version
         run: |
           wget https://download.onlyoffice.com/charts/4testing/index.yaml -P /tmp
-          LATEST_VERSION=$(awk '/docspace:/{f=1};f{print}' /tmp/index.yaml | awk '/^    version:/ {print $2;}' | head -1)
-          NEW_VERSION=$(awk '/^version:/ {print $2;}' Chart.yaml)
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
+            chmod +x /usr/bin/yq
+          LATEST_VERSION=$(yq '.entries.docspace' /tmp/index.yaml | awk '/^  version:/ {print $2;}' | head -1)
+          NEW_VERSION=$(yq '.version' Chart.yaml)
           if [[ "$LATEST_VERSION" == *"$NEW_VERSION"* ]]; then
-            RC=${LATEST_VERSION: -1}
+            RC=$(yq '.entries.docspace' /tmp/index.yaml | awk '/^  version:/ {print $2;}' | awk -F'[-.]' '{
+              if ($4 ~ /^rc[0-9]+$/) { rc = substr($4, 3) + 0 }
+              printf "%04d.%04d.%04d.%04d %s\n", $1, $2, $3, rc, $0
+              }' | sort -r | head -n1 | cut -d' ' -f2 | awk -F "rc" '{print $2}')
             let "RC+=1"
           else
             RC='1'
           fi
           NEW_VERSION=$(echo $NEW_VERSION)-rc$RC
-          sed 's/\(^version:\).*/\1 '$NEW_VERSION'/' -i Chart.yaml
+          sed '0,/version/s/\(version:\).*/\1 '$NEW_VERSION'/' -i Chart.yaml
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
