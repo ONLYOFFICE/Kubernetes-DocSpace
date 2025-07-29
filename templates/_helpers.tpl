@@ -3,11 +3,11 @@ Check the Installation type
 */}}
 {{- define "docspace.installation.type" -}}
 {{- $installationType := .Values.global.installationType -}}
-{{- $possibleInstallationTypes := list "COMMUNITY" "DEVELOPER" "ENTERPRISE" -}}
+{{- $possibleInstallationTypes := list "DEVELOPER" "ENTERPRISE" -}}
 {{- if has $installationType $possibleInstallationTypes }}
     {{- $installationType -}}
 {{- else -}}
-    {{- fail "You have specified an unsupported Installation type! Possible values: COMMUNITY, DEVELOPER and ENTERPRISE" -}}
+    {{- fail "You have specified an unsupported Installation type! Possible values: DEVELOPER or ENTERPRISE" -}}
 {{- end -}}
 {{- end -}}
 
@@ -415,3 +415,58 @@ Return true if a pvc object should be created for DocSpace Router log
     {{- true -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return true if a secret object should be created for Identity
+*/}}
+{{- define "docspace.identity.createSecret" -}}
+{{- if empty .Values.identity.secret.existingSecret }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get a secret name containing Spring encryption secret
+*/}}
+{{- define "docspace.identity.secretName" -}}
+  {{- if .Values.identity.secret.existingSecret -}}
+    {{- printf "%s" (tpl .Values.identity.secret.existingSecret $) -}}
+  {{- else -}}
+    {{- "docspace-identity" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Generate a random 512-bit secret if the secret does not already exist
+*/}}
+{{- define "docspace.generateSecret" -}}
+{{- $context := index . 0 -}}
+{{- $existValue := index . 1 -}}
+{{- $getSecretName := index . 2 -}}
+{{- $getSecretKey := index . 3 -}}
+{{- if not $existValue }}
+    {{- $secret_lookup := (lookup "v1" "Secret" $context.Release.Namespace $getSecretName).data }}
+    {{- $getSecretValue := (get $secret_lookup $getSecretKey) | b64dec }}
+    {{- if $getSecretValue -}}
+        {{- printf "%s" $getSecretValue -}}
+    {{- else -}}
+        {{- printf "%s" (randAlphaNum 64) -}}
+    {{- end -}}
+{{- else -}}
+    {{- printf "%s" $existValue -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION_SECRET
+*/}}
+{{- define "docspace.identity.springEncryptionValue" -}}
+{{- $val := .Values.identity.secret.springEncryptionValue }}
+{{- if and $val (ne $val "") }}
+  {{- $val }}
+{{- else if eq (.Values.identity.secret.generate | toString) "true" }}
+  {{- "" }}
+{{- else }}
+  {{- "secret" }}
+{{- end }}
+{{- end }}

@@ -1,58 +1,58 @@
-{{- if .Values.login.enabled }}
+{{- if .Values.management.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.login.kind }}
+kind: {{ .Values.management.kind }}
 metadata:
-  name: login
+  name: management
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: login
+    app: management
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.login.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.login.annotations }}
+  {{- if or .Values.commonAnnotations .Values.management.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.management.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.login.autoscaling.enabled }}
-  replicas: {{ .Values.login.replicaCount }}
+  {{- if not .Values.management.autoscaling.enabled }}
+  replicas: {{ .Values.management.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: login
+      app: management
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.login.kind "StatefulSet" }}
-  serviceName: login
+  {{- if eq .Values.management.kind "StatefulSet" }}
+  serviceName: management
   {{- end }}
-  {{- if .Values.login.updateStrategy }}
-  {{- if eq .Values.login.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.login.updateStrategy }}
+  {{- if .Values.management.updateStrategy }}
+  {{- if eq .Values.management.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.management.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.login.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.management.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.login.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.login.podManagementPolicy }}
+  {{- if eq .Values.management.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.management.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: login
+        app: management
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.login.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.login.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.management.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.management.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.login.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.management.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.login.podSecurityContext.enabled }}
-      {{- $psc = .Values.login.podSecurityContext }}
+      {{- if .Values.management.podSecurityContext.enabled }}
+      {{- $psc = .Values.management.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +68,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - login
+                  - management
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +78,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - login
+                - management
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.login.customPodAntiAffinity }}
+          {{- with .Values.management.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.login.podAffinity }}
+        {{- with .Values.management.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.login.nodeAffinity }}
+        {{- with .Values.management.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.login.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.login.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.management.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.management.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.login.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.login.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.management.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.management.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -109,10 +109,10 @@ spec:
       - name: app-wait-storage
         image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.login.containerSecurityContext.enabled }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.management.containerSecurityContext.enabled }}
         {{- $icsc := dict }}
-        {{- if .Values.login.containerSecurityContext.enabled }}
-        {{- $icsc = .Values.login.containerSecurityContext }}
+        {{- if .Values.management.containerSecurityContext.enabled }}
+        {{- $icsc = .Values.management.containerSecurityContext }}
         {{- else }}
         {{- $icsc = .Values.containerSecurityContext }}
         {{- end }}
@@ -126,37 +126,37 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: login
-        image: {{ include "docspace.imageRepository" (list . .Values.login.image.repository) }}:{{ default .Values.images.tag .Values.login.image.tag }}
-        imagePullPolicy: {{ .Values.login.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.login.containerSecurityContext.enabled }}
+      - name: management
+        image: {{ include "docspace.imageRepository" (list . .Values.management.image.repository) }}:{{ default .Values.images.tag .Values.management.image.tag }}
+        imagePullPolicy: {{ .Values.management.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.management.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.login.containerSecurityContext.enabled }}
-        {{- $csc = .Values.login.containerSecurityContext }}
+        {{- if .Values.management.containerSecurityContext.enabled }}
+        {{- $csc = .Values.management.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.login.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.login.lifecycleHooks | nindent 10 }}
+        {{- if .Values.management.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.management.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.login.containerPorts.app }}
-          name: app
-        {{- if .Values.login.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.login.startupProbe "enabled" | toYaml | nindent 10 }}
+        - containerPort: {{ .Values.management.containerPorts.management }}
+          name: management
+        {{- if .Values.management.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.management.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.login.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.login.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.management.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.management.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.login.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.login.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.management.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.management.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.login.resources | nindent 10 }}
+        resources: {{- toYaml .Values.management.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.login.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.management.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -187,7 +187,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.login.extraEnvVars }}
+        {{- with .Values.management.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -206,7 +206,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.login.extraVolumeMounts }}
+        {{- with .Values.management.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -221,7 +221,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.login.extraVolumes }}
+      {{- with .Values.management.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

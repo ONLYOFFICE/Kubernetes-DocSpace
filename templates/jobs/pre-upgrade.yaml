@@ -66,6 +66,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       initContainers:
       - name: check-db
         image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
@@ -138,6 +141,8 @@ spec:
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
+        - name: COMMAND_TIMEOUT
+          value: {{ .Values.connections.commandTimeout | quote }}
         envFrom:
         - configMapRef:
             name: docspace

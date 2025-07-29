@@ -105,6 +105,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       containers:
       - name: identity-authorization
         image: {{ include "docspace.imageRepository" (list . .Values.identity.authorization.image.repository) }}:{{ default .Values.images.tag .Values.identity.authorization.image.tag }}
@@ -124,6 +127,8 @@ spec:
         ports:
         - containerPort: {{ .Values.identity.authorization.containerPorts.authorization }}
           name: authorization
+        - containerPort: {{ .Values.identity.authorization.containerPorts.grpc }}
+          name: grpc
         {{- if .Values.identity.authorization.startupProbe.enabled }}
         startupProbe: {{- omit .Values.identity.authorization.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
@@ -135,6 +140,8 @@ spec:
         {{- end }}
         resources: {{- toYaml .Values.identity.authorization.resources | nindent 10 }}
         env:
+        - name: GRPC_CLIENT_REGISTRATION_ADDRESS
+          value: {{ .Values.identity.env.grpcClientAddress.registration | quote }}
         - name: SERVER_PORT
           value: {{ .Values.identity.authorization.containerPorts.authorization | quote }}
         - name: MYSQL_USER
@@ -149,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
+        - name: SPRING_APPLICATION_SIGNATURE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.coreMachineKey.secretName" . }}
+              key: APP_CORE_MACHINEKEY
         {{- if .Values.identity.brokerUriExistingSecret }}
         - name: RABBIT_URI
           valueFrom:
@@ -166,6 +178,8 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
+        - secretRef:
+            name: {{ template "docspace.identity.secretName" . }}
         - configMapRef:
             name: docspace
         - configMapRef:

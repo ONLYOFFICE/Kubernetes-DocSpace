@@ -66,6 +66,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       containers:
       - name: docspace-docs-pre-upgrade
         image: {{ .Values.upgrade.job.docsInitDB.image.repository }}:{{ .Values.upgrade.job.docsInitDB.image.tag }}

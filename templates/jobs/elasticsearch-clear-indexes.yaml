@@ -66,6 +66,9 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
       containers:
         - name: elasticsearch-clear-indexes
           image: {{ .Values.elasticsearchClearIndexes.job.image.repository }}:{{ .Values.elasticsearchClearIndexes.job.image.tag }}
