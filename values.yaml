@@ -5801,7 +5801,7 @@ singlePortalDomain:
      # singlePortalDomain.job.env.appCoreServerRoot Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true
       appCoreServerRoot: ""
       # singlePortalDomain.job.env.domain Configures domain name; overridden by ingress.host if present
-      domain: "plugins-network-33.onlyoffice.fun"
+      domain: ""
     # singlePortalDomain.job.enabled Enable the execution of job singlePortalDomain before upgrading DocSpace    
     enabled: false
     # singlePortalDomain container image parameters
