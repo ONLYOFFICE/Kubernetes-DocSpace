@@ -145,7 +145,7 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 
 To install OpenSearch to your cluster, set the `opensearch.enabled=true` parameter when installing ONLYOFFICE DocSpace.
 
-If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkSheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
+If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkScheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
 
 ### 7. Install ONLYOFFICE Docs
 
@@ -317,7 +317,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.brokerExistingSecret`                     | The name of existing secret to use for Broker password. Must contain the key specified in `connections.brokerSecretKeyName` | `rabbitmq`                    |
 | `connections.brokerSecretKeyName`                      | The name of the key that contains the Broker user password. If you set a password in `connections.brokerPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
 | `connections.brokerPassword`                           | Broker user password. If set to, it takes priority over the `connections.brokerExistingSecret`                              | `""`                          |
-| `connections.elkSheme`                                 | The protocol for the connection to Opensearch                                                                               | `http`                        |
+| `connections.elkScheme`                                | The protocol for the connection to Opensearch                                                                               | `http`                        |
 | `connections.elkHost`                                  | The IP address or the name of the Opensearch host                                                                           | `opensearch`                  |
 | `connections.elkPort`                                  | The port for the connection to Opensearch                                                                                   | `9200`                        |
 | `connections.elkThreads`                               | Number of threads in Opensearch                                                                                             | `1`                           |

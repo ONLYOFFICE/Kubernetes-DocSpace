@@ -23,7 +23,8 @@ data:
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
-  ELK_SHEME: {{ .Values.connections.elkSheme }}
+  ELK_SCHEME: {{ .Values.connections.elkScheme }}
+  ELK_SHEME: {{ .Values.connections.elkScheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}
   ELK_PORT: {{ .Values.connections.elkPort | quote }}
   ELK_THREADS: {{ .Values.connections.elkThreads | quote }}

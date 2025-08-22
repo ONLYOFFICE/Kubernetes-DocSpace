@@ -194,8 +194,8 @@ connections:
   # connections.brokerPassword Broker user password
   # If set to, it takes priority over the `connections.brokerExistingSecret`
   brokerPassword: ""
-  # connections.elkSheme The protocol for the connection to Opensearch
-  elkSheme: http
+  # connections.elkScheme The protocol for the connection to Opensearch
+  elkScheme: http
   # connections.elkHost The IP address or the name of the Opensearch host
   elkHost: opensearch
   # connections.elkPort The port for the connection to Opensearch

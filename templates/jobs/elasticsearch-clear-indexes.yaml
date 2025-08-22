@@ -85,11 +85,11 @@ spec:
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
           env:
-            - name: ELK_SHEME
+            - name: ELK_SCHEME
               valueFrom:
                 configMapKeyRef:
                   name: docspace
-                  key: ELK_SHEME
+                  key: ELK_SCHEME
             - name: ELK_HOST
               valueFrom:
                 configMapKeyRef:
