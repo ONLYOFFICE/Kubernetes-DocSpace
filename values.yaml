@@ -3116,7 +3116,7 @@ identity:
   # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
   # If disabled, the common `serviceAccount` will be used
   serviceAccount:
-    create: true
+    create: false
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "prod,server"
