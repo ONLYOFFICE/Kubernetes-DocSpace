@@ -104,27 +104,39 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 To install MySQL to your cluster, run the following command:
 
 ```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml bitnami/mysql \
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml --version 14.0.3 bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set primary.persistence.size=PERSISTENT_SIZE \
+  --set primary.resourcesPreset=none \
+  --set image.repository=bitnamilegacy/mysql \
+  --set global.security.allowInsecureImages=true \
+  --set image.tag=9.4.0-debian-12-r1 \
   --set metrics.enabled=false
 ```
 
-See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
-
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
+
+Note: Set the `metrics.enabled=true` to enable exposing Database metrics to be gathered by Prometheus. Also add the following parameters: `metrics.image.repository=bitnamilegacy/mysqld-exporter` and `metrics.image.tag=0.17.2-debian-12-r16`.
+
+See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
 
 ### 4. Install RabbitMQ
 
 To install RabbitMQ to your cluster, run the following command:
 
 ```bash
-$ helm install rabbitmq bitnami/rabbitmq \
+$ helm install rabbitmq --version 16.0.14 bitnami/rabbitmq \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
+  --set resourcesPreset=none \
+  --set image.repository=bitnamilegacy/rabbitmq \
+  --set image.tag=4.1.3-debian-12-r1 \
+  --set global.security.allowInsecureImages=true \
   --set metrics.enabled=false
 ```
+
+Note: Set the `metrics.enabled=true` to enable exposing RabbitMQ metrics to be gathered by Prometheus.
 
 See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq#rabbitmq).
 
@@ -133,11 +145,17 @@ See more details about installing RabbitMQ via Helm [here](https://github.com/bi
 To install Redis to your cluster, run the following command:
 
 ```bash
-$ helm install redis bitnami/redis \
+$ helm install redis --version 22.0.7 bitnami/redis \
   --set architecture=standalone \
   --set master.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
+  --set master.resourcesPreset=none \
+  --set global.security.allowInsecureImages=true \
+  --set image.repository=bitnamilegacy/redis \
+  --set image.tag=8.2.1-debian-12-r0 \
   --set metrics.enabled=false
 ```
+
+Note: Set the `metrics.enabled=true` to enable exposing Redis metrics to be gathered by Prometheus. Also add the following parameters: `metrics.image.repository=bitnamilegacy/redis-exporter` and `metrics.image.tag=1.76.0-debian-12-r0`.
 
 See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/redis).
 
