@@ -31,11 +31,11 @@ spec:
                 configMapKeyRef:
                   name: docspace
                   key: MYSQL_DATABASE
-            - name: ELK_SHEME
+            - name: ELK_SCHEME
               valueFrom:
                 configMapKeyRef:
                   name: docspace
-                  key: ELK_SHEME
+                  key: ELK_SCHEME
             - name: ELK_HOST
               valueFrom:
                 configMapKeyRef:
@@ -71,11 +71,11 @@ data:
     -u "$MYSQL_USER" \
     -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" \
     -e "TRUNCATE webstudio_index;"
-    if [[ "$ELK_SHEME" == "https" ]]; then
-      curl -XDELETE $ELK_SHEME://$ELK_HOST/files_folder
-      curl -XDELETE $ELK_SHEME://$ELK_HOST/files_file
+    if [[ "$ELK_SCHEME" == "https" ]]; then
+      curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_folder
+      curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_file
     else
-      curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
-      curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
+      curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_folder
+      curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_file
     fi
     echo -e "\e[0;32m Index cleanup is complete \e[0m"

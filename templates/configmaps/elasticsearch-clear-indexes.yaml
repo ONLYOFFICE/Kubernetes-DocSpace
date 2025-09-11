@@ -19,10 +19,10 @@ data:
   elasticsearch-clear-indexes.sh: |
     #!/bin/bash
 
-    if [[ "$ELK_SHEME" == "https" ]]; then
-      response=$(curl -s $ELK_SHEME://$ELK_HOST)
+    if [[ "$ELK_SCHEME" == "https" ]]; then
+      response=$(curl -s $ELK_SCHEME://$ELK_HOST)
     else
-      response=$(curl -s $ELK_SHEME://$ELK_HOST:$ELK_PORT)
+      response=$(curl -s $ELK_SCHEME://$ELK_HOST:$ELK_PORT)
     fi
     name=$(echo $response | jq -r ".name")
     if [[ "$name" = "elasticsearch-0" ]] && [[ "$ELK_HOST" = "elasticsearch" ]]; then
@@ -33,12 +33,12 @@ data:
       -u {{ .Values.connections.mysqlUser }} \
       -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
       -e "TRUNCATE webstudio_index;"
-      if [[ "$ELK_SHEME" == "https" ]]; then
-        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_folder
-        curl -XDELETE $ELK_SHEME://$ELK_HOST/files_file
+      if [[ "$ELK_SCHEME" == "https" ]]; then
+        curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_folder
+        curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_file
       else
-        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_folder
-        curl -XDELETE $ELK_SHEME://$ELK_HOST:$ELK_PORT/files_file
+        curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_folder
+        curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_file
       fi
       echo -e "\e[0;32m Index cleanup is complete \e[0m"
     else
