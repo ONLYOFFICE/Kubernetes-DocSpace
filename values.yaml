@@ -242,6 +242,8 @@ connections:
   identityAuthorizationHost: identity-authorization
   # connections.sdkHost The name of the DocSpace SDK service
   sdkHost: sdk
+  # connections.telegramHost The name of the DocSpace Telegram service
+  telegramHost: telegram
   # connections.managementHost The name of the DocSpace Management service
   managementHost: management
   # connections.documentServerHost The name of the Document Server service
@@ -4770,6 +4772,208 @@ sdk:
   ## sdk.extraVolumeMounts An array with extra volume mounts for the SDK container
   extraVolumeMounts: []
   # sdk.mysqlUser Database user who will be used by the SDK service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace Telegram application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+telegram:
+  # telegram.enabled Enables Telegram installation
+  enabled: true
+  # telegram.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # telegram.annotations Defines annotations that will be additionally added to Telegram deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # telegram.replicaCount Number of Telegram replicas to deploy
+  # If the `telegram.autoscaling.enabled` parameter is enabled, it is ignored
+  replicaCount: 2
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # telegram.updateStrategy.type Telegram update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `telegram.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `telegram.kind` is set to `Deployment`
+    type: RollingUpdate
+    # telegram.updateStrategy.rollingUpdate Used only when `telegram.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # telegram.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Telegram Pods unavailable during the update process
+      maxUnavailable: 25%
+      # telegram.updateStrategy.rollingUpdate.maxSurge Maximum number of Telegram Pods created over the desired number of Pods
+      maxSurge: 25%
+  # telegram.podManagementPolicy The Telegram Pods scaling operations policy
+  # Used if `telegram.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # telegram.podAnnotations Map of annotations to add to the Telegram pods
+  podAnnotations: {}
+  # Configure a Security Context for the Telegram Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # telegram.podSecurityContext.enabled Enable security context for the Telegram pods
+    enabled: false
+  # telegram.customPodAntiAffinity Prohibiting the scheduling of Telegram Pods relative to other Pods containing the specified labels on the same node
+  customPodAntiAffinity: {}
+  # Pod affinity rules for Telegram Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Telegram Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for Telegram Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes telegram Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # telegram.nodeSelector Node labels for Telegram pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # telegram.tolerations Tolerations for Telegram pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Telegram deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `telegram.autoscaling.enabled=true`
+  autoscaling:
+    ## telegram.autoscaling.enabled Enable Telegram deployment autoscaling
+    enabled: false
+    ## telegram.autoscaling.annotations Defines annotations that will be additionally added to Telegram deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## telegram.autoscaling.minReplicas Telegram deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## telegram.autoscaling.maxReplicas Telegram deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## telegram.autoscaling.targetCPU.enabled Enable autoscaling of Telegram deployment by CPU usage percentage
+      enabled: true
+      ## telegram.autoscaling.targetCPU.utilizationPercentage Telegram deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## telegram.autoscaling.targetMemory.enabled Enable autoscaling of Telegram deployment by memory usage percentage
+      enabled: false
+      ## telegram.autoscaling.targetMemory.utilizationPercentage Telegram deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## telegram.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Telegram deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## telegram.autoscaling.behavior Configuring Telegram deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # Telegram container image parameters
+  image:
+    # telegram.image.repository Telegram container image repository
+    repository: onlyoffice/docspace-telegram
+    # telegram.image.tag Telegram container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # telegram.image.pullPolicy Telegram container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in Telegram Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # telegram.containerSecurityContext.enabled Enable security context for containers in Telegram pods
+    enabled: false
+  # telegram.lifecycleHooks Defines the Telegram container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  lifecycleHooks: {}
+  # telegram.containerPorts.app Telegram container port
+  containerPorts:
+    app: 5050
+  # Probe used for the Telegram container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `telegram.startupProbe.enabled=true`
+  startupProbe:
+    # telegram.startupProbe.enabled Enable startupProbe for Telegram container
+    enabled: true
+    httpGet:
+      # telegram.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health/
+      # telegram.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # telegram.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # telegram.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `telegram.readinessProbe.enabled=true`
+  readinessProbe:
+    # telegram.readinessProbe.enabled Enable readinessProbe for Telegram container
+    enabled: true
+    # telegram.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # telegram.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health/
+      # telegram.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # telegram.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    # telegram.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # telegram.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `telegram.livenessProbe.enabled=true`
+  livenessProbe:
+    # telegram.livenessProbe.enabled Enable livenessProbe for Telegram container
+    enabled: true
+    # telegram.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # telegram.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health/
+      # telegram.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # telegram.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    # telegram.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # telegram.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # Telegram container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # telegram.resources.requests The requested resources for the Telegram container
+  # telegram.resources.limits The resources limits for the Telegram container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  ## telegram.extraEnvVars An array with extra env variables for the Telegram container
+  extraEnvVars: []
+  ## telegram.extraVolumes An array with extra volumes for the Telegram container
+  extraVolumes: []
+  ## telegram.extraVolumeMounts An array with extra volume mounts for the Telegram container
+  extraVolumeMounts: []
+  # telegram.mysqlUser Database user who will be used by the Telegram service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""

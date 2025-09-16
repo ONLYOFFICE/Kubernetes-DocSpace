@@ -1,0 +1,210 @@
+{{- if .Values.telegram.enabled }}
+apiVersion: apps/v1
+kind: {{ .Values.telegram.kind }}
+metadata:
+  name: telegram
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: telegram
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.telegram.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.telegram.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.telegram.autoscaling.enabled }}
+  replicas: {{ .Values.telegram.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: telegram
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if eq .Values.telegram.kind "StatefulSet" }}
+  serviceName: telegram
+  {{- end }}
+  {{- if .Values.telegram.updateStrategy }}
+  {{- if eq .Values.telegram.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.telegram.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.telegram.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.telegram.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.telegram.podManagementPolicy }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: telegram
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.telegram.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.telegram.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if or .Values.podSecurityContext.enabled .Values.telegram.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.telegram.podSecurityContext.enabled }}
+      {{- $psc = .Values.telegram.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - telegram
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - telegram
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.telegram.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.telegram.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.telegram.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if or .Values.nodeSelector .Values.telegram.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.telegram.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.telegram.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.telegram.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
+      {{- with .Values.initContainers.custom }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: telegram
+        image: {{ include "docspace.imageRepository" (list . .Values.telegram.image.repository) }}:{{ default .Values.images.tag .Values.telegram.image.tag }}
+        imagePullPolicy: {{ .Values.telegram.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.telegram.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.telegram.containerSecurityContext.enabled }}
+        {{- $csc = .Values.telegram.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.telegram.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.telegram.lifecycleHooks | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.telegram.containerPorts.app }}
+          name: app
+        {{- if .Values.telegram.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.telegram.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.telegram.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.telegram.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.telegram.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.telegram.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.telegram.resources | nindent 10 }}
+        env:
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.telegram.mysqlUser }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_HEADER
+        {{- with .Values.telegram.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.jwt.secretName" . }}
+        volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
+        {{- range .Values.extraConf.fileName }}
+        - name: custom-file
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.telegram.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: docspace-data
+          mountPath: /app/{{ .Values.product.name }}/data
+      volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      {{- with .Values.telegram.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+{{- end }}
