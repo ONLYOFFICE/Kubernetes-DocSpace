@@ -84,7 +84,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={vers=4,timeo=20}" \
+  --set "storageClass.mountOptions={noac,vers=4}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -384,31 +384,11 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
 | `initContainers.checkDB.resources.limits.memory`       | The Memory limits for the check-db initContainer                                                                            | `1Gi`                         |
 | `initContainers.checkDB.resources.limits.cpu`          | The CPU limits for the check-db initContainer                                                                               | `1000m`                       |
-| `initContainers.waitStorage.image.repository`          | app-wait-storage initContainer image repository                                                                             | `onlyoffice/docspace-wait-bin-share` |
-| `initContainers.waitStorage.image.tag`                 | app-wait-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                          |
-| `initContainers.waitStorage.image.pullPolicy`          | app-wait-storage initContainer image pull policy                                                                            | `IfNotPresent`                |
-| `initContainers.waitStorage.resources.requests.memory` | The requested Memory for the app-wait-storage initContainer                                                                 | `256Mi`                       |
-| `initContainers.waitStorage.resources.requests.cpu`    | The requested CPU for the app-wait-storage initContainer                                                                    | `100m`                        |
-| `initContainers.waitStorage.resources.limits.memory`   | The Memory limits for the app-wait-storage initContainer                                                                    | `1Gi`                         |
-| `initContainers.waitStorage.resources.limits.cpu`      | The CPU limits for the app-wait-storage initContainer                                                                       | `1000m`                       |
-| `initContainers.initStorage.image.repository`          | app-init-storage initContainer image repository                                                                             | `onlyoffice/docspace-bin-share` |
-| `initContainers.initStorage.image.tag`                 | app-init-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                          |
-| `initContainers.initStorage.image.pullPolicy`          | app-init-storage initContainer image pull policy                                                                            | `IfNotPresent`                |
-| `initContainers.initStorage.resources.requests.memory` | The requested Memory for the app-init-storage initContainer                                                                 | `256Mi`                       |
-| `initContainers.initStorage.resources.requests.cpu`    | The requested CPU for the app-init-storage initContainer                                                                    | `100m`                        |
-| `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                    | `2Gi`                         |
-| `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                       | `1000m`                       |
 | `initContainers.custom`                                | Defines custom containers that run before ONLYOFFICE DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Docs`, `Router`, `Opensearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
 | `persistence.storageClass`                             | PVC Storage Class for ONLYOFFICE DocSpace data volume                                                                                  | `nfs`                         |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                 |
 | `persistence.docspaceData.annotations`                 | Defines annotations that will be additionally added to common files PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                   |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                                 | `8Gi`                         |
-| `persistence.filesData.existingClaim`                  | The name of the existing PVC for use in the Files service. If not specified, a PVC named "files-data" will be created       | `""`                          |
-| `persistence.filesData.annotations`                    | Defines annotations that will be additionally added to Files PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                          |
-| `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                        | `2Gi`                         |
-| `persistence.peopleData.existingClaim`                 | The name of the existing PVC for use in the People Server service. If not specified, a PVC named "people-data" will be created | `""`                       |
-| `persistence.peopleData.annotations`                   | Defines annotations that will be additionally added to People Server PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                  |
-| `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                                | `2Gi`                         |
 | `persistence.routerLog.existingClaim`                  | The name of the existing PVC for storing Nginx logs of the Router service. If not specified, a PVC named "router-log" will be created | `""`                |
 | `persistence.routerLog.annotations`                    | Defines annotations that will be additionally added to Nginx logs PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                     |
 | `persistence.routerLog.size`                           | PVC Storage Request for Nginx logs volume                                                                                   | `5Gi`                         |

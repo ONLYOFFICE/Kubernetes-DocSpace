@@ -357,46 +357,6 @@ Return true if a pvc object should be created for DocSpace Data
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace People
-*/}}
-{{- define "docspace.pvc.people.name" -}}
-{{- if .Values.persistence.peopleData.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.peopleData.existingClaim $) -}}
-{{- else }}
-    {{- printf "people-data" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return true if a pvc object should be created for DocSpace People
-*/}}
-{{- define "docspace.pvc.people.create" -}}
-{{- if empty .Values.persistence.peopleData.existingClaim }}
-    {{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Get the PVC name for DocSpace Files
-*/}}
-{{- define "docspace.pvc.files.name" -}}
-{{- if .Values.persistence.filesData.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.filesData.existingClaim $) -}}
-{{- else }}
-    {{- printf "files-data" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return true if a pvc object should be created for DocSpace Files
-*/}}
-{{- define "docspace.pvc.files.create" -}}
-{{- if empty .Values.persistence.filesData.existingClaim }}
-    {{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Get the PVC name for DocSpace Router log
 */}}
 {{- define "docspace.pvc.router.name" -}}

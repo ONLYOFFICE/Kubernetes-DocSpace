@@ -439,48 +439,6 @@ initContainers:
       limits:
         memory: "1Gi"
         cpu: "1000m"
-  # Parameters of the Wait Storage initContainers
-  waitStorage:
-    image:
-      # initContainers.waitStorage.image.repository app-wait-storage initContainer image repository
-      repository: onlyoffice/docspace-wait-bin-share
-      # initContainers.waitStorage.image.tag app-wait-storage initContainer image tag
-      # If set to, it takes priority over the `images.tag`
-      tag: ""
-      # initContainers.waitStorage.image.pullPolicy app-wait-storage initContainer image pull policy
-      pullPolicy: IfNotPresent
-    # app-wait-storage initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # initContainers.waitStorage.resources.requests The requested resources for the app-wait-storage initContainer
-    # initContainers.waitStorage.resources.limits The resources limits for the app-wait-storage initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
-  # Parameters of the Init Storage initContainers
-  initStorage:
-    image:
-      # initContainers.initStorage.image.repository app-init-storage initContainer image repository
-      repository: onlyoffice/docspace-bin-share
-      # initContainers.initStorage.image.tag app-init-storage initContainer image tag
-      # If set to, it takes priority over the `images.tag`
-      tag: ""
-      # initContainers.initStorage.image.pullPolicy app-init-storage initContainer image pull policy
-      pullPolicy: IfNotPresent
-    # app-init-storage initContainer resource requests and limits
-    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # initContainers.initStorage.resources.requests The requested resources for the app-init-storage initContainer
-    # initContainers.initStorage.resources.limits The resources limits for the app-init-storage initContainer
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
   # initContainers.custom Custom initContainers parameters
   # Does not apply to the following services: `Docs`, `Router`, `Opensearch` and `Proxy Frontend`. The corresponding individual parameters are used for them
   # Example:
@@ -506,26 +464,6 @@ persistence:
     annotations: {}
     # persistence.docspaceData.size PVC Storage Request for common files volume
     size: 8Gi
-  filesData:
-    # persistence.filesData.existingClaim The name of the existing PVC for use in the Files service
-    # If not specified, a PVC named "files-data" will be created
-    existingClaim: ""
-    # persistence.filesData.annotations Defines annotations that will be additionally added to Files PVC
-    # If set to, it takes priority over the `commonAnnotations`
-    # You can also use `tpl` as the value for the key
-    annotations: {}
-    # persistence.filesData.size PVC Storage Request for Files volume
-    size: 2Gi
-  peopleData:
-    # persistence.peopleData.existingClaim The name of the existing PVC for use in the People Server service
-    # If not specified, a PVC named "people-data" will be created
-    existingClaim: ""
-    # persistence.peopleData.annotations Defines annotations that will be additionally added to People Server PVC
-    # If set to, it takes priority over the `commonAnnotations`
-    # You can also use `tpl` as the value for the key
-    annotations: {}
-    # persistence.peopleData.size PVC Storage Request for People Server volume
-    size: 2Gi
   routerLog:
     # persistence.routerLog.existingClaim The name of the existing PVC for storing Nginx logs of the Router service
     # If not specified, a PVC named "router-log" will be created

@@ -11,6 +11,9 @@ spec:
           image: onlyoffice/docs-utils:9.0.3-1
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
+          envFrom:
+            - configMapRef:
+                name: docspace
           env:
             - name: MYSQL_HOST
               valueFrom:
@@ -31,21 +34,6 @@ spec:
                 configMapKeyRef:
                   name: docspace
                   key: MYSQL_DATABASE
-            - name: ELK_SCHEME
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_SCHEME
-            - name: ELK_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_HOST
-            - name: ELK_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_PORT
           volumeMounts:
             - name: elasticsearch-clear-indexes
               mountPath: /elasticsearch-clear-indexes.sh
@@ -65,17 +53,20 @@ data:
   elasticsearch-clear-indexes.sh: |
     #!/bin/bash
     echo -e "\e[0;32m The indexes will be cleared \e[0m"
+
+    SCHEME="${ELK_SCHEME:-${ELK_SHEME}}"
+
     mysql \
     -h "$MYSQL_HOST" \
     -P "$MYSQL_PORT" \
     -u "$MYSQL_USER" \
     -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" \
     -e "TRUNCATE webstudio_index;"
-    if [[ "$ELK_SCHEME" == "https" ]]; then
-      curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_folder
-      curl -XDELETE $ELK_SCHEME://$ELK_HOST/files_file
+    if [[ "$SCHEME" == "https" ]]; then
+      curl -XDELETE $SCHEME://$ELK_HOST/files_folder
+      curl -XDELETE $SCHEME://$ELK_HOST/files_file
     else
-      curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_folder
-      curl -XDELETE $ELK_SCHEME://$ELK_HOST:$ELK_PORT/files_file
+      curl -XDELETE $SCHEME://$ELK_HOST:$ELK_PORT/files_folder
+      curl -XDELETE $SCHEME://$ELK_HOST:$ELK_PORT/files_file
     fi
     echo -e "\e[0;32m Index cleanup is complete \e[0m"

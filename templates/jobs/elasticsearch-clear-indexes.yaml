@@ -84,22 +84,10 @@ spec:
           resources: {{- toYaml .Values.elasticsearchClearIndexes.job.resources | nindent 12 }}
           command: ["/bin/sh", "-c"]
           args: ["/elasticsearch-clear-indexes.sh"]
+          envFrom:
+          - configMapRef:
+              name: docspace
           env:
-            - name: ELK_SCHEME
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_SCHEME
-            - name: ELK_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_HOST
-            - name: ELK_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: docspace
-                  key: ELK_PORT
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
