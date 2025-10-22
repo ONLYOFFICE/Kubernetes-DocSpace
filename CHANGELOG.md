@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.3.0
+
+### New Features
+
+* Added Telegram service
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.5.0
+* Disabled hazelcast for identity services by default
+* Removed library sharing (PVC `files-data` and `people-data`) between containers
+
 ## 3.2.0
 
 ### New Features
