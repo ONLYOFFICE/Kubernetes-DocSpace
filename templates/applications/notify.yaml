@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.notify.autoscaling.enabled }}
-  replicas: {{ .Values.notify.replicaCount }}
+  replicas: {{ include "docspace.replicas" (list . .Values.notify.replicaCount) }}
   {{- end }}
   selector:
     matchLabels:

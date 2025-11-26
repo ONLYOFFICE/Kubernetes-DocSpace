@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.telegram.autoscaling.enabled }}
-  replicas: {{ .Values.telegram.replicaCount }}
+  replicas: {{ include "docspace.replicas" (list . .Values.telegram.replicaCount) }}
   {{- end }}
   selector:
     matchLabels:
