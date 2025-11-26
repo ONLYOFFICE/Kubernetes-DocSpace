@@ -384,6 +384,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
+  tag: 3.5.0
 # Global amount of replicas for all DocSpace applications
 replicas: 2
 # JSON Web Token parameters
