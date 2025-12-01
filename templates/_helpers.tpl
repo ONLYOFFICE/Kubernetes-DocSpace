@@ -443,3 +443,28 @@ Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION
   {{- "secret" }}
 {{- end }}
 {{- end }}
+
+{{/*
+Defines the APP_CORE_SERVER_ROOT value for single-portal setups
+*/}}
+{{- define "docspace.singlePortalDomain.appCoreServerRoot" -}}
+{{- if .Values.ingress.tls.enabled }}
+https://*/
+{{- else if .Values.singlePortalDomain.job.env.appCoreServerRoot }}
+{{ .Values.singlePortalDomain.job.env.appCoreServerRoot }}
+{{- else }}
+{{ "" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Get the domain for single-portal setups
+*/}}
+{{- define "docspace.singlePortalDomain.domain" -}}
+{{- if .Values.ingress.host }}
+{{ .Values.ingress.host }}
+{{- else if .Values.singlePortalDomain.job.env.domain }}
+{{ .Values.singlePortalDomain.job.env.domain }}
+{{- end }}
+{{- end }}
+

@@ -5938,6 +5938,68 @@ opensearch:
     # opensearch.persistence.size PVC Storage Request for Opensearch volume
     size: 30Gi
 
+# Job by singlePortalDomain has a pre-upgrade hook and executes on an upgrade request
+singlePortalDomain:
+  job:
+    # singlePortalDomain.job.enabled Enable the execution of job singlePortalDomain before upgrading DocSpace    
+    enabled: false
+    env:
+     # singlePortalDomain.job.env.appCoreServerRoot Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true
+      appCoreServerRoot: ""
+      # singlePortalDomain.job.env.domain Configures domain name; overridden by ingress.host if present
+      domain: ""
+    # singlePortalDomain container image parameters
+    image:
+      # singlePortalDomain.job.image.repository singlePortalDomain container image repository
+      repository: onlyoffice/docs-utils
+      # singlePortalDomain.job.image.tag singlePortalDomain container image tag
+      tag: 9.0.3-1
+      # singlePortalDomain.job.image.pullPolicy singlePortalDomain container image pull policy
+      pullPolicy: IfNotPresent
+    # singlePortalDomain.job.annotations Defines annotations that will be additionally added to singlePortalDomain Job
+    # If set to, it takes priority over the `commonAnnotations`
+    # You can also use `tpl` as the value for the key
+    annotations: {}
+    # singlePortalDomain.job.podAnnotations Map of annotations to add to the singlePortalDomain Job Pod
+    podAnnotations: {}
+    # Configure a Security Context for the singlePortalDomain Job Pod
+    # If set to, it takes priority over the `podSecurityContext`
+    podSecurityContext:
+      # singlePortalDomain.job.podSecurityContext.enabled Enable security context for the singlePortalDomain Job pod
+      enabled: false
+    # singlePortalDomain.job.customPodAntiAffinity Prohibiting the scheduling of singlePortalDomain Job Pod relative to other Pods containing the specified labels on the same node
+    customPodAntiAffinity: {}
+    # Pod affinity rules for singlePortalDomain Job Pod scheduling by nodes relative to other Pods
+    # Pod affinity allow you to constrain which nodes singlePortalDomain Job Pod can be scheduled on based on the labels of Pods already running on that node
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+    podAffinity: {}
+    # Node affinity rules for singlePortalDomain Job Pod scheduling by nodes
+    # Node affinity allow you to constrain which nodes singlePortalDomain Job Pod can be scheduled on based on node labels
+    # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+    nodeAffinity: {}
+    # singlePortalDomain.job.nodeSelector Node labels for singlePortalDomain Job pod assignment
+    # If set to, it takes priority over the `nodeSelector`
+    nodeSelector: {}
+    # singlePortalDomain.job.tolerations Tolerations for singlePortalDomain Job pod assignment
+    # If set to, it takes priority over the `tolerations`
+    tolerations: []
+    # Configure a Security Context for containers in singlePortalDomain Job Pod
+    # If set to, it takes priority over the `containerSecurityContext`
+    containerSecurityContext:
+      # singlePortalDomain.job.containerSecurityContext.enabled Enable security context for containers in singlePortalDomain Job pod
+      enabled: false
+    # Job singlePortalDomain container resource requests and limits
+    # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    # singlePortalDomain.job.resources.requests The requested resources for the Job singlePortalDomain container
+    # singlePortalDomain.job.resources.limits The resources limits for the Job singlePortalDomain container
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
 # DocSpace tests parameters
 #
 tests:

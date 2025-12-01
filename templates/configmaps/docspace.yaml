@@ -20,6 +20,9 @@ data:
   {{- if .Values.connections.apiHostInternalRequests }}
   API_HOST: "http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}"
   {{- end }}
+  {{- if .Values.singlePortalDomain.job.enabled }}
+  APP_CORE_SERVER_ROOT: {{ include "docspace.singlePortalDomain.appCoreServerRoot" . | trim | quote }}
+  {{- end }}
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
   MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}

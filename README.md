@@ -44,6 +44,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
   * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
+  * [5. Configuring Domain Name for Email Notifications](#5-configuring-domain-name-for-email-notifications)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -649,6 +650,23 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
+| `singlePortalDomain.job.enabled`                                | Enable the execution of job singlePortalDomain before upgrading and installing DocSpace                                                                                                                    | `false`                                         |
+| `singlePortalDomain.job.env.appCoreServerRoot`                  | Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true                                                                                                          | `""`                                            |
+| `singlePortalDomain.job.env.domain`                             | Configures domain name; overridden by ingress.host if present                                                                                                                                              | `""`                                            |
+| `singlePortalDomain.job.image.repository`                       | singlePortalDomain container image repository                                                                                                                                                              | `"onlyoffice/docs-utils"`                       |
+| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.0.3-1"`                                     |
+| `singlePortalDomain.job.image.pullPolicy`                       | singlePortalDomain container image pull policy                                                                                                                                                             | `"IfNotPresent"`                                |
+| `singlePortalDomain.job.annotations`                            | Defines annotations that will be additionally added to singlePortalDomain Job. If set to, it takes priority over the `commonAnnotations`                                                                   | `{}`                                            |
+| `singlePortalDomain.job.podAnnotations`                         | Map of annotations to add to the singlePortalDomain Job Pod                                                                                                                                                | `{}`                                            |
+| `singlePortalDomain.job.podSecurityContext.enabled`             | Enable security context for the singlePortalDomain Job pod                                                                                                                                                 | `{}`                                            |
+| `singlePortalDomain.job.customPodAntiAffinity`                  | Prohibiting the scheduling of singlePortalDomain Job Pod relative to other Pods containing the specified labels on the same node                                                                           | `{}`                                            |
+| `singlePortalDomain.job.podAffinity`                            | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for singlePortalDomain Job Pod scheduling by nodes relative to other Pods | `{}`                                 |
+| `singlePortalDomain.job.nodeAffinity`                           | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for singlePortalDomain Job Pod scheduling by nodes                                   | `{}`                                            |
+| `singlePortalDomain.job.nodeSelector`                           | Node labels for singlePortalDomain Job pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                                | `{}`                                            |
+| `singlePortalDomain.job.tolerations`                            | Tolerations for singlePortalDomain Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                                 | `[]`                                            |
+| `singlePortalDomain.job.containerSecurityContext.enabled`       | Enable security context for containers in singlePortalDomain Job pod                                                                                                                                       | `false`                                         |
+| `singlePortalDomain.job.resources.requests`                     | The requested resources for the singlePortalDomain Job container                                                                                                                                           | `memory, cpu`                                   |
+| `singlePortalDomain.job.resources.limits`                       | The resources limits for the singlePortalDomain Job container                                                                                                                                              | `memory, cpu`                                   |
 ### ONLYOFFICE DocSpace Opensearch parameters
 
 | Parameter                                             | Description                                                                                                  | Default                                                        |
@@ -933,6 +951,40 @@ When multiple encryption-related settings are defined, the following order of pr
 2. `springEncryptionValue`  
 3. `generate`  
 > **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
+
+### 5. Configuring Domain Name for Email Notifications
+
+The **single-portal-domain** job allows single-portal (non-multitenant) DocSpace installations to correctly display the domain name in **emails and notifications**.  
+Without it, such installations use `localhost` as the sender domain in notification links.
+
+When the job runs, it updates the database so that all notification links use the proper domain and protocol (HTTP or HTTPS).  
+The domain and protocol are taken automatically from **Ingress** settings, but if an external Ingress is used, they can be set manually in `values.yaml`.
+
+#### Upgrading from earlier versions
+
+If you previously installed DocSpace without a public domain or switched to HTTPS later, enable this job before the next upgrade:
+
+```bash
+helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
+```
+
+> **Note:** The domain name and HTTPS/HTTP scheme will be applied from your current Ingress configuration.
+
+If your Ingress is external or not managed by the chart, specify domain and protocol manually:
+
+```bash
+helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=docspace.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
+```
+
+#### For new installations
+
+If you install DocSpace with `ingress.host` configured (and optionally `ingress.tls.enabled=true`), the job is not required.  
+Notification links will automatically use your public domain and protocol.
+
+#### Parameters
+
+- `singlePortalDomain.job.env.domain` — defines the portal domain; used when `ingress.host` is not set.  
+- `singlePortalDomain.job.env.appCoreServerRoot` — defines the protocol prefix (`http://*/` or `https://*/`); if TLS is enabled, the chart automatically uses `https://*/`.
 
 ## ONLYOFFICE DocSpace installation test (optional)
 
