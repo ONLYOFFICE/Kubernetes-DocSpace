@@ -16,7 +16,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.identity.api.autoscaling.enabled }}
-  replicas: {{ include "docspace.replicas" (list . .Values.identity.api.replicaCount) }}
+  replicas: {{ default .Values.replicas .Values.identity.api.replicaCount }}
   {{- end }}
   selector:
     matchLabels:

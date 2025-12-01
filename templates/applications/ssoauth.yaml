@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.ssoauth.autoscaling.enabled }}
-  replicas: {{ include "docspace.replicas" (list . .Values.ssoauth.replicaCount) }}
+  replicas: {{ default .Values.replicas .Values.ssoauth.replicaCount }}
   {{- end }}
   selector:
     matchLabels:

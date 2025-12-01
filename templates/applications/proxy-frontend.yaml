@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.proxyFrontend.autoscaling.enabled }}
-  replicas: {{ include "docspace.replicas" (list . .Values.proxyFrontend.replicaCount) }}
+  replicas: {{ default .Values.replicas .Values.proxyFrontend.replicaCount }}
   {{- end }}
   selector:
     matchLabels:

@@ -105,19 +105,6 @@ Get the DocSpace image repository
 {{- end -}}
 
 {{/*
-Get the replica count
-*/}}
-{{- define "docspace.replicas" -}}
-  {{- $context := index . 0 -}}
-  {{- $local := index . 1 -}}
-  {{- if ne $context.Values.replicas nil -}}
-    {{- $context.Values.replicas -}}
-  {{- else -}}
-    {{- $local -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Get the MySQL password secret
 */}}
 {{- define "docspace.mysql.secretName" -}}

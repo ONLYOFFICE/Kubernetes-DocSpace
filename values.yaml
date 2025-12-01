@@ -503,7 +503,8 @@ files:
   annotations: {}
   # files.replicaCount Number of Files replicas to deploy
   # If the `files.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # files.updateStrategy.type Files update strategy type
@@ -758,7 +759,8 @@ peopleServer:
   annotations: {}
   # peopleServer.replicaCount Number of People Server replicas to deploy
   # If the `peopleServer.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # peopleServer.updateStrategy.type People Server update strategy type
@@ -957,7 +959,8 @@ router:
   annotations: {}
   # router.replicaCount Number of Router replicas to deploy
   # If the `router.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # router.updateStrategy.type Router update strategy type
@@ -1231,7 +1234,8 @@ healthchecks:
   annotations: {}
   # healthchecks.replicaCount Number of Healthchecks replicas to deploy
   # If the `healthchecks.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # healthchecks.updateStrategy.type Healthchecks update strategy type
@@ -1422,7 +1426,8 @@ apiSystem:
   annotations: {}
   # apiSystem.replicaCount Number of Api System replicas to deploy
   # If the `apiSystem.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # apiSystem.updateStrategy.type Api System update strategy type
@@ -1634,7 +1639,8 @@ api:
   annotations: {}
   # api.replicaCount Number of Api replicas to deploy
   # If the `api.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # api.updateStrategy.type Api update strategy type
@@ -1851,7 +1857,8 @@ backup:
   annotations: {}
   # backup.replicaCount Number of Backup replicas to deploy
   # If the `backup.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backup.updateStrategy.type Backup update strategy type
@@ -2053,7 +2060,8 @@ backupBackgroundTasks:
   annotations: {}
   # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
   # If the `backupBackgroundTasks.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
@@ -2255,7 +2263,8 @@ clearEvents:
   annotations: {}
   # clearEvents.replicaCount Number of Clear Events replicas to deploy
   # If the `clearEvents.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # clearEvents.updateStrategy.type Clear Events update strategy type
@@ -2457,7 +2466,8 @@ doceditor:
   annotations: {}
   # doceditor.replicaCount Number of Doceditor replicas to deploy
   # If the `doceditor.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # doceditor.updateStrategy.type Doceditor update strategy type
@@ -2659,7 +2669,8 @@ filesServices:
   annotations: {}
   # filesServices.replicaCount Number of Files Services replicas to deploy
   # If the `filesServices.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # filesServices.updateStrategy.type Files Services update strategy type
@@ -2861,7 +2872,8 @@ login:
   annotations: {}
   # login.replicaCount Number of Login replicas to deploy
   # If the `login.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # login.updateStrategy.type Login update strategy type
@@ -3106,7 +3118,8 @@ identity:
     annotations: {}
     # identity.authorization.replicaCount Number of Identity replicas to deploy
     # If the `identity.authorization.autoscaling.enabled` parameter is enabled, it is ignored
-    replicaCount: 2
+    # If set to, it takes priority over the `replicas`
+    replicaCount: ""
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
       # identity.authorization.updateStrategy.type Identity update strategy type
@@ -3309,7 +3322,8 @@ identity:
     annotations: {}
     # identity.api.replicaCount Number of Identity Api replicas to deploy
     # If the `identity.api.autoscaling.enabled` parameter is enabled, it is ignored
-    replicaCount: 2
+    # If set to, it takes priority over the `replicas`
+    replicaCount: ""
     # Update strategy used to replace old Pods by new ones
     updateStrategy:
       # identity.api.updateStrategy.type Identity Api update strategy type
@@ -3515,7 +3529,8 @@ notify:
   annotations: {}
   # notify.replicaCount Number of Notify replicas to deploy
   # If the `notify.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # notify.updateStrategy.type Notify update strategy type
@@ -3717,7 +3732,8 @@ socket:
   annotations: {}
   # socket.replicaCount Number of Socket replicas to deploy
   # If the `socket.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # socket.updateStrategy.type Socket update strategy type
@@ -3921,7 +3937,8 @@ ssoauth:
   annotations: {}
   # ssoauth.replicaCount Number of ssoauth replicas to deploy
   # If the `ssoauth.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # ssoauth.updateStrategy.type ssoauth update strategy type
@@ -4125,7 +4142,8 @@ studio:
   annotations: {}
   # studio.replicaCount Number of Studio replicas to deploy
   # If the `studio.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studio.updateStrategy.type Studio update strategy type
@@ -4327,7 +4345,8 @@ studioNotify:
   annotations: {}
   # studioNotify.replicaCount Number of Studio Notify replicas to deploy
   # If the `studioNotify.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # studioNotify.updateStrategy.type Studio Notify update strategy type
@@ -4529,7 +4548,8 @@ sdk:
   annotations: {}
   # sdk.replicaCount Number of SDK replicas to deploy
   # If the `sdk.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # sdk.updateStrategy.type SDK update strategy type
@@ -4731,7 +4751,8 @@ telegram:
   annotations: {}
   # telegram.replicaCount Number of Telegram replicas to deploy
   # If the `telegram.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # telegram.updateStrategy.type Telegram update strategy type
@@ -4933,7 +4954,8 @@ management:
   annotations: {}
   # management.replicaCount Number of Management replicas to deploy
   # If the `management.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # management.updateStrategy.type Management update strategy type
@@ -5135,7 +5157,8 @@ proxyFrontend:
   annotations: {}
   # proxyFrontend.replicaCount Number of Proxy Frontend replicas to deploy
   # If the `proxyFrontend.autoscaling.enabled` parameter is enabled, it is ignored
-  replicaCount: 2
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
     # proxyFrontend.updateStrategy.type Proxy Frontend update strategy type
