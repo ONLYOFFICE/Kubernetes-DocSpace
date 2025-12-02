@@ -1,3 +1,4 @@
+{{- if .Values.elasticsearchClearIndexes.job.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,6 +20,11 @@ data:
     #!/bin/bash
     set -e
 
+    if [ -z "$DOMAIN" ]; then
+      echo -e "\e[0;33m DOMAIN is empty, nothing to update. Exiting. \e[0m"
+      exit 0
+    fi
+
     EXISTS=$(mysql \
       -N -s \
       -h {{ .Values.connections.mysqlHost }} \
@@ -38,3 +44,4 @@ data:
     else
       echo -e "\e[0;32m BaseDomain already exists. No update needed. \e[0m"
     fi
+{{- end }}
