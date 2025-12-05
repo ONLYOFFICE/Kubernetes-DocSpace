@@ -1,0 +1,210 @@
+{{- if .Values.ai.enabled }}
+apiVersion: apps/v1
+kind: {{ .Values.ai.kind }}
+metadata:
+  name: ai
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: ai
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.ai.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.ai.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.ai.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.ai.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: ai
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if eq .Values.ai.kind "StatefulSet" }}
+  serviceName: ai
+  {{- end }}
+  {{- if .Values.ai.updateStrategy }}
+  {{- if eq .Values.ai.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.ai.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.ai.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.ai.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.ai.podManagementPolicy }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: ai
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.ai.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.ai.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if or .Values.podSecurityContext.enabled .Values.ai.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.ai.podSecurityContext.enabled }}
+      {{- $psc = .Values.ai.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ai
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - ai
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.ai.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.ai.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.ai.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if or .Values.nodeSelector .Values.ai.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.ai.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.ai.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.ai.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
+      {{- with .Values.initContainers.custom }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: ai
+        image: {{ include "docspace.imageRepository" (list . .Values.ai.image.repository) }}:{{ default .Values.images.tag .Values.ai.image.tag }}
+        imagePullPolicy: {{ .Values.ai.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.ai.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.ai.containerSecurityContext.enabled }}
+        {{- $csc = .Values.ai.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.ai.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.ai.lifecycleHooks | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ai.containerPorts.app }}
+          name: app
+        {{- if .Values.ai.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.ai.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.ai.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.ai.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.ai.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.ai.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.ai.resources | nindent 10 }}
+        env:
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.ai.mysqlUser }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_HEADER
+        {{- with .Values.ai.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.jwt.secretName" . }}
+        volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
+        {{- range .Values.extraConf.fileName }}
+        - name: custom-file
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.ai.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: docspace-data
+          mountPath: /app/{{ .Values.product.name }}/data
+      volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      {{- with .Values.ai.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+{{- end }}

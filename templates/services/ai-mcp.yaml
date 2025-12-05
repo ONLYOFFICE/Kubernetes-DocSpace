@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-mcp
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: ai-mcp
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.aiMCP.containerPorts.app }}
+    name: app
+    targetPort: {{ .Values.aiMCP.containerPorts.app }}
+  selector:
+    app: ai-mcp
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  type: ClusterIP

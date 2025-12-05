@@ -342,6 +342,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.identityAuthorizationHost`                | The name of the ONLYOFFICE DocSpace Identity service                                                                        | `identity-authorization`                |
 | `connections.sdkHost`                                  | The name of the DocSpace SDK service                                                                                        | `sdk`                         |
 | `connections.telegramHost`                               | The name of the ONLYOFFICE DocSpace Telegram service                                                                          | `telegram`                      |
+| `connections.aiHost`                                   | The name of the ONLYOFFICE DocSpace AI DocSpace service                                                                     | `ai`                          |
+| `connections.aiMCPHost`                                | The name of the ONLYOFFICE DocSpace AI MCP service                                                                     | `ai-mcp`                      |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
@@ -403,13 +405,13 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
-| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
+| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs`, `opensearch` and `ai-mcp` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
-| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs`,`opensearch` and `aiMCP`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
-| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `opensearch` | `OrderedReady`    |
+| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs`, `opensearch` and `ai-mcp` | `OrderedReady`    |
 | `Application.podAnnotations`                              | Map of annotations to add to the "Application" pods. If set to, it takes priority over the `podAnnotations`     | `{}`                                      |
 | `Application.podSecurityContext.enabled`                  | Enable security context for the "Application" pods. If set to, it takes priority over the `podSecurityContext`  | `false`                                   |
 | `Application.customPodAntiAffinity`                       | Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node | `{}`                                |
@@ -432,7 +434,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `proxyFrontend`, `identity.authorization` and `identity.api`                                            | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `proxyFrontend`, `identity.authorization`, `identity.api` and `aiMCP`                                            | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -444,7 +446,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk` and `telegram`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `ai service` and `aiMCP`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -509,6 +511,11 @@ Instead of `Application`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
 
+### ONLYOFFICE DocSpace AI MCP Server Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `aiMCP.containerPorts.app`                               | AI MCP container port                                                                                           | `5158`                  |
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 

@@ -40,6 +40,9 @@ data:
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
+  {{ if .Values.aiMCP.enabled }}
+  MCP_ENDPOINT: {{ printf "http://%s:%d/mcp" .Values.connections.aiMCPHost (int .Values.aiMCP.containerPorts.app) | quote }}
+  {{- end }}
   RABBIT_USER_NAME: {{ .Values.connections.brokerUser }}
   APP_URL_PORTAL: {{ include "docspace.url.portal" . | quote }}
   APP_CORE_BASE_DOMAIN: {{ .Values.connections.appCoreBaseDomain | quote }}

@@ -246,6 +246,10 @@ connections:
   telegramHost: telegram
   # connections.managementHost The name of the DocSpace Management service
   managementHost: management
+  # connections.aiHost The name of the DocSpace AI service
+  aiHost: ai
+  # connections.aiMCPHost The name of the DocSpace AI MCP service
+  aiMCPHost: ai-mcp
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
   # If you want to install DocSpace without Document Server then specify an empty value
@@ -5138,6 +5142,610 @@ management:
   ## management.extraVolumeMounts An array with extra volume mounts for the Management container
   extraVolumeMounts: []
   # management.mysqlUser Database user who will be used by the Management service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace AI application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+ai:
+  # ai.enabled Enables AI installation
+  enabled: true
+  # ai.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # ai.annotations Defines annotations that will be additionally added to AI deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # ai.replicaCount Number of AI replicas to deploy
+  # If the `ai.autoscaling.enabled` parameter is enabled, it is ignored
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # ai.updateStrategy.type AI update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `ai.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `ai.kind` is set to `Deployment`
+    type: RollingUpdate
+    # ai.updateStrategy.rollingUpdate Used only when `ai.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # ai.updateStrategy.rollingUpdate.maxUnavailable Maximum number of AI Pods unavailable during the update process
+      maxUnavailable: 25%
+      # ai.updateStrategy.rollingUpdate.maxSurge Maximum number of AI Pods created over the desired number of Pods
+      maxSurge: 25%
+  # ai.podManagementPolicy The AI Pods scaling operations policy
+  # Used if `ai.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # ai.podAnnotations Map of annotations to add to the AI pods
+  podAnnotations: {}
+  # Configure a Security Context for the AI Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # ai.podSecurityContext.enabled Enable security context for the AI pods
+    enabled: false
+  # ai.customPodAntiAffinity Prohibiting the scheduling of AI Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
+  # Pod affinity rules for AI Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes AI Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for AI Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes AI Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # ai.nodeSelector Node labels for AI pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # ai.tolerations Tolerations for AI pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the AI deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `ai.autoscaling.enabled=true`
+  autoscaling:
+    ## ai.autoscaling.enabled Enable AI System deployment autoscaling
+    enabled: false
+    ## ai.autoscaling.annotations Defines annotations that will be additionally added to AI System deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## ai.autoscaling.minReplicas AI System deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## ai.autoscaling.maxReplicas AI System deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## ai.autoscaling.targetCPU.enabled Enable autoscaling of AI System deployment by CPU usage percentage
+      enabled: true
+      ## ai.autoscaling.targetCPU.utilizationPercentage AI System deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## ai.autoscaling.targetMemory.enabled Enable autoscaling of AI System deployment by memory usage percentage
+      enabled: false
+      ## ai.autoscaling.targetMemory.utilizationPercentage AI System deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## ai.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the AI System deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## ai.autoscaling.behavior Configuring AI System deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # AI container image parameters
+  image:
+    # ai.image.repository AI container image repository
+    repository: onlyoffice/docspace-ai
+    # ai.image.tag AI container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # ai.image.pullPolicy AI container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in AI Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # ai.containerSecurityContext.enabled Enable security context for containers in AI pods
+    enabled: false
+  # ai.lifecycleHooks Defines the AI container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
+  # ai.containerPorts.app AI container port
+  containerPorts:
+    app: 5050
+  # Probe used for the AI container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `ai.startupProbe.enabled=true`
+  startupProbe:
+    # ai.startupProbe.enabled Enable startupProbe for AI container
+    enabled: true
+    httpGet:
+      # ai.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health/
+      # ai.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # ai.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # ai.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `ai.readinessProbe.enabled=true`
+  readinessProbe:
+    # ai.readinessProbe.enabled Enable readinessProbe for AI container
+    enabled: true
+    # ai.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # ai.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health/
+      # ai.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # ai.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # ai.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # ai.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `ai.livenessProbe.enabled=true`
+  livenessProbe:
+    # ai.livenessProbe.enabled Enable livenessProbe for AI container
+    enabled: true
+    # ai.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # ai.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health/
+      # ai.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # ai.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # ai.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # ai.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # AI container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # ai.resources.requests The requested resources for the AI container
+  # ai.resources.limits The resources limits for the AI container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
+  ## ai.extraEnvVars An array with extra env variables for the AI container
+  extraEnvVars: []
+  ## ai.extraVolumes An array with extra volumes for the AI container
+  extraVolumes: []
+  ## ai.extraVolumeMounts An array with extra volume mounts for the AI container
+  extraVolumeMounts: []
+  # ai.mysqlUser Database user who will be used by the AI service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace AI Service application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+aiService:
+  # aiService.enabled Enables AI Service installation
+  enabled: true
+  # aiService.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # aiService.annotations Defines annotations that will be additionally added to AI Service deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # aiService.replicaCount Number of AI Service replicas to deploy
+  # If the `aiService.autoscaling.enabled` parameter is enabled, it is ignored
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # aiService.updateStrategy.type AI Service update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `aiService.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `aiService.kind` is set to `Deployment`
+    type: RollingUpdate
+    # aiService.updateStrategy.rollingUpdate Used only when `aiService.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # aiService.updateStrategy.rollingUpdate.maxUnavailable Maximum number of AI Service Pods unavailable during the update process
+      maxUnavailable: 25%
+      # aiService.updateStrategy.rollingUpdate.maxSurge Maximum number of AI Service Pods created over the desired number of Pods
+      maxSurge: 25%
+  # aiService.podManagementPolicy The AI Service Pods scaling operations policy
+  # Used if `aiService.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # aiService.podAnnotations Map of annotations to add to the AI Service pods
+  podAnnotations: {}
+  # Configure a Security Context for the AI Service Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # aiService.podSecurityContext.enabled Enable security context for the AI Service pods
+    enabled: false
+  # aiService.customPodAntiAffinity Prohibiting the scheduling of AI Service Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
+  # Pod affinity rules for AI Service Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes AI Service Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for AI Service Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes AI Service Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # aiService.nodeSelector Node labels for AI Service pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # aiService.tolerations Tolerations for AI Service pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the AI Service deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `aiService.autoscaling.enabled=true`
+  autoscaling:
+    ## aiService.autoscaling.enabled Enable AI Service deployment autoscaling
+    enabled: false
+    ## aiService.autoscaling.annotations Defines annotations that will be additionally added to AI Service deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## aiService.autoscaling.minReplicas AI Service deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## aiService.autoscaling.maxReplicas AI Service deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## aiService.autoscaling.targetCPU.enabled Enable autoscaling of AI Service deployment by CPU usage percentage
+      enabled: true
+      ## aiService.autoscaling.targetCPU.utilizationPercentage AI Service deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## aiService.autoscaling.targetMemory.enabled Enable autoscaling of AI Service deployment by memory usage percentage
+      enabled: false
+      ## aiService.autoscaling.targetMemory.utilizationPercentage AI Service deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## aiService.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the AI Service deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## aiService.autoscaling.behavior Configuring AI Service deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # AI Service container image parameters
+  image:
+    # aiService.image.repository AI Service container image repository
+    repository: onlyoffice/docspace-ai-service
+    # aiService.image.tag AI Service container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # aiService.image.pullPolicy AI Service container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in AI Service Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # aiService.containerSecurityContext.enabled Enable security context for containers in AI Service pods
+    enabled: false
+  # aiService.lifecycleHooks Defines the AI Service container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
+  # aiService.containerPorts.app AI Service container port
+  containerPorts:
+    app: 5050
+  # Probe used for the AI Service container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `aiService.startupProbe.enabled=true`
+  startupProbe:
+    # aiService.startupProbe.enabled Enable startupProbe for AI Service container
+    enabled: true
+    httpGet:
+      # aiService.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health/
+      # aiService.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # aiService.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # aiService.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `aiService.readinessProbe.enabled=true`
+  readinessProbe:
+    # aiService.readinessProbe.enabled Enable readinessProbe for AI Service container
+    enabled: true
+    # aiService.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # aiService.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health/
+      # aiService.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # aiService.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # aiService.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # aiService.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `aiService.livenessProbe.enabled=true`
+  livenessProbe:
+    # aiService.livenessProbe.enabled Enable livenessProbe for AI Service container
+    enabled: true
+    # aiService.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # aiService.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health/
+      # aiService.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # aiService.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # aiService.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # aiService.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # AI Service container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # aiService.resources.requests The requested resources for the AI Service container
+  # aiService.resources.limits The resources limits for the AI Service container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
+  ## aiService.extraEnvVars An array with extra env variables for the AI Service container
+  extraEnvVars: []
+  ## aiService.extraVolumes An array with extra volumes for the AI Service container
+  extraVolumes: []
+  ## aiService.extraVolumeMounts An array with extra volume mounts for the AI Service container
+  extraVolumeMounts: []
+  # aiService.mysqlUser Database user who will be used by the AI Service service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# DocSpace AI MCP StatefulSet parameters
+#
+aiMCP:
+  # aiMCP.enabled Enables AI MCP installation
+  enabled: true
+  # aiMCP.annotations Defines annotations that will be additionally added to AI MCP deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # Update strategy used to replace old Pod by new ones
+  updateStrategy:
+    # aiMCP.updateStrategy.type AI MCP update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete`
+    type: RollingUpdate
+  # aiMCP.podAnnotations Map of annotations to add to the AI MCP pod
+  podAnnotations: {}
+  # Configure a Security Context for the AI MCP Pod
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # aiMCP.podSecurityContext.enabled Enable security context for the AI MCP Pod
+    enabled: false
+  # aiMCP.customPodAntiAffinity Prohibiting the scheduling of AI MCP Pod relative to other Pod containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
+  # Pod affinity rules for AI MCP Pod scheduling by nodes relative to other Pod
+  # Pod affinity allow you to constrain which nodes AI MCP Pod can be scheduled on based on the labels of Pod already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for AI MCP Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes AI MCP Pod can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # aiMCP.nodeSelector Node labels for AI MCP pod assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # aiMCP.tolerations Tolerations for AI MCP pod assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  # AI MCP container image parameters
+  image:
+    # aiMCP.image.repository AI MCP container image repository
+    repository: onlyoffice/docspace-mcp
+    # aiMCP.image.tag AI MCP container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: "latest"
+    # aiMCP.image.pullPolicy AI MCP container image pull policy
+    pullPolicy: Always
+  # Configure a Security Context for container in AI MCP Pod
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # aiMCP.containerSecurityContext.enabled Enable security context for containers in AI MCP pod
+    enabled: false
+  # aiMCP.lifecycleHooks Defines the AI MCP container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
+  # aiMCP.containerPorts.app AI MCP container port
+  containerPorts:
+    app: 5158
+  # Probe used for the AI MCP container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `aiMCP.startupProbe.enabled=true`
+  startupProbe:
+    # aiMCP.startupProbe.enabled Enable startupProbe for AI MCP container
+    enabled: true
+    httpGet:
+      # aiMCP.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health
+      # aiMCP.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5158
+    # aiMCP.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # aiMCP.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `aiMCP.readinessProbe.enabled=true`
+  readinessProbe:
+    # aiMCP.readinessProbe.enabled Enable readinessProbe for AI MCP container
+    enabled: true
+    # aiMCP.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # aiMCP.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health
+      # aiMCP.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5158
+    # aiMCP.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # aiMCP.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # aiMCP.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `aiMCP.livenessProbe.enabled=true`
+  livenessProbe:
+    # aiMCP.livenessProbe.enabled Enable livenessProbe for AI MCP container
+    enabled: true
+    # aiMCP.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # aiMCP.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health
+      # aiMCP.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5158
+    # aiMCP.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # aiMCP.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # aiMCP.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # AI MCP container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # aiMCP.resources.requests The requested resources for the AI MCP container
+  # aiMCP.resources.limits The resources limits for the AI MCP container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
+  ## aiMCP.extraEnvVars An array with extra env variables for the AI MCP container
+  extraEnvVars: []
+  ## aiMCP.extraVolumes An array with extra volumes for the AI MCP container
+  extraVolumes: []
+  ## aiMCP.extraVolumeMounts An array with extra volume mounts for the AI MCP container
+  extraVolumeMounts: []
+  # aiMCP.mysqlUser Database user who will be used by the AI MCP service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
