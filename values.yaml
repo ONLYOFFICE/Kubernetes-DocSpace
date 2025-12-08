@@ -248,6 +248,8 @@ connections:
   managementHost: management
   # connections.aiHost The name of the DocSpace AI service
   aiHost: ai
+  # connections.aiServiceHost The name of the DocSpace AI Service service
+  aiServiceHost: ai-service
   # connections.aiMCPHost The name of the DocSpace AI MCP service
   aiMCPHost: ai-mcp
   # connections.documentServerHost The name of the Document Server service
