@@ -5076,7 +5076,7 @@ management:
   lifecycleHooks: {}
   # management.containerPorts.management Management container port
   containerPorts:
-    management: 5015
+    management: 5050
   # Probe used for the Management container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `management.startupProbe.enabled=true`
@@ -5087,7 +5087,7 @@ management:
       # management.startupProbe.httpGet.path Checking the path for startupProbe
       path: /management/health
       # management.startupProbe.httpGet.port Checking the port for startupProbe
-      port: 5015
+      port: 5050
     # management.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
     # management.startupProbe.periodSeconds Period seconds for startupProbe
@@ -5102,7 +5102,7 @@ management:
       # management.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /management/health
       # management.readinessProbe.httpGet.port Checking the port for readinessProbe
-      port: 5015
+      port: 5050
     # management.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
     # management.readinessProbe.successThreshold Success threshold for readinessProbe
@@ -5119,7 +5119,7 @@ management:
       # management.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /management/health
       # management.livenessProbe.httpGet.port Checking the port for livenessProbe
-      port: 5015
+      port: 5050
     # management.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
     # management.livenessProbe.successThreshold Success threshold for livenessProbe
