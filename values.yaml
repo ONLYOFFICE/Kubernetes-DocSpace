@@ -4950,7 +4950,7 @@ telegram:
 #
 management:
   # management.enabled Enables Management installation
-  enabled: false
+  enabled: true
   # management.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
