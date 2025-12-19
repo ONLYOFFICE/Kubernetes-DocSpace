@@ -25,4 +25,7 @@ data:
   BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
   SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
   SOCKET_HOST: {{ .Values.connections.socketHost }}:{{ .Values.socket.containerPorts.app }}
+  TELEGRAM_HOST: {{ .Values.connections.telegramHost }}:{{ .Values.telegram.containerPorts.app }}
+  AI_HOST: {{ .Values.connections.aiHost }}:{{ .Values.ai.containerPorts.app }}
+  AI_SERVICE_HOST: {{ .Values.connections.aiServiceHost }}:{{ .Values.aiService.containerPorts.app }}
 {{- end }}

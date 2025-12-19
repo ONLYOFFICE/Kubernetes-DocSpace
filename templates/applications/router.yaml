@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.router.autoscaling.enabled }}
-  replicas: {{ .Values.router.replicaCount }}
+  replicas: {{ default .Values.replicas .Values.router.replicaCount }}
   {{- end }}
   selector:
     matchLabels:

@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.socket.autoscaling.enabled }}
-  replicas: {{ .Values.socket.replicaCount }}
+  replicas: {{ default .Values.replicas .Values.socket.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
@@ -105,24 +105,8 @@ spec:
       {{- if .Values.connections.hostAliases }}
       hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
       {{- end }}
-      initContainers:
-      - name: app-wait-storage
-        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.waitStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.waitStorage.image.tag }}
-        imagePullPolicy: {{ .Values.initContainers.waitStorage.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.socket.containerSecurityContext.enabled }}
-        {{- $icsc := dict }}
-        {{- if .Values.socket.containerSecurityContext.enabled }}
-        {{- $icsc = .Values.socket.containerSecurityContext }}
-        {{- else }}
-        {{- $icsc = .Values.containerSecurityContext }}
-        {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icsc | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.initContainers.waitStorage.resources | nindent 10 }}
-        volumeMounts:
-        - name: files-data
-          mountPath: /var/www/products/
       {{- with .Values.initContainers.custom }}
+      initContainers:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
@@ -213,10 +197,6 @@ spec:
         {{- end }}
         - name: docspace-data
           mountPath: /app/{{ .Values.product.name }}/data
-        - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
       volumes:
       {{- if .Values.extraConf.secretName }}
       - name: custom-file
@@ -229,10 +209,4 @@ spec:
       - name: docspace-data
         persistentVolumeClaim:
           claimName: {{ template "docspace.pvc.data.name" . }}
-      - name: files-data
-        persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.files.name" . }}
-      - name: people-data
-        persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.people.name" . }}
 {{- end }}

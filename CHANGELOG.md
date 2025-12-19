@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.3.0
+
+### New Features
+
+* Added Telegram, AI and MCP service
+* Added the ability to configure the portal domain used in the e-mail notification
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.6.1
+* Disabled hazelcast for identity services by default
+* Removed library sharing (PVC `files-data` and `people-data`) between containers
+
 ## 3.2.0
 
 ### New Features

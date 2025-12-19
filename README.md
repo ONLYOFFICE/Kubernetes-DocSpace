@@ -44,6 +44,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
   * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
+  * [5. Configuring Domain Name for Email Notifications](#5-configuring-domain-name-for-email-notifications)
 - [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
 
 ## Requirements
@@ -84,7 +85,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={vers=4,timeo=20}" \
+  --set "storageClass.mountOptions={noac,vers=4}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -163,7 +164,7 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 
 To install OpenSearch to your cluster, set the `opensearch.enabled=true` parameter when installing ONLYOFFICE DocSpace.
 
-If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkSheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
+If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkScheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
 
 ### 7. Install ONLYOFFICE Docs
 
@@ -335,7 +336,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.brokerExistingSecret`                     | The name of existing secret to use for Broker password. Must contain the key specified in `connections.brokerSecretKeyName` | `rabbitmq`                    |
 | `connections.brokerSecretKeyName`                      | The name of the key that contains the Broker user password. If you set a password in `connections.brokerPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
 | `connections.brokerPassword`                           | Broker user password. If set to, it takes priority over the `connections.brokerExistingSecret`                              | `""`                          |
-| `connections.elkSheme`                                 | The protocol for the connection to Opensearch                                                                               | `http`                        |
+| `connections.elkScheme`                                | The protocol for the connection to Opensearch                                                                               | `http`                        |
 | `connections.elkHost`                                  | The IP address or the name of the Opensearch host                                                                           | `opensearch`                  |
 | `connections.elkPort`                                  | The port for the connection to Opensearch                                                                                   | `9200`                        |
 | `connections.elkThreads`                               | Number of threads in Opensearch                                                                                             | `1`                           |
@@ -358,6 +359,10 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.identityApiHost`                          | The name of the ONLYOFFICE DocSpace Identity API service                                                                    | `identity-api`                |
 | `connections.identityAuthorizationHost`                | The name of the ONLYOFFICE DocSpace Identity service                                                                        | `identity-authorization`                |
 | `connections.sdkHost`                                  | The name of the DocSpace SDK service                                                                                        | `sdk`                         |
+| `connections.telegramHost`                               | The name of the ONLYOFFICE DocSpace Telegram service                                                                          | `telegram`                      |
+| `connections.aiHost`                                   | The name of the ONLYOFFICE DocSpace AI service                                                                             | `ai`                           |
+| `connections.aiServiceHost`                            | The name of the ONLYOFFICE DocSpace AI Service service                                                                     | `ai-service`                          |
+| `connections.aiMCPHost`                                | The name of the ONLYOFFICE DocSpace AI MCP service                                                                     | `ai-mcp`                      |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
@@ -384,7 +389,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.2.0`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.5.0`                       |
+| `replicas`                                             | Global replica value for all DocSpace applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
@@ -401,31 +407,11 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
 | `initContainers.checkDB.resources.limits.memory`       | The Memory limits for the check-db initContainer                                                                            | `1Gi`                         |
 | `initContainers.checkDB.resources.limits.cpu`          | The CPU limits for the check-db initContainer                                                                               | `1000m`                       |
-| `initContainers.waitStorage.image.repository`          | app-wait-storage initContainer image repository                                                                             | `onlyoffice/docspace-wait-bin-share` |
-| `initContainers.waitStorage.image.tag`                 | app-wait-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                          |
-| `initContainers.waitStorage.image.pullPolicy`          | app-wait-storage initContainer image pull policy                                                                            | `IfNotPresent`                |
-| `initContainers.waitStorage.resources.requests.memory` | The requested Memory for the app-wait-storage initContainer                                                                 | `256Mi`                       |
-| `initContainers.waitStorage.resources.requests.cpu`    | The requested CPU for the app-wait-storage initContainer                                                                    | `100m`                        |
-| `initContainers.waitStorage.resources.limits.memory`   | The Memory limits for the app-wait-storage initContainer                                                                    | `1Gi`                         |
-| `initContainers.waitStorage.resources.limits.cpu`      | The CPU limits for the app-wait-storage initContainer                                                                       | `1000m`                       |
-| `initContainers.initStorage.image.repository`          | app-init-storage initContainer image repository                                                                             | `onlyoffice/docspace-bin-share` |
-| `initContainers.initStorage.image.tag`                 | app-init-storage initContainer image tag. If set to, it takes priority over the `images.tag`                                | `""`                          |
-| `initContainers.initStorage.image.pullPolicy`          | app-init-storage initContainer image pull policy                                                                            | `IfNotPresent`                |
-| `initContainers.initStorage.resources.requests.memory` | The requested Memory for the app-init-storage initContainer                                                                 | `256Mi`                       |
-| `initContainers.initStorage.resources.requests.cpu`    | The requested CPU for the app-init-storage initContainer                                                                    | `100m`                        |
-| `initContainers.initStorage.resources.limits.memory`   | The Memory limits for the app-init-storage initContainer                                                                    | `2Gi`                         |
-| `initContainers.initStorage.resources.limits.cpu`      | The CPU limits for the app-init-storage initContainer                                                                       | `1000m`                       |
 | `initContainers.custom`                                | Defines custom containers that run before ONLYOFFICE DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Docs`, `Router`, `Opensearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
 | `persistence.storageClass`                             | PVC Storage Class for ONLYOFFICE DocSpace data volume                                                                                  | `nfs`                         |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                 |
 | `persistence.docspaceData.annotations`                 | Defines annotations that will be additionally added to common files PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                   |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                                 | `8Gi`                         |
-| `persistence.filesData.existingClaim`                  | The name of the existing PVC for use in the Files service. If not specified, a PVC named "files-data" will be created       | `""`                          |
-| `persistence.filesData.annotations`                    | Defines annotations that will be additionally added to Files PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                          |
-| `persistence.filesData.size`                           | PVC Storage Request for Files volume                                                                                        | `2Gi`                         |
-| `persistence.peopleData.existingClaim`                 | The name of the existing PVC for use in the People Server service. If not specified, a PVC named "people-data" will be created | `""`                       |
-| `persistence.peopleData.annotations`                   | Defines annotations that will be additionally added to People Server PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                  |
-| `persistence.peopleData.size`                          | PVC Storage Request for People Server volume                                                                                | `2Gi`                         |
 | `persistence.routerLog.existingClaim`                  | The name of the existing PVC for storing Nginx logs of the Router service. If not specified, a PVC named "router-log" will be created | `""`                |
 | `persistence.routerLog.annotations`                    | Defines annotations that will be additionally added to Nginx logs PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                     |
 | `persistence.routerLog.size`                           | PVC Storage Request for Nginx logs volume                                                                                   | `5Gi`                         |
@@ -438,13 +424,13 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | `Application.enabled`                                     | Enables Application installation. Individual values for `identity.authorization` and `identity.api`                                                                                | `true`                                    |
-| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs` and `opensearch` | `Deployment`             |
+| `Application.kind`                                        | The controller used for deploy. Possible values are `Deployment` (default) or `StatefulSet`. Not used in `docs`, `opensearch` and `ai-mcp` | `Deployment`             |
 | `Application.annotations`                                 | Defines annotations that will be additionally added to Application deploy. If set to, it takes priority over the `commonAnnotations` | `{}`                 |
-| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs` and `opensearch`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
+| `Application.replicaCount`                                | Number of "Application" replicas to deploy. Not used in `docs`,`opensearch` and `aiMCP`. If the `Application.autoscaling.enabled` parameter is enabled, it is ignored                                 | `2`                                       |
 | `Application.updateStrategy.type`                         | "Application" update strategy type                                                                              | `RollingUpdate`                           |
 | `Application.updateStrategy.rollingUpdate.maxUnavailable` | Maximum number of "Application" Pods unavailable during the update process                                      | `25%`                                     |
 | `Application.updateStrategy.rollingUpdate.maxSurge`       | Maximum number of "Application" Pods created over the desired number of Pods                                    | `25%`                                     |
-| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs` and `opensearch` | `OrderedReady`    |
+| `Application.podManagementPolicy`                         | The Application Pods scaling operations policy. Used if `Application.kind` is set to `StatefulSet`. Not used in `docs`, `opensearch` and `ai-mcp` | `OrderedReady`    |
 | `Application.podAnnotations`                              | Map of annotations to add to the "Application" pods. If set to, it takes priority over the `podAnnotations`     | `{}`                                      |
 | `Application.podSecurityContext.enabled`                  | Enable security context for the "Application" pods. If set to, it takes priority over the `podSecurityContext`  | `false`                                   |
 | `Application.customPodAntiAffinity`                       | Prohibiting the scheduling of Api System Pods relative to other Pods containing the specified labels on the same node | `{}`                                |
@@ -467,7 +453,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
 | `Application.lifecycleHooks`                              | Defines the Backup [container lifecycle hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks). It is used to trigger events to run at certain points in a container's lifecycle | `{}` |
-| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `proxyFrontend`, `identity.authorization` and `identity.api`                                            | `5050`                                    |
+| `Application.containerPorts.app`                          | "Application" container port. Not used in `router`, `proxyFrontend`, `identity.authorization`, `identity.api` and `aiMCP`                                            | `5050`                                    |
 | `Application.startupProbe.enabled`                        | Enable startupProbe for "Application" container                                                                 | `true`                                    |
 | `Application.readinessProbe.enabled`                      | Enable readinessProbe for "Application" container                                                               | `true`                                    |
 | `Application.livenessProbe.enabled`                       | Enable livenessProbe for "Application" container                                                                | `true`                                    |
@@ -479,7 +465,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api` and `sdk`.
+`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `ai service` and `aiMCP`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -521,7 +507,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.enabled`                             | Enables Identity appications: `identity.authorization`, `identity.api`                                                                                 | `false`               |
-| `identity.serviceAccount.create`               | Enable Identity ServiceAccount creation. The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied. If disabled, the common `serviceAccount` will be used | `true` |
+| `identity.serviceAccount.create`               | Enable Identity ServiceAccount creation. The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied. If disabled, the common `serviceAccount` will be used | `false` |
 | `identity.env.springProfilesActive`            | Defines the environment variable to override/pick Spring profile. Default is `dev`                                                                       | `dev`              |
 | `identity.env.multicast.enabled`               | Defines whether multicast discovery will be used                                                                          | `false`              |
 | `identity.env.kubernetes.enabled`              | Defines whether k8s service discovery will be used                                                                        | `true`               |
@@ -544,6 +530,11 @@ Instead of `Application`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
 
+### ONLYOFFICE DocSpace AI MCP Server Application additional parameters
+
+| Parameter                                                | Description                                                                                                     | Default              |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
+| `aiMCP.containerPorts.app`                               | AI MCP container port                                                                                           | `5158`                  |
 
 ### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
 
@@ -686,6 +677,23 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
+| `singlePortalDomain.job.enabled`                                | Enable the execution of job singlePortalDomain before upgrading and installing DocSpace                                                                                                                    | `false`                                         |
+| `singlePortalDomain.job.env.appCoreServerRoot`                  | Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true                                                                                                          | `""`                                            |
+| `singlePortalDomain.job.env.domain`                             | Configures domain name; overridden by ingress.host if present                                                                                                                                              | `""`                                            |
+| `singlePortalDomain.job.image.repository`                       | singlePortalDomain container image repository                                                                                                                                                              | `"onlyoffice/docs-utils"`                       |
+| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.0.3-1"`                                     |
+| `singlePortalDomain.job.image.pullPolicy`                       | singlePortalDomain container image pull policy                                                                                                                                                             | `"IfNotPresent"`                                |
+| `singlePortalDomain.job.annotations`                            | Defines annotations that will be additionally added to singlePortalDomain Job. If set to, it takes priority over the `commonAnnotations`                                                                   | `{}`                                            |
+| `singlePortalDomain.job.podAnnotations`                         | Map of annotations to add to the singlePortalDomain Job Pod                                                                                                                                                | `{}`                                            |
+| `singlePortalDomain.job.podSecurityContext.enabled`             | Enable security context for the singlePortalDomain Job pod                                                                                                                                                 | `{}`                                            |
+| `singlePortalDomain.job.customPodAntiAffinity`                  | Prohibiting the scheduling of singlePortalDomain Job Pod relative to other Pods containing the specified labels on the same node                                                                           | `{}`                                            |
+| `singlePortalDomain.job.podAffinity`                            | Defines [Pod affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity) rules for singlePortalDomain Job Pod scheduling by nodes relative to other Pods | `{}`                                 |
+| `singlePortalDomain.job.nodeAffinity`                           | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for singlePortalDomain Job Pod scheduling by nodes                                   | `{}`                                            |
+| `singlePortalDomain.job.nodeSelector`                           | Node labels for singlePortalDomain Job pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                                | `{}`                                            |
+| `singlePortalDomain.job.tolerations`                            | Tolerations for singlePortalDomain Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                                 | `[]`                                            |
+| `singlePortalDomain.job.containerSecurityContext.enabled`       | Enable security context for containers in singlePortalDomain Job pod                                                                                                                                       | `false`                                         |
+| `singlePortalDomain.job.resources.requests`                     | The requested resources for the singlePortalDomain Job container                                                                                                                                           | `memory, cpu`                                   |
+| `singlePortalDomain.job.resources.limits`                       | The resources limits for the singlePortalDomain Job container                                                                                                                                              | `memory, cpu`                                   |
 ### ONLYOFFICE DocSpace Opensearch parameters
 
 | Parameter                                             | Description                                                                                                  | Default                                                        |
@@ -970,6 +978,40 @@ When multiple encryption-related settings are defined, the following order of pr
 2. `springEncryptionValue`  
 3. `generate`  
 > **Note:** It is recommended to configure only one method to avoid conflicts and ensure predictable behavior.
+
+### 5. Configuring Domain Name for Email Notifications
+
+The **single-portal-domain** job allows single-portal (non-multitenant) DocSpace installations to correctly display the domain name in **emails and notifications**.  
+Without it, such installations use `localhost` as the sender domain in notification links.
+
+When the job runs, it updates the database so that all notification links use the proper domain and protocol (HTTP or HTTPS).  
+The domain and protocol are taken automatically from **Ingress** settings, but if an external Ingress is used, they can be set manually in `values.yaml`.
+
+#### Upgrading from earlier versions
+
+If you previously installed DocSpace without a public domain or switched to HTTPS later, enable this job before the next upgrade:
+
+```bash
+helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
+```
+
+> **Note:** The domain name and HTTPS/HTTP scheme will be applied from your current Ingress configuration.
+
+If your Ingress is external or not managed by the chart, specify domain and protocol manually:
+
+```bash
+helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=docspace.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
+```
+
+#### For new installations
+
+If you install DocSpace with `ingress.host` configured (and optionally `ingress.tls.enabled=true`), the job is not required.  
+Notification links will automatically use your public domain and protocol.
+
+#### Parameters
+
+- `singlePortalDomain.job.env.domain` — defines the portal domain; used when `ingress.host` is not set.  
+- `singlePortalDomain.job.env.appCoreServerRoot` — defines the protocol prefix (`http://*/` or `https://*/`); if TLS is enabled, the chart automatically uses `https://*/`.
 
 ## ONLYOFFICE DocSpace installation test (optional)
 

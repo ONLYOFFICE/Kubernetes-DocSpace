@@ -1,58 +1,46 @@
-{{- if .Values.peopleServer.enabled }}
+{{- if .Values.aiMCP.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.peopleServer.kind }}
+kind: StatefulSet
 metadata:
-  name: people-server
+  name: ai-mcp
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: people-server
+    app: ai-mcp
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.peopleServer.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.peopleServer.annotations }}
+  {{- if or .Values.commonAnnotations .Values.aiMCP.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.aiMCP.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.peopleServer.autoscaling.enabled }}
-  replicas: {{ default .Values.replicas .Values.peopleServer.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      app: people-server
+      app: ai-mcp
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
-  serviceName: people-server
-  {{- end }}
-  {{- if .Values.peopleServer.updateStrategy }}
-  {{- if eq .Values.peopleServer.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
-  {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
-  {{- end }}
-  {{- end }}
-  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.peopleServer.podManagementPolicy }}
+  serviceName: ai-mcp
+  {{- if .Values.aiMCP.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.aiMCP.updateStrategy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: people-server
+        app: ai-mcp
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.peopleServer.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.peopleServer.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- if .Values.aiMCP.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.aiMCP.podAnnotations "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.peopleServer.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.aiMCP.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.peopleServer.podSecurityContext.enabled }}
-      {{- $psc = .Values.peopleServer.podSecurityContext }}
+      {{- if .Values.aiMCP.podSecurityContext.enabled }}
+      {{- $psc = .Values.aiMCP.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +56,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - people-server
+                  - ai-mcp
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +66,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - people-server
+                - ai-mcp
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.peopleServer.customPodAntiAffinity }}
+          {{- with .Values.aiMCP.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.peopleServer.podAffinity }}
+        {{- with .Values.aiMCP.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.peopleServer.nodeAffinity }}
+        {{- with .Values.aiMCP.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.peopleServer.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.peopleServer.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.aiMCP.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.aiMCP.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.peopleServer.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.peopleServer.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.aiMCP.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.aiMCP.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -110,37 +98,45 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: people-server
-        image: {{ include "docspace.imageRepository" (list . .Values.peopleServer.image.repository) }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
-        imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.peopleServer.containerSecurityContext.enabled }}
+      - name: ai-mcp
+        image: {{ .Values.aiMCP.image.repository }}:{{ .Values.aiMCP.image.tag }}
+        imagePullPolicy: {{ .Values.aiMCP.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.aiMCP.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.peopleServer.containerSecurityContext.enabled }}
-        {{- $csc = .Values.peopleServer.containerSecurityContext }}
+        {{- if .Values.aiMCP.containerSecurityContext.enabled }}
+        {{- $csc = .Values.aiMCP.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.peopleServer.lifecycleHooks | nindent 10 }}
+        {{- if .Values.aiMCP.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.aiMCP.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.peopleServer.containerPorts.app }}
+        - containerPort: {{ .Values.aiMCP.containerPorts.app }}
           name: app
-        {{- if .Values.peopleServer.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.peopleServer.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiMCP.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.aiMCP.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.peopleServer.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiMCP.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.aiMCP.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.peopleServer.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiMCP.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.aiMCP.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.peopleServer.resources | nindent 10 }}
+        resources: {{- toYaml .Values.aiMCP.resources | nindent 10 }}
         env:
+        - name: DOCSPACE_INTERNAL
+          value: "true"
+        - name: DOCSPACE_TRANSPORT
+          value: http
+        - name: DOCSPACE_HOST
+          value: "0.0.0.0"
+        - name: DOCSPACE_PORT
+          value: {{ .Values.aiMCP.containerPorts.app | quote }}
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.peopleServer.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.aiMCP.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -171,7 +167,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.peopleServer.extraEnvVars }}
+        {{- with .Values.aiMCP.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -190,7 +186,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.peopleServer.extraVolumeMounts }}
+        {{- with .Values.aiMCP.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -201,7 +197,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.peopleServer.extraVolumes }}
+      {{- with .Values.aiMCP.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

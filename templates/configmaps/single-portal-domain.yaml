@@ -1,0 +1,47 @@
+{{- if .Values.elasticsearchClearIndexes.job.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: single-portal-domain
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- if .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+data:
+  single-portal-domain.sh: |-
+    #!/bin/bash
+    set -e
+
+    if [ -z "$DOMAIN" ]; then
+      echo -e "\e[0;33m DOMAIN is empty, nothing to update. Exiting. \e[0m"
+      exit 0
+    fi
+
+    EXISTS=$(mysql \
+      -N -s \
+      -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
+      -e "SELECT 1 FROM core_settings WHERE tenant=-1 AND id='BaseDomain' LIMIT 1")
+
+    if [ -z "$EXISTS" ]; then
+      echo -e "\e[0;33m BaseDomain not found, updating mappeddomain for localhost... \e[0m"
+      mysql \
+        -h {{ .Values.connections.mysqlHost }} \
+        -P {{ .Values.connections.mysqlPort }} \
+        -u {{ .Values.connections.mysqlUser }} \
+        -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
+        -e "UPDATE tenants_tenants SET mappeddomain='${DOMAIN}' WHERE alias='localhost';"
+    else
+      echo -e "\e[0;32m BaseDomain already exists. No update needed. \e[0m"
+    fi
+{{- end }}

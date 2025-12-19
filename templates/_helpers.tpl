@@ -357,46 +357,6 @@ Return true if a pvc object should be created for DocSpace Data
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace People
-*/}}
-{{- define "docspace.pvc.people.name" -}}
-{{- if .Values.persistence.peopleData.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.peopleData.existingClaim $) -}}
-{{- else }}
-    {{- printf "people-data" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return true if a pvc object should be created for DocSpace People
-*/}}
-{{- define "docspace.pvc.people.create" -}}
-{{- if empty .Values.persistence.peopleData.existingClaim }}
-    {{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Get the PVC name for DocSpace Files
-*/}}
-{{- define "docspace.pvc.files.name" -}}
-{{- if .Values.persistence.filesData.existingClaim -}}
-    {{- printf "%s" (tpl .Values.persistence.filesData.existingClaim $) -}}
-{{- else }}
-    {{- printf "files-data" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return true if a pvc object should be created for DocSpace Files
-*/}}
-{{- define "docspace.pvc.files.create" -}}
-{{- if empty .Values.persistence.filesData.existingClaim }}
-    {{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Get the PVC name for DocSpace Router log
 */}}
 {{- define "docspace.pvc.router.name" -}}
@@ -470,3 +430,28 @@ Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION
   {{- "secret" }}
 {{- end }}
 {{- end }}
+
+{{/*
+Defines the APP_CORE_SERVER_ROOT value for single-portal setups
+*/}}
+{{- define "docspace.singlePortalDomain.appCoreServerRoot" -}}
+{{- if .Values.ingress.tls.enabled }}
+https://*/
+{{- else if .Values.singlePortalDomain.job.env.appCoreServerRoot }}
+{{ .Values.singlePortalDomain.job.env.appCoreServerRoot }}
+{{- else }}
+{{ "" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Get the domain for single-portal setups
+*/}}
+{{- define "docspace.singlePortalDomain.domain" -}}
+{{- if .Values.ingress.host }}
+{{ .Values.ingress.host }}
+{{- else if .Values.singlePortalDomain.job.env.domain }}
+{{ .Values.singlePortalDomain.job.env.domain }}
+{{- end }}
+{{- end }}
+

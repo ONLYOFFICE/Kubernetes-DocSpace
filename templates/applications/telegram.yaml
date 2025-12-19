@@ -1,58 +1,58 @@
-{{- if .Values.peopleServer.enabled }}
+{{- if .Values.telegram.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.peopleServer.kind }}
+kind: {{ .Values.telegram.kind }}
 metadata:
-  name: people-server
+  name: telegram
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: people-server
+    app: telegram
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.peopleServer.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.peopleServer.annotations }}
+  {{- if or .Values.commonAnnotations .Values.telegram.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.telegram.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.peopleServer.autoscaling.enabled }}
-  replicas: {{ default .Values.replicas .Values.peopleServer.replicaCount }}
+  {{- if not .Values.telegram.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.telegram.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: people-server
+      app: telegram
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
-  serviceName: people-server
+  {{- if eq .Values.telegram.kind "StatefulSet" }}
+  serviceName: telegram
   {{- end }}
-  {{- if .Values.peopleServer.updateStrategy }}
-  {{- if eq .Values.peopleServer.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  {{- if .Values.telegram.updateStrategy }}
+  {{- if eq .Values.telegram.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.telegram.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.peopleServer.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.telegram.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.peopleServer.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.peopleServer.podManagementPolicy }}
+  {{- if eq .Values.telegram.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.telegram.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: people-server
+        app: telegram
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.peopleServer.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.peopleServer.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.telegram.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.telegram.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.peopleServer.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.telegram.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.peopleServer.podSecurityContext.enabled }}
-      {{- $psc = .Values.peopleServer.podSecurityContext }}
+      {{- if .Values.telegram.podSecurityContext.enabled }}
+      {{- $psc = .Values.telegram.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +68,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - people-server
+                  - telegram
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +78,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - people-server
+                - telegram
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.peopleServer.customPodAntiAffinity }}
+          {{- with .Values.telegram.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.peopleServer.podAffinity }}
+        {{- with .Values.telegram.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.peopleServer.nodeAffinity }}
+        {{- with .Values.telegram.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.peopleServer.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.peopleServer.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.telegram.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.telegram.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.peopleServer.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.peopleServer.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.telegram.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.telegram.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -110,37 +110,37 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: people-server
-        image: {{ include "docspace.imageRepository" (list . .Values.peopleServer.image.repository) }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
-        imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.peopleServer.containerSecurityContext.enabled }}
+      - name: telegram
+        image: {{ include "docspace.imageRepository" (list . .Values.telegram.image.repository) }}:{{ default .Values.images.tag .Values.telegram.image.tag }}
+        imagePullPolicy: {{ .Values.telegram.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.telegram.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.peopleServer.containerSecurityContext.enabled }}
-        {{- $csc = .Values.peopleServer.containerSecurityContext }}
+        {{- if .Values.telegram.containerSecurityContext.enabled }}
+        {{- $csc = .Values.telegram.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.peopleServer.lifecycleHooks | nindent 10 }}
+        {{- if .Values.telegram.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.telegram.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.peopleServer.containerPorts.app }}
+        - containerPort: {{ .Values.telegram.containerPorts.app }}
           name: app
-        {{- if .Values.peopleServer.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.peopleServer.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.telegram.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.telegram.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.peopleServer.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.telegram.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.telegram.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.peopleServer.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.peopleServer.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.telegram.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.telegram.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.peopleServer.resources | nindent 10 }}
+        resources: {{- toYaml .Values.telegram.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.peopleServer.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.telegram.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -171,7 +171,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.peopleServer.extraEnvVars }}
+        {{- with .Values.telegram.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -190,7 +190,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.peopleServer.extraVolumeMounts }}
+        {{- with .Values.telegram.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -201,7 +201,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.peopleServer.extraVolumes }}
+      {{- with .Values.telegram.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

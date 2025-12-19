@@ -126,31 +126,10 @@ spec:
             name: docspace
       {{- end }}
       containers:
-      - name: app-init-storage
-        image: {{ include "docspace.imageRepository" (list . .Values.initContainers.initStorage.image.repository) }}:{{ default .Values.images.tag .Values.initContainers.initStorage.image.tag }}
-        imagePullPolicy: {{ .Values.initContainers.initStorage.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
-        {{- $csc := dict }}
-        {{- if .Values.install.job.containerSecurityContext.enabled }}
-        {{- $csc = .Values.install.job.containerSecurityContext }}
-        {{- else }}
-        {{- $csc = .Values.containerSecurityContext }}
-        {{- end }}
-        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
-        {{- end }}
-        resources: {{- toYaml .Values.initContainers.initStorage.resources | nindent 10 }}
-        volumeMounts:
-        - name: files-data
-          mountPath: /var/www/products/ASC.Files/server/
-        - name: people-data
-          mountPath: /var/www/products/ASC.People/server/
+      - name: docspace-pre-install
+        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        command: ["sh", "-c", "echo Install Job completed"]
       volumes:
-      - name: files-data
-        persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.files.name" . }}
-      - name: people-data
-        persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.people.name" . }}
       - name: check-db
         configMap:
           name: check-db
