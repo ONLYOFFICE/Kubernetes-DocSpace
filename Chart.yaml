@@ -7,5 +7,5 @@ dependencies:
   version: 5.3.0
   repository: https://download.onlyoffice.com/charts/stable
   condition: docs.enabled
-version: 3.3.0
+version: 3.4.0
 appVersion: 3.6.1
