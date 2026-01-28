@@ -26,7 +26,7 @@ data:
     sed -i 's/proxy_pass $health_checks_url/proxy_pass http:\/\/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $clients_service_url/proxy_pass http:\/\/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $oauth2_service_url/proxy_pass http:\/\/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $sdk_node_url/proxy_pass http:\/\/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $management_service_url/proxy_pass http:\/\/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $ai_service_url/proxy_pass http:\/\/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
