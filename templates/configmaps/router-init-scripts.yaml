@@ -13,22 +13,22 @@ metadata:
 data:
   50-change-router-conf.sh: |-
     #!/bin/sh
-    sed -i 's/proxy_pass $api_system_url/proxy_pass {{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $backup_service_url/proxy_pass {{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $api_system_url/proxy_pass http:\/\/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $backup_service_url/proxy_pass http:\/\/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $people_service_url/proxy_pass {{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $people_service_url/proxy_pass http:\/\/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $socket_io_url/proxy_pass {{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $sso_service_url/proxy_pass {{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $doceditor_service_url/proxy_pass {{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $login_service_url/proxy_pass {{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $health_checks_url/proxy_pass {{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $socket_io_url/proxy_pass http:\/\/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $sso_service_url/proxy_pass http:\/\/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $doceditor_service_url/proxy_pass http:\/\/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $login_service_url/proxy_pass http:\/\/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $health_checks_url/proxy_pass http:\/\/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_identity/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $management_service_url/proxy_pass {{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $ai_service_url/proxy_pass {{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $management_service_url/proxy_pass http:\/\/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $ai_service_url/proxy_pass http:\/\/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
