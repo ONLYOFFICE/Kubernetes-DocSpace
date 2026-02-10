@@ -2164,7 +2164,7 @@ backupBackgroundTasks:
   # Backup Background Tasks container image parameters
   image:
     # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
-    repository: onlyoffice/docspace-backup-background
+    repository: onlyoffice/docspace-backup-worker
     # backupBackgroundTasks.image.tag Backup Background Tasks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2773,7 +2773,7 @@ filesServices:
   # Files Services container image parameters
   image:
     # filesServices.image.repository Files Services container image repository
-    repository: onlyoffice/docspace-files-services
+    repository: onlyoffice/docspace-files-worker
     # filesServices.image.tag Files Services container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5489,7 +5489,7 @@ aiService:
   # AI Service container image parameters
   image:
     # aiService.image.repository AI Service container image repository
-    repository: onlyoffice/docspace-ai-service
+    repository: onlyoffice/docspace-ai-worker
     # aiService.image.tag AI Service container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
