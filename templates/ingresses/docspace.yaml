@@ -15,6 +15,9 @@ metadata:
     {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    {{- if .Values.ingress.mergeable }}
+    nginx.org/mergeable-ingress-type: "master"
+    {{- end }}
     {{- end }}
 spec:
   {{- $context := . }}
@@ -40,6 +43,7 @@ spec:
   - host: {{ .Values.ingress.host }}
   {{- end }}
   {{- if not .Values.ingress.tenants }}
+  {{- if not .Values.ingress.mergeable }}
     http:
       paths:
       - path: /
@@ -50,9 +54,11 @@ spec:
             port:
               number: {{ .Values.router.service.port.external }}
   {{- end }}
+  {{- end }}
   {{- if .Values.ingress.tenants }}
   {{- range .Values.ingress.tenants }}
   - host: {{ . }}
+  {{- if not $context.Values.ingress.mergeable }}
     http:
       paths:
       - path: /
@@ -62,6 +68,7 @@ spec:
             name: {{ template "docspace.svc.router.name" $context }}
             port:
               number: {{ $context.Values.router.service.port.external }}
+  {{- end }}
   {{- end }}
   {{- end }}
 {{- end }}

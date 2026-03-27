@@ -1,0 +1,51 @@
+{{- if and .Values.ingress.enabled .Values.ingress.mergeable }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docspace-minion
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  annotations:
+    {{- if or .Values.commonAnnotations .Values.ingress.annotations }}
+    {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- end }}
+    nginx.org/mergeable-ingress-type: "minion"
+spec:
+  {{- $context := . }}
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  {{- end }}
+  rules:
+  {{- if and (not .Values.ingress.host) (not .Values.ingress.tenants) }}
+  - host:
+  {{- else if and .Values.ingress.host (not .Values.ingress.tenants) }}
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: {{ .Values.ingress.pathType }}
+        backend:
+          service:
+            name: {{ template "docspace.svc.router.name" . }}
+            port:
+              number: {{ .Values.router.service.port.external }}
+  {{- end }}
+  {{- if .Values.ingress.tenants }}
+  {{- range .Values.ingress.tenants }}
+  - host: {{ . }}
+    http:
+      paths:
+      - path: /
+        pathType: {{ $context.Values.ingress.pathType }}
+        backend:
+          service:
+            name: {{ template "docspace.svc.router.name" $context }}
+            port:
+              number: {{ $context.Values.router.service.port.external }}
+  {{- end }}
+  {{- end }}
+{{- end }}
