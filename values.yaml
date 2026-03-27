@@ -6014,6 +6014,7 @@ proxyFrontend:
 #
 ingress:
   # ingress.enabled Enable the creation of an ingress for the DocSpace
+  enabled: true
   # ingress.mergeable Enable master/minion split for F5 NGINX Ingress Controller
   # Set to true when using nginx.org/ingress-controller (F5 NIC)
   # Set to false when using k8s.io/ingress-nginx (community)
