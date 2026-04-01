@@ -15,7 +15,7 @@ metadata:
     {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    {{- if .Values.ingress.mergeable }}
+    {{- if .Values.ingress.letsencrypt.enabled }}
     nginx.org/mergeable-ingress-type: "master"
     {{- end }}
     {{- end }}
@@ -43,7 +43,7 @@ spec:
   - host: {{ .Values.ingress.host }}
   {{- end }}
   {{- if not .Values.ingress.tenants }}
-  {{- if not .Values.ingress.mergeable }}
+  {{- if not .Values.ingress.letsencrypt.enabled }}
     http:
       paths:
       - path: /
@@ -58,7 +58,7 @@ spec:
   {{- if .Values.ingress.tenants }}
   {{- range .Values.ingress.tenants }}
   - host: {{ . }}
-  {{- if not $context.Values.ingress.mergeable }}
+  {{- if not $context.Values.ingress.letsencrypt.enabled }}
     http:
       paths:
       - path: /

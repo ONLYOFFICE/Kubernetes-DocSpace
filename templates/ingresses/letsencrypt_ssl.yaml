@@ -12,7 +12,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          {{- if .Values.ingress.mergeable }}
+          {{- if .Values.ingress.letsencrypt.enabled}}
           ingressClassName: {{ .Values.ingress.ingressClassName }}
           ingressTemplate:
             metadata:
