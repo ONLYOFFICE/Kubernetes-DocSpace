@@ -73,7 +73,6 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
-$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 $ helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
 $ helm repo update
 ```
@@ -601,7 +600,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default                                                                                   |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `ingress.enabled`                                        | Enable the creation of an ingress for the ONLYOFFICE DocSpace                                                   | `false`                                                                                   |
-| `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `kubernetes.io/ingress.class: nginx`, `nginx.ingress.kubernetes.io/proxy-body-size: 100m` |
+| `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `nginx.org/client-max-body-size: 100m`                                                    |
 | `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
 | `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE DocSpace                                                                          | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
@@ -778,10 +777,10 @@ In this case, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-SERVICE-
 To install the Nginx Ingress Controller to your cluster, run the following command:
 
 ```bash
-$ helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publishService.enabled=true,controller.replicaCount=2
+$ helm install nginx-ingress oci://ghcr.io/nginx/charts/nginx-ingress --version 2.5.1 --set controller.reportIngressStatus.enable=true,controller.replicaCount=2 
 ```
 
-See more detail about installing Nginx Ingress Controller via Helm [here](https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx).
+See more detail about installing Nginx Ingress Controller via Helm [here](https://docs.nginx.com/nginx-ingress-controller/install/helm/open-source/).
 
 #### 1.2.2 Expose ONLYOFFICE DocSpace via HTTP
 

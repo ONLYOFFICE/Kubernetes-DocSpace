@@ -6009,7 +6009,7 @@ proxyFrontend:
     type: LoadBalancer
 
 # DocSpace ingress parameters
-# NGINX Ingress Controller must be installed
+# F5 NGINX Ingress Controller must be installed
 # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-the-kubernetes-nginx-ingress-controller
 #
 ingress:
@@ -6017,7 +6017,7 @@ ingress:
   enabled: false
   # ingress.annotations Map of annotations to add to the Ingress
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.org/client-max-body-size: 100m
   # ingress.ingressClassName Used to reference the IngressClass that should be used to implement this Ingress
   # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource/
   ingressClassName: nginx
