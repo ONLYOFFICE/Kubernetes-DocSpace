@@ -15,9 +15,7 @@ metadata:
     {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    {{- if .Values.ingress.letsencrypt.enabled }}
     nginx.org/mergeable-ingress-type: "master"
-    {{- end }}
     {{- end }}
 spec:
   {{- $context := . }}

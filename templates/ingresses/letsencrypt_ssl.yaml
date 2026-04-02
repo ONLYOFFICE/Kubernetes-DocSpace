@@ -12,13 +12,9 @@ spec:
     solvers:
     - http01:
         ingress:
-          {{- if .Values.ingress.letsencrypt.enabled}}
           ingressClassName: {{ .Values.ingress.ingressClassName }}
           ingressTemplate:
             metadata:
               annotations:
                 nginx.org/mergeable-ingress-type: "minion"
-          {{- else }}
-          ingressClassName: {{ .Values.ingress.ingressClassName }}
-          {{- end }}
 {{- end }}
