@@ -13,9 +13,9 @@ metadata:
     {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
     {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
+    nginx.org/mergeable-ingress-type: "master"
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.org/mergeable-ingress-type: "master"
     {{- end }}
 spec:
   {{- $context := . }}
@@ -40,33 +40,9 @@ spec:
   {{- else if and .Values.ingress.host (not .Values.ingress.tenants) }}
   - host: {{ .Values.ingress.host }}
   {{- end }}
-  {{- if not .Values.ingress.tenants }}
-  {{- if not .Values.ingress.letsencrypt.enabled }}
-    http:
-      paths:
-      - path: /
-        pathType: {{ .Values.ingress.pathType }}
-        backend:
-          service:
-            name: {{ template "docspace.svc.router.name" . }}
-            port:
-              number: {{ .Values.router.service.port.external }}
-  {{- end }}
-  {{- end }}
   {{- if .Values.ingress.tenants }}
   {{- range .Values.ingress.tenants }}
   - host: {{ . }}
-  {{- if not $context.Values.ingress.letsencrypt.enabled }}
-    http:
-      paths:
-      - path: /
-        pathType: {{ $context.Values.ingress.pathType }}
-        backend:
-          service:
-            name: {{ template "docspace.svc.router.name" $context }}
-            port:
-              number: {{ $context.Values.router.service.port.external }}
-  {{- end }}
   {{- end }}
   {{- end }}
 {{- end }}
