@@ -29,17 +29,34 @@ data:
     sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_management/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_ai/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+
+    sed -i 's/proxy_pass $api_system_url/proxy_pass http:\/\/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $backup_service_url/proxy_pass http:\/\/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $files_service_url/proxy_pass http:\/\/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $people_service_url/proxy_pass http:\/\/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $webapi_service_url/proxy_pass http:\/\/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $webstudio_service_url/proxy_pass http:\/\/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $socket_io_url/proxy_pass http:\/\/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $sso_service_url/proxy_pass http:\/\/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $doceditor_service_url/proxy_pass http:\/\/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $login_service_url/proxy_pass http:\/\/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $health_checks_url/proxy_pass http:\/\/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $clients_service_url/proxy_pass http:\/\/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $oauth2_service_url/proxy_pass http:\/\/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $sdk_node_url/proxy_pass http:\/\/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $management_service_url/proxy_pass http:\/\/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $ai_service_url/proxy_pass http:\/\/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
-    sed -i 's/$document_server/https\:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if contains "http://" .Values.connections.documentServerHost }}
-    sed -i 's/$document_server/http\:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if .Values.connections.documentServerUrlExternal }}
-    sed -i 's/$document_server/{{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $document_server/proxy_pass {{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
-    sed -i 's/$document_server/http\:\/\/documentserver/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/documentserver/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- else }}
-    sed -i 's/$document_server/http\:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- end }}
     sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed '/"oauth2"/,/}/{s|"origin": "[^"]*"|"origin": "'"$OAUTH_ORIGIN"'"|}' -i /var/www/public/scripts/config.json

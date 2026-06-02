@@ -12,6 +12,12 @@ docs:
   # docs.enabled Enables Onlyoffice Docs subchart installation
   # Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it
   enabled: true
+  # Image parameters for Onlyoffice Docs subchart
+  images:
+    # docs.images.registry Global image registry for Onlyoffice Docs containers
+    registry: ""
+    # docs.images.tag Global image tag for Onlyoffice Docs containers
+    tag: ""
   connections:
     # Onlyoffice Docs Database connection parameters
     # By default, the same Database connection is used as for DocSpace
@@ -219,7 +225,7 @@ connections:
   # connections.filesHost The name of the DocSpace Files service
   filesHost: files
   # connections.filesServicesHost The name of the DocSpace Files Services service
-  filesServicesHost: files-services
+  filesServicesHost: files-worker
   # connections.studioHost The name of the DocSpace Studio service
   studioHost: studio
   # connections.backupHost The name of the DocSpace Backup service
@@ -230,8 +236,8 @@ connections:
   clearEventsHost: clear-events
   # connections.doceditorHost The name of the DocSpace Doceditor service
   doceditorHost: doceditor
-  # connections.backupBackgroundTasksHost The name of the DocSpace Backup Background Tasks service
-  backupBackgroundTasksHost: backup-background-tasks
+  # connections.backupWorkerHost The name of the DocSpace Backup Worker service
+  backupWorkerHost: backup-worker
   # connections.loginHost The name of the DocSpace Login service
   loginHost: login
   # connections.healthchecksHost The name of the DocSpace Healthchecks service
@@ -248,8 +254,8 @@ connections:
   managementHost: management
   # connections.aiHost The name of the DocSpace AI service
   aiHost: ai
-  # connections.aiServiceHost The name of the DocSpace AI Service service
-  aiServiceHost: ai-service
+  # connections.aiWorkerHost The name of the DocSpace AI Worker service
+  aiWorkerHost: ai-worker
   # connections.aiMCPHost The name of the DocSpace AI MCP service
   aiMCPHost: ai-mcp
   # connections.documentServerHost The name of the Document Server service
@@ -391,6 +397,8 @@ images:
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
   tag: 3.6.1
+  ## images.registry Global image registry for all DocSpace containers
+  registry: ""
 # Global amount of replicas for all DocSpace applications
 replicas: 2
 # JSON Web Token parameters
@@ -430,6 +438,8 @@ initContainers:
   # Parameters of the Check DB initContainers
   checkDB:
     image:
+      # initContainers.checkDB.image.registry check-db initContainer image registry
+      registry: ""
       # initContainers.checkDB.image.repository check-db initContainer image repository
       repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
@@ -542,7 +552,7 @@ files:
   #       - key: app
   #         operator: In
   #         values:
-  #         - files-services
+  #         - files-worker
   #     topologyKey: kubernetes.io/hostname
   customPodAntiAffinity: {}
   # Pod affinity rules for Files Pods scheduling by nodes relative to other Pods
@@ -640,6 +650,8 @@ files:
     behavior: {}
   # Files container image parameters
   image:
+    # files.image.registry files container image registry
+    registry: ""
     # files.image.repository files container image repository
     repository: onlyoffice/docspace-files
     # files.image.tag files container image tag
@@ -859,6 +871,8 @@ peopleServer:
     behavior: {}
   # People Server container image parameters
   image:
+    # peopleServer.image.registry People Server container image registry
+    registry: ""
     # peopleServer.image.repository People Server container image repository
     repository: onlyoffice/docspace-people-server
     # peopleServer.image.tag People Server container image tag
@@ -1069,6 +1083,8 @@ router:
   initContainers: []
   # Router container image parameters
   image:
+    # router.image.registry Router container image registry
+    registry: ""
     # router.image.repository Router container image repository
     repository: onlyoffice/docspace-router
     # router.image.tag Router container image tag
@@ -1334,6 +1350,8 @@ healthchecks:
     behavior: {}
   # Healthchecks container image parameters
   image:
+    # healthchecks.image.registry Healthchecks container image registry
+    registry: ""
     # healthchecks.image.repository Healthchecks container image repository
     repository: onlyoffice/docspace-healthchecks
     # healthchecks.image.tag Healthchecks container image tag
@@ -1539,6 +1557,8 @@ apiSystem:
     behavior: {}
   # Api System container image parameters
   image:
+    # apiSystem.image.registry Api System container image registry
+    registry: ""
     # apiSystem.image.repository Api System container image repository
     repository: onlyoffice/docspace-api-system
     # apiSystem.image.tag Api System container image tag
@@ -1752,6 +1772,8 @@ api:
     behavior: {}
   # Api container image parameters
   image:
+    # api.image.registry Api container image registry
+    registry: ""
     # api.image.repository Api container image repository
     repository: onlyoffice/docspace-api
     # api.image.tag Api container image tag
@@ -1960,6 +1982,8 @@ backup:
     behavior: {}
   # Backup container image parameters
   image:
+    # backup.image.registry Backup container image registry
+    registry: ""
     # backup.image.repository Backup container image repository
     repository: onlyoffice/docspace-backup
     # backup.image.tag Backup container image tag
@@ -2051,49 +2075,49 @@ backup:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup Background Tasks application parameters
+# DocSpace Backup Worker application parameters
 # This block defines the parameters common to all the Pods of this application
 #
-backupBackgroundTasks:
-  # backupBackgroundTasks.enabled Enables Backup Background Tasks installation
+backupWorker:
+  # backupWorker.enabled Enables Backup Worker installation
   enabled: true
-  # backupBackgroundTasks.kind The controller used for deploy
+  # backupWorker.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  # backupBackgroundTasks.annotations Defines annotations that will be additionally added to Backup Background Tasks deploy
+  # backupWorker.annotations Defines annotations that will be additionally added to Backup Worker deploy
   # If set to, it takes priority over the `commonAnnotations`
   # You can also use `tpl` as the value for the key
   annotations: {}
-  # backupBackgroundTasks.replicaCount Number of Backup Background Tasks replicas to deploy
-  # If the `backupBackgroundTasks.autoscaling.enabled` parameter is enabled, it is ignored
+  # backupWorker.replicaCount Number of Backup Worker replicas to deploy
+  # If the `backupWorker.autoscaling.enabled` parameter is enabled, it is ignored
   # If set to, it takes priority over the `replicas`
   replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # backupBackgroundTasks.updateStrategy.type Backup Background Tasks update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete` if `backupBackgroundTasks.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupBackgroundTasks.kind` is set to `Deployment`
+    # backupWorker.updateStrategy.type Backup Worker update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `backupWorker.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `backupWorker.kind` is set to `Deployment`
     type: RollingUpdate
-    # backupBackgroundTasks.updateStrategy.rollingUpdate Used only when `backupBackgroundTasks.updateStrategy.type=RollingUpdate`
+    # backupWorker.updateStrategy.rollingUpdate Used only when `backupWorker.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Background Tasks Pods unavailable during the update process
+      # backupWorker.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Backup Worker Pods unavailable during the update process
       maxUnavailable: 25%
-      # backupBackgroundTasks.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Background Tasks Pods created over the desired number of Pods
+      # backupWorker.updateStrategy.rollingUpdate.maxSurge Maximum number of Backup Worker Pods created over the desired number of Pods
       maxSurge: 25%
-  # backupBackgroundTasks.podManagementPolicy The Backup Background Tasks Pods scaling operations policy
-  # Used if `backupBackgroundTasks.kind` is set to `StatefulSet`
+  # backupWorker.podManagementPolicy The Backup Worker Pods scaling operations policy
+  # Used if `backupWorker.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  # backupBackgroundTasks.podAnnotations Map of annotations to add to the Backup Background Tasks pods
+  # backupWorker.podAnnotations Map of annotations to add to the Backup Worker pods
   podAnnotations: {}
-  # Configure a Security Context for the Backup Background Tasks Pods
+  # Configure a Security Context for the Backup Worker Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
-    # backupBackgroundTasks.podSecurityContext.enabled Enable security context for the Backup Background Tasks pods
+    # backupWorker.podSecurityContext.enabled Enable security context for the Backup Worker pods
     enabled: false
-  # backupBackgroundTasks.customPodAntiAffinity Prohibiting the scheduling of Backup Background Tasks Pods relative to other Pods containing the specified labels on the same node
+  # backupWorker.customPodAntiAffinity Prohibiting the scheduling of Backup Worker Pods relative to other Pods containing the specified labels on the same node
   customPodAntiAffinity: {}
-  # Pod affinity rules for backupBackgroundTasks Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for backupWorker Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Backup Worker Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2108,8 +2132,8 @@ backupBackgroundTasks:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Backup Background Tasks Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Backup Background Tasks Pods can be scheduled on based on node labels
+  # Node affinity rules for Backup Worker Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Backup Worker Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2123,119 +2147,121 @@ backupBackgroundTasks:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # backupBackgroundTasks.nodeSelector Node labels for Backup Background Tasks pods assignment
+  # backupWorker.nodeSelector Node labels for Backup Worker pods assignment
   # If set to, it takes priority over the `nodeSelector`
   nodeSelector: {}
-  # backupBackgroundTasks.tolerations Tolerations for Backup Background Tasks pods assignment
+  # backupWorker.tolerations Tolerations for Backup Worker pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
   ## Horizontal Pod Autoscaling parameters
-  ## Horizontal Pod Autoscaling is used for autoscaling of the Backup Background Tasks deployment
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Backup Worker deployment
   ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
-  ## The parameters below for autoscaling are used only when `backupBackgroundTasks.autoscaling.enabled=true`
+  ## The parameters below for autoscaling are used only when `backupWorker.autoscaling.enabled=true`
   autoscaling:
-    ## backupBackgroundTasks.autoscaling.enabled Enable Backup Background Tasks deployment autoscaling
+    ## backupWorker.autoscaling.enabled Enable Backup Worker deployment autoscaling
     enabled: false
-    ## backupBackgroundTasks.autoscaling.annotations Defines annotations that will be additionally added to Backup Background Tasks deployment HPA
+    ## backupWorker.autoscaling.annotations Defines annotations that will be additionally added to Backup Worker deployment HPA
     ## If set to, it takes priority over the `commonAnnotations`
     ## You can also use `tpl` as the value for the key
     annotations: {}
-    ## backupBackgroundTasks.autoscaling.minReplicas Backup Background Tasks deployment autoscaling minimum number of replicas
+    ## backupWorker.autoscaling.minReplicas Backup Worker deployment autoscaling minimum number of replicas
     minReplicas: 2
-    ## backupBackgroundTasks.autoscaling.maxReplicas Backup Background Tasks deployment autoscaling maximum number of replicas
+    ## backupWorker.autoscaling.maxReplicas Backup Worker deployment autoscaling maximum number of replicas
     maxReplicas: 16
     targetCPU:
-      ## backupBackgroundTasks.autoscaling.targetCPU.enabled Enable autoscaling of Backup Background Tasks deployment by CPU usage percentage
+      ## backupWorker.autoscaling.targetCPU.enabled Enable autoscaling of Backup Worker deployment by CPU usage percentage
       enabled: true
-      ## backupBackgroundTasks.autoscaling.targetCPU.utilizationPercentage Backup Background Tasks deployment autoscaling target CPU percentage
+      ## backupWorker.autoscaling.targetCPU.utilizationPercentage Backup Worker deployment autoscaling target CPU percentage
       utilizationPercentage: 70
     targetMemory:
-      ## backupBackgroundTasks.autoscaling.targetMemory.enabled Enable autoscaling of Backup Background Tasks deployment by memory usage percentage
+      ## backupWorker.autoscaling.targetMemory.enabled Enable autoscaling of Backup Worker deployment by memory usage percentage
       enabled: false
-      ## backupBackgroundTasks.autoscaling.targetMemory.utilizationPercentage Backup Background Tasks deployment autoscaling target memory percentage
+      ## backupWorker.autoscaling.targetMemory.utilizationPercentage Backup Worker deployment autoscaling target memory percentage
       utilizationPercentage: 70
-    ## backupBackgroundTasks.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup Background Tasks deployment
+    ## backupWorker.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Backup Worker deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
     customMetricsType: []
-    ## backupBackgroundTasks.autoscaling.behavior Configuring Backup Background Tasks deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## backupWorker.autoscaling.behavior Configuring Backup Worker deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
     behavior: {}
-  # Backup Background Tasks container image parameters
+  # Backup Worker container image parameters
   image:
-    # backupBackgroundTasks.image.repository Backup Background Tasks container image repository
-    repository: onlyoffice/docspace-backup-background
-    # backupBackgroundTasks.image.tag Backup Background Tasks container image tag
+    # backupWorker.image.registry Backup Worker container image registry
+    registry: ""
+    # backupWorker.image.repository Backup Worker container image repository
+    repository: onlyoffice/docspace-backup-worker
+    # backupWorker.image.tag Backup Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
-    # backupBackgroundTasks.image.pullPolicy Backup Background Tasks container image pull policy
+    # backupWorker.image.pullPolicy Backup Worker container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Backup Background Tasks Pods
+  # Configure a Security Context for containers in Backup Worker Pods
   # If set to, it takes priority over the `containerSecurityContext`
   containerSecurityContext:
-    # backupBackgroundTasks.containerSecurityContext.enabled Enable security context for containers in Backup Background Tasks pods
+    # backupWorker.containerSecurityContext.enabled Enable security context for containers in Backup Worker pods
     enabled: false
-  # backupBackgroundTasks.lifecycleHooks Defines the Backup Background Tasks container lifecycle hooks
+  # backupWorker.lifecycleHooks Defines the Backup Worker container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
   lifecycleHooks: {}
-  # backupBackgroundTasks.containerPorts.app Backup Background Tasks container port
+  # backupWorker.containerPorts.app Backup Worker container port
   containerPorts:
     app: 5050
-  # Probe used for the Backup Background Tasks container: startup, readiness and liveness probes
+  # Probe used for the Backup Worker container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `backupBackgroundTasks.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `backupWorker.startupProbe.enabled=true`
   startupProbe:
-    # backupBackgroundTasks.startupProbe.enabled Enable startupProbe for Backup Background Tasks container
+    # backupWorker.startupProbe.enabled Enable startupProbe for Backup Worker container
     enabled: true
     httpGet:
-      # backupBackgroundTasks.startupProbe.httpGet.path Checking the path for startupProbe
+      # backupWorker.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
-      # backupBackgroundTasks.startupProbe.httpGet.port Checking the port for startupProbe
+      # backupWorker.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
-    # backupBackgroundTasks.startupProbe.failureThreshold Failure threshold for startupProbe
+    # backupWorker.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # backupBackgroundTasks.startupProbe.periodSeconds Period seconds for startupProbe
+    # backupWorker.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `backupBackgroundTasks.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `backupWorker.readinessProbe.enabled=true`
   readinessProbe:
-    # backupBackgroundTasks.readinessProbe.enabled Enable readinessProbe for Backup Background Tasks container
+    # backupWorker.readinessProbe.enabled Enable readinessProbe for Backup Worker container
     enabled: true
-    # backupBackgroundTasks.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # backupWorker.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # backupBackgroundTasks.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # backupWorker.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /health
-      # backupBackgroundTasks.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # backupWorker.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
-    # backupBackgroundTasks.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # backupWorker.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 10
-    # backupBackgroundTasks.readinessProbe.successThreshold Success threshold for readinessProbe
+    # backupWorker.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # backupBackgroundTasks.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # backupWorker.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `backupBackgroundTasks.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `backupWorker.livenessProbe.enabled=true`
   livenessProbe:
-    # backupBackgroundTasks.livenessProbe.enabled Enable livenessProbe for Backup Background Tasks container
+    # backupWorker.livenessProbe.enabled Enable livenessProbe for Backup Worker container
     enabled: true
-    # backupBackgroundTasks.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # backupWorker.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
-      # backupBackgroundTasks.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # backupWorker.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /health
-      # backupBackgroundTasks.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # backupWorker.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
-    # backupBackgroundTasks.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # backupWorker.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 10
-    # backupBackgroundTasks.livenessProbe.successThreshold Success threshold for livenessProbe
+    # backupWorker.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # backupBackgroundTasks.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # backupWorker.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Backup Background Tasks container resource requests and limits
+  # Backup Worker container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # backupBackgroundTasks.resources.requests The requested resources for the Backup Background Tasks container
-  # backupBackgroundTasks.resources.limits The resources limits for the Backup Background Tasks container
+  # backupWorker.resources.requests The requested resources for the Backup Worker container
+  # backupWorker.resources.limits The resources limits for the Backup Worker container
   resources:
     requests:
       memory: "256Mi"
@@ -2243,13 +2269,13 @@ backupBackgroundTasks:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  ## backupBackgroundTasks.extraEnvVars An array with extra env variables for the Backup Background Tasks container
+  ## backupWorker.extraEnvVars An array with extra env variables for the Backup Worker container
   extraEnvVars: []
-  ## backupBackgroundTasks.extraVolumes An array with extra volumes for the Backup Background Tasks container
+  ## backupWorker.extraVolumes An array with extra volumes for the Backup Worker container
   extraVolumes: []
-  ## backupBackgroundTasks.extraVolumeMounts An array with extra volume mounts for the Backup Background Tasks container
+  ## backupWorker.extraVolumeMounts An array with extra volume mounts for the Backup Worker container
   extraVolumeMounts: []
-  # backupBackgroundTasks.mysqlUser Database user who will be used by the Backup Background Tasks service to connect to the database
+  # backupWorker.mysqlUser Database user who will be used by the Backup Worker service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
@@ -2366,6 +2392,8 @@ clearEvents:
     behavior: {}
   # Clear Events container image parameters
   image:
+    # clearEvents.image.registry Clear Events container image registry
+    registry: ""
     # clearEvents.image.repository Clear Events container image repository
     repository: onlyoffice/docspace-clear-events
     # clearEvents.image.tag Clear Events container image tag
@@ -2569,6 +2597,8 @@ doceditor:
     behavior: {}
   # Doceditor container image parameters
   image:
+    # doceditor.image.registry Doceditor container image registry
+    registry: ""
     # doceditor.image.repository Doceditor container image repository
     repository: onlyoffice/docspace-doceditor
     # doceditor.image.tag Doceditor container image tag
@@ -2660,49 +2690,49 @@ doceditor:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Files Services application parameters
+# DocSpace Files Worker application parameters
 # This block defines the parameters common to all the Pods of this application
 #
-filesServices:
-  # filesServices.enabled Enables Files Services installation
+filesWorker:
+  # filesWorker.enabled Enables Files Worker installation
   enabled: true
-  # filesServices.kind The controller used for deploy
+  # filesWorker.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  # filesServices.annotations Defines annotations that will be additionally added to Files Services deploy
+  # filesWorker.annotations Defines annotations that will be additionally added to Files Worker deploy
   # If set to, it takes priority over the `commonAnnotations`
   # You can also use `tpl` as the value for the key
   annotations: {}
-  # filesServices.replicaCount Number of Files Services replicas to deploy
-  # If the `filesServices.autoscaling.enabled` parameter is enabled, it is ignored
+  # filesWorker.replicaCount Number of Files Worker replicas to deploy
+  # If the `filesWorker.autoscaling.enabled` parameter is enabled, it is ignored
   # If set to, it takes priority over the `replicas`
   replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # filesServices.updateStrategy.type Files Services update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete` if `filesServices.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesServices.kind` is set to `Deployment`
+    # filesWorker.updateStrategy.type Files Worker update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `filesWorker.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `filesWorker.kind` is set to `Deployment`
     type: RollingUpdate
-    # filesServices.updateStrategy.rollingUpdate Used only when `filesServices.updateStrategy.type=RollingUpdate`
+    # filesWorker.updateStrategy.rollingUpdate Used only when `filesWorker.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # filesServices.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Services Pods unavailable during the update process
+      # filesWorker.updateStrategy.rollingUpdate.maxUnavailable Maximum number of Files Worker Pods unavailable during the update process
       maxUnavailable: 25%
-      # filesServices.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Services Pods created over the desired number of Pods
+      # filesWorker.updateStrategy.rollingUpdate.maxSurge Maximum number of Files Worker Pods created over the desired number of Pods
       maxSurge: 25%
-  # filesServices.podManagementPolicy The Files Services Pods scaling operations policy
-  # Used if `filesServices.kind` is set to `StatefulSet`
+  # filesWorker.podManagementPolicy The Files Worker Pods scaling operations policy
+  # Used if `filesWorker.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  # filesServices.podAnnotations Map of annotations to add to the Files Services pods
+  # filesWorker.podAnnotations Map of annotations to add to the Files Worker pods
   podAnnotations: {}
-  # Configure a Security Context for the Files Services Pods
+  # Configure a Security Context for the Files Worker Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
-    # filesServices.podSecurityContext.enabled Enable security context for the Files Services pods
+    # filesWorker.podSecurityContext.enabled Enable security context for the Files Worker pods
     enabled: false
-  # filesServices.customPodAntiAffinity Prohibiting the scheduling of Files Services Pods relative to other Pods containing the specified labels on the same node
+  # filesWorker.customPodAntiAffinity Prohibiting the scheduling of Files Worker Pods relative to other Pods containing the specified labels on the same node
   customPodAntiAffinity: {}
-  # Pod affinity rules for Files Services Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for Files Worker Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes Files Worker Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -2717,8 +2747,8 @@ filesServices:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for Files Services Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes Files Services Pods can be scheduled on based on node labels
+  # Node affinity rules for Files Worker Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes Files Worker Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -2732,119 +2762,121 @@ filesServices:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # filesServices.nodeSelector Node labels for Files Services pods assignment
+  # filesWorker.nodeSelector Node labels for Files Worker pods assignment
   # If set to, it takes priority over the `nodeSelector`
   nodeSelector: {}
-  # filesServices.tolerations Tolerations for Files Services pods assignment
+  # filesWorker.tolerations Tolerations for Files Worker pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
   ## Horizontal Pod Autoscaling parameters
-  ## Horizontal Pod Autoscaling is used for autoscaling of the Files Services deployment
+  ## Horizontal Pod Autoscaling is used for autoscaling of the Files Worker deployment
   ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
-  ## The parameters below for autoscaling are used only when `filesServices.autoscaling.enabled=true`
+  ## The parameters below for autoscaling are used only when `filesWorker.autoscaling.enabled=true`
   autoscaling:
-    ## filesServices.autoscaling.enabled Enable Files Services deployment autoscaling
+    ## filesWorker.autoscaling.enabled Enable Files Worker deployment autoscaling
     enabled: false
-    ## filesServices.autoscaling.annotations Defines annotations that will be additionally added to Files Services deployment HPA
+    ## filesWorker.autoscaling.annotations Defines annotations that will be additionally added to Files Worker deployment HPA
     ## If set to, it takes priority over the `commonAnnotations`
     ## You can also use `tpl` as the value for the key
     annotations: {}
-    ## filesServices.autoscaling.minReplicas Files Services deployment autoscaling minimum number of replicas
+    ## filesWorker.autoscaling.minReplicas Files Worker deployment autoscaling minimum number of replicas
     minReplicas: 2
-    ## filesServices.autoscaling.maxReplicas Files Services deployment autoscaling maximum number of replicas
+    ## filesWorker.autoscaling.maxReplicas Files Worker deployment autoscaling maximum number of replicas
     maxReplicas: 16
     targetCPU:
-      ## filesServices.autoscaling.targetCPU.enabled Enable autoscaling of Files Services deployment by CPU usage percentage
+      ## filesWorker.autoscaling.targetCPU.enabled Enable autoscaling of Files Worker deployment by CPU usage percentage
       enabled: true
-      ## filesServices.autoscaling.targetCPU.utilizationPercentage Files Services deployment autoscaling target CPU percentage
+      ## filesWorker.autoscaling.targetCPU.utilizationPercentage Files Worker deployment autoscaling target CPU percentage
       utilizationPercentage: 70
     targetMemory:
-      ## filesServices.autoscaling.targetMemory.enabled Enable autoscaling of Files Services deployment by memory usage percentage
+      ## filesWorker.autoscaling.targetMemory.enabled Enable autoscaling of Files Worker deployment by memory usage percentage
       enabled: false
-      ## filesServices.autoscaling.targetMemory.utilizationPercentage Files Services deployment autoscaling target memory percentage
+      ## filesWorker.autoscaling.targetMemory.utilizationPercentage Files Worker deployment autoscaling target memory percentage
       utilizationPercentage: 70
-    ## filesServices.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Files Services deployment
+    ## filesWorker.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the Files Worker deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
     customMetricsType: []
-    ## filesServices.autoscaling.behavior Configuring Files Services deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## filesWorker.autoscaling.behavior Configuring Files Worker deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
     behavior: {}
-  # Files Services container image parameters
+  # Files Worker container image parameters
   image:
-    # filesServices.image.repository Files Services container image repository
-    repository: onlyoffice/docspace-files-services
-    # filesServices.image.tag Files Services container image tag
+    # filesWorker.image.registry Files Worker container image registry
+    registry: ""
+    # filesWorker.image.repository Files Worker container image repository
+    repository: onlyoffice/docspace-files-worker
+    # filesWorker.image.tag Files Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
-    # filesServices.image.pullPolicy Files Services container image pull policy
+    # filesWorker.image.pullPolicy Files Worker container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in Files Services Pods
+  # Configure a Security Context for containers in Files Worker Pods
   # If set to, it takes priority over the `containerSecurityContext`
   containerSecurityContext:
-    # filesServices.containerSecurityContext.enabled Enable security context for containers in Files Services pods
+    # filesWorker.containerSecurityContext.enabled Enable security context for containers in Files Worker pods
     enabled: false
-  # filesServices.lifecycleHooks Defines the Files Services container lifecycle hooks
+  # filesWorker.lifecycleHooks Defines the Files Worker container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
   lifecycleHooks: {}
-  # filesServices.containerPorts.app Files Services container port
+  # filesWorker.containerPorts.app Files Worker container port
   containerPorts:
     app: 5050
-  # Probe used for the Files Services container: startup, readiness and liveness probes
+  # Probe used for the Files Worker container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `filesServices.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `filesWorker.startupProbe.enabled=true`
   startupProbe:
-    # filesServices.startupProbe.enabled Enable startupProbe for Files Services container
+    # filesWorker.startupProbe.enabled Enable startupProbe for Files Worker container
     enabled: true
     httpGet:
-      # filesServices.startupProbe.httpGet.path Checking the path for startupProbe
+      # filesWorker.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health
-      # filesServices.startupProbe.httpGet.port Checking the port for startupProbe
+      # filesWorker.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
-    # filesServices.startupProbe.failureThreshold Failure threshold for startupProbe
+    # filesWorker.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # filesServices.startupProbe.periodSeconds Period seconds for startupProbe
+    # filesWorker.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `filesServices.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `filesWorker.readinessProbe.enabled=true`
   readinessProbe:
-    # filesServices.readinessProbe.enabled Enable readinessProbe for Files Services container
+    # filesWorker.readinessProbe.enabled Enable readinessProbe for Files Worker container
     enabled: true
-    # filesServices.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # filesWorker.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # filesServices.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # filesWorker.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /health
-      # filesServices.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # filesWorker.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
-    # filesServices.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # filesWorker.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
-    # filesServices.readinessProbe.successThreshold Success threshold for readinessProbe
+    # filesWorker.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # filesServices.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # filesWorker.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `filesServices.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `filesWorker.livenessProbe.enabled=true`
   livenessProbe:
-    # filesServices.livenessProbe.enabled Enable livenessProbe for Files Services container
+    # filesWorker.livenessProbe.enabled Enable livenessProbe for Files Worker container
     enabled: true
-    # filesServices.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # filesWorker.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
-      # filesServices.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # filesWorker.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /health
-      # filesServices.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # filesWorker.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
-    # filesServices.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # filesWorker.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
-    # filesServices.livenessProbe.successThreshold Success threshold for livenessProbe
+    # filesWorker.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # filesServices.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # filesWorker.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # Files Services container resource requests and limits
+  # Files Worker container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # filesServices.resources.requests The requested resources for the Files Services container
-  # filesServices.resources.limits The resources limits for the Files Services container
+  # filesWorker.resources.requests The requested resources for the Files Worker container
+  # filesWorker.resources.limits The resources limits for the Files Worker container
   resources:
     requests:
       memory: "256Mi"
@@ -2852,13 +2884,13 @@ filesServices:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  ## filesServices.extraEnvVars An array with extra env variables for the Files Services container
+  ## filesWorker.extraEnvVars An array with extra env variables for the Files Worker container
   extraEnvVars: []
-  ## filesServices.extraVolumes An array with extra volumes for the Files Services container
+  ## filesWorker.extraVolumes An array with extra volumes for the Files Worker container
   extraVolumes: []
-  ## filesServices.extraVolumeMounts An array with extra volume mounts for the Files Services container
+  ## filesWorker.extraVolumeMounts An array with extra volume mounts for the Files Worker container
   extraVolumeMounts: []
-  # filesServices.mysqlUser Database user who will be used by the Files Services service to connect to the database
+  # filesWorker.mysqlUser Database user who will be used by the Files Worker service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
@@ -2975,6 +3007,8 @@ login:
     behavior: {}
   # Login container image parameters
   image:
+    # login.image.registry Login container image registry
+    registry: ""
     # login.image.repository Login container image repository
     repository: onlyoffice/docspace-login
     # login.image.tag Login container image tag
@@ -3072,11 +3106,15 @@ login:
 identity:
   # identity.enabled Enables Identity installation
   enabled: true
-  # identity.serviceAccount.create Enable Identity ServiceAccount creation
-  # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
-  # If disabled, the common `serviceAccount` will be used
   serviceAccount:
+    # identity.serviceAccount.create Enable Identity ServiceAccount creation
+    # The `Role` and the `RoleBinding` required to build a cluster from identity replicas will be applied
+    # If disabled, the common `serviceAccount` will be used
     create: false
+    # identity.serviceAccount.name Name of the Identity ServiceAccount to be used
+    # If not set and `identity.serviceAccount.create` is `true` the name will be `identity-sa`
+    # If not set and `identity.serviceAccount.create` is `false` the common `serviceAccount` will be used
+    name: ""
   env:
     # identity.env.springProfilesActive is the environment variable to override/pick Spring profile. Default is `dev`
     springProfilesActive: "prod,server"
@@ -3221,6 +3259,8 @@ identity:
       behavior: {}
     # Identity container image parameters
     image:
+      # identity.authorization.image.registry Identity container image registry
+      registry: ""
       # identity.authorization.image.repository Identity container image repository
       repository: onlyoffice/docspace-identity-authorization
       # identity.authorization.image.tag Identity container image tag
@@ -3425,6 +3465,8 @@ identity:
       behavior: {}
     # Identity Api container image parameters
     image:
+      # identity.api.image.registry Identity Api container image registry
+      registry: ""
       # identity.api.image.repository Identity Api container image repository
       repository: onlyoffice/docspace-identity-api
       # identity.api.image.tag Identity Api container image tag
@@ -3632,6 +3674,8 @@ notify:
     behavior: {}
   # Notify container image parameters
   image:
+    # notify.image.registry Notify container image registry
+    registry: ""
     # notify.image.repository Notify container image repository
     repository: onlyoffice/docspace-notify
     # notify.image.tag Notify container image tag
@@ -3835,6 +3879,8 @@ socket:
     behavior: {}
   # Socket container image parameters
   image:
+    # socket.image.registry Socket container image registry
+    registry: ""
     # socket.image.repository Socket container image repository
     repository: onlyoffice/docspace-socket
     # socket.image.tag Socket container image tag
@@ -4040,6 +4086,8 @@ ssoauth:
     behavior: {}
   # ssoauth container image parameters
   image:
+    # ssoauth.image.registry ssoauth container image registry
+    registry: ""
     # ssoauth.image.repository ssoauth container image repository
     repository: onlyoffice/docspace-ssoauth
     # ssoauth.image.tag ssoauth container image tag
@@ -4245,6 +4293,8 @@ studio:
     behavior: {}
   # Studio container image parameters
   image:
+    # studio.image.registry Studio container image registry
+    registry: ""
     # studio.image.repository Studio container image repository
     repository: onlyoffice/docspace-studio
     # studio.image.tag Studio container image tag
@@ -4448,6 +4498,8 @@ studioNotify:
     behavior: {}
   # Studio Notify container image parameters
   image:
+    # studioNotify.image.registry Studio Notify container image registry
+    registry: ""
     # studioNotify.image.repository Studio Notify container image repository
     repository: onlyoffice/docspace-studio-notify
     # studioNotify.image.tag Studio Notify container image tag
@@ -4651,6 +4703,8 @@ sdk:
     behavior: {}
   # SDK container image parameters
   image:
+    # sdk.image.registry SDK container image registry
+    registry: ""
     # sdk.image.repository SDK container image repository
     repository: onlyoffice/docspace-sdk
     # sdk.image.tag SDK container image tag
@@ -4854,6 +4908,8 @@ telegram:
     behavior: {}
   # Telegram container image parameters
   image:
+    # telegram.image.registry Telegram container image registry
+    registry: ""
     # telegram.image.repository Telegram container image repository
     repository: onlyoffice/docspace-telegram
     # telegram.image.tag Telegram container image tag
@@ -5057,6 +5113,8 @@ management:
     behavior: {}
   # Management container image parameters
   image:
+    # management.image.registry Management container image registry
+    registry: ""
     # management.image.repository Management container image repository
     repository: onlyoffice/docspace-management
     # management.image.tag Management container image tag
@@ -5270,6 +5328,8 @@ ai:
     behavior: {}
   # AI container image parameters
   image:
+    # ai.image.registry AI container image registry
+    registry: ""
     # ai.image.repository AI container image repository
     repository: onlyoffice/docspace-ai
     # ai.image.tag AI container image tag
@@ -5369,43 +5429,43 @@ ai:
 # DocSpace AI Service application parameters
 # This block defines the parameters common to all the Pods of this application
 #
-aiService:
-  # aiService.enabled Enables AI Service installation
+aiWorker:
+  # aiWorker.enabled Enables AI Worker installation
   enabled: true
-  # aiService.kind The controller used for deploy
+  # aiWorker.kind The controller used for deploy
   # Possible values are `Deployment` (default) or `StatefulSet`
   kind: Deployment
-  # aiService.annotations Defines annotations that will be additionally added to AI Service deploy
+  # aiWorker.annotations Defines annotations that will be additionally added to AI Worker deploy
   # If set to, it takes priority over the `commonAnnotations`
   # You can also use `tpl` as the value for the key
   annotations: {}
-  # aiService.replicaCount Number of AI Service replicas to deploy
-  # If the `aiService.autoscaling.enabled` parameter is enabled, it is ignored
+  # aiWorker.replicaCount Number of AI Worker replicas to deploy
+  # If the `aiWorker.autoscaling.enabled` parameter is enabled, it is ignored
   # If set to, it takes priority over the `replicas`
   replicaCount: ""
   # Update strategy used to replace old Pods by new ones
   updateStrategy:
-    # aiService.updateStrategy.type AI Service update strategy type
-    # Allowed values: `RollingUpdate` or `OnDelete` if `aiService.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `aiService.kind` is set to `Deployment`
+    # aiWorker.updateStrategy.type AI Worker update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `aiWorker.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `aiWorker.kind` is set to `Deployment`
     type: RollingUpdate
-    # aiService.updateStrategy.rollingUpdate Used only when `aiService.updateStrategy.type=RollingUpdate`
+    # aiWorker.updateStrategy.rollingUpdate Used only when `aiWorker.updateStrategy.type=RollingUpdate`
     rollingUpdate:
-      # aiService.updateStrategy.rollingUpdate.maxUnavailable Maximum number of AI Service Pods unavailable during the update process
+      # aiWorker.updateStrategy.rollingUpdate.maxUnavailable Maximum number of AI Worker Pods unavailable during the update process
       maxUnavailable: 25%
-      # aiService.updateStrategy.rollingUpdate.maxSurge Maximum number of AI Service Pods created over the desired number of Pods
+      # aiWorker.updateStrategy.rollingUpdate.maxSurge Maximum number of AI Worker Pods created over the desired number of Pods
       maxSurge: 25%
-  # aiService.podManagementPolicy The AI Service Pods scaling operations policy
-  # Used if `aiService.kind` is set to `StatefulSet`
+  # aiWorker.podManagementPolicy The AI Worker Pods scaling operations policy
+  # Used if `aiWorker.kind` is set to `StatefulSet`
   # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
   podManagementPolicy: OrderedReady
-  # aiService.podAnnotations Map of annotations to add to the AI Service pods
+  # aiWorker.podAnnotations Map of annotations to add to the AI Worker pods
   podAnnotations: {}
-  # Configure a Security Context for the AI Service Pods
+  # Configure a Security Context for the AI Worker Pods
   # If set to, it takes priority over the `podSecurityContext`
   podSecurityContext:
-    # aiService.podSecurityContext.enabled Enable security context for the AI Service pods
+    # aiWorker.podSecurityContext.enabled Enable security context for the AI Worker pods
     enabled: false
-  # aiService.customPodAntiAffinity Prohibiting the scheduling of AI Service Pods relative to other Pods containing the specified labels on the same node
+  # aiWorker.customPodAntiAffinity Prohibiting the scheduling of AI Worker Pods relative to other Pods containing the specified labels on the same node
   # Example:
   # customPodAntiAffinity:
   #   requiredDuringSchedulingIgnoredDuringExecution:
@@ -5417,8 +5477,8 @@ aiService:
   #         - files
   #     topologyKey: kubernetes.io/hostname
   customPodAntiAffinity: {}
-  # Pod affinity rules for AI Service Pod scheduling by nodes relative to other Pods
-  # Pod affinity allow you to constrain which nodes AI Service Pods can be scheduled on based on the labels of Pods already running on that node
+  # Pod affinity rules for AI Worker Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes AI Worker Pods can be scheduled on based on the labels of Pods already running on that node
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   # Example:
   # podAffinity:
@@ -5433,8 +5493,8 @@ aiService:
   #           - database
   #       topologyKey: kubernetes.io/hostname
   podAffinity: {}
-  # Node affinity rules for AI Service Pod scheduling by nodes
-  # Node affinity allow you to constrain which nodes AI Service Pods can be scheduled on based on node labels
+  # Node affinity rules for AI Worker Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes AI Worker Pods can be scheduled on based on node labels
   # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
   # Example:
   # nodeAffinity:
@@ -5448,59 +5508,61 @@ aiService:
   #         - name1
   #         - name2
   nodeAffinity: {}
-  # aiService.nodeSelector Node labels for AI Service pods assignment
+  # aiWorker.nodeSelector Node labels for AI Worker pods assignment
   # If set to, it takes priority over the `nodeSelector`
   nodeSelector: {}
-  # aiService.tolerations Tolerations for AI Service pods assignment
+  # aiWorker.tolerations Tolerations for AI Worker pods assignment
   # If set to, it takes priority over the `tolerations`
   tolerations: []
   ## Horizontal Pod Autoscaling parameters
-  ## Horizontal Pod Autoscaling is used for autoscaling of the AI Service deployment
+  ## Horizontal Pod Autoscaling is used for autoscaling of the AI Worker deployment
   ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
-  ## The parameters below for autoscaling are used only when `aiService.autoscaling.enabled=true`
+  ## The parameters below for autoscaling are used only when `aiWorker.autoscaling.enabled=true`
   autoscaling:
-    ## aiService.autoscaling.enabled Enable AI Service deployment autoscaling
+    ## aiWorker.autoscaling.enabled Enable AI Worker deployment autoscaling
     enabled: false
-    ## aiService.autoscaling.annotations Defines annotations that will be additionally added to AI Service deployment HPA
+    ## aiWorker.autoscaling.annotations Defines annotations that will be additionally added to AI Worker deployment HPA
     ## If set to, it takes priority over the `commonAnnotations`
     ## You can also use `tpl` as the value for the key
     annotations: {}
-    ## aiService.autoscaling.minReplicas AI Service deployment autoscaling minimum number of replicas
+    ## aiWorker.autoscaling.minReplicas AI Worker deployment autoscaling minimum number of replicas
     minReplicas: 2
-    ## aiService.autoscaling.maxReplicas AI Service deployment autoscaling maximum number of replicas
+    ## aiWorker.autoscaling.maxReplicas AI Worker deployment autoscaling maximum number of replicas
     maxReplicas: 16
     targetCPU:
-      ## aiService.autoscaling.targetCPU.enabled Enable autoscaling of AI Service deployment by CPU usage percentage
+      ## aiWorker.autoscaling.targetCPU.enabled Enable autoscaling of AI Worker deployment by CPU usage percentage
       enabled: true
-      ## aiService.autoscaling.targetCPU.utilizationPercentage AI Service deployment autoscaling target CPU percentage
+      ## aiWorker.autoscaling.targetCPU.utilizationPercentage AI Worker deployment autoscaling target CPU percentage
       utilizationPercentage: 70
     targetMemory:
-      ## aiService.autoscaling.targetMemory.enabled Enable autoscaling of AI Service deployment by memory usage percentage
+      ## aiWorker.autoscaling.targetMemory.enabled Enable autoscaling of AI Worker deployment by memory usage percentage
       enabled: false
-      ## aiService.autoscaling.targetMemory.utilizationPercentage AI Service deployment autoscaling target memory percentage
+      ## aiWorker.autoscaling.targetMemory.utilizationPercentage AI Worker deployment autoscaling target memory percentage
       utilizationPercentage: 70
-    ## aiService.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the AI Service deployment
+    ## aiWorker.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the AI Worker deployment
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
     customMetricsType: []
-    ## aiService.autoscaling.behavior Configuring AI Service deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## aiWorker.autoscaling.behavior Configuring AI Worker deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
     ## If not set the default values are used:
     ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
     behavior: {}
-  # AI Service container image parameters
+  # AI Worker container image parameters
   image:
-    # aiService.image.repository AI Service container image repository
-    repository: onlyoffice/docspace-ai-service
-    # aiService.image.tag AI Service container image tag
+    # aiWorker.image.registry AI Worker container image registry
+    registry: ""
+    # aiWorker.image.repository AI Worker container image repository
+    repository: onlyoffice/docspace-ai-worker
+    # aiWorker.image.tag AI Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
-    # aiService.image.pullPolicy AI Service container image pull policy
+    # aiWorker.image.pullPolicy AI Worker container image pull policy
     pullPolicy: IfNotPresent
-  # Configure a Security Context for containers in AI Service Pods
+  # Configure a Security Context for containers in AI Worker Pods
   # If set to, it takes priority over the `containerSecurityContext`
   containerSecurityContext:
-    # aiService.containerSecurityContext.enabled Enable security context for containers in AI Service pods
+    # aiWorker.containerSecurityContext.enabled Enable security context for containers in AI Worker pods
     enabled: false
-  # aiService.lifecycleHooks Defines the AI Service container lifecycle hooks
+  # aiWorker.lifecycleHooks Defines the AI Worker container lifecycle hooks
   # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
   # It is used to trigger events to run at certain points in a container's lifecycle
   # There are two hooks that are exposed: `PostStart` and `PreStop`
@@ -5510,62 +5572,62 @@ aiService:
   #     exec:
   #       command: ["/bin/sh", "-c", "sleep 25"]
   lifecycleHooks: {}
-  # aiService.containerPorts.app AI Service container port
+  # aiWorker.containerPorts.app AI Worker container port
   containerPorts:
     app: 5050
-  # Probe used for the AI Service container: startup, readiness and liveness probes
+  # Probe used for the AI Worker container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  # The parameters below for startup probes are used only when `aiService.startupProbe.enabled=true`
+  # The parameters below for startup probes are used only when `aiWorker.startupProbe.enabled=true`
   startupProbe:
-    # aiService.startupProbe.enabled Enable startupProbe for AI Service container
+    # aiWorker.startupProbe.enabled Enable startupProbe for AI Worker container
     enabled: true
     httpGet:
-      # aiService.startupProbe.httpGet.path Checking the path for startupProbe
+      # aiWorker.startupProbe.httpGet.path Checking the path for startupProbe
       path: /health/
-      # aiService.startupProbe.httpGet.port Checking the port for startupProbe
+      # aiWorker.startupProbe.httpGet.port Checking the port for startupProbe
       port: 5050
-    # aiService.startupProbe.failureThreshold Failure threshold for startupProbe
+    # aiWorker.startupProbe.failureThreshold Failure threshold for startupProbe
     failureThreshold: 30
-    # aiService.startupProbe.periodSeconds Period seconds for startupProbe
+    # aiWorker.startupProbe.periodSeconds Period seconds for startupProbe
     periodSeconds: 10
-  # The parameters below for readiness probes are used only when `aiService.readinessProbe.enabled=true`
+  # The parameters below for readiness probes are used only when `aiWorker.readinessProbe.enabled=true`
   readinessProbe:
-    # aiService.readinessProbe.enabled Enable readinessProbe for AI Service container
+    # aiWorker.readinessProbe.enabled Enable readinessProbe for AI Worker container
     enabled: true
-    # aiService.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    # aiWorker.readinessProbe.failureThreshold Failure threshold for readinessProbe
     failureThreshold: 2
     httpGet:
-      # aiService.readinessProbe.httpGet.path Checking the path for readinessProbe
+      # aiWorker.readinessProbe.httpGet.path Checking the path for readinessProbe
       path: /health/
-      # aiService.readinessProbe.httpGet.port Checking the port for readinessProbe
+      # aiWorker.readinessProbe.httpGet.port Checking the port for readinessProbe
       port: 5050
-    # aiService.readinessProbe.periodSeconds Period seconds for readinessProbe
+    # aiWorker.readinessProbe.periodSeconds Period seconds for readinessProbe
     periodSeconds: 20
-    # aiService.readinessProbe.successThreshold Success threshold for readinessProbe
+    # aiWorker.readinessProbe.successThreshold Success threshold for readinessProbe
     successThreshold: 1
-    # aiService.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    # aiWorker.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
     timeoutSeconds: 5
-  # The parameters below for liveness probes are used only when `aiService.livenessProbe.enabled=true`
+  # The parameters below for liveness probes are used only when `aiWorker.livenessProbe.enabled=true`
   livenessProbe:
-    # aiService.livenessProbe.enabled Enable livenessProbe for AI Service container
+    # aiWorker.livenessProbe.enabled Enable livenessProbe for AI Worker container
     enabled: true
-    # aiService.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    # aiWorker.livenessProbe.failureThreshold Failure threshold for livenessProbe
     failureThreshold: 3
     httpGet:
-      # aiService.livenessProbe.httpGet.path Checking the path for livenessProbe
+      # aiWorker.livenessProbe.httpGet.path Checking the path for livenessProbe
       path: /health/
-      # aiService.livenessProbe.httpGet.port Checking the port for livenessProbe
+      # aiWorker.livenessProbe.httpGet.port Checking the port for livenessProbe
       port: 5050
-    # aiService.livenessProbe.periodSeconds Period seconds for livenessProbe
+    # aiWorker.livenessProbe.periodSeconds Period seconds for livenessProbe
     periodSeconds: 20
-    # aiService.livenessProbe.successThreshold Success threshold for livenessProbe
+    # aiWorker.livenessProbe.successThreshold Success threshold for livenessProbe
     successThreshold: 1
-    # aiService.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    # aiWorker.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
     timeoutSeconds: 5
-  # AI Service container resource requests and limits
+  # AI Worker container resource requests and limits
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # aiService.resources.requests The requested resources for the AI Service container
-  # aiService.resources.limits The resources limits for the AI Service container
+  # aiWorker.resources.requests The requested resources for the AI Worker container
+  # aiWorker.resources.limits The resources limits for the AI Worker container
   resources:
     requests:
       memory: "256Mi"
@@ -5573,13 +5635,13 @@ aiService:
     limits:
       memory: "4Gi"
       cpu: "4000m"
-  ## aiService.extraEnvVars An array with extra env variables for the AI Service container
+  ## aiWorker.extraEnvVars An array with extra env variables for the AI Worker container
   extraEnvVars: []
-  ## aiService.extraVolumes An array with extra volumes for the AI Service container
+  ## aiWorker.extraVolumes An array with extra volumes for the AI Worker container
   extraVolumes: []
-  ## aiService.extraVolumeMounts An array with extra volume mounts for the AI Service container
+  ## aiWorker.extraVolumeMounts An array with extra volume mounts for the AI Worker container
   extraVolumeMounts: []
-  # aiService.mysqlUser Database user who will be used by the AI Service service to connect to the database
+  # aiWorker.mysqlUser Database user who will be used by the AI Worker service to connect to the database
   # If not set, `connections.mysqlUser` will be used
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
@@ -5656,6 +5718,8 @@ aiMCP:
   tolerations: []
   # AI MCP container image parameters
   image:
+    # aiMCP.image.registry AI MCP container image registry
+    registry: ""
     # aiMCP.image.repository AI MCP container image repository
     repository: onlyoffice/docspace-mcp
     # aiMCP.image.tag AI MCP container image tag
@@ -5873,6 +5937,8 @@ proxyFrontend:
   initContainers: []
   # Proxy Frontend container image parameters
   image:
+    # proxyFrontend.image.registry Proxy Frontend container image registry
+    registry: ""
     # proxyFrontend.image.repository Proxy Frontend container image repository
     repository: nginxinc/nginx-unprivileged
     # proxyFrontend.image.tag Proxy Frontend container image tag
@@ -6010,16 +6076,17 @@ proxyFrontend:
 
 # DocSpace ingress parameters
 # NGINX Ingress Controller must be installed
-# ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-the-kubernetes-nginx-ingress-controller
+# ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-f5-nginx-ingress-controller
 #
 ingress:
   # ingress.enabled Enable the creation of an ingress for the DocSpace
   enabled: false
   # ingress.annotations Map of annotations to add to the Ingress
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 100m
-  # ingress.ingressClassName Used to reference the IngressClass that should be used to implement this Ingress
-  # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource/
+    nginx.org/client-max-body-size: 100m
+    ## Use the annotation below if your NGINX Ingress controller by the Kubernetes community (deprecated in favor of nginx.org)
+    ## ref: https://github.com/kubernetes/ingress-nginx/
+    ## nginx.ingress.kubernetes.io/proxy-body-size: 100m
   ingressClassName: nginx
   tls:
     # ingress.tls.enabled Enable TLS for the DocSpace
@@ -6119,6 +6186,8 @@ install:
         # install.job.initContainers.migrationRunner.enabled Enable database initialization
         enabled: true
         image:
+          # install.job.initContainers.migrationRunner.image.registry Job by pre-install Migration Runner container image registry
+          registry: ""
           # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
           repository: onlyoffice/docspace-migration-runner
           # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
@@ -6205,6 +6274,8 @@ upgrade:
         # upgrade.job.initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
         enabled: true
         image:
+          # upgrade.job.initContainers.rootless.image.registry Rootless initContainer image registry
+          registry: ""
           # upgrade.job.initContainers.rootless.image.repository Rootless initContainer image repository
           repository: onlyoffice/docs-utils
           # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
@@ -6246,6 +6317,8 @@ upgrade:
         # upgrade.job.initContainers.migrationRunner.enabled Enable database update
         enabled: true
         image:
+          # upgrade.job.initContainers.migrationRunner.image.registry Job by pre-upgrade Migration Runner container image registry
+          registry: ""
           # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
           repository: onlyoffice/docspace-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
@@ -6270,6 +6343,8 @@ upgrade:
       # When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, this parameter should be set to `false`
       enabled: false
       image:
+        # upgrade.job.docsInitDB.image.registry Init DB for Docs container image registry
+        registry: ""
         # upgrade.job.docsInitDB.image.repository Init DB for Docs container image repository
         repository: onlyoffice/docs-utils
         # upgrade.job.docsInitDB.image.tag Init DB for Docs container image tag
@@ -6297,6 +6372,8 @@ elasticsearchClearIndexes:
     enabled: true
     # Elasticsearch-clear-indexes container image parameters
     image:
+      # elasticsearchClearIndexes.job.image.registry Elasticsearch-clear-indexes container image registry
+      registry: ""
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
       # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
@@ -6414,6 +6491,8 @@ opensearch:
       enabled: true
       # Change volume owner container image parameters
       image:
+        # opensearch.initContainers.changeVolumeOwner.image.registry Change volume owner container image registry
+        registry: ""
         # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
         # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
@@ -6457,6 +6536,8 @@ opensearch:
     custom: []
   # Opensearch container image parameters
   image:
+    # opensearch.image.registry Opensearch container image registry
+    registry: ""
     # opensearch.image.repository Opensearch container image repository
     repository: onlyoffice/opensearch
     # opensearch.image.tag Opensearch container image tag
@@ -6583,6 +6664,8 @@ singlePortalDomain:
       domain: ""
     # singlePortalDomain container image parameters
     image:
+      # singlePortalDomain.job.image.registry singlePortalDomain container image registry
+      registry: ""
       # singlePortalDomain.job.image.repository singlePortalDomain container image repository
       repository: onlyoffice/docs-utils
       # singlePortalDomain.job.image.tag singlePortalDomain container image tag
@@ -6667,6 +6750,8 @@ tests:
   tolerations: []
   # Test container image parameters
   image:
+    # tests.image.registry test container image registry
+    registry: ""
     # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
     # tests.image.tag test container image tag

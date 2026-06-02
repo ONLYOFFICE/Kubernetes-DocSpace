@@ -71,6 +71,8 @@ Get the DocSpace Identity Service Account name
 {{- define "docspace.identity.serviceAccountName" -}}
 {{- if .Values.identity.serviceAccount.create -}}
     {{- printf "identity-sa" -}}
+{{- else if .Values.identity.serviceAccount.name -}}
+    {{ .Values.identity.serviceAccount.name }}
 {{- else -}}
     {{ include "docspace.serviceAccountName" . }}
 {{- end -}}
@@ -84,6 +86,17 @@ Get the DocSpace Security Context
     {{- omit . "enabled" "seLinuxOptions" | toYaml }}
 {{- else -}}
     {{- omit . "enabled" | toYaml }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+A function to return correct registry.
+*/}}
+{{- define "docspace.imageRegistry" -}}
+{{- $context := index . 0 -}}
+{{- $registry := coalesce (index . 1) $context.Values.images.registry -}}
+{{- if $registry }}
+    {{- printf "%s/" ($registry | trimSuffix "/") -}}
 {{- end -}}
 {{- end -}}
 

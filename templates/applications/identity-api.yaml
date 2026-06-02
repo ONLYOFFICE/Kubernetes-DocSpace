@@ -114,7 +114,7 @@ spec:
       {{- end }}
       containers:
       - name: identity-api
-        image: {{ include "docspace.imageRepository" (list . .Values.identity.api.image.repository) }}:{{ default .Values.images.tag .Values.identity.api.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.identity.api.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.identity.api.image.repository) }}:{{ default .Values.images.tag .Values.identity.api.image.tag }}
         imagePullPolicy: {{ .Values.identity.api.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.identity.api.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -178,6 +178,11 @@ spec:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
         {{- end }}
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         {{- with .Values.identity.api.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

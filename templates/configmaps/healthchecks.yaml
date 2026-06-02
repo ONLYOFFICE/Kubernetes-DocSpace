@@ -18,14 +18,14 @@ data:
   STUDIO_NOTIFY_HOST: {{ .Values.connections.studioNotifyHost }}:{{ .Values.studioNotify.containerPorts.app }}
   PEOPLE_SERVER_HOST: {{ .Values.connections.peopleServerHost }}:{{ .Values.peopleServer.containerPorts.app }}
   FILES_HOST: {{ .Values.connections.filesHost }}:{{ .Values.files.containerPorts.app }}
-  FILES_SERVICES_HOST: {{ .Values.connections.filesServicesHost }}:{{ .Values.filesServices.containerPorts.app }}
+  FILES_WORKER_HOST: {{ .Values.connections.filesWorkerHost }}:{{ .Values.filesWorker.containerPorts.app }}
   STUDIO_HOST: {{ .Values.connections.studioHost }}:{{ .Values.studio.containerPorts.app }}
   BACKUP_HOST: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
   CLEAR_EVENTS_HOST: {{ .Values.connections.clearEventsHost }}:{{ .Values.clearEvents.containerPorts.app }}
-  BACKUP_BACKGRUOND_TASKS_HOST: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+  BACKUP_WORKER_HOST: {{ .Values.connections.backupWorkerHost }}:{{ .Values.backupWorker.containerPorts.app }}
   SSOAUTH_HOST: {{ .Values.connections.ssoauthHost }}:{{ .Values.ssoauth.containerPorts.app }}
   SOCKET_HOST: {{ .Values.connections.socketHost }}:{{ .Values.socket.containerPorts.app }}
   TELEGRAM_HOST: {{ .Values.connections.telegramHost }}:{{ .Values.telegram.containerPorts.app }}
   AI_HOST: {{ .Values.connections.aiHost }}:{{ .Values.ai.containerPorts.app }}
-  AI_SERVICE_HOST: {{ .Values.connections.aiServiceHost }}:{{ .Values.aiService.containerPorts.app }}
+  AI_WORKER_HOST: {{ .Values.connections.aiWorkerHost }}:{{ .Values.aiWorker.containerPorts.app }}
 {{- end }}

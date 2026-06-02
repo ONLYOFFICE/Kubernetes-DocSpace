@@ -52,7 +52,7 @@ spec:
   {{- end }}
   containers:
   - name: test-docspace
-    image: {{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
+    image: {{ include "docspace.imageRegistry" (list . .Values.tests.image.registry) }}{{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
     imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
     {{- if .Values.tests.containerSecurityContext.enabled }}
     securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
@@ -82,12 +82,12 @@ spec:
       value: {{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}
     - name: BACKUP_SERVICE
       value: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
-    - name: BACKUPBACKGROUNDTASKS_SERVICE
-      value: {{ .Values.connections.backupBackgroundTasksHost }}:{{ .Values.backupBackgroundTasks.containerPorts.app }}
+    - name: BACKUPWORKER_SERVICE
+      value: {{ .Values.connections.backupWorkerHost }}:{{ .Values.backupWorker.containerPorts.app }}
     - name: FILES_SERVICE
       value: {{ .Values.connections.filesHost }}:{{ .Values.files.containerPorts.app }}
-    - name: FILESSERVICES_SERVICE
-      value: {{ .Values.connections.filesServicesHost }}:{{ .Values.filesServices.containerPorts.app }}
+    - name: FILESWORKER_SERVICE
+      value: {{ .Values.connections.filesWorkerHost }}:{{ .Values.filesWorker.containerPorts.app }}
     - name: PEOPLE_SERVICE
       value: {{ .Values.connections.peopleServerHost }}:{{ .Values.peopleServer.containerPorts.app }}
     - name: API_SERVICE

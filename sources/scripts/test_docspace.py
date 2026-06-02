@@ -6,9 +6,9 @@ import logging
 
 router = os.environ.get('ROUTER_SERVICE')
 backup = os.environ.get('BACKUP_SERVICE')
-backupBackgroundTasks = os.environ.get('BACKUPBACKGROUNDTASKS_SERVICE')
+backupWorker = os.environ.get('BACKUPWORKER_SERVICE')
 files = os.environ.get('FILES_SERVICE')
-filesServices = os.environ.get('FILESSERVICES_SERVICE')
+filesWorker = os.environ.get('FILESWORKER_SERVICE')
 people = os.environ.get('PEOPLE_SERVICE')
 api = os.environ.get('API_SERVICE')
 studio = os.environ.get('STUDIO_SERVICE')
@@ -23,7 +23,7 @@ docs = os.environ.get('DOCS_SERVICE')
 proxyFrontend = os.environ.get('PROXYFRONTEND_SERVICE')
 apiSystem = os.environ.get('APISYSTEM_SERVICE')
 
-docspace_services = [backup, backupBackgroundTasks, files, filesServices, people, api, studio, studioNotify, notify, socket, doceditor, clearEvents, login]
+docspace_services = [backup, backupWorker, files, filesWorker, people, api, studio, studioNotify, notify, socket, doceditor, clearEvents, login]
 docspace_proxy = [router]
 
 if apiSystem:

@@ -110,7 +110,7 @@ spec:
       {{- end }}
       containers:
       - name: proxy-frontend
-        image: {{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.proxyFrontend.image.registry) }}{{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
         imagePullPolicy: {{ .Values.proxyFrontend.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.proxyFrontend.containerSecurityContext.enabled }}
         {{- $csc := dict }}

@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: socket
-        image: {{ include "docspace.imageRepository" (list . .Values.socket.image.repository) }}:{{ default .Values.images.tag .Values.socket.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.socket.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.socket.image.repository) }}:{{ default .Values.images.tag .Values.socket.image.tag }}
         imagePullPolicy: {{ .Values.socket.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.socket.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -158,6 +158,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

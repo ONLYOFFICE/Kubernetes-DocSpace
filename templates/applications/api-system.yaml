@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: api-system
-        image: {{ include "docspace.imageRepository" (list . .Values.apiSystem.image.repository) }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.apiSystem.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.apiSystem.image.repository) }}:{{ default .Values.images.tag .Values.apiSystem.image.tag }}
         imagePullPolicy: {{ .Values.apiSystem.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.apiSystem.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

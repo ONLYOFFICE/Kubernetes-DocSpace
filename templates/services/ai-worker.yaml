@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ai-service
+  name: ai-worker
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: ai-service
+    app: ai-worker
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -13,11 +13,11 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.aiService.containerPorts.app }}
+  - port: {{ .Values.aiWorker.containerPorts.app }}
     name: app
-    targetPort: {{ .Values.aiService.containerPorts.app }}
+    targetPort: {{ .Values.aiWorker.containerPorts.app }}
   selector:
-    app: ai-service
+    app: ai-worker
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}

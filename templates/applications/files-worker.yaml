@@ -1,58 +1,58 @@
-{{- if .Values.filesServices.enabled }}
+{{- if .Values.filesWorker.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.filesServices.kind }}
+kind: {{ .Values.filesWorker.kind }}
 metadata:
-  name: files-services
+  name: files-worker
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: files-services
+    app: files-worker
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.filesServices.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.filesServices.annotations }}
+  {{- if or .Values.commonAnnotations .Values.filesWorker.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.filesWorker.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.filesServices.autoscaling.enabled }}
-  replicas: {{ default .Values.replicas .Values.filesServices.replicaCount }}
+  {{- if not .Values.filesWorker.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.filesWorker.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: files-services
+      app: files-worker
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.filesServices.kind "StatefulSet" }}
-  serviceName: files-services
+  {{- if eq .Values.filesWorker.kind "StatefulSet" }}
+  serviceName: files-worker
   {{- end }}
-  {{- if .Values.filesServices.updateStrategy }}
-  {{- if eq .Values.filesServices.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  {{- if .Values.filesWorker.updateStrategy }}
+  {{- if eq .Values.filesWorker.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.filesWorker.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.filesServices.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.filesWorker.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.filesServices.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.filesServices.podManagementPolicy }}
+  {{- if eq .Values.filesWorker.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.filesWorker.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: files-services
+        app: files-worker
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.filesServices.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.filesServices.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.filesWorker.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.filesWorker.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.filesServices.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.filesWorker.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.filesServices.podSecurityContext.enabled }}
-      {{- $psc = .Values.filesServices.podSecurityContext }}
+      {{- if .Values.filesWorker.podSecurityContext.enabled }}
+      {{- $psc = .Values.filesWorker.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +68,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - files-services
+                  - files-worker
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +78,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - files-services
+                - files-worker
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.filesServices.customPodAntiAffinity }}
+          {{- with .Values.filesWorker.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.filesServices.podAffinity }}
+        {{- with .Values.filesWorker.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.filesServices.nodeAffinity }}
+        {{- with .Values.filesWorker.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.filesServices.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.filesServices.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.filesWorker.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.filesWorker.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.filesServices.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.filesServices.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.filesWorker.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.filesWorker.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -110,37 +110,37 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: files-services
-        image: {{ include "docspace.imageRepository" (list . .Values.filesServices.image.repository) }}:{{ default .Values.images.tag .Values.filesServices.image.tag }}
-        imagePullPolicy: {{ .Values.filesServices.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.filesServices.containerSecurityContext.enabled }}
+      - name: files-worker
+        image: {{ include "docspace.imageRegistry" (list . .Values.filesWorker.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.filesWorker.image.repository) }}:{{ default .Values.images.tag .Values.filesWorker.image.tag }}
+        imagePullPolicy: {{ .Values.filesWorker.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.filesWorker.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.filesServices.containerSecurityContext.enabled }}
-        {{- $csc = .Values.filesServices.containerSecurityContext }}
+        {{- if .Values.filesWorker.containerSecurityContext.enabled }}
+        {{- $csc = .Values.filesWorker.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.filesServices.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.filesServices.lifecycleHooks | nindent 10 }}
+        {{- if .Values.filesWorker.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.filesWorker.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.filesServices.containerPorts.app }}
+        - containerPort: {{ .Values.filesWorker.containerPorts.app }}
           name: app
-        {{- if .Values.filesServices.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.filesServices.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesWorker.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.filesWorker.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.filesServices.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.filesServices.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesWorker.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.filesWorker.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.filesServices.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.filesServices.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.filesWorker.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.filesWorker.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.filesServices.resources | nindent 10 }}
+        resources: {{- toYaml .Values.filesWorker.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.filesServices.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.filesWorker.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -171,7 +176,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.filesServices.extraEnvVars }}
+        {{- with .Values.filesWorker.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -190,7 +195,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.filesServices.extraVolumeMounts }}
+        {{- with .Values.filesWorker.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -201,7 +206,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.filesServices.extraVolumes }}
+      {{- with .Values.filesWorker.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

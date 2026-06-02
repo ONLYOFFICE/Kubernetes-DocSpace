@@ -14,7 +14,8 @@ metadata:
     {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.letsencrypt.clusterIssuerName }}
+    acme.cert-manager.io/http01-edit-in-place: "true"
     {{- end }}
 spec:
   {{- $context := . }}

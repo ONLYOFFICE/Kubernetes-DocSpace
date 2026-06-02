@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: telegram
-        image: {{ include "docspace.imageRepository" (list . .Values.telegram.image.repository) }}:{{ default .Values.images.tag .Values.telegram.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.telegram.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.telegram.image.repository) }}:{{ default .Values.images.tag .Values.telegram.image.tag }}
         imagePullPolicy: {{ .Values.telegram.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.telegram.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

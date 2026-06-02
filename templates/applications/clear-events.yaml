@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: clear-events
-        image: {{ include "docspace.imageRepository" (list . .Values.clearEvents.image.repository) }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.clearEvents.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.clearEvents.image.repository) }}:{{ default .Values.images.tag .Values.clearEvents.image.tag }}
         imagePullPolicy: {{ .Values.clearEvents.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.clearEvents.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
