@@ -6086,6 +6086,10 @@ ingress:
     ## ref: https://github.com/kubernetes/ingress-nginx/
     ## nginx.ingress.kubernetes.io/proxy-body-size: 100m
   ingressClassName: nginx
+  # ingress.controllerName Ingress controller type. Affects which controller-specific annotations are applied.
+  # Supported values: `nginx-ingress` (F5 NGINX Ingress Controller, nginx.org annotations),
+  #                   `ingress-nginx` (Kubernetes community controller, nginx.ingress.kubernetes.io annotations)
+  controllerName: nginx-ingress
   tls:
     # ingress.tls.enabled Enable TLS for the DocSpace
     enabled: false

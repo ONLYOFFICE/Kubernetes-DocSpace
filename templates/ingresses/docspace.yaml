@@ -13,9 +13,14 @@ metadata:
     {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
     {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
+    {{- if eq "nginx-ingress" .Values.ingress.controllerName }}
+    nginx.org/websocket-services: "{{ include "docspace.svc.router.name" . }}"
+    {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: {{ .Values.ingress.letsencrypt.clusterIssuerName }}
+    {{- if eq "nginx-ingress" .Values.ingress.controllerName }}
     acme.cert-manager.io/http01-edit-in-place: "true"
+    {{- end }}
     {{- end }}
 spec:
   {{- $context := . }}

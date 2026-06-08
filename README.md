@@ -608,6 +608,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.enabled`                                        | Enable the creation of an ingress for the ONLYOFFICE DocSpace                                                   | `false`                                                                                   |
 | `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `nginx.org/client-max-body-size: 100m` |
 | `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
+| `ingress.controllerName`                                 | Ingress controller type. Affects which controller-specific annotations are applied. Supported values: `nginx-ingress` (F5 NGINX, `nginx.org/` annotations), `ingress-nginx` (Kubernetes community, `nginx.ingress.kubernetes.io/` annotations) | `nginx-ingress` |
 | `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE DocSpace                                                                          | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
 | `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE DocSpace ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
@@ -793,6 +794,8 @@ $ helm install nginx-ingress oci://ghcr.io/nginx/charts/nginx-ingress --version 
 ```
 
 See more detail about installing F5 NGINX Ingress via Helm [here](https://docs.nginx.com/nginx-ingress-controller/install/helm/open-source/).
+
+Note: The chart also supports the community `ingress-nginx` controller. To use it, set `ingress.controllerName=ingress-nginx`.
 
 #### 1.2.2 Expose ONLYOFFICE DocSpace via HTTP
 
