@@ -29,6 +29,7 @@ data:
     sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_management/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_ai/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/$service_new_ai/{{ .Values.connections.newaiHost }}\:{{ .Values.newai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
 
     sed -i 's/proxy_pass $api_system_url/proxy_pass http:\/\/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $backup_service_url/proxy_pass http:\/\/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
@@ -46,6 +47,7 @@ data:
     sed -i 's/proxy_pass $sdk_node_url/proxy_pass http:\/\/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $management_service_url/proxy_pass http:\/\/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/proxy_pass $ai_service_url/proxy_pass http:\/\/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    sed -i 's/proxy_pass $new_ai_service_url/proxy_pass http:\/\/{{ .Values.connections.newaiHost }}\:{{ .Values.newai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
