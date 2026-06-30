@@ -51,7 +51,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
 
   - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
   - A minimum of two hosts is required for the Kubernetes cluster
-  - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
+  - Resources for the cluster hosts: 8 CPU \ 16 GB RAM min
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
   - Helm v3.15+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
@@ -84,7 +84,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={noac,vers=4}" \
+  --set "storageClass.mountOptions={noac,vers=3}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -113,7 +113,11 @@ $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-
   --set image.repository=bitnamilegacy/mysql \
   --set global.security.allowInsecureImages=true \
   --set image.tag=9.4.0-debian-12-r1 \
-  --set metrics.enabled=false
+  --set metrics.enabled=false \
+  --set primary.livenessProbe.timeoutSeconds=10 \
+  --set primary.readinessProbe.timeoutSeconds=10 \
+  --set primary.livenessProbe.periodSeconds=20 \
+  --set primary.readinessProbe.periodSeconds=20
 ```
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
