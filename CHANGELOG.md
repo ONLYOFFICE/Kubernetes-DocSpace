@@ -8,7 +8,7 @@
 
 ### Changes
 
-* Released ONLYOFFICE DocSpace v3.7.0
+* Released ONLYOFFICE DocSpace v3.7.1
 * The default Kubernetes Nginx Ingress Controller has been replaced with F5 NGINX Ingress Controller
 
 ## 3.3.0

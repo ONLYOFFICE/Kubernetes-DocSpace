@@ -23,4 +23,4 @@ dependencies:
   condition: docs.enabled
 icon: https://avatars.githubusercontent.com/u/1426033
 version: 3.4.0
-appVersion: 3.7.0
+appVersion: 3.7.1
