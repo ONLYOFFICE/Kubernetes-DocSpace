@@ -84,7 +84,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={noac,vers=3}" \
+  --set "storageClass.mountOptions={noac,vers=4.1,retrans=2,timeo=30}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -393,7 +393,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
 | `images.registry`                                      | Global image registry for all DocSpace applications.                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.1`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.2`                       |
 | `replicas`                                             | Global replica value for all DocSpace applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |

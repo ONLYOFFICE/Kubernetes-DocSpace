@@ -394,7 +394,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.7.1
+  tag: 3.7.2
   ## images.registry Global image registry for all DocSpace containers
   registry: ""
 # Global amount of replicas for all DocSpace applications
