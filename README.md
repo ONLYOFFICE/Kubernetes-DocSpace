@@ -875,7 +875,7 @@ After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`
   ```
 - Installing cert-manager
   ```bash
-  $ helm install cert-manager --version v1.17.4 jetstack/cert-manager \
+  $ helm install cert-manager --version v1.20.2 jetstack/cert-manager \
     --namespace cert-manager \
     --create-namespace \
     --set crds.enabled=true \
