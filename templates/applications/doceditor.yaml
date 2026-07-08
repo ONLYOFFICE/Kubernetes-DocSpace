@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: doceditor
-        image: {{ include "docspace.imageRepository" (list . .Values.doceditor.image.repository) }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.doceditor.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.doceditor.image.repository) }}:{{ default .Values.images.tag .Values.doceditor.image.tag }}
         imagePullPolicy: {{ .Values.doceditor.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.doceditor.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

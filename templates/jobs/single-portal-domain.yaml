@@ -71,7 +71,7 @@ spec:
       {{- end }}
       containers:
         - name: single-portal-domain
-          image: {{ .Values.singlePortalDomain.job.image.repository }}:{{ .Values.singlePortalDomain.job.image.tag }}
+          image: {{ include "docspace.imageRegistry" (list . .Values.singlePortalDomain.job.image.registry) }}{{ .Values.singlePortalDomain.job.image.repository }}:{{ .Values.singlePortalDomain.job.image.tag }}
           {{- if or .Values.containerSecurityContext.enabled .Values.singlePortalDomain.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
           {{- if .Values.singlePortalDomain.job.containerSecurityContext.enabled }}

@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: people-server
-        image: {{ include "docspace.imageRepository" (list . .Values.peopleServer.image.repository) }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.peopleServer.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.peopleServer.image.repository) }}:{{ default .Values.images.tag .Values.peopleServer.image.tag }}
         imagePullPolicy: {{ .Values.peopleServer.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.peopleServer.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

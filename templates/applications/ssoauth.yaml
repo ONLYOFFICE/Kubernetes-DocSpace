@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: ssoauth
-        image: {{ include "docspace.imageRepository" (list . .Values.ssoauth.image.repository) }}:{{ default .Values.images.tag .Values.ssoauth.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.ssoauth.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.ssoauth.image.repository) }}:{{ default .Values.images.tag .Values.ssoauth.image.tag }}
         imagePullPolicy: {{ .Values.ssoauth.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.ssoauth.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -158,6 +158,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

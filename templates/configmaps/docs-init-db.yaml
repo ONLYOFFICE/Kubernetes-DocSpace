@@ -29,13 +29,11 @@ data:
     else
       echo -e "\e[0;32m DB is available \e[0m"
     fi
-    wget -O /scripts/createdb.sql \
-      https://raw.githubusercontent.com/ONLYOFFICE/server/master/schema/mysql/createdb.sql
     mysql -h {{ .Values.connections.mysqlHost }} \
       -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
       -p$MYSQL_PASSWORD \
-      {{ .Values.connections.mysqlDatabase }} < /scripts/createdb.sql
+      {{ .Values.connections.mysqlDatabase }} < /scripts/schema/mysql/createdb.sql
     if [ $? -ne 0 ]; then
       echo -e "\e[0;31m The DATABASE initialization script could not be executed \e[0m"
       exit 1

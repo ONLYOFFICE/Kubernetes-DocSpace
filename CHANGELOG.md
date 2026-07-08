@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.4.0
+
+### New Features
+
+* Added a common image registry for ONLYOFFICE DocSpace services and jobs
+
+### Changes
+
+* Released ONLYOFFICE DocSpace v3.7.2
+* The default Kubernetes Nginx Ingress Controller has been replaced with F5 NGINX Ingress Controller
+
 ## 3.3.0
 
 ### New Features

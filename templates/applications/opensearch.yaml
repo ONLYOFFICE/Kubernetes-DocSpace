@@ -72,7 +72,7 @@ spec:
       initContainers:
       {{- if .Values.opensearch.initContainers.changeVolumeOwner.enabled }}
       - name: change-volume-owner
-        image: {{ .Values.opensearch.initContainers.changeVolumeOwner.image.repository }}:{{ .Values.opensearch.initContainers.changeVolumeOwner.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.opensearch.initContainers.changeVolumeOwner.image.registry) }}{{ .Values.opensearch.initContainers.changeVolumeOwner.image.repository }}:{{ .Values.opensearch.initContainers.changeVolumeOwner.image.tag }}
         imagePullPolicy: IfNotPresent
         {{- if .Values.opensearch.initContainers.changeVolumeOwner.securityContext.enabled }}
         securityContext: {{- include "docspace.securityContext" .Values.opensearch.initContainers.changeVolumeOwner.securityContext | nindent 10 }}
@@ -89,7 +89,7 @@ spec:
       {{- end }}
       containers:
       - name: opensearch
-        image: {{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.opensearch.image.registry) }}{{ .Values.opensearch.image.repository }}:{{ .Values.opensearch.image.tag }}
         imagePullPolicy: {{ .Values.opensearch.image.pullPolicy }}
         {{- if .Values.opensearch.containerSecurityContext.enabled }}
         securityContext: {{- include "docspace.securityContext" .Values.opensearch.containerSecurityContext | nindent 10 }}

@@ -35,7 +35,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [1. Expose ONLYOFFICE DocSpace](#1-expose-onlyoffice-docspace)
     + [1.1 Expose ONLYOFFICE DocSpace via Service (HTTP Only)](#11-expose-onlyoffice-docspace-via-service-http-only)
     + [1.2 Expose ONLYOFFICE DocSpace via Ingress](#12-expose-onlyoffice-docspace-via-ingress)
-    + [1.2.1 Installing the Kubernetes Nginx Ingress Controller](#121-installing-the-kubernetes-nginx-ingress-controller)
+    + [1.2.1 Installing F5 NGINX Ingress Controller](#121-installing-f5-nginx-ingress-controller)
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
     + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
@@ -51,7 +51,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
 
   - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
   - A minimum of two hosts is required for the Kubernetes cluster
-  - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
+  - Resources for the cluster hosts: 8 CPU \ 16 GB RAM min
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
   - Helm v3.15+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
@@ -73,7 +73,6 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ```bash
 $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
-$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 $ helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
 $ helm repo update
 ```
@@ -85,7 +84,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={noac,vers=4}" \
+  --set "storageClass.mountOptions={noac,vers=4.1,retrans=2,timeo=30}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -114,7 +113,11 @@ $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-
   --set image.repository=bitnamilegacy/mysql \
   --set global.security.allowInsecureImages=true \
   --set image.tag=9.4.0-debian-12-r1 \
-  --set metrics.enabled=false
+  --set metrics.enabled=false \
+  --set primary.livenessProbe.timeoutSeconds=10 \
+  --set primary.readinessProbe.timeoutSeconds=10 \
+  --set primary.livenessProbe.periodSeconds=20 \
+  --set primary.readinessProbe.periodSeconds=20
 ```
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
@@ -347,13 +350,13 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.socketHost`                               | The name of the ONLYOFFICE DocSpace Socket service                                                                          | `socket`                      |
 | `connections.peopleServerHost`                         | The name of the ONLYOFFICE DocSpace People Server service                                                                   | `people-server`               |
 | `connections.filesHost`                                | The name of the ONLYOFFICE DocSpace Files service                                                                           | `files`                       |
-| `connections.filesServicesHost`                        | The name of the ONLYOFFICE DocSpace Files Services service                                                                  | `files-services`              |
+| `connections.filesWorkerHost`                        | The name of the ONLYOFFICE DocSpace Files Worker service                                                                  | `files-worker`              |
 | `connections.studioHost`                               | The name of the ONLYOFFICE DocSpace Studio service                                                                          | `studio`                      |
 | `connections.backupHost`                               | The name of the ONLYOFFICE DocSpace Backup service                                                                          | `backup`                      |
 | `connections.ssoauthHost`                              | The name of the ONLYOFFICE DocSpace SSO service                                                                             | `ssoauth`                     |
 | `connections.clearEventsHost`                          | The name of the ONLYOFFICE DocSpace Clear Events service                                                                    | `clear-events`                |
 | `connections.doceditorHost`                            | The name of the ONLYOFFICE DocSpace Doceditor service                                                                       | `doceditor`                   |
-| `connections.backupBackgroundTasksHost`                | The name of the ONLYOFFICE DocSpace Backup Background Tasks service                                                         | `backup-background-tasks`     |
+| `connections.backupWorkerHost`                | The name of the ONLYOFFICE DocSpace Backup Worker service                                                         | `backup-worker`     |
 | `connections.loginHost`                                | The name of the ONLYOFFICE DocSpace Login service                                                                           | `login`                       |
 | `connections.healthchecksHost`                         | The name of the ONLYOFFICE DocSpace Healthchecks service                                                                    | `healthchecks`                |
 | `connections.identityApiHost`                          | The name of the ONLYOFFICE DocSpace Identity API service                                                                    | `identity-api`                |
@@ -361,7 +364,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.sdkHost`                                  | The name of the DocSpace SDK service                                                                                        | `sdk`                         |
 | `connections.telegramHost`                               | The name of the ONLYOFFICE DocSpace Telegram service                                                                          | `telegram`                      |
 | `connections.aiHost`                                   | The name of the ONLYOFFICE DocSpace AI service                                                                             | `ai`                           |
-| `connections.aiServiceHost`                            | The name of the ONLYOFFICE DocSpace AI Service service                                                                     | `ai-service`                          |
+| `connections.aiWorkerHost`                            | The name of the ONLYOFFICE DocSpace AI Worker service                                                                     | `ai-worker`                          |
 | `connections.aiMCPHost`                                | The name of the ONLYOFFICE DocSpace AI MCP service                                                                     | `ai-mcp`                      |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
@@ -389,7 +392,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.5.0`                       |
+| `images.registry`                                      | Global image registry for all DocSpace applications.                                                                        | `""`                          |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.2`                       |
 | `replicas`                                             | Global replica value for all DocSpace applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
@@ -400,8 +404,9 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `extraConf.filename`                                   | The name of the json files that contains custom values and name additional configuration files. Must be the same as the `key` name in `extraConf.secretName`. May contain multiple values | `appsettings.test.json` |
 | `log.level`                                            | Defines the type and severity of a logged event                                                                             | `Warning`                     |
 | `debug.enabled`                                        | Enable debug                                                                                                                | `false`                       |
+| `initContainers.checkDB.image.registry`                | check-db initContainer image registry. Takes priority over `images.registry`                                                | `""`                          |
 | `initContainers.checkDB.image.repository`              | check-db initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.0.3-1`                     |
+| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.1-1`                     |
 | `initContainers.checkDB.image.pullPolicy`              | check-db initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `initContainers.checkDB.resources.requests.memory`     | The requested Memory for the check-db initContainer                                                                         | `256Mi`                       |
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
@@ -448,6 +453,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.autoscaling.targetMemory.utilizationPercentage` | "Application" deployment autoscaling target memory percentage                                                                                                                     | `70`                                                                                      |
 | `Application.autoscaling.customMetricsType`               | Custom, additional or external autoscaling metrics for the "Application" deployment                                                                                               | `[]`                                                                                      |
 | `Application.autoscaling.behavior`                        | Configuring "Application" deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields                                                                           | `{}`                                                                                      |
+| `Application.image.registry`                              | "Application" container image registry. Takes priority over `images.registry`                                   | `""`                                      |
 | `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/docspace-Application`         |
 | `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
@@ -464,8 +470,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.extraVolumeMounts`                           | An array with extra volume mounts for the "Application" container                                               | `[]`                                      |
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
-Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupBackgroundTasks`, 
-`clearEvents`, `doceditor`, `filesServices`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `ai service` and `aiMCP`.
+Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupWorker`, 
+`clearEvents`, `doceditor`, `filesWorker`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `aiWorker` and `aiMCP`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
@@ -542,6 +548,7 @@ Instead of `Application`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `proxyFrontend.enabled`                                  | Enables Proxy Frontend installation                                                                             | `false`              |
 | `proxyFrontend.initContainers`                           | Defines containers that run before Proxy Frontend container in the Proxy Frontend pod                           | `[]`                 |
+| `proxyFrontend.image.registry`                           | Proxy Frontend container image registry. Takes priority over `images.registry`                                  | `""`                 |
 | `proxyFrontend.image.repository`                         | Proxy Frontend container image repository                                                                       | `nginx`              |
 | `proxyFrontend.image.tag`                                | Proxy Frontend container image tag                                                                              | `latest`             |
 | `proxyFrontend.containerPorts.http`                      | Proxy Frontend HTTP container port                                                                              | `80`                 |
@@ -565,6 +572,8 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `docs.enabled`                                           | Enables Onlyoffice Docs subchart installation. Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it | `true`                |
+| `docs.images.registry`                                   | Global image registry for Onlyoffice Docs containers.                                                           | `""`                     |
+| `docs.images.tag`                                        | Global image tag for Onlyoffice Docs containers.                                                                | `""`                     |
 | `docs.connections.dbType`                                | The Database type. By default, the same Database connection is used as for DocSpace                             | `mysql`                  |
 | `docs.connections.dbHost`                                | The IP address or the name of the Database host                                                                 | `mysql`                  |
 | `docs.connections.dbUser`                                | Database user                                                                                                   | `onlyoffice_user`        |
@@ -601,8 +610,9 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default                                                                                   |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `ingress.enabled`                                        | Enable the creation of an ingress for the ONLYOFFICE DocSpace                                                   | `false`                                                                                   |
-| `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `kubernetes.io/ingress.class: nginx`, `nginx.ingress.kubernetes.io/proxy-body-size: 100m` |
+| `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `nginx.org/client-max-body-size: 100m` |
 | `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
+| `ingress.controllerName`                                 | Ingress controller type. Affects which controller-specific annotations are applied. Supported values: `nginx-ingress` (F5 NGINX, `nginx.org/` annotations), `ingress-nginx` (Kubernetes community, `nginx.ingress.kubernetes.io/` annotations) | `nginx-ingress` |
 | `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE DocSpace                                                                          | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
 | `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE DocSpace ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
@@ -629,6 +639,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `install.job.tolerations`                                       | Tolerations for Install Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                                            | `[]`                                            |
 | `install.job.containerSecurityContext.enabled`                  | Enable security context for containers in Install Job pod                                                                                                                                                  | `false`                                         |
 | `install.job.initContainers.migrationRunner.enabled`            | Enable database initialization                                                                                                                                                                             | `true`                                          |
+| `install.job.initContainers.migrationRunner.image.registry`     | Migration Runner container image registry. Takes priority over `images.registry`                                                                                                                           | `""`                                            |
 | `install.job.initContainers.migrationRunner.image.repository`   | Job by pre-install Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
 | `install.job.initContainers.migrationRunner.image.tag`          | Job by pre-install Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `install.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-install Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
@@ -645,14 +656,16 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.tolerations`                                       | Tolerations for Upgrade Job pod assignment. If set to, it takes priority over the `tolerations`                                                                                                            | `[]`                                            |
 | `upgrade.job.containerSecurityContext.enabled`                  | Enable security context for containers in Upgrade Job pod                                                                                                                                                  | `false`                                         |
 | `upgrade.job.initContainers.migrationRunner.enabled`            | Enable database update                                                                                                                                                                                     | `true`                                          |
+| `upgrade.job.initContainers.migrationRunner.image.registry`     | Migration Runner container image registry. Takes priority over `images.registry`                                                                                                                           | `""`                                            |
 | `upgrade.job.initContainers.migrationRunner.image.repository`   | Job by pre-upgrade Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
 | `upgrade.job.initContainers.migrationRunner.image.tag`          | Job by pre-upgrade Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `upgrade.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-upgrade Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
 | `upgrade.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-upgrade Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
 | `upgrade.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-upgrade Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
 | `upgrade.job.initContainers.rootless.enabled`                      | Enable the rootless initContainer to change file ownership                                                                  | `true`                        |
+| `upgrade.job.initContainers.rootless.image.registry`            | rootless initContainer image registry. Takes priority over `images.registry`                                                   | `""`                          |
 | `upgrade.job.initContainers.rootless.image.repository`             | rootless initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.0.3-1`                     |
+| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.1-1`                     |
 | `upgrade.job.initContainers.rootless.image.pullPolicy`             | rootless initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `upgrade.job.initContainers.rootless.resources.requests.memory`    | The requested Memory for the rootless initContainer                                                                         | `256Mi`                       |
 | `upgrade.job.initContainers.rootless.resources.requests.cpu`       | The requested CPU for the rootless initContainer                                                                            | `100m`                        |
@@ -680,8 +693,9 @@ Instead of `Application`, the parameter name should have the following values: `
 | `singlePortalDomain.job.enabled`                                | Enable the execution of job singlePortalDomain before upgrading and installing DocSpace                                                                                                                    | `false`                                         |
 | `singlePortalDomain.job.env.appCoreServerRoot`                  | Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true                                                                                                          | `""`                                            |
 | `singlePortalDomain.job.env.domain`                             | Configures domain name; overridden by ingress.host if present                                                                                                                                              | `""`                                            |
+| `singlePortalDomain.job.image.registry`                         | singlePortalDomain container image registry. Takes priority over `images.registry`                                                                                                                         | `""`                                            |
 | `singlePortalDomain.job.image.repository`                       | singlePortalDomain container image repository                                                                                                                                                              | `"onlyoffice/docs-utils"`                       |
-| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.0.3-1"`                                     |
+| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.4.1-1"`                                     |
 | `singlePortalDomain.job.image.pullPolicy`                       | singlePortalDomain container image pull policy                                                                                                                                                             | `"IfNotPresent"`                                |
 | `singlePortalDomain.job.annotations`                            | Defines annotations that will be additionally added to singlePortalDomain Job. If set to, it takes priority over the `commonAnnotations`                                                                   | `{}`                                            |
 | `singlePortalDomain.job.podAnnotations`                         | Map of annotations to add to the singlePortalDomain Job Pod                                                                                                                                                | `{}`                                            |
@@ -703,6 +717,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `opensearch.initContainers.changeVolumeOwner.resources.requests`        | The requested resources for the Opensearch change-volume-owner initContainer                                 | `memory, cpu`                                                  |
 | `opensearch.initContainers.changeVolumeOwner.resources.limits`          | The resources limits for the Opensearch change-volume-owner initContainer                                    | `memory, cpu`                                                  |
 | `opensearch.initContainers.custom`                    | Custom Opensearch initContainers parameters. Additional containers that run before Elasticsearch container in a Pod | `[]`                                                    |
+| `opensearch.image.registry`                           | Opensearch container image registry. Takes priority over `images.registry`                                   | `""`                                                           |
 | `opensearch.image.repository`                         | Opensearch container image repository                                                                        | `onlyoffice/opensearch`                                        |
 | `opensearch.image.tag`                                | Opensearch container image tag                                                                               | `7.16.3`                                                       |
 | `opensearch.persistence.annotations`                  | Defines annotations that will be additionally added to Opensearch PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                                       |
@@ -729,8 +744,9 @@ Instead of `Application`, the parameter name should have the following values: `
 | `tests.nodeAffinity`                                     | Defines [Node affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity) rules for Test Pod scheduling by nodes                                 | `{}`                             |
 | `tests.nodeSelector`                                     | Node labels for Test pod assignment. If set to, it takes priority over the `nodeSelector`                                                                                              | `{}`                             |
 | `tests.tolerations`                                      | Tolerations for Test pod assignment. If set to, it takes priority over the `tolerations`                                                                                               | `[]`                             |
+| `tests.image.registry`                                   | Test container image registry. Takes priority over `images.registry`                                                                                                                   | `""`                             |
 | `tests.image.repository`                                 | Test container image name                                                                                                                                                              | `onlyoffice/docs-utils`          |
-| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `9.0.3-1`                        |
+| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `9.4.1-1`                        |
 | `tests.image.pullPolicy`                                 | Test container image pull policy                                                                                                                                                       | `IfNotPresent`                   |
 | `tests.containerSecurityContext.enabled`                 | Enable security context for the Test container                                                                                                                                         | `false`                          |
 | `tests.resources.requests`                               | The requested resources for the Test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
@@ -773,15 +789,17 @@ In this case, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-SERVICE-
 
 #### 1.2 Expose ONLYOFFICE DocSpace via Ingress
 
-#### 1.2.1 Installing the Kubernetes Nginx Ingress Controller
+#### 1.2.1 Installing F5 NGINX Ingress Controller
 
-To install the Nginx Ingress Controller to your cluster, run the following command:
+To install the F5 NGINX Ingress Controller to your cluster using the OCI registry, run the following command:
 
 ```bash
-$ helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publishService.enabled=true,controller.replicaCount=2
+$ helm install nginx-ingress oci://ghcr.io/nginx/charts/nginx-ingress --version 2.5.1 --set controller.setAsDefault=true --set controller.replicaCount=2
 ```
 
-See more detail about installing Nginx Ingress Controller via Helm [here](https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx).
+See more detail about installing F5 NGINX Ingress via Helm [here](https://docs.nginx.com/nginx-ingress-controller/install/helm/open-source/).
+
+Note: The chart also supports the community `ingress-nginx` controller. To use it, set `ingress.controllerName=ingress-nginx`.
 
 #### 1.2.2 Expose ONLYOFFICE DocSpace via HTTP
 
@@ -790,10 +808,10 @@ See more detail about installing Nginx Ingress Controller via Helm [here](https:
 This type of exposure has more overheads of performance compared with exposure via service, it also creates a loadbalancer to get access to ONLYOFFICE DocSpace.
 Use this type if you use external TLS termination and when you have several WEB applications in the k8s cluster. You can use the one set of ingress instances and the one loadbalancer for those. It can optimize the entry point performance and reduce your cluster payments, cause providers can charge a fee for each loadbalancer.
 
-To expose ONLYOFFICE DocSpace via ingress HTTP, set the `ingress.enabled` parameter to true:
+To expose ONLYOFFICE DocSpace via ingress HTTP, set the `ingress.enabled` and the `ingress.host` parameters to true:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true --set ingress.host=example.com
 
 ```
 
@@ -802,8 +820,6 @@ Run the following command to get the `docspace` ingress IP:
 ```bash
 $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
-
-After that, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-INGRESS-IP/`.
 
 If the ingress IP is empty, try getting the `docspace` ingress hostname:
 
@@ -822,15 +838,17 @@ Create the `tls` secret with an ssl certificate inside.
 Put the ssl certificate and the private key into the `tls.crt` and `tls.key` files and then run:
 
 ```bash
-$ kubectl create secret generic tls \
-  --from-file=./tls.crt \
-  --from-file=./tls.key
+$ kubectl create secret tls tls \
+  --cert=./tls.crt \
+  --key=./tls.key
 ```
 
 ```bash
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
 
 ```
+
+The `ingress.host` field is required. 
 
 Run the following command to get the `docspace` ingress IP:
 
@@ -857,13 +875,21 @@ After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`
   ```
 - Installing cert-manager
   ```bash
-  $ helm install cert-manager --version v1.17.4 jetstack/cert-manager \
+  $ helm install cert-manager --version v1.20.2 jetstack/cert-manager \
     --namespace cert-manager \
     --create-namespace \
     --set crds.enabled=true \
     --set crds.keep=false
   ```
 Next, perform the installation or upgrade by setting the `ingress.enabled`, `ingress.tls.enabled` and `ingress.letsencrypt.enabled` parameters to `true`. Also set your own values in the parameters `ingress.letsencrypt.email`, `ingress.host` or `ingress.tenants`(for example, `--set "ingress.tenants={tenant1.example.com,tenant2.example.com}"`) if you want to use multiple domain names.
+
+Note: If you are changing the `ingress.path`, `ingress.host`, or `ingress.tenants` values after ONLYOFFICE DocSpace is already installed with `ingress.letsencrypt.enabled=true`, run the upgrade with `--server-side=true` and `--force-conflicts` to avoid field ownership conflicts:
+
+```bash
+$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-conflicts -f values.yaml
+```
+
+This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=true`). If you use your own certificate that is already installed in the cluster and do not enable Let's Encrypt, these flags are not needed during upgrade.
 
 ### 2. Transition from ElasticSearch to OpenSearch
 
@@ -873,18 +899,18 @@ For proper reindexing before updating ONLYOFFICE DocSpace to version 2.5.0, exec
 - If `file-services` is deployed as a StatefulSet:
 
   ```bash
-  kubectl scale statefulset files-services --replicas=0
+  kubectl scale statefulset files-worker --replicas=0
   ```
 - Otherwise, if deployed as a Deployment:
 
   ```bash
-  kubectl scale deployment files-services --replicas=0
+  kubectl scale deployment files-worker --replicas=0
   ```
 Then proceed with the ONLYOFFICE DocSpace update.
 
 NOTE: If you have an external Elasticsearch installed, please follow these steps before updating:
 
-1. Reduce the replica count of `files-services` to 0, as described above.
+1. Reduce the replica count of `files-worker` to 0, as described above.
 2. In the configmap and job files named `elasticsearch-clear-indexes.yaml`, replace the values in `spec.template.spec.containers.env[(name=="MYSQL_PASSWORD")].value` and, if necessary, in `spec.template.spec.containers.env[(name=="MYSQL_USER")].value` with your own values.
 3. Apply these files `elasticsearch-clear-indexes.yaml`:
 

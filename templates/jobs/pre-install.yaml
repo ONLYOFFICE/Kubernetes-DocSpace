@@ -71,7 +71,7 @@ spec:
       {{- end }}
       initContainers:
       - name: check-db
-        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
         {{- $iccdsc := dict }}
@@ -97,7 +97,7 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.install.job.initContainers.migrationRunner.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
@@ -127,7 +127,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-pre-install
-        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         command: ["sh", "-c", "echo Install Job completed"]
       volumes:
       - name: check-db

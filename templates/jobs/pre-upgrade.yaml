@@ -71,7 +71,7 @@ spec:
       {{- end }}
       initContainers:
       - name: check-db
-        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $iccdsc := dict }}
@@ -97,7 +97,7 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.upgrade.job.initContainers.rootless.enabled }}
       - name: rootless
-        image: {{ .Values.upgrade.job.initContainers.rootless.image.repository }}:{{ .Values.upgrade.job.initContainers.rootless.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.initContainers.rootless.image.registry) }}{{ .Values.upgrade.job.initContainers.rootless.image.repository }}:{{ .Values.upgrade.job.initContainers.rootless.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.rootless.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.initContainers.rootless.containerSecurityContext.enabled }}
         {{- $icrlsc := dict }}
@@ -119,7 +119,7 @@ spec:
       {{- end }}
       {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ include "docspace.imageRepository" (list . .Values.upgrade.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.initContainers.migrationRunner.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.upgrade.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
@@ -149,7 +149,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-pre-upgrade
-        image: {{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         command: ["sh", "-c", "echo Upgrade Job completed"]
       volumes:
       - name: check-db

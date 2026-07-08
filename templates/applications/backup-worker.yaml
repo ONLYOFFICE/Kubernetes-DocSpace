@@ -1,58 +1,58 @@
-{{- if .Values.aiService.enabled }}
+{{- if .Values.backupWorker.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.aiService.kind }}
+kind: {{ .Values.backupWorker.kind }}
 metadata:
-  name: ai-service
+  name: backup-worker
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: ai-service
+    app: backup-worker
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.aiService.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.aiService.annotations }}
+  {{- if or .Values.commonAnnotations .Values.backupWorker.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.backupWorker.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.aiService.autoscaling.enabled }}
-  replicas: {{ default .Values.replicas .Values.aiService.replicaCount }}
+  {{- if not .Values.backupWorker.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.backupWorker.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: ai-service
+      app: backup-worker
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.aiService.kind "StatefulSet" }}
-  serviceName: ai-service
+  {{- if eq .Values.backupWorker.kind "StatefulSet" }}
+  serviceName: backup-worker
   {{- end }}
-  {{- if .Values.aiService.updateStrategy }}
-  {{- if eq .Values.aiService.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.aiService.updateStrategy }}
+  {{- if .Values.backupWorker.updateStrategy }}
+  {{- if eq .Values.backupWorker.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.backupWorker.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.aiService.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.backupWorker.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.aiService.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.aiService.podManagementPolicy }}
+  {{- if eq .Values.backupWorker.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.backupWorker.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: ai-service
+        app: backup-worker
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.aiService.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.aiService.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.backupWorker.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.backupWorker.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.aiService.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.backupWorker.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.aiService.podSecurityContext.enabled }}
-      {{- $psc = .Values.aiService.podSecurityContext }}
+      {{- if .Values.backupWorker.podSecurityContext.enabled }}
+      {{- $psc = .Values.backupWorker.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +68,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - ai-service
+                  - backup-worker
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +78,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - ai-service
+                - backup-worker
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.aiService.customPodAntiAffinity }}
+          {{- with .Values.backupWorker.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.aiService.podAffinity }}
+        {{- with .Values.backupWorker.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.aiService.nodeAffinity }}
+        {{- with .Values.backupWorker.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.aiService.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.aiService.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.backupWorker.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.backupWorker.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.aiService.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.aiService.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.backupWorker.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.backupWorker.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -110,37 +110,37 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: ai-service
-        image: {{ include "docspace.imageRepository" (list . .Values.aiService.image.repository) }}:{{ default .Values.images.tag .Values.aiService.image.tag }}
-        imagePullPolicy: {{ .Values.aiService.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.aiService.containerSecurityContext.enabled }}
+      - name: backup-worker
+        image: {{ include "docspace.imageRegistry" (list . .Values.backupWorker.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.backupWorker.image.repository) }}:{{ default .Values.images.tag .Values.backupWorker.image.tag }}
+        imagePullPolicy: {{ .Values.backupWorker.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.backupWorker.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.aiService.containerSecurityContext.enabled }}
-        {{- $csc = .Values.aiService.containerSecurityContext }}
+        {{- if .Values.backupWorker.containerSecurityContext.enabled }}
+        {{- $csc = .Values.backupWorker.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.aiService.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.aiService.lifecycleHooks | nindent 10 }}
+        {{- if .Values.backupWorker.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.backupWorker.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.aiService.containerPorts.app }}
+        - containerPort: {{ .Values.backupWorker.containerPorts.app }}
           name: app
-        {{- if .Values.aiService.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.aiService.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.backupWorker.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.backupWorker.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.aiService.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.aiService.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.backupWorker.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.backupWorker.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.aiService.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.aiService.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.backupWorker.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.backupWorker.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.aiService.resources | nindent 10 }}
+        resources: {{- toYaml .Values.backupWorker.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.aiService.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.backupWorker.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -156,6 +156,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
@@ -171,7 +176,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.aiService.extraEnvVars }}
+        {{- with .Values.backupWorker.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -190,7 +195,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.aiService.extraVolumeMounts }}
+        {{- with .Values.backupWorker.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -201,7 +206,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.aiService.extraVolumes }}
+      {{- with .Values.backupWorker.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

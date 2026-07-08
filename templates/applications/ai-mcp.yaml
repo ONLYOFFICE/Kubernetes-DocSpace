@@ -99,7 +99,7 @@ spec:
       {{- end }}
       containers:
       - name: ai-mcp
-        image: {{ .Values.aiMCP.image.repository }}:{{ .Values.aiMCP.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.aiMCP.image.registry ) }}{{ .Values.aiMCP.image.repository }}:{{ .Values.aiMCP.image.tag }}
         imagePullPolicy: {{ .Values.aiMCP.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.aiMCP.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -152,6 +152,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-broker-uri
               key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:

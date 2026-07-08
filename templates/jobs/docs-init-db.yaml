@@ -71,7 +71,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-docs-pre-upgrade
-        image: {{ .Values.upgrade.job.docsInitDB.image.repository }}:{{ .Values.upgrade.job.docsInitDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.docsInitDB.image.registry) }}{{ .Values.upgrade.job.docsInitDB.image.repository }}:{{ .Values.upgrade.job.docsInitDB.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.docsInitDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $csc := dict }}
