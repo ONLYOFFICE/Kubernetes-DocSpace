@@ -31,12 +31,15 @@ data:
         (dict "serviceName" "sdk"           "serviceUrlVar" "sdk_node_url"          "host" .Values.connections.sdkHost                   "port" .Values.sdk.containerPorts.sdk)
         (dict "serviceName" "management"    "serviceUrlVar" "management_service_url" "host" .Values.connections.managementHost           "port" .Values.management.containerPorts.management)
         (dict "serviceName" "ai"            "serviceUrlVar" "ai_service_url"        "host" .Values.connections.aiHost                    "port" .Values.ai.containerPorts.app)
+        (dict "serviceName" "new_ai"        "serviceUrlVar" "new_ai_service_url"    "host" .Values.connections.newaiHost                 "port" .Values.newai.containerPorts.app)
     }}
     {{- range $services }}
     sed -i 's/$service_{{ .serviceName }}/{{ .host }}\:{{ .port }}/g' {{ $conf }}
     sed -i 's/proxy_pass ${{ .serviceUrlVar }}/proxy_pass http:\/\/{{ .host }}\:{{ .port }}/g' {{ $conf }}
     {{- end }}
+
     sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' {{ $conf }}
+    
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' {{ $conf }}
     {{- else if contains "http://" .Values.connections.documentServerHost }}
