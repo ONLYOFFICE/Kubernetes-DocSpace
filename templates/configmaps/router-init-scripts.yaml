@@ -13,52 +13,43 @@ metadata:
 data:
   50-change-router-conf.sh: |-
     #!/bin/sh
-    sed -i 's/$service_api_system/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_backup/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_files/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_people_server/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_api/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_studio/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_socket/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_sso/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_doceditor/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_login/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_healthchecks/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_identity_api/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_identity/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_sdk/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_management/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_ai/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    {{- $conf := printf "/etc/nginx/conf.d/%s.conf" .Values.product.name }}
+    {{- $services := list
+        (dict "serviceName" "api_system"    "serviceUrlVar" "api_system_url"        "host" .Values.connections.apiSystemHost             "port" .Values.apiSystem.containerPorts.app)
+        (dict "serviceName" "backup"        "serviceUrlVar" "backup_service_url"    "host" .Values.connections.backupHost                "port" .Values.backup.containerPorts.app)
+        (dict "serviceName" "files"         "serviceUrlVar" "files_service_url"     "host" .Values.connections.filesHost                 "port" .Values.files.containerPorts.app)
+        (dict "serviceName" "people_server" "serviceUrlVar" "people_service_url"    "host" .Values.connections.peopleServerHost          "port" .Values.peopleServer.containerPorts.app)
+        (dict "serviceName" "api"           "serviceUrlVar" "webapi_service_url"    "host" .Values.connections.apiHost                   "port" .Values.api.containerPorts.app)
+        (dict "serviceName" "studio"        "serviceUrlVar" "webstudio_service_url" "host" .Values.connections.studioHost                "port" .Values.studio.containerPorts.app)
+        (dict "serviceName" "socket"        "serviceUrlVar" "socket_io_url"         "host" .Values.connections.socketHost                "port" .Values.socket.containerPorts.app)
+        (dict "serviceName" "sso"           "serviceUrlVar" "sso_service_url"       "host" .Values.connections.ssoauthHost               "port" .Values.ssoauth.containerPorts.app)
+        (dict "serviceName" "doceditor"     "serviceUrlVar" "doceditor_service_url" "host" .Values.connections.doceditorHost             "port" .Values.doceditor.containerPorts.app)
+        (dict "serviceName" "login"         "serviceUrlVar" "login_service_url"     "host" .Values.connections.loginHost                 "port" .Values.login.containerPorts.app)
+        (dict "serviceName" "healthchecks"  "serviceUrlVar" "health_checks_url"     "host" .Values.connections.healthchecksHost          "port" .Values.healthchecks.containerPorts.healthcheck)
+        (dict "serviceName" "identity_api"  "serviceUrlVar" "clients_service_url"   "host" .Values.connections.identityApiHost           "port" .Values.identity.api.containerPorts.api)
+        (dict "serviceName" "identity"      "serviceUrlVar" "oauth2_service_url"    "host" .Values.connections.identityAuthorizationHost "port" .Values.identity.authorization.containerPorts.authorization)
+        (dict "serviceName" "sdk"           "serviceUrlVar" "sdk_node_url"          "host" .Values.connections.sdkHost                   "port" .Values.sdk.containerPorts.sdk)
+        (dict "serviceName" "management"    "serviceUrlVar" "management_service_url" "host" .Values.connections.managementHost           "port" .Values.management.containerPorts.management)
+        (dict "serviceName" "ai"            "serviceUrlVar" "ai_service_url"        "host" .Values.connections.aiHost                    "port" .Values.ai.containerPorts.app)
+    }}
 
-    sed -i 's/proxy_pass $api_system_url/proxy_pass http:\/\/{{ .Values.connections.apiSystemHost }}\:{{ .Values.apiSystem.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $backup_service_url/proxy_pass http:\/\/{{ .Values.connections.backupHost }}\:{{ .Values.backup.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $files_service_url/proxy_pass http:\/\/{{ .Values.connections.filesHost }}\:{{ .Values.files.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $people_service_url/proxy_pass http:\/\/{{ .Values.connections.peopleServerHost }}\:{{ .Values.peopleServer.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $webapi_service_url/proxy_pass http:\/\/{{ .Values.connections.apiHost }}\:{{ .Values.api.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $webstudio_service_url/proxy_pass http:\/\/{{ .Values.connections.studioHost }}\:{{ .Values.studio.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $socket_io_url/proxy_pass http:\/\/{{ .Values.connections.socketHost }}\:{{ .Values.socket.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $sso_service_url/proxy_pass http:\/\/{{ .Values.connections.ssoauthHost }}\:{{ .Values.ssoauth.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $doceditor_service_url/proxy_pass http:\/\/{{ .Values.connections.doceditorHost }}\:{{ .Values.doceditor.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $login_service_url/proxy_pass http:\/\/{{ .Values.connections.loginHost }}\:{{ .Values.login.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $health_checks_url/proxy_pass http:\/\/{{ .Values.connections.healthchecksHost }}\:{{ .Values.healthchecks.containerPorts.healthcheck }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $clients_service_url/proxy_pass http:\/\/{{ .Values.connections.identityApiHost }}\:{{ .Values.identity.api.containerPorts.api }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $oauth2_service_url/proxy_pass http:\/\/{{ .Values.connections.identityAuthorizationHost }}\:{{ .Values.identity.authorization.containerPorts.authorization }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $sdk_node_url/proxy_pass http:\/\/{{ .Values.connections.sdkHost }}\:{{ .Values.sdk.containerPorts.sdk }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $management_service_url/proxy_pass http:\/\/{{ .Values.connections.managementHost }}\:{{ .Values.management.containerPorts.management }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/proxy_pass $ai_service_url/proxy_pass http:\/\/{{ .Values.connections.aiHost }}\:{{ .Values.ai.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    sed -i 's/$service_mcp/{{ .Values.connections.aiMCPHost }}\:{{ .Values.aiMCP.containerPorts.app }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    {{- if contains "https://" .Values.connections.documentServerHost }}
-    sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    {{- else if contains "http://" .Values.connections.documentServerHost }}
-    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    {{- else if .Values.connections.documentServerUrlExternal }}
-    sed -i 's/proxy_pass $document_server/proxy_pass {{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
-    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/documentserver/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
-    {{- else }}
-    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+    {{- range $services }}
+    sed -i 's/$service_{{ .serviceName }}/{{ .host }}\:{{ .port }}/g' {{ $conf }}
+    sed -i 's/proxy_pass ${{ .serviceUrlVar }}/proxy_pass http:\/\/{{ .host }}\:{{ .port }}/g' {{ $conf }}
     {{- end }}
-    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i /etc/nginx/conf.d/{{ .Values.product.name }}.conf
+
+    {{- if contains "https://" .Values.connections.documentServerHost }}
+    sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' {{ $conf }}
+    {{- else if contains "http://" .Values.connections.documentServerHost }}
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ trimPrefix "http://" .Values.connections.documentServerHost }}/g' {{ $conf }}
+    {{- else if .Values.connections.documentServerUrlExternal }}
+    sed -i 's/proxy_pass $document_server/proxy_pass {{ trimSuffix "/" .Values.connections.documentServerUrlExternal | replace ":" "\\:" | replace "/" "\\/" }}/g' {{ $conf }}
+    {{- else if and (empty .Values.connections.documentServerUrlExternal) (empty .Values.connections.documentServerHost) }}
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/documentserver/g' {{ $conf }}
+    {{- else }}
+    sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' {{ $conf }}
+    {{- end }}
+    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i {{ $conf }}
     sed '/"oauth2"/,/}/{s|"origin": "[^"]*"|"origin": "'"$OAUTH_ORIGIN"'"|}' -i /var/www/public/scripts/config.json
     rm -rf /etc/nginx/conf.d/upstream.conf
     rm -rf /etc/nginx/conf.d/default.conf
