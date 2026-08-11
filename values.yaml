@@ -6119,6 +6119,117 @@ ingress:
     # ingress.letsencrypt.secretName Name of a secret used to store the ACME account private key
     secretName: "letsencrypt-prod-private-key"
 
+# ONLYOFFICE DocSpace Gateway API parameters
+# Kubernetes Gateway API must be installed
+# ref: https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api
+#
+gateway:
+  ## gateway.enabled Enable the creation of Gateway and HTTPRoute resources for ONLYOFFICE DocSpace
+  enabled: false
+  ## gateway.name Name of the Gateway resource
+  ## Defaults to "<release-name>-gateway" if not set
+  name: ""
+  ## gateway.external Connect the HTTPRoute(s) to an existing external Gateway(s)
+  external:
+    ## gateway.external.parentRefs An array of parentRefs identifying an existing Gateway(s) that routes HTTPS traffic
+    ## If set, the chart does NOT create its own Gateway resource; the elements are added verbatim
+    ## to `spec.parentRefs` of the main HTTPRoute.
+    ## sectionName should match the HTTPS listener name in your Gateway
+    parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: docspace-gateway
+    #   namespace: default
+    #   sectionName: https
+    ## gateway.external.redirectParentRefs An array of parentRefs for the HTTP->HTTPS redirect HTTPRoute
+    ## Used only together with `gateway.external.parentRefs` and `gateway.ssl.redirect.enabled=true`.
+    ## Lets the chart also manage the redirect route on an external Gateway (an extension over the upstream Docs chart).
+    ## sectionName should match the HTTP listener name in your Gateway (commonly "http" or "port-80")
+    redirectParentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: docspace-gateway
+    #   namespace: default
+    #   sectionName: http
+  ## gateway.annotations Map of annotations to add to the Gateway and HTTPRoute resources
+  ## If set, takes priority over commonAnnotations
+  annotations: {}
+  ## gateway.gatewayClassName Name of the GatewayClass to use
+  ## For NGINX Gateway Fabric the default class name is `nginx`
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/
+  gatewayClassName: nginx
+  ## gateway.listeners.custom Used to add custom listener settings
+  ## For example, to use the same Gateway resource for HTTPRoute routes from other namespaces
+  ## ref: https://gateway-api.sigs.k8s.io/docs/concepts/security/#1-route-binding
+  listeners:
+    custom: []
+    # - name: custom-http-route
+    #   port: 80
+    #   protocol: HTTP
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Selector
+    #       selector:
+    #         matchExpressions:
+    #         - key: kubernetes.io/metadata.name
+    #           operator: In
+    #           values:
+    #           - foo
+  ssl:
+    ## gateway.ssl.enabled Enable TLS termination on the Gateway HTTPS listener(s)
+    enabled: false
+    ## gateway.ssl.secret Name of the Kubernetes Secret that holds the TLS certificate
+    ## Used only when `gateway.ssl.enabled=true`
+    ## When `gateway.letsencrypt.enabled=true` this Secret will be created and managed by cert-manager
+    secret: tls-gw
+    ## gateway.ssl.secretNamespace If you want to use an existing secret located in a different Namespace and containing a certificate,
+    ## specify here the Namespace name and the secret file name in `gateway.ssl.secret`
+    ## To do this, you must have created a corresponding `ReferenceGrant` in the same Namespace as the secret
+    ## ref: https://gateway-api.sigs.k8s.io/reference/api-types/referencegrant/
+    secretNamespace: ""
+    ## gateway.ssl.redirect HTTP->HTTPS redirect HTTPRoute configuration
+    ## When enabled, creates a separate HTTPRoute that redirects all HTTP traffic to HTTPS.
+    redirect:
+      ## gateway.ssl.redirect.enabled Enable the HTTP->HTTPS redirect HTTPRoute
+      enabled: false
+      ## gateway.ssl.redirect.statusCode HTTP status code returned by the redirect
+      statusCode: 301
+      ## gateway.ssl.redirect.hostnames Hostnames for the redirect route
+      ## If empty, inherits the Gateway hostnames (`gateway.host`/`gateway.tenants`)
+      hostnames: []
+      # - hostname1.example.com
+      # - hostname2.example.com
+  ## gateway.host Hostname for the Gateway listener(s) and the HTTPRoute(s) (e.g. docspace.example.com)
+  host: ""
+  ## gateway.tenants Multiple hostnames for multi-tenant deployments
+  ## For each tenant, a pair of listeners (HTTP + HTTPS if `ssl.enabled`) is created
+  ## Takes priority over `gateway.host` if non-empty
+  ## If `gateway.ssl.enabled=true`, the Secret named in `gateway.ssl.secret` must
+  ## contain a certificate valid for all listed hostnames (e.g. a SAN cert or wildcard)
+  tenants: []
+  ## gateway.clientSettingsPolicy Configure connection behavior between client and NGINX
+  ## Requires NGINX Gateway Fabric. The directives specified here are applied to the DocSpace HTTPRoute
+  ## via a ClientSettingsPolicy resource. Set to `{}` or remove to disable.
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/overview/custom-policies
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings
+  clientSettingsPolicy:
+    body:
+      maxSize: "100m"
+  letsencrypt:
+    ## gateway.letsencrypt.enabled Enable cert-manager ClusterIssuer for Let's Encrypt via Gateway API
+    ## Used if `gateway.enabled=true` and `gateway.ssl.enabled=true`
+    ## Requires cert-manager (v1.14+) with Gateway API feature flag enabled (`config.enableGatewayAPI=true`)
+    ## ref: https://cert-manager.io/docs/usage/gateway/
+    enabled: false
+    ## gateway.letsencrypt.clusterIssuerName Name of the generated ClusterIssuer
+    clusterIssuerName: "letsencrypt-prod-gw"
+    ## gateway.letsencrypt.email Email address used for ACME registration
+    email: ""
+    ## gateway.letsencrypt.server Let's Encrypt ACME server URL
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    ## gateway.letsencrypt.secretName Secret name for ACME account private key
+    secretName: "letsencrypt-prod-gw-private-key"
+
 # DocSpace jobs parameters
 #
 # Job by install has a pre-install hook and executes before any resources are created in Kubernetes

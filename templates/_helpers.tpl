@@ -468,3 +468,9 @@ Get the domain for single-portal setups
 {{- end }}
 {{- end }}
 
+{{/*
+Get the Gateway name for DocSpace
+*/}}
+{{- define "docspace.gateway.name" -}}
+{{- default (printf "%s-gateway" .Release.Name) .Values.gateway.name }}
+{{- end }}

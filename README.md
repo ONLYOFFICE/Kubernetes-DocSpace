@@ -28,6 +28,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [ONLYOFFICE DocSpace Proxy Frontend Application additional parameters](#onlyoffice-docspace-proxy-frontend-application-additional-parameters)
   * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
   * [ONLYOFFICE DocSpace Ingress parameters](#onlyoffice-docspace-ingress-parameters)
+  * [ONLYOFFICE DocSpace Gateway API parameters](#onlyoffice-docspace-gateway-api-parameters)
   * [ONLYOFFICE DocSpace Jobs parameters](#onlyoffice-docspace-jobs-parameters)
   * [ONLYOFFICE DocSpace Elasticsearch parameters](#onlyoffice-docspace-opensearch-parameters)
   * [ONLYOFFICE DocSpace Test parameters](#onlyoffice-docspace-test-parameters)
@@ -39,6 +40,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
     + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
+    + [1.3 Expose ONLYOFFICE DocSpace via Gateway API](#13-expose-onlyoffice-docspace-via-gateway-api)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
@@ -624,6 +626,32 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                         | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `ingress.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-private-key`                                                            |
 
+### ONLYOFFICE DocSpace Gateway API parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                                                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `gateway.enabled`                                        | Enable the creation of Gateway and HTTPRoute resources for the ONLYOFFICE DocSpace                              | `false`                                                                                    |
+| `gateway.name`                                           | Name of the Gateway resource. Defaults to `<release-name>-gateway` if not set                                   | `""`                                                                                      |
+| `gateway.external.parentRefs`                            | An array of `parentRefs` identifying an existing external Gateway(s) that routes HTTPS traffic. If set, the chart does NOT create its own Gateway; the elements are added verbatim to the main HTTPRoute's `spec.parentRefs`. `sectionName` should match the HTTPS listener name in your Gateway | `[]` |
+| `gateway.external.redirectParentRefs`                    | An array of `parentRefs` for the HTTP→HTTPS redirect HTTPRoute. Used only with `gateway.external.parentRefs` and `gateway.ssl.redirect.enabled=true`. `sectionName` should match the HTTP listener name in your Gateway | `[]` |
+| `gateway.annotations`                                    | Map of annotations to add to the Gateway and HTTPRoute resources. If set, takes priority over `commonAnnotations` | `{}`                                                                                     |
+| `gateway.gatewayClassName`                               | Name of the GatewayClass to use. For NGINX Gateway Fabric the default class name is `nginx`                     | `nginx`                                                                                   |
+| `gateway.listeners.custom`                               | An array of extra listeners appended verbatim to the Gateway's `spec.listeners` (e.g. to accept HTTPRoutes from other namespaces via `allowedRoutes`) | `[]`                                              |
+| `gateway.ssl.enabled`                                    | Enable TLS termination on the Gateway HTTPS listener(s)                                                         | `false`                                                                                   |
+| `gateway.ssl.secret`                                     | Name of the Kubernetes Secret that holds the TLS certificate. Used only when `gateway.ssl.enabled=true`. When `gateway.letsencrypt.enabled=true` this Secret is created and managed by cert-manager | `tls-gw`                          |
+| `gateway.ssl.secretNamespace`                            | If you want to use an existing secret located in a different Namespace and containing a certificate, specify here the Namespace name and the secret file name in `gateway.ssl.secret`. To do this, you must have created a corresponding [`ReferenceGrant`](https://gateway-api.sigs.k8s.io/reference/api-types/referencegrant/) in the same Namespace as the secret | `""` |
+| `gateway.ssl.redirect.enabled`                           | Enable a separate HTTPRoute that redirects all HTTP traffic to HTTPS. Requires `gateway.ssl.enabled=true`       | `false`                                                                                    |
+| `gateway.ssl.redirect.statusCode`                        | HTTP status code returned by the redirect                                                                       | `301`                                                                                      |
+| `gateway.ssl.redirect.hostnames`                         | Hostnames for the redirect route. If empty, inherits `gateway.host`/`gateway.tenants`                           | `[]`                                                                                       |
+| `gateway.host`                                           | Hostname for the Gateway listener(s) and the HTTPRoute(s)                                                       | `""`                                                                                      |
+| `gateway.tenants`                                        | Multiple hostnames for multi-tenant deployments. For each tenant, a pair of listeners (HTTP + HTTPS if `gateway.ssl.enabled=true`) is created. Takes priority over `gateway.host` if non-empty. If `gateway.ssl.enabled=true`, the Secret named in `gateway.ssl.secret` must contain a certificate valid for all listed hostnames (e.g. a SAN cert or a wildcard) | `[]` |
+| `gateway.clientSettingsPolicy`                           | Connection behavior between client and NGINX, applied to the DocSpace HTTPRoute via a `ClientSettingsPolicy`. Requires NGINX Gateway Fabric. Set to `{}`/`null` to disable. See the [client-settings directives](https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings) | `{body: {maxSize: "100m"}}` |
+| `gateway.letsencrypt.enabled`                            | Enable a cert-manager `ClusterIssuer` for Let's Encrypt via Gateway API. Used if `gateway.enabled=true` and `gateway.ssl.enabled=true`. Requires cert-manager (v1.14+) with the Gateway API feature flag enabled (`config.enableGatewayAPI=true`) | `false`                                         |
+| `gateway.letsencrypt.clusterIssuerName`                  | Name of the generated ClusterIssuer                                                                             | `letsencrypt-prod-gw`                                                                     |
+| `gateway.letsencrypt.email`                              | Your email address used for ACME registration                                                                   | `""`                                                                                      |
+| `gateway.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                        | `https://acme-v02.api.letsencrypt.org/directory`                                          |
+| `gateway.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-gw-private-key`                                                         |
+
 ### ONLYOFFICE DocSpace Jobs parameters
 
 | Parameter                                                       | Description                                                                                                                                                                                                | Default                                         |
@@ -890,6 +918,12 @@ $ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-con
 ```
 
 This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=true`). If you use your own certificate that is already installed in the cluster and do not enable Let's Encrypt, these flags are not needed during upgrade.
+
+#### 1.3 Expose ONLYOFFICE DocSpace via Gateway API
+
+As an alternative to the classic Ingress described above, ONLYOFFICE DocSpace can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
+
+See the dedicated [Gateway API guide](docs/GATEWAY.md) for prerequisites, configuration examples (single host, multi-tenant, HTTP to HTTPS redirect, TLS with your own certificate or with Let's Encrypt via cert-manager) and the full list of `gateway` parameters.
 
 ### 2. Transition from ElasticSearch to OpenSearch
 
