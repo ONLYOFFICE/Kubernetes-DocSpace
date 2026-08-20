@@ -4,15 +4,16 @@ metadata:
   name: scc-docspace-components
 allowPrivilegedContainer: false
 runAsUser:
-  type: MustRunAs
-  uid: 104 
+  type: MustRunAsRange
+  uidRangeMin: 101
+  uidRangeMax: 1001
 seLinuxContext:
   type: MustRunAs
 fsGroup:
   type: MustRunAs
-  ranges: 
-  - max: 107
-    min: 107
+  ranges:
+  - max: 1001
+    min: 101
 supplementalGroups:
   type: MustRunAs
 users: []
