@@ -29,6 +29,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
   * [ONLYOFFICE DocSpace Ingress parameters](#onlyoffice-docspace-ingress-parameters)
   * [ONLYOFFICE DocSpace Gateway API parameters](#onlyoffice-docspace-gateway-api-parameters)
+  * [ONLYOFFICE DocSpace OpenShift parameters](#onlyoffice-docspace-openshift-parameters)
   * [ONLYOFFICE DocSpace Jobs parameters](#onlyoffice-docspace-jobs-parameters)
   * [ONLYOFFICE DocSpace Elasticsearch parameters](#onlyoffice-docspace-opensearch-parameters)
   * [ONLYOFFICE DocSpace Test parameters](#onlyoffice-docspace-test-parameters)
@@ -41,6 +42,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
     + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
     + [1.3 Expose ONLYOFFICE DocSpace via Gateway API](#13-expose-onlyoffice-docspace-via-gateway-api)
+    + [1.4 Expose ONLYOFFICE DocSpace via route in OpenShift](#14-expose-onlyoffice-docspace-via-route-in-openshift)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
@@ -211,7 +213,7 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraCon
 
 ## Deploy ONLYOFFICE DocSpace
 
-Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
+Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose ID is in the range `101`-`1001` (ONLYOFFICE DocSpace, its components and the bundled ONLYOFFICE Docs). See the [OPENSHIFT.md](docs/OPENSHIFT.md) file for details.
 
 To do this, run the following commands:
 
@@ -652,6 +654,15 @@ Instead of `Application`, the parameter name should have the following values: `
 | `gateway.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                        | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `gateway.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-gw-private-key`                                                         |
 
+### ONLYOFFICE DocSpace OpenShift parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                                                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `openshift.route.enabled`                                | Enable the creation of an OpenShift Route for the ONLYOFFICE DocSpace                                           | `false`                                                                                   |
+| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. If set, takes priority over `commonAnnotations`               | `{}`                                                                                      |
+| `openshift.route.host`                                   | The hostname for the ONLYOFFICE DocSpace OpenShift Route resource. If left empty, OpenShift generates a hostname automatically | `""`                                                                        |
+| `openshift.route.wildcardPolicy`                         | Defines how wildcards are handled for the Route host. Allowed values: `None`, `Subdomain`                       | `None`                                                                                    |
+
 ### ONLYOFFICE DocSpace Jobs parameters
 
 | Parameter                                                       | Description                                                                                                                                                                                                | Default                                         |
@@ -924,6 +935,9 @@ This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=tru
 As an alternative to the classic Ingress described above, ONLYOFFICE DocSpace can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
 
 See the dedicated [Gateway API guide](docs/GATEWAY.md) for prerequisites, configuration examples (single host, multi-tenant, HTTP to HTTPS redirect, TLS with your own certificate or with Let's Encrypt via cert-manager) and the full list of `gateway` parameters.
+
+#### 1.4 Expose ONLYOFFICE DocSpace via route in OpenShift
+This type of exposure allows you to expose ONLYOFFICE DocSpace via route in OpenShift. Route configuration can be found [here](./docs/OPENSHIFT.md#publish-onlyoffice-docspace-via-route).
 
 ### 2. Transition from ElasticSearch to OpenSearch
 

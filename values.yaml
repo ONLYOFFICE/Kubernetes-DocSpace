@@ -6230,6 +6230,23 @@ gateway:
     ## gateway.letsencrypt.secretName Secret name for ACME account private key
     secretName: "letsencrypt-prod-gw-private-key"
 
+# ONLYOFFICE DocSpace OpenShift parameters
+# Used when deploying to an OpenShift cluster
+#
+openshift:
+  route:
+    ## openshift.route.enabled Enable the creation of an OpenShift Route for ONLYOFFICE DocSpace
+    enabled: false
+    ## openshift.route.annotations Map of annotations to add to the OpenShift Route
+    ## If set, takes priority over commonAnnotations
+    annotations: {}
+    ## openshift.route.host The hostname for the ONLYOFFICE DocSpace OpenShift Route resource
+    ## If left empty, OpenShift generates a hostname automatically
+    host: ""
+    ## openshift.route.wildcardPolicy Defines how wildcards are handled for the Route host
+    ## Allowed values: `None`, `Subdomain`
+    wildcardPolicy: None
+
 # DocSpace jobs parameters
 #
 # Job by install has a pre-install hook and executes before any resources are created in Kubernetes
