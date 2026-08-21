@@ -31,7 +31,7 @@ data:
         (dict "serviceName" "sdk"           "serviceUrlVar" "sdk_node_url"          "host" .Values.connections.sdkHost                   "port" .Values.sdk.containerPorts.sdk)
         (dict "serviceName" "management"    "serviceUrlVar" "management_service_url" "host" .Values.connections.managementHost           "port" .Values.management.containerPorts.management)
         (dict "serviceName" "ai"            "serviceUrlVar" "ai_service_url"        "host" .Values.connections.aiHost                    "port" .Values.ai.containerPorts.app)
-        (dict "serviceName" "newai"         "serviceUrlVar" "newai_service_url"     "host" .Values.connections.newaiHost                 "port" .Values.newai.containerPorts.app)
+        (dict "serviceName" "new_ai"        "serviceUrlVar" "new_ai_service_url"    "host" .Values.connections.newaiHost                 "port" .Values.newai.containerPorts.app)
     }}
 
     {{- range $services }}
