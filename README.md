@@ -6,9 +6,9 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
 - [Deploy prerequisites](#deploy-prerequisites)
   * [1. Add Helm repositories](#1-add-helm-repositories)
   * [2. Install NFS Provisioner](#2-install-nfs-provisioner)
-  * [3. Install MySQL](#3-install-mysql)
-  * [4. Install RabbitMQ](#4-install-rabbitmq)
-  * [5. Install Redis](#5-install-redis)
+  * [3. Deploy Database](#3-deploy-database)
+  * [4. Deploy Message Broker](#4-deploy-message-broker)
+  * [5. Deploy Key-Value datastore](#5-deploy-key-value-datastore)
   * [6. Install OpenSearch](#6-install-opensearch)
   * [7. Install ONLYOFFICE Docs](#7-install-onlyoffice-docs)
   * [8. Make changes to the configuration files (optional)](#8-make-changes-to-the-configuration-files-optional)
@@ -73,7 +73,6 @@ $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ### 1. Add Helm repositories
 
 ```bash
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
 $ helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
 $ helm repo update
@@ -101,69 +100,23 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 
 *Also, PersistentVolume must have as the owner the user from whom the ONLYOFFICE DocSpace will be started. By default it is `onlyoffice` (104:107).*
 
-### 3. Install MySQL
+### 3. Deploy Database
 
-To install MySQL to your cluster, run the following command:
+MySQL is used as the database server.
 
-```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml --version 14.0.3 bitnami/mysql \
-  --set auth.database=docspace \
-  --set auth.username=onlyoffice_user \
-  --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
-  --set primary.persistence.size=PERSISTENT_SIZE \
-  --set primary.resourcesPreset=none \
-  --set image.repository=bitnamilegacy/mysql \
-  --set global.security.allowInsecureImages=true \
-  --set image.tag=9.4.0-debian-12-r1 \
-  --set metrics.enabled=false \
-  --set primary.livenessProbe.timeoutSeconds=10 \
-  --set primary.readinessProbe.timeoutSeconds=10 \
-  --set primary.livenessProbe.periodSeconds=20 \
-  --set primary.readinessProbe.periodSeconds=20
-```
+To install MySQL to your cluster, you can use [this](./docs/DEPENDENCIES.md#deploy-mysql-database) step.
 
-Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
+### 4. Deploy Message Broker
 
-Note: Set the `metrics.enabled=true` to enable exposing Database metrics to be gathered by Prometheus. Also add the following parameters: `metrics.image.repository=bitnamilegacy/mysqld-exporter` and `metrics.image.tag=0.17.2-debian-12-r16`.
+RabbitMQ is used as a message broker.
 
-See more details about installing MySQL via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
+To install RabbitMQ to your cluster, you can use [this](./docs/DEPENDENCIES.md#deploy-rabbitmq) step.
 
-### 4. Install RabbitMQ
+### 5. Deploy Key-Value Datastore
 
-To install RabbitMQ to your cluster, run the following command:
+As a key-value datastore, you can use Redis or Valkey.
 
-```bash
-$ helm install rabbitmq --version 16.0.14 bitnami/rabbitmq \
-  --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
-  --set resourcesPreset=none \
-  --set image.repository=bitnamilegacy/rabbitmq \
-  --set image.tag=4.1.3-debian-12-r1 \
-  --set global.security.allowInsecureImages=true \
-  --set metrics.enabled=false
-```
-
-Note: Set the `metrics.enabled=true` to enable exposing RabbitMQ metrics to be gathered by Prometheus.
-
-See more details about installing RabbitMQ via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/rabbitmq#rabbitmq).
-
-### 5. Install Redis
-
-To install Redis to your cluster, run the following command:
-
-```bash
-$ helm install redis --version 22.0.7 bitnami/redis \
-  --set architecture=standalone \
-  --set master.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
-  --set master.resourcesPreset=none \
-  --set global.security.allowInsecureImages=true \
-  --set image.repository=bitnamilegacy/redis \
-  --set image.tag=8.2.1-debian-12-r0 \
-  --set metrics.enabled=false
-```
-
-Note: Set the `metrics.enabled=true` to enable exposing Redis metrics to be gathered by Prometheus. Also add the following parameters: `metrics.image.repository=bitnamilegacy/redis-exporter` and `metrics.image.tag=1.76.0-debian-12-r0`.
-
-See more details about installing Redis via Helm [here](https://github.com/bitnami/charts/tree/main/bitnami/redis).
+To install Valkey to your cluster, you can use [this](./docs/DEPENDENCIES.md#deploy-valkey) step.
 
 ### 6. Install OpenSearch
 
