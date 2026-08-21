@@ -3,13 +3,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: test-docspace
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.commonAnnotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
 {{ (.Files.Glob "sources/scripts/test_docspace.py").AsConfig | indent 2 }}

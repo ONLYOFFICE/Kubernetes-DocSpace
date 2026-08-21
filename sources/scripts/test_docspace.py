@@ -65,7 +65,7 @@ def init_logger(name):
     stdout.setFormatter(logging.Formatter(formatter))
     stdout.setLevel(logging.DEBUG)
     logger.addHandler(stdout)
-    logger.info('Running a script to test the availability of DocSpace and dependencies\n')
+    logger.info('Running a script to test the availability of ONLYOFFICE Apps and dependencies\n')
 
 
 def get_redis_status():
@@ -135,11 +135,11 @@ def check_db_mysql(tbl_dict):
                     logger_test_docspace.error(f'The table "{tbl}" does not exists in the "{dbName}" database')
                     tbl_dict[tbl] = 'NotExists'
     except Exception as msg_check_dblist:
-        logger_test_docspace.error(f'Error when trying to get a list of DocSpace tables in the "{dbName}" database... {msg_check_dblist}\n')
+        logger_test_docspace.error(f'Error when trying to get a list of ONLYOFFICE Apps tables in the "{dbName}" database... {msg_check_dblist}\n')
         total_result['CheckMySQL'] = 'Failed'
     else:
         dbc.close()
-        logger_test_docspace.info(f'Check of DocSpace tables in "{dbName}" database has been finished\n')
+        logger_test_docspace.info(f'Check of ONLYOFFICE Apps tables in "{dbName}" database has been finished\n')
         if 'NotExists' in tbl_dict.values():
             total_result['CheckMySQL'] = 'Failed'
         else:
@@ -189,7 +189,7 @@ def check_mq():
 def get_docspace_status():
     import requests
     from requests.adapters import HTTPAdapter
-    logger_test_docspace.info('Checking DocSpace availability...')
+    logger_test_docspace.info('Checking ONLYOFFICE Apps availability...')
     docspace_adapter = HTTPAdapter(max_retries=2)
     docspace_session = requests.Session()
     for i in docspace_services:
@@ -216,7 +216,7 @@ def get_docspace_status():
                 key = docspace_keys['status']
                 total_result[i] = key
         except Exception as msg_url:
-            logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
+            logger_test_docspace.error(f'Failed to check the availability of the ONLYOFFICE Apps... {msg_url}\n')
             i = i.split(":")[0]
             total_result[i] = 'Unhealthy'
     for i in docspace_proxy:
@@ -231,7 +231,7 @@ def get_docspace_status():
             else:
                 total_result[i] = 'Unhealthy'
         except Exception as msg_url:
-            logger_test_docspace.error(f'Failed to check the availability of the DocSpace... {msg_url}\n')
+            logger_test_docspace.error(f'Failed to check the availability of the ONLYOFFICE Apps... {msg_url}\n')
             i = i.split(":")[0]
             total_result[i] = 'Unhealthy'
 

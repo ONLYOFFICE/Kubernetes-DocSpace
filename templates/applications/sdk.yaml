@@ -3,15 +3,15 @@ apiVersion: apps/v1
 kind: {{ .Values.sdk.kind }}
 metadata:
   name: sdk
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   labels:
     app: sdk
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if or .Values.commonAnnotations .Values.sdk.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.sdk.annotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   {{- if not .Values.sdk.autoscaling.enabled }}
@@ -21,16 +21,16 @@ spec:
     matchLabels:
       app: sdk
       {{- if .Values.commonLabels }}
-      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "apps.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   {{- if eq .Values.sdk.kind "StatefulSet" }}
   serviceName: sdk
   {{- end }}
   {{- if .Values.sdk.updateStrategy }}
   {{- if eq .Values.sdk.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.sdk.updateStrategy }}
+  strategy: {{- include "apps.update.strategyType" .Values.sdk.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.sdk.updateStrategy }}
+  updateStrategy: {{- include "apps.update.strategyType" .Values.sdk.updateStrategy }}
   {{- end }}
   {{- end }}
   {{- if eq .Values.sdk.kind "StatefulSet" }}
@@ -41,14 +41,14 @@ spec:
       labels:
         app: sdk
         {{- if .Values.commonLabels }}
-        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if or .Values.podAnnotations .Values.sdk.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.sdk.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      serviceAccountName: {{ include "apps.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.sdk.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.sdk.podSecurityContext.enabled }}
@@ -56,7 +56,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -111,7 +111,7 @@ spec:
       {{- end }}
       containers:
       - name: sdk
-        image: {{ include "docspace.imageRegistry" (list . .Values.sdk.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.sdk.image.repository) }}:{{ default .Values.images.tag .Values.sdk.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.sdk.image.registry) }}{{ include "apps.imageRepository" (list . .Values.sdk.image.repository) }}:{{ default .Values.images.tag .Values.sdk.image.tag }}
         imagePullPolicy: {{ .Values.sdk.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.sdk.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -120,7 +120,7 @@ spec:
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $csc | nindent 10 }}
         {{- end }}
         {{- if .Values.sdk.lifecycleHooks }}
         lifecycle: {{- toYaml .Values.sdk.lifecycleHooks | nindent 10 }}
@@ -144,12 +144,12 @@ spec:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
+              name: {{ template "apps.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.redis.secretName" . }}
+              name: {{ template "apps.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
         - name: RABBIT_URI
           valueFrom:
@@ -159,22 +159,22 @@ spec:
         - name: RABBIT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.broker.secretName" . }}
+              name: {{ template "apps.broker.secretName" . }}
               key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.jwt.secretName" . }}
+              name: {{ template "apps.jwt.secretName" . }}
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.jwt.secretName" . }}
+              name: {{ template "apps.jwt.secretName" . }}
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.jwt.secretName" . }}
+              name: {{ template "apps.jwt.secretName" . }}
               key: JWT_HEADER
         {{- with .Values.sdk.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
@@ -183,9 +183,9 @@ spec:
         - configMapRef:
             name: docspace
         - secretRef:
-            name: {{ template "docspace.coreMachineKey.secretName" . }}
+            name: {{ template "apps.coreMachineKey.secretName" . }}
         - secretRef:
-            name: {{ template "docspace.jwt.secretName" . }}
+            name: {{ template "apps.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- $context := . }}
@@ -211,5 +211,5 @@ spec:
       {{- end }}
       - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.data.name" . }}
+          claimName: {{ template "apps.pvc.data.name" . }}
 {{- end }}

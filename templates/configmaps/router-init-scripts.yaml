@@ -2,13 +2,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: router-init-scripts
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.commonAnnotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
   50-change-router-conf.sh: |-
@@ -50,7 +50,7 @@ data:
     {{- else }}
     sed -i 's/proxy_pass $document_server/proxy_pass http:\/\/{{ .Values.connections.documentServerHost | replace ":" "\\:" }}/g' {{ $conf }}
     {{- end }}
-    sed '/8092\;/a\        resolver {{ template "docspace.router.resolver" . }}\;' -i {{ $conf }}
+    sed '/8092\;/a\        resolver {{ template "apps.router.resolver" . }}\;' -i {{ $conf }}
     sed '/"oauth2"/,/}/{s|"origin": "[^"]*"|"origin": "'"$OAUTH_ORIGIN"'"|}' -i /var/www/public/scripts/config.json
     rm -rf /etc/nginx/conf.d/upstream.conf
     rm -rf /etc/nginx/conf.d/default.conf

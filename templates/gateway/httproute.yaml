@@ -3,15 +3,15 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: docspace
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.gateway.annotations }}
   annotations:
     {{- $dictValue := default .Values.commonAnnotations .Values.gateway.annotations }}
-    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   {{- $hosts := list }}
@@ -30,7 +30,7 @@ spec:
   {{- if .Values.gateway.external.parentRefs }}
     {{- toYaml .Values.gateway.external.parentRefs | nindent 2 }}
   {{- else }}
-  {{- $gwName := include "docspace.gateway.name" . }}
+  {{- $gwName := include "apps.gateway.name" . }}
   {{- if $hosts }}
     {{- range $idx, $host := $hosts }}
     {{- if not (and $.Values.gateway.ssl.enabled $.Values.gateway.ssl.redirect.enabled) }}
@@ -57,7 +57,7 @@ spec:
   - backendRefs:
     - group: ""
       kind: Service
-      name: {{ template "docspace.svc.router.name" . }}
+      name: {{ template "apps.svc.router.name" . }}
       port: {{ .Values.router.service.port.external }}
       weight: 1
 {{- end }}

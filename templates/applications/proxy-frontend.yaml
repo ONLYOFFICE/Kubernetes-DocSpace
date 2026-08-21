@@ -3,15 +3,15 @@ apiVersion: apps/v1
 kind: {{ .Values.proxyFrontend.kind }}
 metadata:
   name: proxy-frontend
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   labels:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if or .Values.commonAnnotations .Values.proxyFrontend.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.proxyFrontend.annotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   {{- if not .Values.proxyFrontend.autoscaling.enabled }}
@@ -21,16 +21,16 @@ spec:
     matchLabels:
       app: proxy-frontend
       {{- if .Values.commonLabels }}
-      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "apps.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
-  serviceName: {{ template "docspace.svc.proxyFrontend.name" . }}
+  serviceName: {{ template "apps.svc.proxyFrontend.name" . }}
   {{- end }}
   {{- if .Values.proxyFrontend.updateStrategy }}
   {{- if eq .Values.proxyFrontend.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  strategy: {{- include "apps.update.strategyType" .Values.proxyFrontend.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.proxyFrontend.updateStrategy }}
+  updateStrategy: {{- include "apps.update.strategyType" .Values.proxyFrontend.updateStrategy }}
   {{- end }}
   {{- end }}
   {{- if eq .Values.proxyFrontend.kind "StatefulSet" }}
@@ -41,13 +41,13 @@ spec:
       labels:
         app: proxy-frontend
         {{- if .Values.commonLabels }}
-        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.proxyFrontend.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.proxyFrontend.podAnnotations "context" $ ) | nindent 8 }}
+      annotations: {{- include "apps.annotations" ( dict "keyName" .Values.proxyFrontend.podAnnotations "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      serviceAccountName: {{ include "apps.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.proxyFrontend.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.proxyFrontend.podSecurityContext.enabled }}
@@ -55,7 +55,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -110,7 +110,7 @@ spec:
       {{- end }}
       containers:
       - name: proxy-frontend
-        image: {{ include "docspace.imageRegistry" (list . .Values.proxyFrontend.image.registry) }}{{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.proxyFrontend.image.registry) }}{{ .Values.proxyFrontend.image.repository }}:{{ .Values.proxyFrontend.image.tag }}
         imagePullPolicy: {{ .Values.proxyFrontend.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.proxyFrontend.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -119,7 +119,7 @@ spec:
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $csc | nindent 10 }}
         {{- end }}
         {{- if .Values.proxyFrontend.lifecycleHooks }}
         lifecycle: {{- toYaml .Values.proxyFrontend.lifecycleHooks | nindent 10 }}

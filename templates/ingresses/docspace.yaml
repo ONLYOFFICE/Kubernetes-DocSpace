@@ -3,18 +3,18 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: docspace
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   annotations:
     {{- if or .Values.commonAnnotations .Values.ingress.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.ingress.annotations }}
-    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
     {{- if eq "nginx-ingress" .Values.ingress.controllerName }}
-    nginx.org/websocket-services: "{{ include "docspace.svc.router.name" . }}"
+    nginx.org/websocket-services: "{{ include "apps.svc.router.name" . }}"
     {{- end }}
     {{- if .Values.ingress.letsencrypt.enabled }}
     cert-manager.io/cluster-issuer: {{ .Values.ingress.letsencrypt.clusterIssuerName }}
@@ -52,7 +52,7 @@ spec:
         pathType: {{ .Values.ingress.pathType }}
         backend:
           service:
-            name: {{ template "docspace.svc.router.name" . }}
+            name: {{ template "apps.svc.router.name" . }}
             port:
               number: {{ .Values.router.service.port.external }}
   {{- end }}
@@ -65,7 +65,7 @@ spec:
         pathType: {{ $context.Values.ingress.pathType }}
         backend:
           service:
-            name: {{ template "docspace.svc.router.name" $context }}
+            name: {{ template "apps.svc.router.name" $context }}
             port:
               number: {{ $context.Values.router.service.port.external }}
   {{- end }}

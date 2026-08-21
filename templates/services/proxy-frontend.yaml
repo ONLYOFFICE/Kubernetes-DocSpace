@@ -1,17 +1,17 @@
-{{- if and .Values.proxyFrontend.enabled (eq (include "docspace.svc.proxyFrontend.create" .) "true") }}
+{{- if and .Values.proxyFrontend.enabled (eq (include "apps.svc.proxyFrontend.create" .) "true") }}
 apiVersion: v1
 kind: Service
 metadata:
   name: proxy-frontend
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   labels:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if or .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.proxyFrontend.service.annotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:
@@ -24,7 +24,7 @@ spec:
   selector:
     app: proxy-frontend
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   type: {{ .Values.proxyFrontend.service.type }}
   {{- if .Values.proxyFrontend.service.sessionAffinity }}

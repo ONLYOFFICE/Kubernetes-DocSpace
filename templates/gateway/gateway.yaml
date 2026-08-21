@@ -5,11 +5,11 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ include "docspace.gateway.name" . }}
-  namespace: {{ include "docspace.namespace" . | quote }}
+  name: {{ include "apps.gateway.name" . }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.gateway.annotations .Values.gateway.letsencrypt.enabled }}
   annotations:
@@ -18,7 +18,7 @@ metadata:
     {{- end }}
     {{- if or .Values.commonAnnotations .Values.gateway.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.gateway.annotations }}
-    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:

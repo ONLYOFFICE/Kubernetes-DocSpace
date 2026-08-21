@@ -3,11 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: docspace-docs-pre-upgrade
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: upgrade-docs
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -15,7 +15,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     {{- if or .Values.commonAnnotations .Values.upgrade.job.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.upgrade.job.annotations }}
-    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
   backoffLimit: 2
@@ -24,14 +24,14 @@ spec:
       labels:
         app.kubernetes.io/component: upgrade-docs
         {{- if .Values.commonLabels }}
-        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if or .Values.podAnnotations .Values.upgrade.job.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.upgrade.job.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      serviceAccountName: {{ include "apps.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.upgrade.job.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.upgrade.job.podSecurityContext.enabled }}
@@ -39,7 +39,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.upgrade.job.customPodAntiAffinity .Values.upgrade.job.podAffinity .Values.upgrade.job.nodeAffinity }}
       affinity:
@@ -71,7 +71,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-docs-pre-upgrade
-        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.docsInitDB.image.registry) }}{{ .Values.upgrade.job.docsInitDB.image.repository }}:{{ .Values.upgrade.job.docsInitDB.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.upgrade.job.docsInitDB.image.registry) }}{{ .Values.upgrade.job.docsInitDB.image.repository }}:{{ .Values.upgrade.job.docsInitDB.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.docsInitDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -80,14 +80,14 @@ spec:
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $csc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.upgrade.job.docsInitDB.resources | nindent 10 }}
         env:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
+              name: {{ template "apps.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: docs-init-db

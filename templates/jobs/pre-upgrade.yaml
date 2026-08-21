@@ -3,11 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: docspace-pre-upgrade
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: upgrade
     {{- if .Values.commonLabels }}
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -15,7 +15,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     {{- if or .Values.commonAnnotations .Values.upgrade.job.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.upgrade.job.annotations }}
-    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
   backoffLimit: 2
@@ -24,14 +24,14 @@ spec:
       labels:
         app.kubernetes.io/component: upgrade
         {{- if .Values.commonLabels }}
-        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if or .Values.podAnnotations .Values.upgrade.job.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.upgrade.job.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      serviceAccountName: {{ include "apps.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.upgrade.job.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.upgrade.job.podSecurityContext.enabled }}
@@ -39,7 +39,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.upgrade.job.customPodAntiAffinity .Values.upgrade.job.podAffinity .Values.upgrade.job.nodeAffinity }}
       affinity:
@@ -71,7 +71,7 @@ spec:
       {{- end }}
       initContainers:
       - name: check-db
-        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $iccdsc := dict }}
@@ -80,14 +80,14 @@ spec:
         {{- else }}
         {{- $iccdsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $iccdsc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $iccdsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
         env:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
+              name: {{ template "apps.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: check-db
@@ -97,7 +97,7 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.upgrade.job.initContainers.rootless.enabled }}
       - name: rootless
-        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.initContainers.rootless.image.registry) }}{{ .Values.upgrade.job.initContainers.rootless.image.repository }}:{{ .Values.upgrade.job.initContainers.rootless.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.upgrade.job.initContainers.rootless.image.registry) }}{{ .Values.upgrade.job.initContainers.rootless.image.repository }}:{{ .Values.upgrade.job.initContainers.rootless.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.rootless.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.initContainers.rootless.containerSecurityContext.enabled }}
         {{- $icrlsc := dict }}
@@ -106,7 +106,7 @@ spec:
         {{- else }}
         {{- $icrlsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icrlsc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $icrlsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.upgrade.job.initContainers.rootless.resources | nindent 10 }}
         command: ["/bin/sh", "-c"]
@@ -119,7 +119,7 @@ spec:
       {{- end }}
       {{- if .Values.upgrade.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ include "docspace.imageRegistry" (list . .Values.upgrade.job.initContainers.migrationRunner.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.upgrade.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.upgrade.job.initContainers.migrationRunner.image.registry) }}{{ include "apps.imageRepository" (list . .Values.upgrade.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.upgrade.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.upgrade.job.initContainers.migrationRunner.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
@@ -128,7 +128,7 @@ spec:
         {{- else }}
         {{- $icmrsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
+        securityContext: {{- include "apps.securityContext" $icmrsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.upgrade.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
@@ -137,7 +137,7 @@ spec:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "docspace.mysql.secretName" . }}
+              name: {{ template "apps.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
@@ -149,7 +149,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-pre-upgrade
-        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "apps.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         command: ["sh", "-c", "echo Upgrade Job completed"]
       volumes:
       - name: check-db
@@ -158,9 +158,9 @@ spec:
           defaultMode: 0755
       - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.data.name" . }}
+          claimName: {{ template "apps.pvc.data.name" . }}
       - name: router-log
         persistentVolumeClaim:
-          claimName: {{ template "docspace.pvc.router.name" . }}
+          claimName: {{ template "apps.pvc.router.name" . }}
       restartPolicy: Never
 {{- end }}

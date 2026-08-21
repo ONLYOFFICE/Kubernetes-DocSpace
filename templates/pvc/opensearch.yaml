@@ -3,14 +3,14 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: opensearch-data
-  namespace: {{ include "docspace.namespace" . | quote }}
+  namespace: {{ include "apps.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.opensearch.persistence.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.opensearch.persistence.annotations }}
-  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   storageClassName: {{ .Values.opensearch.persistence.storageClass }}

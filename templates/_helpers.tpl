@@ -1,7 +1,7 @@
 {{/*
 Check the Installation type
 */}}
-{{- define "docspace.installation.type" -}}
+{{- define "apps.installation.type" -}}
 {{- $installationType := .Values.global.installationType -}}
 {{- $possibleInstallationTypes := list "DEVELOPER" "ENTERPRISE" -}}
 {{- if has $installationType $possibleInstallationTypes }}
@@ -12,9 +12,9 @@ Check the Installation type
 {{- end -}}
 
 {{/*
-Get the DocSpace Namespace
+Get the ONLYOFFICE Apps Namespace
 */}}
-{{- define "docspace.namespace" -}}
+{{- define "apps.namespace" -}}
 {{- if .Values.namespaceOverride -}}
     {{- .Values.namespaceOverride -}}
 {{- else -}}
@@ -23,18 +23,18 @@ Get the DocSpace Namespace
 {{- end -}}
 
 {{/*
-Get the DocSpace labels
+Get the ONLYOFFICE Apps labels
 */}}
-{{- define "docspace.labels.commonLabels" -}}
+{{- define "apps.labels.commonLabels" -}}
 {{- range $key, $value := .Values.commonLabels }}
 {{ $key }}: {{ tpl $value $ }}
 {{- end }}
 {{- end -}}
 
 {{/*
-Get the DocSpace annotations
+Get the ONLYOFFICE Apps annotations
 */}}
-{{- define "docspace.annotations" -}}
+{{- define "apps.annotations" -}}
 {{- $annotations := toYaml .keyName }}
 {{- if contains "{{" $annotations }}
     {{- tpl $annotations .context }}
@@ -44,9 +44,9 @@ Get the DocSpace annotations
 {{- end -}}
 
 {{/*
-Get the update strategy type for DocSpace Apps
+Get the update strategy type for ONLYOFFICE Apps
 */}}
-{{- define "docspace.update.strategyType" -}}
+{{- define "apps.update.strategyType" -}}
 {{- if eq .type "RollingUpdate" -}}
     {{- toYaml . | nindent 4 -}}
 {{- else -}}
@@ -55,9 +55,9 @@ Get the update strategy type for DocSpace Apps
 {{- end -}}
 
 {{/*
-Get the DocSpace Service Account name
+Get the ONLYOFFICE Apps Service Account name
 */}}
-{{- define "docspace.serviceAccountName" -}}
+{{- define "apps.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
     {{ default .Release.Name .Values.serviceAccount.name }}
 {{- else -}}
@@ -66,22 +66,22 @@ Get the DocSpace Service Account name
 {{- end -}}
 
 {{/*
-Get the DocSpace Identity Service Account name
+Get the ONLYOFFICE Apps Identity Service Account name
 */}}
-{{- define "docspace.identity.serviceAccountName" -}}
+{{- define "apps.identity.serviceAccountName" -}}
 {{- if .Values.identity.serviceAccount.create -}}
     {{- printf "identity-sa" -}}
 {{- else if .Values.identity.serviceAccount.name -}}
     {{ .Values.identity.serviceAccount.name }}
 {{- else -}}
-    {{ include "docspace.serviceAccountName" . }}
+    {{ include "apps.serviceAccountName" . }}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the DocSpace Security Context
+Get the ONLYOFFICE Apps Security Context
 */}}
-{{- define "docspace.securityContext" -}}
+{{- define "apps.securityContext" -}}
 {{- if not .seLinuxOptions -}}
     {{- omit . "enabled" "seLinuxOptions" | toYaml }}
 {{- else -}}
@@ -92,7 +92,7 @@ Get the DocSpace Security Context
 {{/*
 A function to return correct registry.
 */}}
-{{- define "docspace.imageRegistry" -}}
+{{- define "apps.imageRegistry" -}}
 {{- $context := index . 0 -}}
 {{- $registry := coalesce (index . 1) $context.Values.images.registry -}}
 {{- if $registry }}
@@ -101,9 +101,9 @@ A function to return correct registry.
 {{- end -}}
 
 {{/*
-Get the DocSpace image repository
+Get the ONLYOFFICE Apps image repository
 */}}
-{{- define "docspace.imageRepository" -}}
+{{- define "apps.imageRepository" -}}
 {{- $context := index . 0 -}}
 {{- $repo := index . 1 -}}
 {{- $repoPrefix := $context.Values.images.repoPrefix -}}
@@ -120,7 +120,7 @@ Get the DocSpace image repository
 {{/*
 Get the MySQL password secret
 */}}
-{{- define "docspace.mysql.secretName" -}}
+{{- define "apps.mysql.secretName" -}}
 {{- if .Values.connections.mysqlPassword -}}
     {{- printf "%s-mysql" .Release.Name -}}
 {{- else if .Values.connections.mysqlExistingSecret -}}
@@ -131,7 +131,7 @@ Get the MySQL password secret
 {{/*
 Return true if a secret object should be created for MySQL
 */}}
-{{- define "docspace.mysql.createSecret" -}}
+{{- define "apps.mysql.createSecret" -}}
 {{- if or .Values.connections.mysqlPassword (not .Values.connections.mysqlExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -140,7 +140,7 @@ Return true if a secret object should be created for MySQL
 {{/*
 Return MySQL password
 */}}
-{{- define "docspace.mysql.password" -}}
+{{- define "apps.mysql.password" -}}
 {{- if not (empty .Values.connections.mysqlPassword) }}
     {{- .Values.connections.mysqlPassword }}
 {{- else -}}
@@ -151,7 +151,7 @@ Return MySQL password
 {{/*
 Get the Redis password secret
 */}}
-{{- define "docspace.redis.secretName" -}}
+{{- define "apps.redis.secretName" -}}
 {{- if or .Values.connections.redisPassword .Values.connections.redisNoPass -}}
     {{- printf "%s-redis" .Release.Name -}}
 {{- else if .Values.connections.redisExistingSecret -}}
@@ -162,7 +162,7 @@ Get the Redis password secret
 {{/*
 Return true if a secret object should be created for Redis
 */}}
-{{- define "docspace.redis.createSecret" -}}
+{{- define "apps.redis.createSecret" -}}
 {{- if or .Values.connections.redisPassword .Values.connections.redisNoPass (not .Values.connections.redisExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -171,7 +171,7 @@ Return true if a secret object should be created for Redis
 {{/*
 Return Redis password
 */}}
-{{- define "docspace.redis.password" -}}
+{{- define "apps.redis.password" -}}
 {{- if not (empty .Values.connections.redisPassword) }}
     {{- .Values.connections.redisPassword }}
 {{- else if .Values.connections.redisNoPass }}
@@ -184,7 +184,7 @@ Return Redis password
 {{/*
 Get the Broker password secret
 */}}
-{{- define "docspace.broker.secretName" -}}
+{{- define "apps.broker.secretName" -}}
 {{- if .Values.connections.brokerPassword -}}
     {{- printf "%s-broker" .Release.Name -}}
 {{- else if .Values.connections.brokerExistingSecret -}}
@@ -195,7 +195,7 @@ Get the Broker password secret
 {{/*
 Return true if a secret object should be created for Broker
 */}}
-{{- define "docspace.broker.createSecret" -}}
+{{- define "apps.broker.createSecret" -}}
 {{- if or .Values.connections.brokerPassword (not .Values.connections.brokerExistingSecret) -}}
     {{- true -}}
 {{- end -}}
@@ -204,7 +204,7 @@ Return true if a secret object should be created for Broker
 {{/*
 Return Broker password
 */}}
-{{- define "docspace.broker.password" -}}
+{{- define "apps.broker.password" -}}
 {{- if not (empty .Values.connections.brokerPassword) }}
     {{- .Values.connections.brokerPassword }}
 {{- else }}
@@ -215,8 +215,8 @@ Return Broker password
 {{/*
 Get the Broker URI
 */}}
-{{- define "docspace.broker.uri" -}}
-{{- $brokerSecret := include "docspace.broker.secretName" . }}
+{{- define "apps.broker.uri" -}}
+{{- $brokerSecret := include "apps.broker.secretName" . }}
 {{- $secretKey := (lookup "v1" "Secret" .Release.Namespace $brokerSecret).data }}
 {{- $keyValue := (get $secretKey .Values.connections.brokerSecretKeyName) | b64dec }}
 {{- if .Values.connections.brokerUri -}}
@@ -231,9 +231,9 @@ Get the Broker URI
 {{- end -}}
 
 {{/*
-Get the DocSpace Url Portal
+Get the ONLYOFFICE Apps Url Portal
 */}}
-{{- define "docspace.url.portal" -}}
+{{- define "apps.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
     {{- printf "" -}}
 {{- else if and .Values.connections.documentServerUrlExternal .Values.router.service.existing -}}
@@ -250,7 +250,7 @@ Get the DocSpace Url Portal
 {{/*
 Get the jwt secret name
 */}}
-{{- define "docspace.jwt.secretName" -}}
+{{- define "apps.jwt.secretName" -}}
 {{- if .Values.jwt.existingSecret -}}
     {{- printf "%s" (tpl .Values.jwt.existingSecret $) -}}
 {{- else }}
@@ -261,7 +261,7 @@ Get the jwt secret name
 {{/*
 Return true if a secret object should be created for jwt
 */}}
-{{- define "docspace.jwt.createSecret" -}}
+{{- define "apps.jwt.createSecret" -}}
 {{- if empty .Values.jwt.existingSecret }}
     {{- true -}}
 {{- end -}}
@@ -270,7 +270,7 @@ Return true if a secret object should be created for jwt
 {{/*
 Get a secret name containing Core Machine Key
 */}}
-{{- define "docspace.coreMachineKey.secretName" -}}
+{{- define "apps.coreMachineKey.secretName" -}}
 {{- if .Values.connections.appCoreMachinekey.existingSecret -}}
     {{- printf "%s" (tpl .Values.connections.appCoreMachinekey.existingSecret $) -}}
 {{- else }}
@@ -281,7 +281,7 @@ Get a secret name containing Core Machine Key
 {{/*
 Return true if a secret object should be created for Core Machine Key
 */}}
-{{- define "docspace.coreMachineKey.createSecret" -}}
+{{- define "apps.coreMachineKey.createSecret" -}}
 {{- if empty .Values.connections.appCoreMachinekey.existingSecret }}
     {{- true -}}
 {{- end -}}
@@ -290,7 +290,7 @@ Return true if a secret object should be created for Core Machine Key
 {{/*
 Return Core Machine Key
 */}}
-{{- define "docspace.secret.coreMachineKey" -}}
+{{- define "apps.secret.coreMachineKey" -}}
 {{- if not (empty .Values.connections.appCoreMachinekey.secretKey) }}
     {{- .Values.connections.appCoreMachinekey.secretKey }}
 {{- else }}
@@ -299,9 +299,9 @@ Return Core Machine Key
 {{- end -}}
 
 {{/*
-Return resolver for DocSpace Router
+Return resolver for ONLYOFFICE Apps Router
 */}}
-{{- define "docspace.router.resolver" -}}
+{{- define "apps.router.resolver" -}}
 {{- if .Values.router.resolver.dns -}}
     {{- .Values.router.resolver.dns -}}
 {{- else -}}
@@ -310,18 +310,18 @@ Return resolver for DocSpace Router
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for DocSpace Router
+Return true if a service object should be created for ONLYOFFICE Apps Router
 */}}
-{{- define "docspace.svc.router.create" -}}
+{{- define "apps.svc.router.create" -}}
 {{- if empty .Values.router.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the service name for DocSpace Router
+Get the service name for ONLYOFFICE Apps Router
 */}}
-{{- define "docspace.svc.router.name" -}}
+{{- define "apps.svc.router.name" -}}
 {{- if .Values.router.service.existing -}}
     {{- printf "%s" (tpl .Values.router.service.existing $) -}}
 {{- else -}}
@@ -330,18 +330,18 @@ Get the service name for DocSpace Router
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for DocSpace Proxy Frontend
+Return true if a service object should be created for ONLYOFFICE Apps Proxy Frontend
 */}}
-{{- define "docspace.svc.proxyFrontend.create" -}}
+{{- define "apps.svc.proxyFrontend.create" -}}
 {{- if empty .Values.proxyFrontend.service.existing }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the service name for DocSpace Proxy Frontend
+Get the service name for ONLYOFFICE Apps Proxy Frontend
 */}}
-{{- define "docspace.svc.proxyFrontend.name" -}}
+{{- define "apps.svc.proxyFrontend.name" -}}
 {{- if .Values.proxyFrontend.service.existing -}}
     {{- printf "%s" (tpl .Values.proxyFrontend.service.existing $) -}}
 {{- else -}}
@@ -350,9 +350,9 @@ Get the service name for DocSpace Proxy Frontend
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace Data
+Get the PVC name for ONLYOFFICE Apps Data
 */}}
-{{- define "docspace.pvc.data.name" -}}
+{{- define "apps.pvc.data.name" -}}
 {{- if .Values.persistence.docspaceData.existingClaim -}}
     {{- printf "%s" (tpl .Values.persistence.docspaceData.existingClaim $) -}}
 {{- else }}
@@ -361,18 +361,18 @@ Get the PVC name for DocSpace Data
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for DocSpace Data
+Return true if a pvc object should be created for ONLYOFFICE Apps Data
 */}}
-{{- define "docspace.pvc.data.create" -}}
+{{- define "apps.pvc.data.create" -}}
 {{- if empty .Values.persistence.docspaceData.existingClaim }}
     {{- true -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace Router log
+Get the PVC name for ONLYOFFICE Apps Router log
 */}}
-{{- define "docspace.pvc.router.name" -}}
+{{- define "apps.pvc.router.name" -}}
 {{- if .Values.persistence.routerLog.existingClaim -}}
     {{- printf "%s" (tpl .Values.persistence.routerLog.existingClaim $) -}}
 {{- else }}
@@ -381,9 +381,9 @@ Get the PVC name for DocSpace Router log
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for DocSpace Router log
+Return true if a pvc object should be created for ONLYOFFICE Apps Router log
 */}}
-{{- define "docspace.pvc.router.create" -}}
+{{- define "apps.pvc.router.create" -}}
 {{- if empty .Values.persistence.routerLog.existingClaim }}
     {{- true -}}
 {{- end -}}
@@ -392,7 +392,7 @@ Return true if a pvc object should be created for DocSpace Router log
 {{/*
 Return true if a secret object should be created for Identity
 */}}
-{{- define "docspace.identity.createSecret" -}}
+{{- define "apps.identity.createSecret" -}}
 {{- if empty .Values.identity.secret.existingSecret }}
     {{- true -}}
 {{- end -}}
@@ -401,7 +401,7 @@ Return true if a secret object should be created for Identity
 {{/*
 Get a secret name containing Spring encryption secret
 */}}
-{{- define "docspace.identity.secretName" -}}
+{{- define "apps.identity.secretName" -}}
   {{- if .Values.identity.secret.existingSecret -}}
     {{- printf "%s" (tpl .Values.identity.secret.existingSecret $) -}}
   {{- else -}}
@@ -412,7 +412,7 @@ Get a secret name containing Spring encryption secret
 {{/*
 Generate a random 512-bit secret if the secret does not already exist
 */}}
-{{- define "docspace.generateSecret" -}}
+{{- define "apps.generateSecret" -}}
 {{- $context := index . 0 -}}
 {{- $existValue := index . 1 -}}
 {{- $getSecretName := index . 2 -}}
@@ -433,7 +433,7 @@ Generate a random 512-bit secret if the secret does not already exist
 {{/*
 Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION_SECRET
 */}}
-{{- define "docspace.identity.springEncryptionValue" -}}
+{{- define "apps.identity.springEncryptionValue" -}}
 {{- $val := .Values.identity.secret.springEncryptionValue }}
 {{- if and $val (ne $val "") }}
   {{- $val }}
@@ -447,7 +447,7 @@ Determine what value to pass to generateSecret for SPRING_APPLICATION_ENCRYPTION
 {{/*
 Defines the APP_CORE_SERVER_ROOT value for single-portal setups
 */}}
-{{- define "docspace.singlePortalDomain.appCoreServerRoot" -}}
+{{- define "apps.singlePortalDomain.appCoreServerRoot" -}}
 {{- if .Values.ingress.tls.enabled }}
 https://*/
 {{- else if .Values.singlePortalDomain.job.env.appCoreServerRoot }}
@@ -460,7 +460,7 @@ https://*/
 {{/*
 Get the domain for single-portal setups
 */}}
-{{- define "docspace.singlePortalDomain.domain" -}}
+{{- define "apps.singlePortalDomain.domain" -}}
 {{- if .Values.ingress.host }}
 {{ .Values.ingress.host }}
 {{- else if .Values.singlePortalDomain.job.env.domain }}
@@ -469,8 +469,8 @@ Get the domain for single-portal setups
 {{- end }}
 
 {{/*
-Get the Gateway name for DocSpace
+Get the Gateway name for ONLYOFFICE Apps
 */}}
-{{- define "docspace.gateway.name" -}}
+{{- define "apps.gateway.name" -}}
 {{- default (printf "%s-gateway" .Release.Name) .Values.gateway.name }}
 {{- end }}
