@@ -368,6 +368,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.aiHost`                                   | The name of the ONLYOFFICE DocSpace AI service                                                                             | `ai`                           |
 | `connections.aiWorkerHost`                            | The name of the ONLYOFFICE DocSpace AI Worker service                                                                     | `ai-worker`                          |
 | `connections.aiMCPHost`                                | The name of the ONLYOFFICE DocSpace AI MCP service                                                                     | `ai-mcp`                      |
+| `connections.newaiHost`                                | The name of the ONLYOFFICE DocSpace New AI service                                                                     | `newai`                       |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
 | `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
@@ -473,7 +474,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 * Application* Note: Since all available Applications have some identical parameters, a description for each of them has not been added to the table, but combined into one.
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupWorker`, 
-`clearEvents`, `doceditor`, `filesWorker`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `aiWorker` and `aiMCP`.
+`clearEvents`, `doceditor`, `filesWorker`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `aiWorker`, `aiMCP` and `newai`.
 
 ### ONLYOFFICE DocSpace Router Application additional parameters
 
