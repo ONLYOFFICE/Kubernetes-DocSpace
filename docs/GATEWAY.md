@@ -1,14 +1,14 @@
-# Exposing ONLYOFFICE DocSpace via Gateway API
+# Exposing ONLYOFFICE Apps via Gateway API
 
-As an alternative to the classic [Ingress](../README.md#12-expose-onlyoffice-docspace-via-ingress), ONLYOFFICE DocSpace can be exposed via the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting the `gateway.enabled` parameter to `true`. All Gateway API settings live under the `gateway.*` block.
+As an alternative to the classic [Ingress](../README.md#12-expose-onlyoffice-apps-via-ingress), ONLYOFFICE Apps can be exposed via the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting the `gateway.enabled` parameter to `true`. All Gateway API settings live under the `gateway.*` block.
 
 ## Prerequisites
 
 Before you begin, install the Gateway API CRDs and a controller. For [NGINX Gateway Fabric](https://docs.nginx.com/nginx-gateway-fabric/) (GatewayClass `nginx`), follow its official [installation guide](https://docs.nginx.com/nginx-gateway-fabric/install/helm/). If you want a different Gateway API implementation, install it according to its own docs and set the `gateway.gatewayClassName` parameter accordingly.
 
-## Expose ONLYOFFICE DocSpace via HTTP
+## Expose ONLYOFFICE Apps via HTTP
 
-To expose ONLYOFFICE DocSpace via the Gateway API over HTTP, set the `gateway.enabled` and the `gateway.host` parameters:
+To expose ONLYOFFICE Apps via the Gateway API over HTTP, set the `gateway.enabled` and the `gateway.host` parameters:
 
 ```bash
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set gateway.enabled=true --set gateway.host=docspace.example.com
@@ -24,11 +24,11 @@ $ kubectl get gateway [RELEASE_NAME]-gateway -o jsonpath="{.status.addresses[*].
 
 Associate the Gateway address with your domain name through your DNS provider.
 
-In this case, ONLYOFFICE DocSpace will be available at `http://docspace.example.com/`.
+In this case, ONLYOFFICE Apps will be available at `http://docspace.example.com/`.
 
-## Expose ONLYOFFICE DocSpace via HTTPS
+## Expose ONLYOFFICE Apps via HTTPS
 
-This type of exposure allows you to enable internal TLS termination for ONLYOFFICE DocSpace.
+This type of exposure allows you to enable internal TLS termination for ONLYOFFICE Apps.
 
 Create the `tls-gw` secret with an ssl certificate inside. Put the ssl certificate and the private key into the `tls.crt` and `tls.key` files and then run:
 
@@ -52,9 +52,9 @@ $ kubectl get gateway [RELEASE_NAME]-gateway -o jsonpath="{.status.addresses[*].
 
 Associate the Gateway address with your domain name through your DNS provider.
 
-After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`.
+After that, ONLYOFFICE Apps will be available at `https://your-domain-name/`.
 
-## Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate
+## Expose ONLYOFFICE Apps via HTTPS using the Let's Encrypt certificate
 
 - Add Helm repositories:
   ```bash
@@ -92,7 +92,7 @@ The chart creates a `ClusterIssuer`, and cert-manager solves the ACME HTTP-01 ch
 $ kubectl describe certificate <gateway.ssl.secret>
 ```
 
-After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`.
+After that, ONLYOFFICE Apps will be available at `https://your-domain-name/`.
 
 ## Optional HTTP to HTTPS redirect
 
@@ -100,7 +100,7 @@ To redirect all HTTP traffic to HTTPS, set the `gateway.ssl.redirect.enabled` pa
 
 ## Attach to an external Gateway
 
-To attach ONLYOFFICE DocSpace to a `Gateway` managed outside this chart, set the `gateway.external.parentRefs` parameter — in this case the chart does not create its own `Gateway`. Set the `gateway.external.redirectParentRefs` parameter as well if you want the chart to also manage the HTTP to HTTPS redirect route on that Gateway:
+To attach ONLYOFFICE Apps to a `Gateway` managed outside this chart, set the `gateway.external.parentRefs` parameter — in this case the chart does not create its own `Gateway`. Set the `gateway.external.redirectParentRefs` parameter as well if you want the chart to also manage the HTTP to HTTPS redirect route on that Gateway:
 
 ```yaml
 gateway:
@@ -122,7 +122,7 @@ gateway:
 
 ## Client settings (NGINX Gateway Fabric)
 
-The `gateway.clientSettingsPolicy` parameter renders a `ClientSettingsPolicy` attached to the ONLYOFFICE DocSpace `HTTPRoute`. By default it raises the maximum request body size to `100m`, which is useful for large file uploads:
+The `gateway.clientSettingsPolicy` parameter renders a `ClientSettingsPolicy` attached to the ONLYOFFICE Apps `HTTPRoute`. By default it raises the maximum request body size to `100m`, which is useful for large file uploads:
 
 ```yaml
 gateway:

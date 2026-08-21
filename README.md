@@ -1,5 +1,5 @@
-# ONLYOFFICE DocSpace for Kubernetes
-The following guide covers the installation process of the ‘ONLYOFFICE DocSpace’ into a Kubernetes cluster or OpenShift cluster.
+# ONLYOFFICE Apps for Kubernetes
+The following guide covers the installation process of the ‘ONLYOFFICE Apps’ into a Kubernetes cluster or OpenShift cluster.
 
 ## Contents
 - [Requirements](#requirements)
@@ -13,41 +13,41 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [7. Install ONLYOFFICE Docs](#7-install-onlyoffice-docs)
   * [8. Make changes to the configuration files (optional)](#8-make-changes-to-the-configuration-files-optional)
     + [8.1 Create a Secret containing a json file](#81-create-a-secret-containing-a-json-file)
-    + [8.2 Specify parameters when installing ONLYOFFICE DocSpace](#82-specify-parameters-when-installing-onlyoffice-docspace)
-- [Deploy ONLYOFFICE DocSpace](#deploy-onlyoffice-docspace)
+    + [8.2 Specify parameters when installing ONLYOFFICE Apps](#82-specify-parameters-when-installing-onlyoffice-apps)
+- [Deploy ONLYOFFICE Apps](#deploy-onlyoffice-apps)
   * [1. Add a license](#1-add-a-license)
-  * [2. Install ONLYOFFICE DocSpace](#2-install-onlyoffice-docspace)
-  * [3. Uninstall ONLYOFFICE DocSpace](#3-uninstall-onlyoffice-docspace)
-  * [4. Upgrade ONLYOFFICE DocSpace](#4-upgrade-onlyoffice-docspace)
+  * [2. Install ONLYOFFICE Apps](#2-install-onlyoffice-apps)
+  * [3. Uninstall ONLYOFFICE Apps](#3-uninstall-onlyoffice-apps)
+  * [4. Upgrade ONLYOFFICE Apps](#4-upgrade-onlyoffice-apps)
 - [Parameters](#parameters)
   * [Common parameters](#common-parameters)
-  * [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters)
-  * [ONLYOFFICE DocSpace Router Application additional parameters](#onlyoffice-docspace-router-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Socket Application additional parameters](#onlyoffice-docspace-socket-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Ssoauth Application additional parameters](#onlyoffice-docspace-ssoauth-application-additional-parameters)
-  * [ONLYOFFICE DocSpace Proxy Frontend Application additional parameters](#onlyoffice-docspace-proxy-frontend-application-additional-parameters)
+  * [ONLYOFFICE Apps Application parameters](#onlyoffice-apps-application-parameters)
+  * [ONLYOFFICE Apps Router Application additional parameters](#onlyoffice-apps-router-application-additional-parameters)
+  * [ONLYOFFICE Apps Socket Application additional parameters](#onlyoffice-apps-socket-application-additional-parameters)
+  * [ONLYOFFICE Apps Ssoauth Application additional parameters](#onlyoffice-apps-ssoauth-application-additional-parameters)
+  * [ONLYOFFICE Apps Proxy Frontend Application additional parameters](#onlyoffice-apps-proxy-frontend-application-additional-parameters)
   * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
-  * [ONLYOFFICE DocSpace Ingress parameters](#onlyoffice-docspace-ingress-parameters)
-  * [ONLYOFFICE DocSpace Gateway API parameters](#onlyoffice-docspace-gateway-api-parameters)
-  * [ONLYOFFICE DocSpace Jobs parameters](#onlyoffice-docspace-jobs-parameters)
-  * [ONLYOFFICE DocSpace Elasticsearch parameters](#onlyoffice-docspace-opensearch-parameters)
-  * [ONLYOFFICE DocSpace Test parameters](#onlyoffice-docspace-test-parameters)
+  * [ONLYOFFICE Apps Ingress parameters](#onlyoffice-apps-ingress-parameters)
+  * [ONLYOFFICE Apps Gateway API parameters](#onlyoffice-apps-gateway-api-parameters)
+  * [ONLYOFFICE Apps Jobs parameters](#onlyoffice-apps-jobs-parameters)
+  * [ONLYOFFICE Apps Elasticsearch parameters](#onlyoffice-apps-opensearch-parameters)
+  * [ONLYOFFICE Apps Test parameters](#onlyoffice-apps-test-parameters)
 - [Configuration and installation details](#configuration-and-installation-details)
-  * [1. Expose ONLYOFFICE DocSpace](#1-expose-onlyoffice-docspace)
-    + [1.1 Expose ONLYOFFICE DocSpace via Service (HTTP Only)](#11-expose-onlyoffice-docspace-via-service-http-only)
-    + [1.2 Expose ONLYOFFICE DocSpace via Ingress](#12-expose-onlyoffice-docspace-via-ingress)
+  * [1. Expose ONLYOFFICE Apps](#1-expose-onlyoffice-apps)
+    + [1.1 Expose ONLYOFFICE Apps via Service (HTTP Only)](#11-expose-onlyoffice-apps-via-service-http-only)
+    + [1.2 Expose ONLYOFFICE Apps via Ingress](#12-expose-onlyoffice-apps-via-ingress)
     + [1.2.1 Installing F5 NGINX Ingress Controller](#121-installing-f5-nginx-ingress-controller)
-    + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
-    + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
-    + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
-    + [1.3 Expose ONLYOFFICE DocSpace via Gateway API](#13-expose-onlyoffice-docspace-via-gateway-api)
+    + [1.2.2 Expose ONLYOFFICE Apps via HTTP](#122-expose-onlyoffice-apps-via-http)
+    + [1.2.3 Expose ONLYOFFICE Apps via HTTPS](#123-expose-onlyoffice-apps-via-https)
+    + [1.2.4 Expose ONLYOFFICE Apps via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-apps-via-https-using-the-lets-encrypt-certificate)
+    + [1.3 Expose ONLYOFFICE Apps via Gateway API](#13-expose-onlyoffice-apps-via-gateway-api)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
-  * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
+  * [3. Scale ONLYOFFICE Apps (optional)](#3-scale-onlyoffice-apps-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
     + [3.2 Manual scaling](#32-manual-scaling)
   * [4. Encryption Key Management for Identity](#4-encryption-key-management-for-identity)
   * [5. Configuring Domain Name for Email Notifications](#5-configuring-domain-name-for-email-notifications)
-- [ONLYOFFICE DocSpace installation test (optional)](#onlyoffice-docspace-installation-test-optional)
+- [ONLYOFFICE Apps installation test (optional)](#onlyoffice-apps-installation-test-optional)
 
 ## Requirements
 
@@ -57,7 +57,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
   - Helm v3.15+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
-  - If the installation of components external to ‘ONLYOFFICE DocSpace’ is performed from Helm Chart in an OpenShift cluster, then it is recommended to install them from a user who has the `cluster-admin` role, in order to avoid possible problems with access rights. See [this](https://docs.openshift.com/container-platform/4.7/authentication/using-rbac.html) guide to add the necessary roles to the user.
+  - If the installation of components external to ‘ONLYOFFICE Apps’ is performed from Helm Chart in an OpenShift cluster, then it is recommended to install them from a user who has the `cluster-admin` role, in order to avoid possible problems with access rights. See [this](https://docs.openshift.com/container-platform/4.7/authentication/using-rbac.html) guide to add the necessary roles to the user.
 
 ## Deploy prerequisites
 
@@ -99,7 +99,7 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 
 *The PersistentVolume type to be used for PVC placement must support Access Mode [ReadWriteMany](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes).*
 
-*Also, PersistentVolume must have as the owner the user from whom the ONLYOFFICE DocSpace will be started. By default it is `onlyoffice` (104:107).*
+*Also, PersistentVolume must have as the owner the user from whom the ONLYOFFICE Apps will be started. By default it is `onlyoffice` (104:107).*
 
 ### 3. Install MySQL
 
@@ -107,7 +107,7 @@ To install MySQL to your cluster, run the following command:
 
 ```bash
 $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml --version 14.0.3 bitnami/mysql \
-  --set auth.database=docspace \
+  --set auth.database=onlyoffice_apps \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set primary.persistence.size=PERSISTENT_SIZE \
@@ -167,27 +167,27 @@ See more details about installing Redis via Helm [here](https://github.com/bitna
 
 ### 6. Install OpenSearch
 
-To install OpenSearch to your cluster, set the `opensearch.enabled=true` parameter when installing ONLYOFFICE DocSpace.
+To install OpenSearch to your cluster, set the `opensearch.enabled=true` parameter when installing ONLYOFFICE Apps.
 
-If you want to connect ONLYOFFICE DocSpace with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkScheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
+If you want to connect ONLYOFFICE Apps with an external OpenSearch instance, you need to specify the corresponding values in `connections.elkScheme`, `connections.elkHost`, `connections.elkPort`, `connections.elkThreads` parameters and define `opensearch.enabled` parameter as `false`.
 
 ### 7. Install ONLYOFFICE Docs
 
-NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your DocSpace license, set the value in the `global.installationType` parameter. Possible values are `DEVELOPER` - Developer Edition or `ENTERPRISE` - Enterprise Edition. By default - `ENTERPRISE`. According to the specified value, Docs with the same solution type will be installed.
+NOTE: By default, an installation made specifically for Kubernetes is used. This is added as a [Helm Subchart](https://helm.sh/docs/chart_template_guide/subcharts_and_globals/). See more details about installing ONLYOFFICE Docs in Kubernetes via Helm [here](https://github.com/ONLYOFFICE/Kubernetes-Docs). Depending on the type of your ONLYOFFICE Apps license, set the value in the `global.installationType` parameter. Possible values are `DEVELOPER` - Developer Edition or `ENTERPRISE` - Enterprise Edition. By default - `ENTERPRISE`. According to the specified value, Docs with the same solution type will be installed.
 
-if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE DocSpace is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
-Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE DocSpace is planned, for example, `documentserver.ds:8888`.
-Also, in the `connections.appUrlPortal` parameter, specify the router service name of the ONLYOFFICE DocSpace and the Namespace in which ONLYOFFICE DocSpace will be deployed, for example, `http://router.default:8092`.
+if you plan to use the already installed Onlyoffice Docs and it is deployed in the same cluster as ONLYOFFICE Apps is planned to be deployed, then specify the name of the service in the `connections.documentServerHost` parameter and set `false` in the `docs.enabled` parameter.
+Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE Apps is planned, for example, `documentserver.ds:8888`.
+Also, in the `connections.appUrlPortal` parameter, specify the router service name of the ONLYOFFICE Apps and the Namespace in which ONLYOFFICE Apps will be deployed, for example, `http://router.default:8092`.
 
-If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE DocSpace is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE DocSpace](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-docspace), for example, `https://docspace.example.com`.
+If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE Apps is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE Apps](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-apps), for example, `https://docspace.example.com`.
 
-Also, when using Kubernetes-Docs, installed not as a subchart, specify the DocSpace JWT parameters the same as in Docs in `jwt.secret`, `jwt.header`, etc.
+Also, when using Kubernetes-Docs, installed not as a subchart, specify the ONLYOFFICE Apps JWT parameters the same as in Docs in `jwt.secret`, `jwt.header`, etc.
 
 ### 8. Make changes to the configuration files (optional)
 
 #### 8.1 Create a Secret containing a json file
 
-To create a Secret containing configuration files for overriding default values and additional configuration files for ONLYOFFICE DocSpace, you need to run the following command:
+To create a Secret containing configuration files for overriding default values and additional configuration files for ONLYOFFICE Apps, you need to run the following command:
 
 ```bash
 $ kubectl create secret generic docspace-custom-config \
@@ -201,15 +201,15 @@ Note: The example above shows two configuration files. You can use as many as yo
 
 Note: When using the `test` suffix in the file name, set the `connections.envExtension` parameter to `test`.
 
-#### 8.2 Specify parameters when installing ONLYOFFICE DocSpace
+#### 8.2 Specify parameters when installing ONLYOFFICE Apps
 
-When installing ONLYOFFICE DocSpace, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
+When installing ONLYOFFICE Apps, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
-Note: If you need to add a configuration file after the ONLYOFFICE DocSpace is already installed, you need to execute step [8.1](#81-create-a-secret-containing-a-json-file)
+Note: If you need to add a configuration file after the ONLYOFFICE Apps is already installed, you need to execute step [8.1](#81-create-a-secret-containing-a-json-file)
 and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
 `helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
 
-## Deploy ONLYOFFICE DocSpace
+## Deploy ONLYOFFICE Apps
 
 Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
 
@@ -228,7 +228,7 @@ $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabl
 
 ### 1. Add a license
 
-If you have a valid ONLYOFFICE DocSpace license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
+If you have a valid ONLYOFFICE Apps license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
 
 ```bash
 $ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set global.installationType=ENTERPRISE
@@ -236,21 +236,21 @@ $ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set global.in
 
 At the wizard page during the first login please add your license using the corresponding field.
 
-### 2. Install ONLYOFFICE DocSpace
+### 2. Install ONLYOFFICE Apps
 
-Note: In the `connections.appKnownNetworks` parameter, specify the address ranges of the Kubernetes cluster networks, as well as the networks in which the proxies that you are using in front of DocSpace services, from which the forwarded headers for ONLYOFFICE DocSpace services will be received. Default value - `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`
+Note: In the `connections.appKnownNetworks` parameter, specify the address ranges of the Kubernetes cluster networks, as well as the networks in which the proxies that you are using in front of ONLYOFFICE Apps services, from which the forwarded headers for ONLYOFFICE Apps services will be received. Default value - `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`
 
-To install ONLYOFFICE DocSpace to your cluster, run the following command:
+To install ONLYOFFICE Apps to your cluster, run the following command:
 
 ```bash
 $ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace
 ```
 
-The command deploys ONLYOFFICE DocSpace on the Kubernetes cluster in the default configuration. The [Parameters] section lists the parameters that can be configured during installation.
+The command deploys ONLYOFFICE Apps on the Kubernetes cluster in the default configuration. The [Parameters] section lists the parameters that can be configured during installation.
 
 _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documentation._
 
-### 3. Uninstall ONLYOFFICE DocSpace
+### 3. Uninstall ONLYOFFICE Apps
 
 To uninstall/delete the `docspace` deployment:
 
@@ -262,7 +262,7 @@ The `helm uninstall` command removes all the Kubernetes components associated wi
 
 _See [helm uninstall](https://helm.sh/docs/helm/helm_uninstall/) for command documentation._
 
-### 4. Upgrade ONLYOFFICE DocSpace
+### 4. Upgrade ONLYOFFICE Apps
 
 Note: If you have Elasticsearch installed, please read [this section](#2-transition-from-elasticsearch-to-opensearch).
 
@@ -283,14 +283,14 @@ Or modify the `values.yaml` file and run the command:
   $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace
   ```
 
-Running the `helm upgrade` command runs a hook that cleans up the directory with libraries and then fills with new ones. This is needed when updating the version of ONLYOFFICE DocSpace. The default hook execution time is 300s.
+Running the `helm upgrade` command runs a hook that cleans up the directory with libraries and then fills with new ones. This is needed when updating the version of ONLYOFFICE Apps. The default hook execution time is 300s.
 The execution time can be changed using `--timeout [time]`, for example:
 
 ```bash
 $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace --timeout 15m
 ```
 
-If you want to update any parameter other than the version of the ONLYOFFICE DocSpace, then run the `helm upgrade` command without `hooks`, for example:
+If you want to update any parameter other than the version of the ONLYOFFICE Apps, then run the `helm upgrade` command without `hooks`, for example:
 
 ```bash
 $ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set jwt.enabled=false --no-hooks
@@ -312,14 +312,14 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 
 | Parameter                                              | Description                                                                                                                 | Default                       |
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `global.installationType`                              | Defines solution type for DocSpace and Docs. Possible values are `DEVELOPER` or `ENTERPRISE`                                | `ENTERPRISE`                  |
+| `global.installationType`                              | Defines solution type for ONLYOFFICE Apps and Docs. Possible values are `DEVELOPER` or `ENTERPRISE`                                | `ENTERPRISE`                  |
 | `connections.envExtension`                             | Defines whether an environment will be used                                                                                 | `""`                          |
 | `connections.installationType`                         | Deprecated. Use `global.installationType` instead. The parameter is evaluated as a template and is equal to `global.installationType` | {{ .Values.global.installationType }} |
 | `connections.migrationType`                            | Defines migration type                                                                                                      | `STANDALONE`                  |
 | `connections.mysqlDatabaseMigration`                   | Enables database migration                                                                                                  | `false`                       |
 | `connections.mysqlHost`                                | The IP address or the name of the Database host                                                                             | `mysql`                       |
 | `connections.mysqlPort`                                | Database server port number                                                                                                 | `3306`                        |
-| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. The database must already exist                                | `docspace`                    |
+| `connections.mysqlDatabase`                            | Name of the Database the application will be connected with. The database must already exist                                | `onlyoffice_apps`                    |
 | `connections.mysqlUser`                                | Database user                                                                                                               | `onlyoffice_user`             |
 | `connections.mysqlPassword`                            | Database user password. If set to, it takes priority over the `connections.mysqlExistingSecret`                             | `""`                          |
 | `connections.mysqlExistingSecret`                      | Name of existing secret to use for Database passwords. Must contain the key specified in `connections.mysqlSecretKeyPassword` | `mysql`                     |
@@ -345,63 +345,63 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `connections.elkHost`                                  | The IP address or the name of the Opensearch host                                                                           | `opensearch`                  |
 | `connections.elkPort`                                  | The port for the connection to Opensearch                                                                                   | `9200`                        |
 | `connections.elkThreads`                               | Number of threads in Opensearch                                                                                             | `1`                           |
-| `connections.apiHost`                                  | The name of the ONLYOFFICE DocSpace Api service                                                                             | `api`                         |
-| `connections.apiSystemHost`                            | The name of the ONLYOFFICE DocSpace Api System service                                                                      | `api-system`                  |
-| `connections.notifyHost`                               | The name of the ONLYOFFICE DocSpace Notify service                                                                          | `notify`                      |
-| `connections.studioNotifyHost`                         | The name of the ONLYOFFICE DocSpace Studio Notify service                                                                   | `studio-notify`               |
-| `connections.socketHost`                               | The name of the ONLYOFFICE DocSpace Socket service                                                                          | `socket`                      |
-| `connections.peopleServerHost`                         | The name of the ONLYOFFICE DocSpace People Server service                                                                   | `people-server`               |
-| `connections.filesHost`                                | The name of the ONLYOFFICE DocSpace Files service                                                                           | `files`                       |
-| `connections.filesWorkerHost`                        | The name of the ONLYOFFICE DocSpace Files Worker service                                                                  | `files-worker`              |
-| `connections.studioHost`                               | The name of the ONLYOFFICE DocSpace Studio service                                                                          | `studio`                      |
-| `connections.backupHost`                               | The name of the ONLYOFFICE DocSpace Backup service                                                                          | `backup`                      |
-| `connections.ssoauthHost`                              | The name of the ONLYOFFICE DocSpace SSO service                                                                             | `ssoauth`                     |
-| `connections.clearEventsHost`                          | The name of the ONLYOFFICE DocSpace Clear Events service                                                                    | `clear-events`                |
-| `connections.doceditorHost`                            | The name of the ONLYOFFICE DocSpace Doceditor service                                                                       | `doceditor`                   |
-| `connections.backupWorkerHost`                | The name of the ONLYOFFICE DocSpace Backup Worker service                                                         | `backup-worker`     |
-| `connections.loginHost`                                | The name of the ONLYOFFICE DocSpace Login service                                                                           | `login`                       |
-| `connections.healthchecksHost`                         | The name of the ONLYOFFICE DocSpace Healthchecks service                                                                    | `healthchecks`                |
-| `connections.identityApiHost`                          | The name of the ONLYOFFICE DocSpace Identity API service                                                                    | `identity-api`                |
-| `connections.identityAuthorizationHost`                | The name of the ONLYOFFICE DocSpace Identity service                                                                        | `identity-authorization`                |
-| `connections.sdkHost`                                  | The name of the DocSpace SDK service                                                                                        | `sdk`                         |
-| `connections.telegramHost`                               | The name of the ONLYOFFICE DocSpace Telegram service                                                                          | `telegram`                      |
-| `connections.aiHost`                                   | The name of the ONLYOFFICE DocSpace AI service                                                                             | `ai`                           |
-| `connections.aiWorkerHost`                            | The name of the ONLYOFFICE DocSpace AI Worker service                                                                     | `ai-worker`                          |
-| `connections.aiMCPHost`                                | The name of the ONLYOFFICE DocSpace AI MCP service                                                                     | `ai-mcp`                      |
-| `connections.newaiHost`                                | The name of the ONLYOFFICE DocSpace New AI service                                                                     | `newai`                       |
+| `connections.apiHost`                                  | The name of the ONLYOFFICE Apps Api service                                                                             | `api`                         |
+| `connections.apiSystemHost`                            | The name of the ONLYOFFICE Apps Api System service                                                                      | `api-system`                  |
+| `connections.notifyHost`                               | The name of the ONLYOFFICE Apps Notify service                                                                          | `notify`                      |
+| `connections.studioNotifyHost`                         | The name of the ONLYOFFICE Apps Studio Notify service                                                                   | `studio-notify`               |
+| `connections.socketHost`                               | The name of the ONLYOFFICE Apps Socket service                                                                          | `socket`                      |
+| `connections.peopleServerHost`                         | The name of the ONLYOFFICE Apps People Server service                                                                   | `people-server`               |
+| `connections.filesHost`                                | The name of the ONLYOFFICE Apps Files service                                                                           | `files`                       |
+| `connections.filesWorkerHost`                        | The name of the ONLYOFFICE Apps Files Worker service                                                                  | `files-worker`              |
+| `connections.studioHost`                               | The name of the ONLYOFFICE Apps Studio service                                                                          | `studio`                      |
+| `connections.backupHost`                               | The name of the ONLYOFFICE Apps Backup service                                                                          | `backup`                      |
+| `connections.ssoauthHost`                              | The name of the ONLYOFFICE Apps SSO service                                                                             | `ssoauth`                     |
+| `connections.clearEventsHost`                          | The name of the ONLYOFFICE Apps Clear Events service                                                                    | `clear-events`                |
+| `connections.doceditorHost`                            | The name of the ONLYOFFICE Apps Doceditor service                                                                       | `doceditor`                   |
+| `connections.backupWorkerHost`                | The name of the ONLYOFFICE Apps Backup Worker service                                                         | `backup-worker`     |
+| `connections.loginHost`                                | The name of the ONLYOFFICE Apps Login service                                                                           | `login`                       |
+| `connections.healthchecksHost`                         | The name of the ONLYOFFICE Apps Healthchecks service                                                                    | `healthchecks`                |
+| `connections.identityApiHost`                          | The name of the ONLYOFFICE Apps Identity API service                                                                    | `identity-api`                |
+| `connections.identityAuthorizationHost`                | The name of the ONLYOFFICE Apps Identity service                                                                        | `identity-authorization`                |
+| `connections.sdkHost`                                  | The name of the ONLYOFFICE Apps SDK service                                                                                        | `sdk`                         |
+| `connections.telegramHost`                               | The name of the ONLYOFFICE Apps Telegram service                                                                          | `telegram`                      |
+| `connections.aiHost`                                   | The name of the ONLYOFFICE Apps AI service                                                                             | `ai`                           |
+| `connections.aiWorkerHost`                            | The name of the ONLYOFFICE Apps AI Worker service                                                                     | `ai-worker`                          |
+| `connections.aiMCPHost`                                | The name of the ONLYOFFICE Apps AI MCP service                                                                     | `ai-mcp`                      |
+| `connections.newaiHost`                                | The name of the ONLYOFFICE Apps New AI service                                                                     | `newai`                       |
 | `connections.documentServerHost`                       | The name of the Document Server service. Used when installing a local Document Server (by default `docs.enabled=true`)      | `document-server`             |
 | `connections.documentServerUrlExternal`                | The address of the external Document Server. If set, the local Document Server will not be installed                        | `""`                          |
-| `connections.appUrlPortal`                             | URL for ONLYOFFICE DocSpace requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
-| `connections.appCoreBaseDomain`                        | The base domain on which the ONLYOFFICE DocSpace will be available                                                          | `localhost`                   |
-| `connections.appCoreMachinekey.secretKey`              | The secret key used in the ONLYOFFICE DocSpace                                                                              | `your_core_machinekey`        |
+| `connections.appUrlPortal`                             | URL for ONLYOFFICE Apps requests. By default, the name of the routing (Router) service and the port on which it accepts requests are used | `http://router:8092`   |
+| `connections.appCoreBaseDomain`                        | The base domain on which the ONLYOFFICE Apps will be available                                                          | `localhost`                   |
+| `connections.appCoreMachinekey.secretKey`              | The secret key used in the ONLYOFFICE Apps                                                                              | `your_core_machinekey`        |
 | `connections.appCoreMachinekey.existingSecret`         | The name of an existing secret containing Core Machine Key. Must contain the `APP_CORE_MACHINEKEY` key. If not specified, a secret will be created with the value set in `connections.appCoreMachinekey.secretKey` | `""` |
 | `connections.countWorkerConnections`                   | Defines the nginx config [worker_connections](https://nginx.org/en/docs/ngx_core_module.html#worker_connections) directive for routing (Router) service | `1024` |
 | `connections.nginxSnvsubstTemplateSuffix`              | A suffix of template files for rendering nginx configs in routing (Router) service                                          | `.template`                   |
 | `connections.oauthOrigin`                              | The address of the OAUTH2 server                                                                                            | `""`                          |
-| `connections.appKnownNetworks`                         | Defines the address ranges of known networks to accept forwarded headers from for ONLYOFFICE DocSpace services. In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here. Provide IP ranges using CIDR notation | `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` |
+| `connections.appKnownNetworks`                         | Defines the address ranges of known networks to accept forwarded headers from for ONLYOFFICE Apps services. In particular, the networks in which the proxies that you are using in front of ONLYOFFICE Apps services are located should be indicated here. Provide IP ranges using CIDR notation | `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` |
 | `connections.hostAliases`                              | Adds [additional entries](https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/) to the hosts file in containers                          | `[]` |
 | `connections.oauthRedirectURL`                         | Address of the oauth authorization server                                                                                   | `https://service.onlyoffice.com/oauth2.aspx` |
-| `namespaceOverride`                                    | The name of the namespace in which ONLYOFFICE DocSpace will be deployed. If not set, the name will be taken from `.Release.Namespace`  | `""`                          |
+| `namespaceOverride`                                    | The name of the namespace in which ONLYOFFICE Apps will be deployed. If not set, the name will be taken from `.Release.Namespace`  | `""`                          |
 | `commonLabels`                                         | Defines labels that will be additionally added to all the deployed resources. You can also use `tpl` as the value for the key | `{}`                        |
 | `commonAnnotations`                                    | Defines annotations that will be additionally added to all the deployed resources. You can also use `tpl` as the value for the key. Some resources may override the values specified here with their own | `{}` |
-| `podAnnotations`                                       | Map of annotations to add to the ONLYOFFICE DocSpace pods. Each Docspace application can override the values specified here with its own | `rollme: "{{ randAlphaNum 5 \| quote }}"` |
+| `podAnnotations`                                       | Map of annotations to add to the ONLYOFFICE Apps pods. Each Docspace application can override the values specified here with its own | `rollme: "{{ randAlphaNum 5 \| quote }}"` |
 | `serviceAccount.create`                                | Enable ServiceAccount creation                                                                                              | `false`                       |
 | `serviceAccount.name`                                  | Name of the ServiceAccount to be used. If not set and `serviceAccount.create` is `true` the name will be taken from `.Release.Name` or `serviceAccount.create` is `false` the name will be "default" | `""` |
 | `serviceAccount.annotations`                           | Map of annotations to add to the ServiceAccount                                                                             | `{}`                          |
 | `serviceAccount.automountServiceAccountToken`          | Enable auto mount of ServiceAccountToken on the serviceAccount created. Used only if `serviceAccount.create` is `true`      | `true`                        |
 | `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for `docs` and `elasticsearch` | `false`                |
-| `podSecurityContext.fsGroup`                           | Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the ONLYOFFICE DocSpace application Pods | `107`          |
-| `containerSecurityContext.enabled`                     | Enable security context for containers in ONLYOFFICE DocSpace application pods. Individual values for `docs` and `opensearch` | `false`                       |
-| `nodeSelector`                                         | Node labels for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
-| `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
+| `podSecurityContext.fsGroup`                           | Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the ONLYOFFICE Apps application Pods | `107`          |
+| `containerSecurityContext.enabled`                     | Enable security context for containers in ONLYOFFICE Apps application pods. Individual values for `docs` and `opensearch` | `false`                       |
+| `nodeSelector`                                         | Node labels for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `{}`                  |
+| `tolerations`                                          | Tolerations for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
-| `images.registry`                                      | Global image registry for all DocSpace applications.                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.2`                       |
-| `replicas`                                             | Global replica value for all DocSpace applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
-| `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
-| `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
+| `images.registry`                                      | Global image registry for all ONLYOFFICE Apps applications.                                                                        | `""`                          |
+| `images.tag`                                           | Global image tag for all ONLYOFFICE Apps applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.2`                       |
+| `replicas`                                             | Global replica value for all ONLYOFFICE Apps applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
+| `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the ONLYOFFICE Apps                                                        | `true`                        |
+| `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the ONLYOFFICE Apps                                        | `jwt_secret`                  |
 | `jwt.header`                                           | Defines the http header that will be used to send the JSON Web Token                                                        | `AuthorizationJwt`            |
-| `jwt.inBody`                                           | Specifies the enabling the token validation in the request body to the ONLYOFFICE DocSpace                                  | `false`                       |
+| `jwt.inBody`                                           | Specifies the enabling the token validation in the request body to the ONLYOFFICE Apps                                  | `false`                       |
 | `jwt.existingSecret`                                   | The name of an existing secret containing variables for jwt. If not specified, a secret named `jwt` will be created         | `""`                          |
 | `extraConf.secretName`                                 | The name of the Secret containing the json files that override the default values and additional configuration files        | `""`                          |
 | `extraConf.filename`                                   | The name of the json files that contains custom values and name additional configuration files. Must be the same as the `key` name in `extraConf.secretName`. May contain multiple values | `appsettings.test.json` |
@@ -415,8 +415,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
 | `initContainers.checkDB.resources.limits.memory`       | The Memory limits for the check-db initContainer                                                                            | `1Gi`                         |
 | `initContainers.checkDB.resources.limits.cpu`          | The CPU limits for the check-db initContainer                                                                               | `1000m`                       |
-| `initContainers.custom`                                | Defines custom containers that run before ONLYOFFICE DocSpace containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Docs`, `Router`, `Opensearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
-| `persistence.storageClass`                             | PVC Storage Class for ONLYOFFICE DocSpace data volume                                                                                  | `nfs`                         |
+| `initContainers.custom`                                | Defines custom containers that run before ONLYOFFICE Apps containers in a Pods. For example, a container that changes the owner of the PersistentVolume. For the `Docs`, `Router`, `Opensearch` and `Proxy Frontend` services, the corresponding individual parameters are used | `[]` |
+| `persistence.storageClass`                             | PVC Storage Class for ONLYOFFICE Apps data volume                                                                                  | `nfs`                         |
 | `persistence.docspaceData.existingClaim`               | The name of the existing PVC for storing files common to all services. If not specified, a PVC named "docspace-data" will be created | `""`                 |
 | `persistence.docspaceData.annotations`                 | Defines annotations that will be additionally added to common files PVC. If set to, it takes priority over the `commonAnnotations` | `{}`                   |
 | `persistence.docspaceData.size`                        | PVC Storage Request for common files volume                                                                                 | `8Gi`                         |
@@ -427,7 +427,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `podAntiAffinity.topologyKey`                          | Node label key to match                                                                                                     | `kubernetes.io/hostname`      |
 | `podAntiAffinity.weight`                               | Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`             |`100`                          |
 
-### ONLYOFFICE DocSpace Application* parameters
+### ONLYOFFICE Apps Application* parameters
 
 | Parameter                                                 | Description                                                                                                     | Default                                   |
 |-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
@@ -457,7 +457,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `Application.autoscaling.customMetricsType`               | Custom, additional or external autoscaling metrics for the "Application" deployment                                                                                               | `[]`                                                                                      |
 | `Application.autoscaling.behavior`                        | Configuring "Application" deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields                                                                           | `{}`                                                                                      |
 | `Application.image.registry`                              | "Application" container image registry. Takes priority over `images.registry`                                   | `""`                                      |
-| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/docspace-Application`         |
+| `Application.image.repository`                            | "Application" container image repository. Individual values for `proxyFrontend`, `docs` and `opensearch`        | `onlyoffice/apps-Application`         |
 | `Application.image.tag`                                   | "Application" container image tag. If set to, it takes priority over the `images.tag`. Individual values for `proxyFrontend`, `docs` and `opensearch` | `""` |
 | `Application.image.pullPolicy`                            | "Application" container image pull policy                                                                       | `IfNotPresent`                            |
 | `Application.containerSecurityContext.enabled`            | Enable security context for containers in "Application" pods. If set to, it takes priority over the `containerSecurityContext` | `false`                    |
@@ -476,7 +476,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 Instead of `Application`, the parameter name should have the following values: `files`, `peopleServer`, `router`, `healthchecks`, `apiSystem`, `api`, `backup`, `backupWorker`, 
 `clearEvents`, `doceditor`, `filesWorker`, `login`, `notify`, `socket`, `ssoauth`, `studio`, `studioNotify`, `proxyFrontend`, `docs`,  `opensearch`, `identity.authorization`, `identity.api`, `sdk`, `telegram`, `ai`, `aiWorker`, `aiMCP` and `newai`.
 
-### ONLYOFFICE DocSpace Router Application additional parameters
+### ONLYOFFICE Apps Router Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
@@ -499,19 +499,19 @@ Instead of `Application`, the parameter name should have the following values: `
 | `router.resolver.dns`                                    | [Configures](https://github.com/openresty/openresty/#resolvconf-parsing) name server used to resolve names of upstream servers into addresses. If set to, it takes priority over the `router.resolver.local` | `""` |
 | `router.resolver.local`                                  | Allows you to use the DNS configuration of the container. If set to `on`, the standard path "/etc/resolv.conf" will be used. You can specify an arbitrary path | `on` |
 
-### ONLYOFFICE DocSpace Socket Application additional parameters
+### ONLYOFFICE Apps Socket Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `socket.containerPorts.socket`                           | Socket additional container port                                                                                | `9899`               |
 
-### ONLYOFFICE DocSpace Ssoauth Application additional parameters
+### ONLYOFFICE Apps Ssoauth Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `ssoauth.containerPorts.sso`                             | Ssoauth additional container port                                                                               | `9834`               |
 
-### ONLYOFFICE DocSpace Identity Authorization and Identity API Applications common parameters
+### ONLYOFFICE Apps Identity Authorization and Identity API Applications common parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
@@ -527,25 +527,25 @@ Instead of `Application`, the parameter name should have the following values: `
 | `identity.secret.springEncryptionValue`        | The secret key used for encrypting sensitive data such as client_secret, access_token, and refresh_token                  | `true`               |
 | `identity.secret.generate`                     | If `true`, a new secret will be automatically generated. If you experience OAuth2 access issues, set this to `false`        | `true`               |
 
-### ONLYOFFICE DocSpace Identity Authorization Application additional parameters
+### ONLYOFFICE Apps Identity Authorization Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.authorization.containerPorts.authorization`                             | Identity additional container port                                                                               | `8080`               |
 
-### ONLYOFFICE DocSpace Identity API Application additional parameters
+### ONLYOFFICE Apps Identity API Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `identity.api.containerPorts.api`                             | Identity API additional container port                                                                               | `9090`               |
 
-### ONLYOFFICE DocSpace AI MCP Server Application additional parameters
+### ONLYOFFICE Apps AI MCP Server Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `aiMCP.containerPorts.app`                               | AI MCP container port                                                                                           | `5158`                  |
 
-### ONLYOFFICE DocSpace Proxy Frontend Application additional parameters
+### ONLYOFFICE Apps Proxy Frontend Application additional parameters
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
@@ -558,7 +558,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `proxyFrontend.containerPorts.https`                     | Proxy Frontend HTTPS container port                                                                             | `443`                |
 | `proxyFrontend.extraConf.customConfd.configMap`          | The name of the ConfigMap containing additional custom configuration files. These files will be map in the `/etc/nginx/conf.d/` directory of the container | `""` |
 | `proxyFrontend.extraConf.customConfd.fileName`           | The names of the configuration files containing additional custom configuration files. Must be the same as the `key` names in `proxyFrontend.extraConf.customConfd.configMap`. May contain multiple values | `example.conf` |
-| `proxyFrontend.hostname`                                 | The hostname (domainname) by which the ONLYOFFICE DocSpace will be available                                    | `""`                 |
+| `proxyFrontend.hostname`                                 | The hostname (domainname) by which the ONLYOFFICE Apps will be available                                    | `""`                 |
 | `proxyFrontend.tls.secretName`                           | The name of the TLS secret containing the certificate and its associated key                                    | `tls`                |
 | `proxyFrontend.tls.mountPath`                            | The path where the certificate and key will be mounted                                                          | `/etc/nginx/ssl`     |
 | `proxyFrontend.tls.crtName`                              | Name of the key containing the certificate                                                                      | `cert.crt`           |
@@ -574,18 +574,18 @@ Instead of `Application`, the parameter name should have the following values: `
 
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
-| `docs.enabled`                                           | Enables Onlyoffice Docs subchart installation. Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it | `true`                |
+| `docs.enabled`                                           | Enables Onlyoffice Docs subchart installation. Set to `false` if you plan to use the already installed Onlyoffice Docs or install ONLYOFFICE Apps without it | `true`                |
 | `docs.images.registry`                                   | Global image registry for Onlyoffice Docs containers.                                                           | `""`                     |
 | `docs.images.tag`                                        | Global image tag for Onlyoffice Docs containers.                                                                | `""`                     |
-| `docs.connections.dbType`                                | The Database type. By default, the same Database connection is used as for DocSpace                             | `mysql`                  |
+| `docs.connections.dbType`                                | The Database type. By default, the same Database connection is used as for ONLYOFFICE Apps                             | `mysql`                  |
 | `docs.connections.dbHost`                                | The IP address or the name of the Database host                                                                 | `mysql`                  |
 | `docs.connections.dbUser`                                | Database user                                                                                                   | `onlyoffice_user`        |
 | `docs.connections.dbPort`                                | Database server port number                                                                                     | `3306`                   |
-| `docs.connections.dbName`                                | Name of the Database database the application will be connected with. The database must already exist           | `docspace`               |
+| `docs.connections.dbName`                                | Name of the Database database the application will be connected with. The database must already exist           | `onlyoffice_apps`               |
 | `docs.connections.dbExistingSecret`                      | Name of existing secret to use for Database password. Must contain the key specified in `docs.connections.dbSecretKeyName` | `mysql`       |
 | `docs.connections.dbSecretKeyName`                       | The name of the key that contains the Database user password. If you set a password in `docs.connections.dbPassword`, a secret will be automatically created, the key name of which will be the value set here | `mysql-password` |
 | `docs.connections.dbPassword`                            | Database user password. If set to, it takes priority over the `docs.connections.dbExistingSecret`               | `""`                     |
-| `docs.connections.redisHost`                             | The IP address or the name of the Redis host. By default, the same Redis connection is used as for DocSpace, except for `docs.connections.redisDBNum` | `redis-master` |
+| `docs.connections.redisHost`                             | The IP address or the name of the Redis host. By default, the same Redis connection is used as for ONLYOFFICE Apps, except for `docs.connections.redisDBNum` | `redis-master` |
 | `docs.connections.redisPort`                             | The Redis server port number                                                                                    | `6379`                   |
 | `docs.connections.redisUser`                             | The Redis [user](https://redis.io/docs/management/security/acl/) name                                           | `default`                |
 | `docs.connections.redisDBNum`                            | Number of the Redis logical [database](https://redis.io/commands/select/) to be selected                        | `1`                      |
@@ -593,7 +593,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `docs.connections.redisSecretKeyName`                    | The name of the key that contains the Redis user password. If you set a password in `docs.connections.redisPassword`, a secret will be automatically created, the key name of which will be the value set here | `redis-password` |
 | `docs.connections.redisPassword`                         | The password set for the Redis account. If set to, it takes priority over the `docs.connections.redisExistingSecret` | `""`                |
 | `docs.connections.redisNoPass`                           | Defines whether to use a Redis auth without a password. If the connection to Redis server does not require a password, set the value to `true` | `false` |
-| `docs.connections.amqpType`                              | Defines the AMQP server type. By default, the same RabbitMQ connection is used as for DocSpace                  | `rabbitmq`               |
+| `docs.connections.amqpType`                              | Defines the AMQP server type. By default, the same RabbitMQ connection is used as for ONLYOFFICE Apps                  | `rabbitmq`               |
 | `docs.connections.amqpHost`                              | The IP address or the name of the AMQP server                                                                   | `rabbitmq`               |
 | `docs.connections.amqpPort`                              | The port for the connection to AMQP server                                                                      | `5672`                   |
 | `docs.connections.amqpVhost`                             | The virtual host for the connection to AMQP server                                                              | `/`                      |
@@ -603,23 +603,23 @@ Instead of `Application`, the parameter name should have the following values: `
 | `docs.connections.amqpSecretKeyName`                     | The name of the key that contains the AMQP server user password. If you set a password in `docs.connections.amqpPassword`, a secret will be automatically created, the key name of which will be the value set here | `rabbitmq-password` |
 | `docs.connections.amqpPassword`                          | AMQP server user password. If set to, it takes priority over the `docs.connections.amqpExistingSecret`          | `""`                     |
 | `docs.service.port`                                      | ONLYOFFICE Docs service port                                                                                    | `80`                     |
-| `docs.license.existingClaim`                             | Name of the existing PVC in which the license is stored. Must contain the file `license.lic`. By default, a PVC is connected, in which a license is added when using DocSpace Enterprise | `docspace-data` |
-| `docs.jwt.existingSecret`                                | The name of an existing secret containing variables for jwt. By default, the jwt secret is used, which will be created with values from the jwt DocSpace | `docspace-jwt` |
+| `docs.license.existingClaim`                             | Name of the existing PVC in which the license is stored. Must contain the file `license.lic`. By default, a PVC is connected, in which a license is added when using ONLYOFFICE Apps Enterprise | `docspace-data` |
+| `docs.jwt.existingSecret`                                | The name of an existing secret containing variables for jwt. By default, the jwt secret is used, which will be created with values from the jwt ONLYOFFICE Apps | `docspace-jwt` |
 | `docs.upgrade.job.enabled`                               | Enable the execution of job Docs pre-upgrade before upgrading. Set to `false` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `true` | `true` |
 | `docs.clearCache.job.enabled`                            | Enable the execution of job Docs Clear Cache after upgrading. Set to `false` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `true` | `true` |
 
-### ONLYOFFICE DocSpace Ingress parameters
+### ONLYOFFICE Apps Ingress parameters
 
 | Parameter                                                | Description                                                                                                     | Default                                                                                   |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `ingress.enabled`                                        | Enable the creation of an ingress for the ONLYOFFICE DocSpace                                                   | `false`                                                                                   |
+| `ingress.enabled`                                        | Enable the creation of an ingress for the ONLYOFFICE Apps                                                   | `false`                                                                                   |
 | `ingress.annotations`                                    | Map of annotations to add to the Ingress                                                                        | `nginx.org/client-max-body-size: 100m` |
 | `ingress.ingressClassName`                               | Used to reference the IngressClass that should be used to implement this Ingress                                | `nginx`                                                                                   |
 | `ingress.controllerName`                                 | Ingress controller type. Affects which controller-specific annotations are applied. Supported values: `nginx-ingress` (F5 NGINX, `nginx.org/` annotations), `ingress-nginx` (Kubernetes community, `nginx.ingress.kubernetes.io/` annotations) | `nginx-ingress` |
-| `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE DocSpace                                                                          | `false`                                                                                   |
+| `ingress.tls.enabled`                                    | Enable TLS for the ONLYOFFICE Apps                                                                          | `false`                                                                                   |
 | `ingress.tls.secretName`                                 | Secret name for TLS to mount into the Ingress                                                                   | `tls`                                                                                     |
-| `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE DocSpace ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
-| `ingress.host`                                           | Ingress hostname for the ONLYOFFICE DocSpace                                                                    | `""`                                                                                      |
+| `ingress.pathType                                        | Specifies the path type for the ONLYOFFICE Apps ingress resource. Allowed values: `Exact`, `Prefix` or `ImplementationSpecific` | `ImplementationSpecific`                                              |
+| `ingress.host`                                           | Ingress hostname for the ONLYOFFICE Apps                                                                    | `""`                                                                                      |
 | `ingress.tenants`                                        | Ingress hostnames if you need to use more than one name. For example, for multitenancy. If set to, it takes priority over the `ingress.host`. If `ingress.tls.enabled` is set to `true`, it is assumed that the certificate for all specified domains is kept secret by `ingress.tls.secretName` | `[]` |
 | `ingress.letsencrypt.enabled`                            | Enabling certificate request creation in Let's Encrypt. Used if `ingress.enabled` is set to `true`              | `false`                                                                                   |
 | `ingress.letsencrypt.clusterIssuerName`                  | ClusterIssuer Name                                                                                              | `letsencrypt-prod`                                                                        |
@@ -627,11 +627,11 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                         | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `ingress.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-private-key`                                                            |
 
-### ONLYOFFICE DocSpace Gateway API parameters
+### ONLYOFFICE Apps Gateway API parameters
 
 | Parameter                                                | Description                                                                                                     | Default                                                                                   |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `gateway.enabled`                                        | Enable the creation of Gateway and HTTPRoute resources for the ONLYOFFICE DocSpace                              | `false`                                                                                    |
+| `gateway.enabled`                                        | Enable the creation of Gateway and HTTPRoute resources for the ONLYOFFICE Apps                              | `false`                                                                                    |
 | `gateway.name`                                           | Name of the Gateway resource. Defaults to `<release-name>-gateway` if not set                                   | `""`                                                                                      |
 | `gateway.external.parentRefs`                            | An array of `parentRefs` identifying an existing external Gateway(s) that routes HTTPS traffic. If set, the chart does NOT create its own Gateway; the elements are added verbatim to the main HTTPRoute's `spec.parentRefs`. `sectionName` should match the HTTPS listener name in your Gateway | `[]` |
 | `gateway.external.redirectParentRefs`                    | An array of `parentRefs` for the HTTP→HTTPS redirect HTTPRoute. Used only with `gateway.external.parentRefs` and `gateway.ssl.redirect.enabled=true`. `sectionName` should match the HTTP listener name in your Gateway | `[]` |
@@ -646,18 +646,18 @@ Instead of `Application`, the parameter name should have the following values: `
 | `gateway.ssl.redirect.hostnames`                         | Hostnames for the redirect route. If empty, inherits `gateway.host`/`gateway.tenants`                           | `[]`                                                                                       |
 | `gateway.host`                                           | Hostname for the Gateway listener(s) and the HTTPRoute(s)                                                       | `""`                                                                                      |
 | `gateway.tenants`                                        | Multiple hostnames for multi-tenant deployments. For each tenant, a pair of listeners (HTTP + HTTPS if `gateway.ssl.enabled=true`) is created. Takes priority over `gateway.host` if non-empty. If `gateway.ssl.enabled=true`, the Secret named in `gateway.ssl.secret` must contain a certificate valid for all listed hostnames (e.g. a SAN cert or a wildcard) | `[]` |
-| `gateway.clientSettingsPolicy`                           | Connection behavior between client and NGINX, applied to the DocSpace HTTPRoute via a `ClientSettingsPolicy`. Requires NGINX Gateway Fabric. Set to `{}`/`null` to disable. See the [client-settings directives](https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings) | `{body: {maxSize: "100m"}}` |
+| `gateway.clientSettingsPolicy`                           | Connection behavior between client and NGINX, applied to the ONLYOFFICE Apps HTTPRoute via a `ClientSettingsPolicy`. Requires NGINX Gateway Fabric. Set to `{}`/`null` to disable. See the [client-settings directives](https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings) | `{body: {maxSize: "100m"}}` |
 | `gateway.letsencrypt.enabled`                            | Enable a cert-manager `ClusterIssuer` for Let's Encrypt via Gateway API. Used if `gateway.enabled=true` and `gateway.ssl.enabled=true`. Requires cert-manager (v1.14+) with the Gateway API feature flag enabled (`config.enableGatewayAPI=true`) | `false`                                         |
 | `gateway.letsencrypt.clusterIssuerName`                  | Name of the generated ClusterIssuer                                                                             | `letsencrypt-prod-gw`                                                                     |
 | `gateway.letsencrypt.email`                              | Your email address used for ACME registration                                                                   | `""`                                                                                      |
 | `gateway.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                        | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `gateway.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-gw-private-key`                                                         |
 
-### ONLYOFFICE DocSpace Jobs parameters
+### ONLYOFFICE Apps Jobs parameters
 
 | Parameter                                                       | Description                                                                                                                                                                                                | Default                                         |
 |-----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| `install.job.enabled`                                           | Enable the execution of job pre-install before installing ONLYOFFICE DocSpace                                                                                                                              | `true`                                          |
+| `install.job.enabled`                                           | Enable the execution of job pre-install before installing ONLYOFFICE Apps                                                                                                                              | `true`                                          |
 | `install.job.annotations`                                       | Defines annotations that will be additionally added to Install Job. If set to, it takes priority over the `commonAnnotations`                                                                              | `{}`                                            |
 | `install.job.podAnnotations`                                    | Map of annotations to add to the Install Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                                   | `{}`                                            |
 | `install.job.podSecurityContext.enabled`                        | Enable security context for the Install Job pod                                                                                                                                                            | `false`                                         |
@@ -669,12 +669,12 @@ Instead of `Application`, the parameter name should have the following values: `
 | `install.job.containerSecurityContext.enabled`                  | Enable security context for containers in Install Job pod                                                                                                                                                  | `false`                                         |
 | `install.job.initContainers.migrationRunner.enabled`            | Enable database initialization                                                                                                                                                                             | `true`                                          |
 | `install.job.initContainers.migrationRunner.image.registry`     | Migration Runner container image registry. Takes priority over `images.registry`                                                                                                                           | `""`                                            |
-| `install.job.initContainers.migrationRunner.image.repository`   | Job by pre-install Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
+| `install.job.initContainers.migrationRunner.image.repository`   | Job by pre-install Migration Runner container image repository                                                                                                                                             | `onlyoffice/apps-migration-runner`          |
 | `install.job.initContainers.migrationRunner.image.tag`          | Job by pre-install Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `install.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-install Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
 | `install.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-install Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
 | `install.job.initContainers.migrationRunner.resources.limits`   | The resources limits for the Job pre-install Migration Runner container                                                                                                                                    | `memory, cpu`                                   |
-| `upgrade.job.enabled`                                           | Enable the execution of job pre-upgrade before upgrading ONLYOFFICE DocSpace                                                                                                                               | `true`                                          |
+| `upgrade.job.enabled`                                           | Enable the execution of job pre-upgrade before upgrading ONLYOFFICE Apps                                                                                                                               | `true`                                          |
 | `upgrade.job.annotations`                                       | Defines annotations that will be additionally added to Upgrade Job. If set to, it takes priority over the `commonAnnotations`                                                                              | `{}`                                            |
 | `upgrade.job.podAnnotations`                                    | Map of annotations to add to the Upgrade Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                                   | `{}`                                            |
 | `upgrade.job.podSecurityContext.enabled`                        | Enable security context for the Upgrade Job pod                                                                                                                                                            | `false`                                         |
@@ -686,7 +686,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.containerSecurityContext.enabled`                  | Enable security context for containers in Upgrade Job pod                                                                                                                                                  | `false`                                         |
 | `upgrade.job.initContainers.migrationRunner.enabled`            | Enable database update                                                                                                                                                                                     | `true`                                          |
 | `upgrade.job.initContainers.migrationRunner.image.registry`     | Migration Runner container image registry. Takes priority over `images.registry`                                                                                                                           | `""`                                            |
-| `upgrade.job.initContainers.migrationRunner.image.repository`   | Job by pre-upgrade Migration Runner container image repository                                                                                                                                             | `onlyoffice/docspace-migration-runner`          |
+| `upgrade.job.initContainers.migrationRunner.image.repository`   | Job by pre-upgrade Migration Runner container image repository                                                                                                                                             | `onlyoffice/apps-migration-runner`          |
 | `upgrade.job.initContainers.migrationRunner.image.tag`          | Job by pre-upgrade Migration Runner container image tag. If set to, it takes priority over the `images.tag`                                                                                                | `""`                                            |
 | `upgrade.job.initContainers.migrationRunner.image.pullPolicy`   | Job by pre-upgrade Migration Runner container image pull policy                                                                                                                                            | `IfNotPresent`                                  |
 | `upgrade.job.initContainers.migrationRunner.resources.requests` | The requested resources for the Job pre-upgrade Migration Runner container                                                                                                                                 | `memory, cpu`                                   |
@@ -700,14 +700,14 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.rootless.resources.requests.cpu`       | The requested CPU for the rootless initContainer                                                                            | `100m`                        |
 | `upgrade.job.initContainers.rootless.resources.limits.memory`      | The Memory limits for the rootless initContainer                                                                            | `1Gi`                         |
 | `upgrade.job.initContainers.rootless.containerSecurityContext.enabled`                  | Enable security context for the rootless initContainer                                                 | `true`                        |
-| `upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser`                | User ID for the DocSpace rootless initContainer. When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104  | `0`                           |
-| `upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup`               | Group ID for the DocSpace rootless initContainer. When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107 | `0`                           |
+| `upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser`                | User ID for the ONLYOFFICE Apps rootless initContainer. When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104  | `0`                           |
+| `upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup`               | Group ID for the ONLYOFFICE Apps rootless initContainer. When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107 | `0`                           |
 | `upgrade.job.initContainers.rootless.containerSecurityContext.allowPrivilegeEscalation` | Controls whether a process can gain more privileges than its parent process                            | `false`                       |
-| `upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions`           | Defines SELinux labels for the DocSpace rootless initContainer                                         | `{}`                          |
-| `upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile`           | Defines the Seccomp profile for the DocSpace rootless initContainer                                    | `type: RuntimeDefault`        |
+| `upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions`           | Defines SELinux labels for the ONLYOFFICE Apps rootless initContainer                                         | `{}`                          |
+| `upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile`           | Defines the Seccomp profile for the ONLYOFFICE Apps rootless initContainer                                    | `type: RuntimeDefault`        |
 | `upgrade.job.initContainers.rootless.containerSecurityContext.capabilities`             | Defines the privileges granted to the process                                                          | `drop: ["ALL"]`               |
 | `upgrade.job.docsInitDB.enabled`                                | Enable the Init DB for Docs container to create tables required for Docs to work. Set to `true` when upgrading to version `3.0.0` from earlier. When installing `3.0.0` and also when upgrading from version `3.0.0` to a later one, it should be set to `false` | `false` |
-| `elasticsearchClearIndexes.job.enabled`                         | Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace. If you are using Opensearch or an external Elasticsearch, you can set it to `false`                                       | `true`                                          |
+| `elasticsearchClearIndexes.job.enabled`                         | Enable the execution of job elasticsearchClearIndexes before upgrading ONLYOFFICE Apps. If you are using Opensearch or an external Elasticsearch, you can set it to `false`                                       | `true`                                          |
 | `elasticsearchClearIndexes.job.annotations`                     | Defines annotations that will be additionally added to elasticsearchClearIndexes Job. If set to, it takes priority over the `commonAnnotations`                                                            | `{}`                                            |
 | `elasticsearchClearIndexes.job.podAnnotations`                  | Map of annotations to add to the elasticsearchClearIndexes Job Pod. If set to, it takes priority over the `podAnnotations`                                                                                 | `{}`                                            |
 | `elasticsearchClearIndexes.job.podSecurityContext.enabled`      | Enable security context for the elasticsearchClearIndexes Job pod                                                                                                                                          | `false`                                         |
@@ -719,7 +719,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `elasticsearchClearIndexes.job.containerSecurityContext.enabled`| Enable security context for containers in elasticsearchClearIndexes Job pod                                                                                                                                | `false`                                         |
 | `elasticsearchClearIndexes.job.resources.requests`              | The requested resources for the Job elasticsearchClearIndexes container                                                                                                                                    | `memory, cpu`                                   |
 | `elasticsearchClearIndexes.job.resources.limits`                | The resources limits for the Job elasticsearchClearIndexes container                                                                                                                                       | `memory, cpu`                                   |
-| `singlePortalDomain.job.enabled`                                | Enable the execution of job singlePortalDomain before upgrading and installing DocSpace                                                                                                                    | `false`                                         |
+| `singlePortalDomain.job.enabled`                                | Enable the execution of job singlePortalDomain before upgrading and installing ONLYOFFICE Apps                                                                                                                    | `false`                                         |
 | `singlePortalDomain.job.env.appCoreServerRoot`                  | Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true                                                                                                          | `""`                                            |
 | `singlePortalDomain.job.env.domain`                             | Configures domain name; overridden by ingress.host if present                                                                                                                                              | `""`                                            |
 | `singlePortalDomain.job.image.registry`                         | singlePortalDomain container image registry. Takes priority over `images.registry`                                                                                                                         | `""`                                            |
@@ -737,7 +737,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `singlePortalDomain.job.containerSecurityContext.enabled`       | Enable security context for containers in singlePortalDomain Job pod                                                                                                                                       | `false`                                         |
 | `singlePortalDomain.job.resources.requests`                     | The requested resources for the singlePortalDomain Job container                                                                                                                                           | `memory, cpu`                                   |
 | `singlePortalDomain.job.resources.limits`                       | The resources limits for the singlePortalDomain Job container                                                                                                                                              | `memory, cpu`                                   |
-### ONLYOFFICE DocSpace Opensearch parameters
+### ONLYOFFICE Apps Opensearch parameters
 
 | Parameter                                             | Description                                                                                                  | Default                                                        |
 |-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
@@ -761,11 +761,11 @@ Instead of `Application`, the parameter name should have the following values: `
 | `opensearch.env.indicesFieldDataCacheSize`            | sets the size of the index field data cache                                                                  | `30%`                                                          |
 | `opensearch.env.indicesMemoryIndexBufferSize`         | sets the size of the in-memory index buffer                                                                  | `30%`                                                          |
 
-### ONLYOFFICE DocSpace Test parameters
+### ONLYOFFICE Apps Test parameters
 
 | Parameter                                                | Description                                                                                                                                                                            | Default                          |
 |----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| `tests.enabled`                                          | Enable the resources creation necessary for ONLYOFFICE DocSpace launch testing and connected dependencies availability testing. These resources will be used when running the `helm test` command | `true`                |
+| `tests.enabled`                                          | Enable the resources creation necessary for ONLYOFFICE Apps launch testing and connected dependencies availability testing. These resources will be used when running the `helm test` command | `true`                |
 | `tests.annotations`                                      | Defines annotations that will be additionally added to Test Pod. If set to, it takes priority over the `commonAnnotations`                                                             | `{}`                             |
 | `tests.podSecurityContext.enabled`                       | Enable security context for the Test pod                                                                                                                                               | `false`                          |
 | `tests.customPodAntiAffinity`                            | Prohibiting the scheduling of Test Pod relative to other Pods containing the specified labels on the same node                                                                         | `{}`                             |
@@ -783,16 +783,16 @@ Instead of `Application`, the parameter name should have the following values: `
 
 ## Configuration and installation details
 
-### 1. Expose ONLYOFFICE DocSpace
+### 1. Expose ONLYOFFICE Apps
 
-#### 1.1 Expose ONLYOFFICE DocSpace via Service (HTTP Only)
+#### 1.1 Expose ONLYOFFICE Apps via Service (HTTP Only)
 
-*You should skip step[#1.1] if you are going to expose ONLYOFFICE DocSpace via HTTPS*
+*You should skip step[#1.1] if you are going to expose ONLYOFFICE Apps via HTTPS*
 
-This type of exposure has the least overheads of performance, it creates a loadbalancer to get access to ONLYOFFICE DocSpace.
+This type of exposure has the least overheads of performance, it creates a loadbalancer to get access to ONLYOFFICE Apps.
 Use this type of exposure if you use external TLS termination, and don't have another WEB application in the k8s cluster.
 
-To expose ONLYOFFICE DocSpace via service, set the `router.service.type` parameter to `LoadBalancer`:
+To expose ONLYOFFICE Apps via service, set the `router.service.type` parameter to `LoadBalancer`:
 
 ```bash
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set router.service.type=LoadBalancer,router.service.port.external=8092
@@ -805,7 +805,7 @@ Run the following command to get the `router` service IP:
 $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
-After that, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-SERVICE-IP/`.
+After that, ONLYOFFICE Apps will be available at `http://APPS-SERVICE-IP/`.
 
 If the service IP is empty, try getting the `router` service hostname:
 
@@ -813,10 +813,10 @@ If the service IP is empty, try getting the `router` service hostname:
 $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
-In this case, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
+In this case, ONLYOFFICE Apps will be available at `http://APPS-SERVICE-HOSTNAME/`.
 
 
-#### 1.2 Expose ONLYOFFICE DocSpace via Ingress
+#### 1.2 Expose ONLYOFFICE Apps via Ingress
 
 #### 1.2.1 Installing F5 NGINX Ingress Controller
 
@@ -830,14 +830,14 @@ See more detail about installing F5 NGINX Ingress via Helm [here](https://docs.n
 
 Note: The chart also supports the community `ingress-nginx` controller. To use it, set `ingress.controllerName=ingress-nginx`.
 
-#### 1.2.2 Expose ONLYOFFICE DocSpace via HTTP
+#### 1.2.2 Expose ONLYOFFICE Apps via HTTP
 
-*You should skip step[2.1.2] if you are going to expose ONLYOFFICE DocSpace via HTTPS*
+*You should skip step[2.1.2] if you are going to expose ONLYOFFICE Apps via HTTPS*
 
-This type of exposure has more overheads of performance compared with exposure via service, it also creates a loadbalancer to get access to ONLYOFFICE DocSpace.
+This type of exposure has more overheads of performance compared with exposure via service, it also creates a loadbalancer to get access to ONLYOFFICE Apps.
 Use this type if you use external TLS termination and when you have several WEB applications in the k8s cluster. You can use the one set of ingress instances and the one loadbalancer for those. It can optimize the entry point performance and reduce your cluster payments, cause providers can charge a fee for each loadbalancer.
 
-To expose ONLYOFFICE DocSpace via ingress HTTP, set the `ingress.enabled` and the `ingress.host` parameters to true:
+To expose ONLYOFFICE Apps via ingress HTTP, set the `ingress.enabled` and the `ingress.host` parameters to true:
 
 ```bash
 $ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true --set ingress.host=example.com
@@ -856,11 +856,11 @@ If the ingress IP is empty, try getting the `docspace` ingress hostname:
 $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
-In this case, ONLYOFFICE DocSpace will be available at `http://DOCSPACE-INGRESS-HOSTNAME/`.
+In this case, ONLYOFFICE Apps will be available at `http://APPS-INGRESS-HOSTNAME/`.
 
-#### 1.2.3 Expose ONLYOFFICE DocSpace via HTTPS
+#### 1.2.3 Expose ONLYOFFICE Apps via HTTPS
 
-This type of exposure allows you to enable internal TLS termination for ONLYOFFICE DocSpace.
+This type of exposure allows you to enable internal TLS termination for ONLYOFFICE Apps.
 
 Create the `tls` secret with an ssl certificate inside.
 
@@ -893,9 +893,9 @@ $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hos
 
 Associate the `docspace` ingress IP or hostname with your domain name through your DNS provider.
 
-After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`.
+After that, ONLYOFFICE Apps will be available at `https://your-domain-name/`.
 
-#### 1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate
+#### 1.2.4 Expose ONLYOFFICE Apps via HTTPS using the Let's Encrypt certificate
 
 - Add Helm repositories:
   ```bash
@@ -912,7 +912,7 @@ After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`
   ```
 Next, perform the installation or upgrade by setting the `ingress.enabled`, `ingress.tls.enabled` and `ingress.letsencrypt.enabled` parameters to `true`. Also set your own values in the parameters `ingress.letsencrypt.email`, `ingress.host` or `ingress.tenants`(for example, `--set "ingress.tenants={tenant1.example.com,tenant2.example.com}"`) if you want to use multiple domain names.
 
-Note: If you are changing the `ingress.path`, `ingress.host`, or `ingress.tenants` values after ONLYOFFICE DocSpace is already installed with `ingress.letsencrypt.enabled=true`, run the upgrade with `--server-side=true` and `--force-conflicts` to avoid field ownership conflicts:
+Note: If you are changing the `ingress.path`, `ingress.host`, or `ingress.tenants` values after ONLYOFFICE Apps is already installed with `ingress.letsencrypt.enabled=true`, run the upgrade with `--server-side=true` and `--force-conflicts` to avoid field ownership conflicts:
 
 ```bash
 $ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-conflicts -f values.yaml
@@ -920,17 +920,17 @@ $ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-con
 
 This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=true`). If you use your own certificate that is already installed in the cluster and do not enable Let's Encrypt, these flags are not needed during upgrade.
 
-#### 1.3 Expose ONLYOFFICE DocSpace via Gateway API
+#### 1.3 Expose ONLYOFFICE Apps via Gateway API
 
-As an alternative to the classic Ingress described above, ONLYOFFICE DocSpace can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
+As an alternative to the classic Ingress described above, ONLYOFFICE Apps can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
 
 See the dedicated [Gateway API guide](docs/GATEWAY.md) for prerequisites, configuration examples (single host, multi-tenant, HTTP to HTTPS redirect, TLS with your own certificate or with Let's Encrypt via cert-manager) and the full list of `gateway` parameters.
 
 ### 2. Transition from ElasticSearch to OpenSearch
 
-In ONLYOFFICE DocSpace appVersion 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
+In ONLYOFFICE Apps appVersion 2.5.0, ElasticSearch is being replaced with OpenSearch, which will require reindexing, taking some time.
 
-For proper reindexing before updating ONLYOFFICE DocSpace to version 2.5.0, execute the following command:
+For proper reindexing before updating ONLYOFFICE Apps to version 2.5.0, execute the following command:
 - If `file-services` is deployed as a StatefulSet:
 
   ```bash
@@ -941,7 +941,7 @@ For proper reindexing before updating ONLYOFFICE DocSpace to version 2.5.0, exec
   ```bash
   kubectl scale deployment files-worker --replicas=0
   ```
-Then proceed with the ONLYOFFICE DocSpace update.
+Then proceed with the ONLYOFFICE Apps update.
 
 NOTE: If you have an external Elasticsearch installed, please follow these steps before updating:
 
@@ -957,11 +957,11 @@ After successfully executing the Pod `elasticsearch-clear-indexes` that created 
   ``` bash
   kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
   ```
-### 3. Scale ONLYOFFICE DocSpace (optional)
+### 3. Scale ONLYOFFICE Apps (optional)
 
-*This step is optional. You can skip step [3](#3-scale-onlyoffice-docspace-optional) entirely if you want to use default deployment settings.*
+*This step is optional. You can skip step [3](#3-scale-onlyoffice-apps-optional) entirely if you want to use default deployment settings.*
 
-*The term Application will be used to refer to application deployments. You can find more details and the full list of Applications [here](#onlyoffice-docspace-application-parameters), with the exception of `opensearch`.*
+*The term Application will be used to refer to application deployments. You can find more details and the full list of Applications [here](#onlyoffice-apps-application-parameters), with the exception of `opensearch`.*
 
 #### 3.1 Horizontal Pod Autoscaling
 
@@ -977,7 +977,7 @@ To enable HPA for the *Application* deployment, specify the `APPLICATION.autosca
 In this case, the `APPLICATION.replicaCount` parameter is ignored and the number of replicas is controlled by HPA.
 
 With the `autoscaling.enabled` parameter enabled, by default Autoscaling will adjust the number of replicas based on the average percentage of CPU Utilization.
-For other configurable Autoscaling parameters, see the [ONLYOFFICE DocSpace Application parameters](#onlyoffice-docspace-application-parameters) table.
+For other configurable Autoscaling parameters, see the [ONLYOFFICE Apps Application parameters](#onlyoffice-apps-application-parameters) table.
 
 #### 3.2 Manual scaling
 
@@ -1042,7 +1042,7 @@ When multiple encryption-related settings are defined, the following order of pr
 
 ### 5. Configuring Domain Name for Email Notifications
 
-The **single-portal-domain** job allows single-portal (non-multitenant) DocSpace installations to correctly display the domain name in **emails and notifications**.  
+The **single-portal-domain** job allows single-portal (non-multitenant) ONLYOFFICE Apps installations to correctly display the domain name in **emails and notifications**.  
 Without it, such installations use `localhost` as the sender domain in notification links.
 
 When the job runs, it updates the database so that all notification links use the proper domain and protocol (HTTP or HTTPS).  
@@ -1050,7 +1050,7 @@ The domain and protocol are taken automatically from **Ingress** settings, but i
 
 #### Upgrading from earlier versions
 
-If you previously installed DocSpace without a public domain or switched to HTTPS later, enable this job before the next upgrade:
+If you previously installed ONLYOFFICE Apps without a public domain or switched to HTTPS later, enable this job before the next upgrade:
 
 ```bash
 helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
@@ -1066,7 +1066,7 @@ helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.e
 
 #### For new installations
 
-If you install DocSpace with `ingress.host` configured (and optionally `ingress.tls.enabled=true`), the job is not required.  
+If you install ONLYOFFICE Apps with `ingress.host` configured (and optionally `ingress.tls.enabled=true`), the job is not required.  
 Notification links will automatically use your public domain and protocol.
 
 #### Parameters
@@ -1074,9 +1074,9 @@ Notification links will automatically use your public domain and protocol.
 - `singlePortalDomain.job.env.domain` — defines the portal domain; used when `ingress.host` is not set.  
 - `singlePortalDomain.job.env.appCoreServerRoot` — defines the protocol prefix (`http://*/` or `https://*/`); if TLS is enabled, the chart automatically uses `https://*/`.
 
-## ONLYOFFICE DocSpace installation test (optional)
+## ONLYOFFICE Apps installation test (optional)
 
-You can test ONLYOFFICE DocSpace services availability and access to connected dependencies by running the following command:
+You can test ONLYOFFICE Apps services availability and access to connected dependencies by running the following command:
 
 ```bash
 $ helm test [RELEASE_NAME] -n <NAMESPACE>
@@ -1094,7 +1094,7 @@ To view the log of the Pod running as a result of the `helm test` command, run t
 $ kubectl logs -f test-docspace -n <NAMESPACE>
 ```
 
-The ONLYOFFICE DocSpace services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
+The ONLYOFFICE Apps services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
 
 After this, you can delete the `test-docspace` Pod by running the following command:
 

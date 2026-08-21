@@ -3,26 +3,26 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 {{- if .Values.connections.appKnownNetworks }}
 
-You have specified the following addresses of known networks from which forwarded headers will be accepted by DocSpace services:
+You have specified the following addresses of known networks from which forwarded headers will be accepted by ONLYOFFICE Apps services:
     "{{ .Values.connections.appKnownNetworks }}"
-  Note: Make sure that you have specified all the networks in which the Proxies that you are using in front of DocSpace services are located. This is necessary for the application to work correctly.
+  Note: Make sure that you have specified all the networks in which the Proxies that you are using in front of ONLYOFFICE Apps services are located. This is necessary for the application to work correctly.
 
 {{- else }}
 
-WARNING: You haven’t specified the addresses of known networks from which forwarded headers will be accepted by DocSpace services.. The application may not work correctly.
+WARNING: You haven’t specified the addresses of known networks from which forwarded headers will be accepted by ONLYOFFICE Apps services.. The application may not work correctly.
 
 {{- end }}
 
 {{- if .Values.healthchecks.enabled }}
 
 You can view the status of application services and dependencies at:
-  http(s)://DOCSPACE-ADDRESS/healthchecks/hc-ui#/healthchecks
+  http(s)://APPS-ADDRESS/healthchecks/hc-ui#/healthchecks
 
 {{- end }}
 
 {{- if .Values.tests.enabled }}
 
-You can test DocSpace services availability and access to connected dependencies using Helm test:
+You can test ONLYOFFICE Apps services availability and access to connected dependencies using Helm test:
     $ helm test {{ .Release.Name }} --namespace={{ .Release.Namespace }}
   To view the log of the Pod, run the following command:
     $ kubectl logs -f test-docspace --namespace={{ .Release.Namespace }}

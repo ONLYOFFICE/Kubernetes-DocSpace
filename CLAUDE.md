@@ -1,6 +1,6 @@
 ## Project Overview
 
-Kubernetes-DocSpace — Helm chart (`docspace`) deploying ONLYOFFICE DocSpace (room-based DMS) to Kubernetes or OpenShift. Runs ~25+ microservices (files, people-server, studio, router, doceditor, login, identity, notify, socket, backup, AI services, …) as separate applications, with ONLYOFFICE Docs pulled in as a subchart dependency (`onlyoffice/docs`, condition `docs.enabled`).
+Kubernetes-DocSpace — Helm chart (`docspace`) deploying ONLYOFFICE Apps (room-based DMS) to Kubernetes or OpenShift. Runs ~25+ microservices (files, people-server, studio, router, doceditor, login, identity, notify, socket, backup, AI services, …) as separate applications, with ONLYOFFICE Docs pulled in as a subchart dependency (`onlyoffice/docs`, condition `docs.enabled`).
 
 ## Tech Stack
 
