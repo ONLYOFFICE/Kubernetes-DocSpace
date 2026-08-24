@@ -9,15 +9,15 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: docspace-http-redirect
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.gateway.annotations }}
   annotations:
     {{- $dictValue := default .Values.commonAnnotations .Values.gateway.annotations }}
-    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   {{- $hosts := list }}
@@ -36,7 +36,7 @@ spec:
   {{- if .Values.gateway.external.parentRefs }}
     {{- toYaml .Values.gateway.external.redirectParentRefs | nindent 2 }}
   {{- else }}
-  {{- $gwName := include "apps.gateway.name" . }}
+  {{- $gwName := include "docspace.gateway.name" . }}
   {{- if $hosts }}
     {{- range $idx, $host := $hosts }}
     - group: gateway.networking.k8s.io

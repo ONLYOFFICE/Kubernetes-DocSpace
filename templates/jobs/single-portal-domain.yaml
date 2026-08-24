@@ -3,11 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: single-portal-domain
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: single-portal-domain
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": pre-install, pre-upgrade
@@ -15,7 +15,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     {{- if or .Values.commonAnnotations .Values.singlePortalDomain.job.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.singlePortalDomain.job.annotations }}
-    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
   backoffLimit: 2
@@ -24,14 +24,14 @@ spec:
       labels:
         app.kubernetes.io/component: single-portal-domain
         {{- if .Values.commonLabels }}
-        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if or .Values.podAnnotations .Values.singlePortalDomain.job.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.singlePortalDomain.job.podAnnotations }}
-      annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "apps.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.singlePortalDomain.job.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.singlePortalDomain.job.podSecurityContext.enabled }}
@@ -39,7 +39,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.singlePortalDomain.job.customPodAntiAffinity .Values.singlePortalDomain.job.podAffinity .Values.singlePortalDomain.job.nodeAffinity }}
       affinity:
@@ -71,7 +71,7 @@ spec:
       {{- end }}
       containers:
         - name: single-portal-domain
-          image: {{ include "apps.imageRegistry" (list . .Values.singlePortalDomain.job.image.registry) }}{{ .Values.singlePortalDomain.job.image.repository }}:{{ .Values.singlePortalDomain.job.image.tag }}
+          image: {{ include "docspace.imageRegistry" (list . .Values.singlePortalDomain.job.image.registry) }}{{ .Values.singlePortalDomain.job.image.repository }}:{{ .Values.singlePortalDomain.job.image.tag }}
           {{- if or .Values.containerSecurityContext.enabled .Values.singlePortalDomain.job.containerSecurityContext.enabled }}
           {{- $csc := dict }}
           {{- if .Values.singlePortalDomain.job.containerSecurityContext.enabled }}
@@ -79,18 +79,18 @@ spec:
           {{- else }}
           {{- $csc = .Values.containerSecurityContext }}
           {{- end }}
-          securityContext: {{- include "apps.securityContext" $csc | nindent 12 }}
+          securityContext: {{- include "docspace.securityContext" $csc | nindent 12 }}
           {{- end }}
           resources: {{- toYaml .Values.singlePortalDomain.job.resources | nindent 12 }}
           command: ["/bin/sh", "-c"]
           args: ["/single-portal-domain.sh"]
           env:
             - name: DOMAIN
-              value: {{ include "apps.singlePortalDomain.domain" . | trim | quote }}
+              value: {{ include "docspace.singlePortalDomain.domain" . | trim | quote }}
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "apps.mysql.secretName" . }}
+                  name: {{ template "docspace.mysql.secretName" . }}
                   key: {{ .Values.connections.mysqlSecretKeyPassword }}
           envFrom:
           - configMapRef:

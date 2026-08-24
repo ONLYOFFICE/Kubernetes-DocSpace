@@ -3,11 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: docspace-pre-install
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: install
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": pre-install
@@ -15,7 +15,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     {{- if or .Values.commonAnnotations .Values.install.job.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.install.job.annotations }}
-    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
   backoffLimit: 2
@@ -24,14 +24,14 @@ spec:
       labels:
         app.kubernetes.io/component: install
         {{- if .Values.commonLabels }}
-        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if or .Values.podAnnotations .Values.install.job.podAnnotations }}
       {{- $dictValue := default .Values.podAnnotations .Values.install.job.podAnnotations }}
-      annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "apps.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.install.job.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.install.job.podSecurityContext.enabled }}
@@ -39,7 +39,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       {{- if or .Values.install.job.customPodAntiAffinity .Values.install.job.podAffinity .Values.install.job.nodeAffinity }}
       affinity:
@@ -71,7 +71,7 @@ spec:
       {{- end }}
       initContainers:
       - name: check-db
-        image: {{ include "apps.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         imagePullPolicy: {{ .Values.initContainers.checkDB.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
         {{- $iccdsc := dict }}
@@ -80,14 +80,14 @@ spec:
         {{- else }}
         {{- $iccdsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "apps.securityContext" $iccdsc | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" $iccdsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.initContainers.checkDB.resources | nindent 10 }}
         env:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         volumeMounts:
         - name: check-db
@@ -97,7 +97,7 @@ spec:
         args: ["/scripts/checkdb.sh"]
       {{- if .Values.install.job.initContainers.migrationRunner.enabled }}
       - name: migration-runner
-        image: {{ include "apps.imageRegistry" (list . .Values.install.job.initContainers.migrationRunner.image.registry) }}{{ include "apps.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.install.job.initContainers.migrationRunner.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.install.job.initContainers.migrationRunner.image.repository) }}:{{ default .Values.images.tag .Values.install.job.initContainers.migrationRunner.image.tag }}
         imagePullPolicy: {{ .Values.install.job.initContainers.migrationRunner.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
         {{- $icmrsc := dict }}
@@ -106,7 +106,7 @@ spec:
         {{- else }}
         {{- $icmrsc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "apps.securityContext" $icmrsc | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" $icmrsc | nindent 10 }}
         {{- end }}
         resources: {{- toYaml .Values.install.job.initContainers.migrationRunner.resources | nindent 10 }}
         env:
@@ -115,7 +115,7 @@ spec:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: MIGRATION_TYPE
           value: {{ .Values.connections.migrationType }}
@@ -127,7 +127,7 @@ spec:
       {{- end }}
       containers:
       - name: docspace-pre-install
-        image: {{ include "apps.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
         command: ["sh", "-c", "echo Install Job completed"]
       volumes:
       - name: check-db

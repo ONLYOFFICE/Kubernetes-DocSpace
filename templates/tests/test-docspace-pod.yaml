@@ -3,11 +3,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: test-docspace
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app.kubernetes.io/component: test-docspace
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   annotations:
     "helm.sh/hook": test
@@ -15,12 +15,12 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation
     {{- if or .Values.commonAnnotations .Values.tests.annotations }}
     {{- $dictValue := default .Values.commonAnnotations .Values.tests.annotations }}
-    {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
     {{- end }}
 spec:
-  serviceAccountName: {{ include "apps.serviceAccountName" . }}
+  serviceAccountName: {{ include "docspace.serviceAccountName" . }}
   {{- if .Values.tests.podSecurityContext.enabled }}
-  securityContext: {{- include "apps.securityContext" .Values.tests.podSecurityContext | nindent 4 }}
+  securityContext: {{- include "docspace.securityContext" .Values.tests.podSecurityContext | nindent 4 }}
   {{- end }}
   {{- if or .Values.tests.customPodAntiAffinity .Values.tests.podAffinity .Values.tests.nodeAffinity }}
   affinity:
@@ -52,10 +52,10 @@ spec:
   {{- end }}
   containers:
   - name: test-docspace
-    image: {{ include "apps.imageRegistry" (list . .Values.tests.image.registry) }}{{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
+    image: {{ include "docspace.imageRegistry" (list . .Values.tests.image.registry) }}{{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}
     imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
     {{- if .Values.tests.containerSecurityContext.enabled }}
-    securityContext: {{- include "apps.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
+    securityContext: {{- include "docspace.securityContext" .Values.tests.containerSecurityContext | nindent 6 }}
     {{- end }}
     resources: {{ toYaml .Values.tests.resources | nindent 6 }}
     env:
@@ -64,22 +64,22 @@ spec:
     - name: MYSQL_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: {{ template "apps.mysql.secretName" . }}
+          name: {{ template "docspace.mysql.secretName" . }}
           key: {{ .Values.connections.mysqlSecretKeyPassword }}
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: {{ template "apps.redis.secretName" . }}
+          name: {{ template "docspace.redis.secretName" . }}
           key: {{ .Values.connections.redisSecretKeyName }}
     - name: RABBIT_PROTO
       value: {{ .Values.connections.brokerProto }}
     - name: RABBIT_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: {{ template "apps.broker.secretName" . }}
+          name: {{ template "docspace.broker.secretName" . }}
           key: {{ .Values.connections.brokerSecretKeyName }}
     - name: ROUTER_SERVICE
-      value: {{ template "apps.svc.router.name" . }}:{{ .Values.router.service.port.external }}
+      value: {{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}
     - name: BACKUP_SERVICE
       value: {{ .Values.connections.backupHost }}:{{ .Values.backup.containerPorts.app }}
     - name: BACKUPWORKER_SERVICE
@@ -116,7 +116,7 @@ spec:
     {{- end }}
     {{- if .Values.proxyFrontend.enabled }}
     - name: PROXYFRONTEND_SERVICE
-      value: {{ template "apps.svc.proxyFrontend.name" . }}:{{ .Values.proxyFrontend.containerPorts.http }}
+      value: {{ template "docspace.svc.proxyFrontend.name" . }}:{{ .Values.proxyFrontend.containerPorts.http }}
     {{- end }}
     envFrom:
     - configMapRef:

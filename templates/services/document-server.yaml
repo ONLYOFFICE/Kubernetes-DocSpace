@@ -3,19 +3,19 @@ kind: Service
 apiVersion: v1
 metadata:
   name: documentserver
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.commonAnnotations }}
-  annotations: {{- include "apps.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   selector:
     app: docservice
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   ports:
     - name: http

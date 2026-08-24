@@ -1,17 +1,17 @@
-{{- if eq (include "apps.svc.router.create" .) "true" }}
+{{- if eq (include "docspace.svc.router.create" .) "true" }}
 apiVersion: v1
 kind: Service
 metadata:
   name: router
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: router
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if or .Values.commonAnnotations .Values.router.service.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.router.service.annotations }}
-  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   ports:
@@ -21,7 +21,7 @@ spec:
   selector:
     app: router
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   type: {{ .Values.router.service.type }}
   {{- if .Values.router.service.sessionAffinity }}

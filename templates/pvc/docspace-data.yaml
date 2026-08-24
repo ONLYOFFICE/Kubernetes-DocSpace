@@ -1,16 +1,16 @@
-{{- if eq (include "apps.pvc.data.create" .) "true" }}
+{{- if eq (include "docspace.pvc.data.create" .) "true" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: docspace-data
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.persistence.docspaceData.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.persistence.docspaceData.annotations }}
-  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   storageClassName: {{ .Values.persistence.storageClass }}

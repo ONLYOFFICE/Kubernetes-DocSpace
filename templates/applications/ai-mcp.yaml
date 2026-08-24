@@ -3,15 +3,15 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: ai-mcp
-  namespace: {{ include "apps.namespace" . | quote }}
+  namespace: {{ include "docspace.namespace" . | quote }}
   labels:
     app: ai-mcp
     {{- if .Values.commonLabels }}
-    {{- include "apps.labels.commonLabels" . | trim | nindent 4 }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
   {{- if or .Values.commonAnnotations .Values.aiMCP.annotations }}
   {{- $dictValue := default .Values.commonAnnotations .Values.aiMCP.annotations }}
-  annotations: {{- include "apps.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   replicas: 1
@@ -19,24 +19,24 @@ spec:
     matchLabels:
       app: ai-mcp
       {{- if .Values.commonLabels }}
-      {{- include "apps.labels.commonLabels" . | trim | nindent 6 }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
   serviceName: ai-mcp
   {{- if .Values.aiMCP.updateStrategy }}
-  updateStrategy: {{- include "apps.update.strategyType" .Values.aiMCP.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.aiMCP.updateStrategy }}
   {{- end }}
   template:
     metadata:
       labels:
         app: ai-mcp
         {{- if .Values.commonLabels }}
-        {{- include "apps.labels.commonLabels" . | trim | nindent 8 }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
       {{- if .Values.aiMCP.podAnnotations }}
-      annotations: {{- include "apps.annotations" ( dict "keyName" .Values.aiMCP.podAnnotations "context" $ ) | nindent 8 }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.aiMCP.podAnnotations "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: {{ include "apps.serviceAccountName" . }}
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
       {{- if or .Values.podSecurityContext.enabled .Values.aiMCP.podSecurityContext.enabled }}
       {{- $psc := dict }}
       {{- if .Values.aiMCP.podSecurityContext.enabled }}
@@ -44,7 +44,7 @@ spec:
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
-      securityContext: {{- include "apps.securityContext" $psc | nindent 8 }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
       {{- end }}
       affinity:
         podAntiAffinity:
@@ -99,7 +99,7 @@ spec:
       {{- end }}
       containers:
       - name: ai-mcp
-        image: {{ include "apps.imageRegistry" (list . .Values.aiMCP.image.registry ) }}{{ .Values.aiMCP.image.repository }}:{{ .Values.aiMCP.image.tag }}
+        image: {{ include "docspace.imageRegistry" (list . .Values.aiMCP.image.registry ) }}{{ .Values.aiMCP.image.repository }}:{{ .Values.aiMCP.image.tag }}
         imagePullPolicy: {{ .Values.aiMCP.image.pullPolicy }}
         {{- if or .Values.containerSecurityContext.enabled .Values.aiMCP.containerSecurityContext.enabled }}
         {{- $csc := dict }}
@@ -108,7 +108,7 @@ spec:
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
-        securityContext: {{- include "apps.securityContext" $csc | nindent 10 }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
         {{- if .Values.aiMCP.lifecycleHooks }}
         lifecycle: {{- toYaml .Values.aiMCP.lifecycleHooks | nindent 10 }}
@@ -140,12 +140,12 @@ spec:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.mysql.secretName" . }}
+              name: {{ template "docspace.mysql.secretName" . }}
               key: {{ .Values.connections.mysqlSecretKeyPassword }}
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.redis.secretName" . }}
+              name: {{ template "docspace.redis.secretName" . }}
               key: {{ .Values.connections.redisSecretKeyName }}
         - name: RABBIT_URI
           valueFrom:
@@ -155,22 +155,22 @@ spec:
         - name: RABBIT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.broker.secretName" . }}
+              name: {{ template "docspace.broker.secretName" . }}
               key: {{ .Values.connections.brokerSecretKeyName }}
         - name: DOCUMENT_SERVER_JWT_ENABLED
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.jwt.secretName" . }}
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_ENABLED
         - name: DOCUMENT_SERVER_JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.jwt.secretName" . }}
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_SECRET
         - name: DOCUMENT_SERVER_JWT_HEADER
           valueFrom:
             secretKeyRef:
-              name: {{ template "apps.jwt.secretName" . }}
+              name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
         {{- with .Values.aiMCP.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
@@ -179,9 +179,9 @@ spec:
         - configMapRef:
             name: docspace
         - secretRef:
-            name: {{ template "apps.coreMachineKey.secretName" . }}
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
         - secretRef:
-            name: {{ template "apps.jwt.secretName" . }}
+            name: {{ template "docspace.jwt.secretName" . }}
         volumeMounts:
         {{- if .Values.extraConf.secretName }}
         {{- $context := . }}
@@ -207,5 +207,5 @@ spec:
       {{- end }}
       - name: docspace-data
         persistentVolumeClaim:
-          claimName: {{ template "apps.pvc.data.name" . }}
+          claimName: {{ template "docspace.pvc.data.name" . }}
 {{- end }}

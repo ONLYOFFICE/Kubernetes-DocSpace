@@ -13,8 +13,8 @@ spec:
       - http01:
           gatewayHTTPRoute:
             parentRefs:
-              - name: {{ include "apps.gateway.name" . }}
-                namespace: {{ include "apps.namespace" . | quote }}
+              - name: {{ include "docspace.gateway.name" . }}
+                namespace: {{ include "docspace.namespace" . | quote }}
                 kind: Gateway
                 group: gateway.networking.k8s.io
 {{- end }}
