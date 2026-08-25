@@ -28,6 +28,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
   * [ONLYOFFICE DocSpace Proxy Frontend Application additional parameters](#onlyoffice-docspace-proxy-frontend-application-additional-parameters)
   * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
   * [ONLYOFFICE DocSpace Ingress parameters](#onlyoffice-docspace-ingress-parameters)
+  * [ONLYOFFICE DocSpace Gateway API parameters](#onlyoffice-docspace-gateway-api-parameters)
   * [ONLYOFFICE DocSpace Jobs parameters](#onlyoffice-docspace-jobs-parameters)
   * [ONLYOFFICE DocSpace Elasticsearch parameters](#onlyoffice-docspace-opensearch-parameters)
   * [ONLYOFFICE DocSpace Test parameters](#onlyoffice-docspace-test-parameters)
@@ -39,6 +40,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
     + [1.2.2 Expose ONLYOFFICE DocSpace via HTTP](#122-expose-onlyoffice-docspace-via-http)
     + [1.2.3 Expose ONLYOFFICE DocSpace via HTTPS](#123-expose-onlyoffice-docspace-via-https)
     + [1.2.4 Expose ONLYOFFICE DocSpace via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-docspace-via-https-using-the-lets-encrypt-certificate)
+    + [1.3 Expose ONLYOFFICE DocSpace via Gateway API](#13-expose-onlyoffice-docspace-via-gateway-api)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
   * [3. Scale ONLYOFFICE DocSpace (optional)](#3-scale-onlyoffice-docspace-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
@@ -51,7 +53,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE DocSpac
 
   - Kubernetes version no lower than 1.19+ or OpenShift version no lower than 3.11+
   - A minimum of two hosts is required for the Kubernetes cluster
-  - Resources for the cluster hosts: 4 CPU \ 8 GB RAM min
+  - Resources for the cluster hosts: 8 CPU \ 16 GB RAM min
   - Kubectl is installed on the cluster management host. Read more on the installation of kubectl [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
   - Helm v3.15+ is installed on the cluster management host. Read more on the installation of Helm [here](https://helm.sh/docs/intro/install/)
   - If you use OpenShift, you can use both `oc` and `kubectl` to manage deploy.
@@ -84,7 +86,7 @@ Note: When installing NFS Server Provisioner, Storage Classes - `NFS` is created
 ```bash
 $ helm install nfs-server nfs-server-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
-  --set "storageClass.mountOptions={noac,vers=4}" \
+  --set "storageClass.mountOptions={noac,vers=4.1,retrans=2,timeo=30}" \
   --set persistence.storageClass=PERSISTENT_STORAGE_CLASS \
   --set persistence.size=PERSISTENT_SIZE
 ```
@@ -113,7 +115,11 @@ $ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-
   --set image.repository=bitnamilegacy/mysql \
   --set global.security.allowInsecureImages=true \
   --set image.tag=9.4.0-debian-12-r1 \
-  --set metrics.enabled=false
+  --set metrics.enabled=false \
+  --set primary.livenessProbe.timeoutSeconds=10 \
+  --set primary.readinessProbe.timeoutSeconds=10 \
+  --set primary.livenessProbe.periodSeconds=20 \
+  --set primary.readinessProbe.periodSeconds=20
 ```
 
 Here `PERSISTENT_SIZE` is a size for the Database persistent volume. For example: `8Gi`.
@@ -390,7 +396,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `tolerations`                                          | Tolerations for ONLYOFFICE DocSpace application pods assignment. Each ONLYOFFICE Docspace application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
 | `images.registry`                                      | Global image registry for all DocSpace applications.                                                                        | `""`                          |
-| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.0`                       |
+| `images.tag`                                           | Global image tag for all DocSpace applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `3.7.2`                       |
 | `replicas`                                             | Global replica value for all DocSpace applications. Does not apply to the Document Server and Elasticsearch                 | `2`                           |
 | `jwt.enabled`                                          | Specifies the enabling the JSON Web Token validation by the DocSpace                                                        | `true`                        |
 | `jwt.secret`                                           | Defines the secret key to validate the JSON Web Token in the request to the DocSpace                                        | `jwt_secret`                  |
@@ -403,7 +409,7 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `debug.enabled`                                        | Enable debug                                                                                                                | `false`                       |
 | `initContainers.checkDB.image.registry`                | check-db initContainer image registry. Takes priority over `images.registry`                                                | `""`                          |
 | `initContainers.checkDB.image.repository`              | check-db initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.0-1`                     |
+| `initContainers.checkDB.image.tag`                     | check-db initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.1-1`                     |
 | `initContainers.checkDB.image.pullPolicy`              | check-db initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `initContainers.checkDB.resources.requests.memory`     | The requested Memory for the check-db initContainer                                                                         | `256Mi`                       |
 | `initContainers.checkDB.resources.requests.cpu`        | The requested CPU for the check-db initContainer                                                                            | `100m`                        |
@@ -621,6 +627,32 @@ Instead of `Application`, the parameter name should have the following values: `
 | `ingress.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                         | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `ingress.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-private-key`                                                            |
 
+### ONLYOFFICE DocSpace Gateway API parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                                                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `gateway.enabled`                                        | Enable the creation of Gateway and HTTPRoute resources for the ONLYOFFICE DocSpace                              | `false`                                                                                    |
+| `gateway.name`                                           | Name of the Gateway resource. Defaults to `<release-name>-gateway` if not set                                   | `""`                                                                                      |
+| `gateway.external.parentRefs`                            | An array of `parentRefs` identifying an existing external Gateway(s) that routes HTTPS traffic. If set, the chart does NOT create its own Gateway; the elements are added verbatim to the main HTTPRoute's `spec.parentRefs`. `sectionName` should match the HTTPS listener name in your Gateway | `[]` |
+| `gateway.external.redirectParentRefs`                    | An array of `parentRefs` for the HTTP→HTTPS redirect HTTPRoute. Used only with `gateway.external.parentRefs` and `gateway.ssl.redirect.enabled=true`. `sectionName` should match the HTTP listener name in your Gateway | `[]` |
+| `gateway.annotations`                                    | Map of annotations to add to the Gateway and HTTPRoute resources. If set, takes priority over `commonAnnotations` | `{}`                                                                                     |
+| `gateway.gatewayClassName`                               | Name of the GatewayClass to use. For NGINX Gateway Fabric the default class name is `nginx`                     | `nginx`                                                                                   |
+| `gateway.listeners.custom`                               | An array of extra listeners appended verbatim to the Gateway's `spec.listeners` (e.g. to accept HTTPRoutes from other namespaces via `allowedRoutes`) | `[]`                                              |
+| `gateway.ssl.enabled`                                    | Enable TLS termination on the Gateway HTTPS listener(s)                                                         | `false`                                                                                   |
+| `gateway.ssl.secret`                                     | Name of the Kubernetes Secret that holds the TLS certificate. Used only when `gateway.ssl.enabled=true`. When `gateway.letsencrypt.enabled=true` this Secret is created and managed by cert-manager | `tls-gw`                          |
+| `gateway.ssl.secretNamespace`                            | If you want to use an existing secret located in a different Namespace and containing a certificate, specify here the Namespace name and the secret file name in `gateway.ssl.secret`. To do this, you must have created a corresponding [`ReferenceGrant`](https://gateway-api.sigs.k8s.io/reference/api-types/referencegrant/) in the same Namespace as the secret | `""` |
+| `gateway.ssl.redirect.enabled`                           | Enable a separate HTTPRoute that redirects all HTTP traffic to HTTPS. Requires `gateway.ssl.enabled=true`       | `false`                                                                                    |
+| `gateway.ssl.redirect.statusCode`                        | HTTP status code returned by the redirect                                                                       | `301`                                                                                      |
+| `gateway.ssl.redirect.hostnames`                         | Hostnames for the redirect route. If empty, inherits `gateway.host`/`gateway.tenants`                           | `[]`                                                                                       |
+| `gateway.host`                                           | Hostname for the Gateway listener(s) and the HTTPRoute(s)                                                       | `""`                                                                                      |
+| `gateway.tenants`                                        | Multiple hostnames for multi-tenant deployments. For each tenant, a pair of listeners (HTTP + HTTPS if `gateway.ssl.enabled=true`) is created. Takes priority over `gateway.host` if non-empty. If `gateway.ssl.enabled=true`, the Secret named in `gateway.ssl.secret` must contain a certificate valid for all listed hostnames (e.g. a SAN cert or a wildcard) | `[]` |
+| `gateway.clientSettingsPolicy`                           | Connection behavior between client and NGINX, applied to the DocSpace HTTPRoute via a `ClientSettingsPolicy`. Requires NGINX Gateway Fabric. Set to `{}`/`null` to disable. See the [client-settings directives](https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings) | `{body: {maxSize: "100m"}}` |
+| `gateway.letsencrypt.enabled`                            | Enable a cert-manager `ClusterIssuer` for Let's Encrypt via Gateway API. Used if `gateway.enabled=true` and `gateway.ssl.enabled=true`. Requires cert-manager (v1.14+) with the Gateway API feature flag enabled (`config.enableGatewayAPI=true`) | `false`                                         |
+| `gateway.letsencrypt.clusterIssuerName`                  | Name of the generated ClusterIssuer                                                                             | `letsencrypt-prod-gw`                                                                     |
+| `gateway.letsencrypt.email`                              | Your email address used for ACME registration                                                                   | `""`                                                                                      |
+| `gateway.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                        | `https://acme-v02.api.letsencrypt.org/directory`                                          |
+| `gateway.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-gw-private-key`                                                         |
+
 ### ONLYOFFICE DocSpace Jobs parameters
 
 | Parameter                                                       | Description                                                                                                                                                                                                | Default                                         |
@@ -662,7 +694,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `upgrade.job.initContainers.rootless.enabled`                      | Enable the rootless initContainer to change file ownership                                                                  | `true`                        |
 | `upgrade.job.initContainers.rootless.image.registry`            | rootless initContainer image registry. Takes priority over `images.registry`                                                   | `""`                          |
 | `upgrade.job.initContainers.rootless.image.repository`             | rootless initContainer image repository                                                                                     | `onlyoffice/docs-utils`       |
-| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.0-1`                     |
+| `upgrade.job.initContainers.rootless.image.tag`                    | rootless initContainer image tag. If set to, it takes priority over the `images.tag`                                        | `9.4.1-1`                     |
 | `upgrade.job.initContainers.rootless.image.pullPolicy`             | rootless initContainer image pull policy                                                                                    | `IfNotPresent`                |
 | `upgrade.job.initContainers.rootless.resources.requests.memory`    | The requested Memory for the rootless initContainer                                                                         | `256Mi`                       |
 | `upgrade.job.initContainers.rootless.resources.requests.cpu`       | The requested CPU for the rootless initContainer                                                                            | `100m`                        |
@@ -692,7 +724,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `singlePortalDomain.job.env.domain`                             | Configures domain name; overridden by ingress.host if present                                                                                                                                              | `""`                                            |
 | `singlePortalDomain.job.image.registry`                         | singlePortalDomain container image registry. Takes priority over `images.registry`                                                                                                                         | `""`                                            |
 | `singlePortalDomain.job.image.repository`                       | singlePortalDomain container image repository                                                                                                                                                              | `"onlyoffice/docs-utils"`                       |
-| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.4.0-1"`                                     |
+| `singlePortalDomain.job.image.tag`                              | singlePortalDomain container image tag. If set to, it takes priority over the `images.tag`                                                                                                                 | `"9.4.1-1"`                                     |
 | `singlePortalDomain.job.image.pullPolicy`                       | singlePortalDomain container image pull policy                                                                                                                                                             | `"IfNotPresent"`                                |
 | `singlePortalDomain.job.annotations`                            | Defines annotations that will be additionally added to singlePortalDomain Job. If set to, it takes priority over the `commonAnnotations`                                                                   | `{}`                                            |
 | `singlePortalDomain.job.podAnnotations`                         | Map of annotations to add to the singlePortalDomain Job Pod                                                                                                                                                | `{}`                                            |
@@ -743,7 +775,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | `tests.tolerations`                                      | Tolerations for Test pod assignment. If set to, it takes priority over the `tolerations`                                                                                               | `[]`                             |
 | `tests.image.registry`                                   | Test container image registry. Takes priority over `images.registry`                                                                                                                   | `""`                             |
 | `tests.image.repository`                                 | Test container image name                                                                                                                                                              | `onlyoffice/docs-utils`          |
-| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `9.4.0-1`                        |
+| `tests.image.tag`                                        | Test container image tag                                                                                                                                                               | `9.4.1-1`                        |
 | `tests.image.pullPolicy`                                 | Test container image pull policy                                                                                                                                                       | `IfNotPresent`                   |
 | `tests.containerSecurityContext.enabled`                 | Enable security context for the Test container                                                                                                                                         | `false`                          |
 | `tests.resources.requests`                               | The requested resources for the Test container                                                                                                                                         | `memory: "256Mi"`, `cpu: "200m"` |
@@ -872,7 +904,7 @@ After that, ONLYOFFICE DocSpace will be available at `https://your-domain-name/`
   ```
 - Installing cert-manager
   ```bash
-  $ helm install cert-manager --version v1.17.4 jetstack/cert-manager \
+  $ helm install cert-manager --version v1.20.2 jetstack/cert-manager \
     --namespace cert-manager \
     --create-namespace \
     --set crds.enabled=true \
@@ -887,6 +919,12 @@ $ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-con
 ```
 
 This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=true`). If you use your own certificate that is already installed in the cluster and do not enable Let's Encrypt, these flags are not needed during upgrade.
+
+#### 1.3 Expose ONLYOFFICE DocSpace via Gateway API
+
+As an alternative to the classic Ingress described above, ONLYOFFICE DocSpace can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
+
+See the dedicated [Gateway API guide](docs/GATEWAY.md) for prerequisites, configuration examples (single host, multi-tenant, HTTP to HTTPS redirect, TLS with your own certificate or with Let's Encrypt via cert-manager) and the full list of `gateway` parameters.
 
 ### 2. Transition from ElasticSearch to OpenSearch
 

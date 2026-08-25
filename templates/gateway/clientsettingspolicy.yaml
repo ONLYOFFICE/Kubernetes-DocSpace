@@ -1,0 +1,19 @@
+{{- if and .Values.gateway.enabled .Values.gateway.clientSettingsPolicy }}
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: docspace-client
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: docspace
+  {{- with .Values.gateway.clientSettingsPolicy }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

@@ -396,7 +396,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all DocSpace applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.7.0
+  tag: 3.7.2
   ## images.registry Global image registry for all DocSpace containers
   registry: ""
 # Global amount of replicas for all DocSpace applications
@@ -443,7 +443,7 @@ initContainers:
       # initContainers.checkDB.image.repository check-db initContainer image repository
       repository: onlyoffice/docs-utils
       # initContainers.checkDB.image.tag check-db initContainer image tag
-      tag: 9.4.0-1
+      tag: 9.4.1-1
       # initContainers.checkDB.image.pullPolicy check-db initContainer image pull policy
       pullPolicy: IfNotPresent
     # check-db initContainer resource requests and limits
@@ -6341,6 +6341,117 @@ ingress:
     # ingress.letsencrypt.secretName Name of a secret used to store the ACME account private key
     secretName: "letsencrypt-prod-private-key"
 
+# ONLYOFFICE DocSpace Gateway API parameters
+# Kubernetes Gateway API must be installed
+# ref: https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api
+#
+gateway:
+  ## gateway.enabled Enable the creation of Gateway and HTTPRoute resources for ONLYOFFICE DocSpace
+  enabled: false
+  ## gateway.name Name of the Gateway resource
+  ## Defaults to "<release-name>-gateway" if not set
+  name: ""
+  ## gateway.external Connect the HTTPRoute(s) to an existing external Gateway(s)
+  external:
+    ## gateway.external.parentRefs An array of parentRefs identifying an existing Gateway(s) that routes HTTPS traffic
+    ## If set, the chart does NOT create its own Gateway resource; the elements are added verbatim
+    ## to `spec.parentRefs` of the main HTTPRoute.
+    ## sectionName should match the HTTPS listener name in your Gateway
+    parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: docspace-gateway
+    #   namespace: default
+    #   sectionName: https
+    ## gateway.external.redirectParentRefs An array of parentRefs for the HTTP->HTTPS redirect HTTPRoute
+    ## Used only together with `gateway.external.parentRefs` and `gateway.ssl.redirect.enabled=true`.
+    ## Lets the chart also manage the redirect route on an external Gateway (an extension over the upstream Docs chart).
+    ## sectionName should match the HTTP listener name in your Gateway (commonly "http" or "port-80")
+    redirectParentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: docspace-gateway
+    #   namespace: default
+    #   sectionName: http
+  ## gateway.annotations Map of annotations to add to the Gateway and HTTPRoute resources
+  ## If set, takes priority over commonAnnotations
+  annotations: {}
+  ## gateway.gatewayClassName Name of the GatewayClass to use
+  ## For NGINX Gateway Fabric the default class name is `nginx`
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/
+  gatewayClassName: nginx
+  ## gateway.listeners.custom Used to add custom listener settings
+  ## For example, to use the same Gateway resource for HTTPRoute routes from other namespaces
+  ## ref: https://gateway-api.sigs.k8s.io/docs/concepts/security/#1-route-binding
+  listeners:
+    custom: []
+    # - name: custom-http-route
+    #   port: 80
+    #   protocol: HTTP
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Selector
+    #       selector:
+    #         matchExpressions:
+    #         - key: kubernetes.io/metadata.name
+    #           operator: In
+    #           values:
+    #           - foo
+  ssl:
+    ## gateway.ssl.enabled Enable TLS termination on the Gateway HTTPS listener(s)
+    enabled: false
+    ## gateway.ssl.secret Name of the Kubernetes Secret that holds the TLS certificate
+    ## Used only when `gateway.ssl.enabled=true`
+    ## When `gateway.letsencrypt.enabled=true` this Secret will be created and managed by cert-manager
+    secret: tls-gw
+    ## gateway.ssl.secretNamespace If you want to use an existing secret located in a different Namespace and containing a certificate,
+    ## specify here the Namespace name and the secret file name in `gateway.ssl.secret`
+    ## To do this, you must have created a corresponding `ReferenceGrant` in the same Namespace as the secret
+    ## ref: https://gateway-api.sigs.k8s.io/reference/api-types/referencegrant/
+    secretNamespace: ""
+    ## gateway.ssl.redirect HTTP->HTTPS redirect HTTPRoute configuration
+    ## When enabled, creates a separate HTTPRoute that redirects all HTTP traffic to HTTPS.
+    redirect:
+      ## gateway.ssl.redirect.enabled Enable the HTTP->HTTPS redirect HTTPRoute
+      enabled: false
+      ## gateway.ssl.redirect.statusCode HTTP status code returned by the redirect
+      statusCode: 301
+      ## gateway.ssl.redirect.hostnames Hostnames for the redirect route
+      ## If empty, inherits the Gateway hostnames (`gateway.host`/`gateway.tenants`)
+      hostnames: []
+      # - hostname1.example.com
+      # - hostname2.example.com
+  ## gateway.host Hostname for the Gateway listener(s) and the HTTPRoute(s) (e.g. docspace.example.com)
+  host: ""
+  ## gateway.tenants Multiple hostnames for multi-tenant deployments
+  ## For each tenant, a pair of listeners (HTTP + HTTPS if `ssl.enabled`) is created
+  ## Takes priority over `gateway.host` if non-empty
+  ## If `gateway.ssl.enabled=true`, the Secret named in `gateway.ssl.secret` must
+  ## contain a certificate valid for all listed hostnames (e.g. a SAN cert or wildcard)
+  tenants: []
+  ## gateway.clientSettingsPolicy Configure connection behavior between client and NGINX
+  ## Requires NGINX Gateway Fabric. The directives specified here are applied to the DocSpace HTTPRoute
+  ## via a ClientSettingsPolicy resource. Set to `{}` or remove to disable.
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/overview/custom-policies
+  ## ref: https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings
+  clientSettingsPolicy:
+    body:
+      maxSize: "100m"
+  letsencrypt:
+    ## gateway.letsencrypt.enabled Enable cert-manager ClusterIssuer for Let's Encrypt via Gateway API
+    ## Used if `gateway.enabled=true` and `gateway.ssl.enabled=true`
+    ## Requires cert-manager (v1.14+) with Gateway API feature flag enabled (`config.enableGatewayAPI=true`)
+    ## ref: https://cert-manager.io/docs/usage/gateway/
+    enabled: false
+    ## gateway.letsencrypt.clusterIssuerName Name of the generated ClusterIssuer
+    clusterIssuerName: "letsencrypt-prod-gw"
+    ## gateway.letsencrypt.email Email address used for ACME registration
+    email: ""
+    ## gateway.letsencrypt.server Let's Encrypt ACME server URL
+    server: "https://acme-v02.api.letsencrypt.org/directory"
+    ## gateway.letsencrypt.secretName Secret name for ACME account private key
+    secretName: "letsencrypt-prod-gw-private-key"
+
 # DocSpace jobs parameters
 #
 # Job by install has a pre-install hook and executes before any resources are created in Kubernetes
@@ -6504,7 +6615,7 @@ upgrade:
           repository: onlyoffice/docs-utils
           # upgrade.job.initContainers.rootless.image.tag Rootless initContainer image tag
           # If set to, it takes priority over the `images.tag`
-          tag: 9.4.0-1
+          tag: 9.4.1-1
           # upgrade.job.initContainers.rootless.image.pullPolicy Rootless initContainer image pull policy
           pullPolicy: IfNotPresent
         # Rootless initContainer resource requests and limits
@@ -6572,7 +6683,7 @@ upgrade:
         # upgrade.job.docsInitDB.image.repository Init DB for Docs container image repository
         repository: onlyoffice/docs-utils
         # upgrade.job.docsInitDB.image.tag Init DB for Docs container image tag
-        tag: 9.4.0-1
+        tag: 9.4.1-1
         # upgrade.job.docsInitDB.image.pullPolicy Init DB for Docs container image pull policy
         pullPolicy: IfNotPresent
       # Init DB for Docs resource requests and limits
@@ -6601,7 +6712,7 @@ elasticsearchClearIndexes:
       # elasticsearchClearIndexes.job.image.repository elasticsearchClearIndexes container image repository
       repository: onlyoffice/docs-utils
       # elasticsearchClearIndexes.job.image.tag elasticsearchClearIndexes container image tag
-      tag: 9.4.0-1
+      tag: 9.4.1-1
       # elasticsearchClearIndexes.job.image.pullPolicy elasticsearchClearIndexes container image pull policy
       pullPolicy: IfNotPresent
     # elasticsearchClearIndexes.job.annotations Defines annotations that will be additionally added to elasticsearchClearIndexes Job
@@ -6720,7 +6831,7 @@ opensearch:
         # opensearch.initContainers.changeVolumeOwner.image.repository Change volume owner container image repository
         repository: onlyoffice/docs-utils
         # opensearch.initContainers.changeVolumeOwner.image.tag Change volume owner container image tag
-        tag: 9.4.0-1
+        tag: 9.4.1-1
         # opensearch.initContainers.changeVolumeOwner.image.pullPolicy Change volume owner container image pull policy
         pullPolicy: IfNotPresent
       # Configure a Security Context for Opensearch change-volume-owner initContainer container in Pod
@@ -6765,7 +6876,7 @@ opensearch:
     # opensearch.image.repository Opensearch container image repository
     repository: onlyoffice/opensearch
     # opensearch.image.tag Opensearch container image tag
-    tag: 2.11.1
+    tag: 3.5.0
     # opensearch.image.pullPolicy Opensearch container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for Opensearch container in Pod
@@ -6893,7 +7004,7 @@ singlePortalDomain:
       # singlePortalDomain.job.image.repository singlePortalDomain container image repository
       repository: onlyoffice/docs-utils
       # singlePortalDomain.job.image.tag singlePortalDomain container image tag
-      tag: 9.4.0-1
+      tag: 9.4.1-1
       # singlePortalDomain.job.image.pullPolicy singlePortalDomain container image pull policy
       pullPolicy: IfNotPresent
     # singlePortalDomain.job.annotations Defines annotations that will be additionally added to singlePortalDomain Job
@@ -6979,7 +7090,7 @@ tests:
     # tests.image.repository test container image name
     repository: onlyoffice/docs-utils
     # tests.image.tag test container image tag
-    tag: 9.4.0-1
+    tag: 9.4.1-1
     # tests.image.pullPolicy test container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for the Test container

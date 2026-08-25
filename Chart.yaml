@@ -18,9 +18,9 @@ sources:
   - https://github.com/ONLYOFFICE/DocSpace-server
 dependencies:
 - name: docs
-  version: 6.1.0
+  version: 6.1.1
   repository: https://download.onlyoffice.com/charts/stable
   condition: docs.enabled
 icon: https://avatars.githubusercontent.com/u/1426033
-version: 3.4.0
-appVersion: 3.7.0
+version: 3.5.0
+appVersion: 3.8.0
