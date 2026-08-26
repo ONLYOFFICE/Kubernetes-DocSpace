@@ -39,6 +39,8 @@ data:
     sed -i 's/proxy_pass ${{ .serviceUrlVar }}/proxy_pass http:\/\/{{ .host }}\:{{ .port }}/g' {{ $conf }}
     {{- end }}
 
+    sed -i 's/$dashboards_host/127.0.0.1/g' {{ $conf }}
+
     {{- if contains "https://" .Values.connections.documentServerHost }}
     sed -i 's/proxy_pass $document_server/proxy_pass https:\/\/{{ trimPrefix "https://" .Values.connections.documentServerHost }}/g' {{ $conf }}
     {{- else if contains "http://" .Values.connections.documentServerHost }}
