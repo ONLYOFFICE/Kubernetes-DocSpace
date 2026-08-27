@@ -176,6 +176,8 @@ connections:
   # connections.redisNoPass Defines whether to use a Redis auth without a password
   # If the connection to Redis server does not require a password, set the value to `true`
   redisNoPass: false
+  # connections.redisSSL Enables SSL/TLS for the connection to the Redis server
+  redisSSL: false
   # connections.brokerHost The IP address or the name of the Broker host
   brokerHost: rabbitmq
   # connections.brokerPort The port for the connection to Broker host

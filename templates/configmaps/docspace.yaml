@@ -37,6 +37,9 @@ data:
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
   REDIS_DB: {{ .Values.connections.redisDB | quote }}
+  {{- if .Values.connections.redisSSL }}
+  REDIS_SSL: {{ .Values.connections.redisSSL | quote }}
+  {{- end }}
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
