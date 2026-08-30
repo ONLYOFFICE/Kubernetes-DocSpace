@@ -25,7 +25,7 @@ data:
   {{- end }}
   MYSQL_HOST: {{ .Values.connections.mysqlHost }}
   MYSQL_PORT: {{ .Values.connections.mysqlPort | quote }}
-  MYSQL_DATABASE: {{ .Values.connections.mysqlDatabase }}
+  MYSQL_DATABASE: {{ include "docspace.mysqlDatabase" . }}
   ELK_SCHEME: {{ .Values.connections.elkScheme }}
   ELK_SHEME: {{ .Values.connections.elkScheme }}
   ELK_HOST: {{ .Values.connections.elkHost }}

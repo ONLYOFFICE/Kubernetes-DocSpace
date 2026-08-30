@@ -31,7 +31,7 @@ data:
       -h {{ .Values.connections.mysqlHost }} \
       -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
-      -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
+      -p"$MYSQL_PASSWORD" {{ include "docspace.mysqlDatabase" . }} \
       -e "TRUNCATE webstudio_index;"
       if [[ "$SCHEME" == "https" ]]; then
         curl -XDELETE $SCHEME://$ELK_HOST/files_folder

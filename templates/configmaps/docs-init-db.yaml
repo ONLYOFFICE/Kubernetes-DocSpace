@@ -33,7 +33,7 @@ data:
       -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
       -p$MYSQL_PASSWORD \
-      {{ .Values.connections.mysqlDatabase }} < /scripts/schema/mysql/createdb.sql
+      {{ include "docspace.mysqlDatabase" . }} < /scripts/schema/mysql/createdb.sql
     if [ $? -ne 0 ]; then
       echo -e "\e[0;31m The DATABASE initialization script could not be executed \e[0m"
       exit 1
