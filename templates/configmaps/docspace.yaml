@@ -20,6 +20,7 @@ data:
   {{- if .Values.connections.apiHostInternalRequests }}
   API_HOST: "http://{{ template "docspace.svc.router.name" . }}:{{ .Values.router.service.port.external }}"
   {{- end }}
+  AI_SERVICE_URL: "http://{{ .Values.connections.aiHost }}:{{ .Values.ai.containerPorts.app }}"
   {{- if .Values.singlePortalDomain.job.enabled }}
   APP_CORE_SERVER_ROOT: {{ include "docspace.singlePortalDomain.appCoreServerRoot" . | trim | quote }}
   {{- end }}
@@ -37,6 +38,9 @@ data:
   REDIS_PORT: {{ .Values.connections.redisPort | quote }}
   REDIS_USER_NAME: {{ .Values.connections.redisUser }}
   REDIS_DB: {{ .Values.connections.redisDB | quote }}
+  {{- if .Values.connections.redisSSL }}
+  REDIS_SSL: {{ .Values.connections.redisSSL | quote }}
+  {{- end }}
   RABBIT_HOST: {{ .Values.connections.brokerHost }}
   RABBIT_PORT: {{ .Values.connections.brokerPort | quote }}
   RABBIT_VIRTUAL_HOST: {{ .Values.connections.brokerVhost | quote }}
