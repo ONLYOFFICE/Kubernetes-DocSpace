@@ -30,7 +30,7 @@ data:
       -h {{ .Values.connections.mysqlHost }} \
       -P {{ .Values.connections.mysqlPort }} \
       -u {{ .Values.connections.mysqlUser }} \
-      -p"$MYSQL_PASSWORD" {{ include "docspace.mysqlDatabase" . }} \
+      -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
       -e "SELECT 1 FROM core_settings WHERE tenant=-1 AND id='BaseDomain' LIMIT 1")
 
     if [ -z "$EXISTS" ]; then
@@ -39,7 +39,7 @@ data:
         -h {{ .Values.connections.mysqlHost }} \
         -P {{ .Values.connections.mysqlPort }} \
         -u {{ .Values.connections.mysqlUser }} \
-        -p"$MYSQL_PASSWORD" {{ include "docspace.mysqlDatabase" . }} \
+        -p"$MYSQL_PASSWORD" {{ .Values.connections.mysqlDatabase }} \
         -e "UPDATE tenants_tenants SET mappeddomain='${DOMAIN}' WHERE alias='localhost';"
     else
       echo -e "\e[0;32m BaseDomain already exists. No update needed. \e[0m"

@@ -149,21 +149,6 @@ Return MySQL password
 {{- end -}}
 
 {{/*
-Resolve the MySQL database name.
-Sticky across upgrades: if the `docspace` ConfigMap already exists, keep its MYSQL_DATABASE so a
-changed default does not repoint an existing release to another database. Fresh installs use
-`connections.mysqlDatabase`.
-*/}}
-{{- define "docspace.mysqlDatabase" -}}
-{{- $cm := lookup "v1" "ConfigMap" (include "docspace.namespace" .) "docspace" -}}
-{{- if and $cm $cm.data (hasKey $cm.data "MYSQL_DATABASE") -}}
-{{- $cm.data.MYSQL_DATABASE -}}
-{{- else -}}
-{{- .Values.connections.mysqlDatabase -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Get the Redis password secret
 */}}
 {{- define "docspace.redis.secretName" -}}
