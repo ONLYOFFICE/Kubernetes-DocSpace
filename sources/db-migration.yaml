@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: docspace-db-migration
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-migration
+          image: onlyoffice/docs-utils:9.4.1-1
+          env:
+            - name: MYSQL_HOST
+              value: mysql
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: SOURCE_DB
+              value: docspace
+            - name: TARGET_DB
+              value: onlyoffice_apps
+            - name: TARGET_USER
+              value: onlyoffice_user
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql
+                  key: mysql-root-password
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -e
+              mysql -h $MYSQL_HOST -P $MYSQL_PORT -u root -p$MYSQL_ROOT_PASSWORD \
+                -e "CREATE DATABASE IF NOT EXISTS \`$TARGET_DB\`; GRANT ALL PRIVILEGES ON \`$TARGET_DB\`.* TO '$TARGET_USER'@'%'; FLUSH PRIVILEGES;"
+              mysqldump -h $MYSQL_HOST -P $MYSQL_PORT -u root -p$MYSQL_ROOT_PASSWORD \
+                --single-transaction --routines --triggers $SOURCE_DB \
+                | mysql -h $MYSQL_HOST -P $MYSQL_PORT -u root -p$MYSQL_ROOT_PASSWORD $TARGET_DB
+              mysql -h $MYSQL_HOST -P $MYSQL_PORT -u root -p$MYSQL_ROOT_PASSWORD -t \
+                -e "SELECT table_schema, COUNT(*) tables FROM information_schema.tables WHERE table_schema IN ('$SOURCE_DB','$TARGET_DB') GROUP BY table_schema;"
