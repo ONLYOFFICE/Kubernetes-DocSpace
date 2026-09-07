@@ -28,3 +28,14 @@ data:
     else
       echo -e "\e[0;32m DB is available \e[0m"
     fi
+    mysql -h {{ .Values.connections.mysqlHost }} \
+      -P {{ .Values.connections.mysqlPort }} \
+      -u {{ .Values.connections.mysqlUser }} \
+      -p$MYSQL_PASSWORD \
+      -e "use {{ .Values.connections.mysqlDatabase }};" > /dev/null
+    if [ $? -ne 0 ]; then
+      echo -e "\e[0;31m Database {{ .Values.connections.mysqlDatabase }} does not exist \e[0m"
+      exit 1
+    else
+      echo -e "\e[0;32m Database {{ .Values.connections.mysqlDatabase }} exists \e[0m"
+    fi
