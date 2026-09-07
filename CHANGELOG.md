@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.0.0
+
+### New Features
+
+* Added a job and guide to migrate the database when upgrading
+
+### Changes
+
+* Changed the default database name to `onlyoffice_apps`
+
 ## 3.4.0
 
 ### New Features
