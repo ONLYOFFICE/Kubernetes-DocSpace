@@ -13,6 +13,12 @@ WARNING: You haven’t specified the addresses of known networks from which forw
 
 {{- end }}
 
+{{- if and .Values.docs.enabled (ne .Values.docs.connections.dbName .Values.connections.mysqlDatabase) }}
+
+WARNING: ONLYOFFICE Docs is enabled, but its database name "docs.connections.dbName" ({{ .Values.docs.connections.dbName }}) differs from "connections.mysqlDatabase" ({{ .Values.connections.mysqlDatabase }}). By default ONLYOFFICE Docs uses the same database as ONLYOFFICE Apps. Make sure this is intentional.
+
+{{- end }}
+
 {{- if .Values.healthchecks.enabled }}
 
 You can view the status of application services and dependencies at:
