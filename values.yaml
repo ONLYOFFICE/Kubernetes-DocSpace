@@ -224,8 +224,8 @@ connections:
   peopleServerHost: people-server
   # connections.filesHost The name of the DocSpace Files service
   filesHost: files
-  # connections.filesServicesHost The name of the DocSpace Files Services service
-  filesServicesHost: files-worker
+  # connections.filesWorkerHost The name of the ONLYOFFICE Apps Files Worker service
+  filesWorkerHost: files-worker
   # connections.studioHost The name of the DocSpace Studio service
   studioHost: studio
   # connections.backupHost The name of the DocSpace Backup service
