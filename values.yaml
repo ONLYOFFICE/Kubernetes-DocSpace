@@ -89,6 +89,9 @@ docs:
   # docs.service.port ONLYOFFICE Docs service port
   service:
     port: "80"
+  # docs.persistence.storageClass PVC Storage Class for Onlyoffice Docs data and runtime config volumes
+  persistence:
+    storageClass: "nfs"
   # docs.license.existingClaim Name of the existing PVC in which the license is stored
   # Must contain the file `license.lic`
   # By default, a PVC is connected, in which a license is added when using ONLYOFFICE Apps Enterprise
@@ -224,9 +227,9 @@ connections:
   peopleServerHost: people-server
   # connections.filesHost The name of the ONLYOFFICE Apps Files service
   filesHost: files
-  # connections.filesServicesHost The name of the ONLYOFFICE Apps Files Services service
-  filesServicesHost: files-worker
-  # connections.studioHost The name of the ONLYOFFICE Apps Studio service
+  # connections.filesWorkerHost The name of the ONLYOFFICE Apps Files Worker service
+  filesWorkerHost: files-worker
+  # connections.studioHost The name of the DocSpace Studio service
   studioHost: studio
   # connections.backupHost The name of the ONLYOFFICE Apps Backup service
   backupHost: backup
