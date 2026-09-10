@@ -206,8 +206,8 @@ Note: When using the `test` suffix in the file name, set the `connections.envExt
 When installing ONLYOFFICE Apps, specify the `extraConf.secretName=docspace-custom-config` and `extraConf.filename={appsettings.test.json,notify.test.json}` parameters.
 
 Note: If you need to add a configuration file after the ONLYOFFICE Apps is already installed, you need to execute step [8.1](#81-create-a-secret-containing-a-json-file)
-and then run the `helm upgrade [RELEASE_NAME] onlyoffice/docspace --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
-`helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/docspace --no-hooks` if the parameters are specified in the `values.yaml` file.
+and then run the `helm upgrade [RELEASE_NAME] onlyoffice/apps --set extraConf.secretName=docspace-custom-config --set "extraConf.filename={appsettings.test.json,notify.test.json}" --no-hooks` command or
+`helm upgrade [RELEASE_NAME] -f ./values.yaml onlyoffice/apps --no-hooks` if the parameters are specified in the `values.yaml` file.
 
 ## Deploy ONLYOFFICE Apps
 
@@ -223,7 +223,7 @@ $ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
 
 ```
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=true
 ```
 
 ### 1. Add a license
@@ -231,7 +231,7 @@ $ helm install [RELEASE_NAME] onlyoffice/docspace --set podSecurityContext.enabl
 If you have a valid ONLYOFFICE Apps license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Docspace
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace --set global.installationType=ENTERPRISE
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/apps --set global.installationType=ENTERPRISE
 ```
 
 At the wizard page during the first login please add your license using the corresponding field.
@@ -243,7 +243,7 @@ Note: In the `connections.appKnownNetworks` parameter, specify the address range
 To install ONLYOFFICE Apps to your cluster, run the following command:
 
 ```bash
-$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/docspace
+$ helm install [RELEASE_NAME] -f values.yaml onlyoffice/apps
 ```
 
 The command deploys ONLYOFFICE Apps on the Kubernetes cluster in the default configuration. The [Parameters] section lists the parameters that can be configured during installation.
@@ -273,7 +273,7 @@ Note: In version `4.0.0` the default database name is `onlyoffice_apps` (`connec
 It's necessary to set the parameters for updating. For example,
 
 ```bash
-$ helm upgrade [RELEASE_NAME] onlyoffice/docspace \
+$ helm upgrade [RELEASE_NAME] onlyoffice/apps \
   --set images.tag=[tag]
 ```
 
@@ -282,20 +282,20 @@ $ helm upgrade [RELEASE_NAME] onlyoffice/docspace \
 Or modify the `values.yaml` file and run the command:
 
   ```bash
-  $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace
+  $ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/apps
   ```
 
 Running the `helm upgrade` command runs a hook that cleans up the directory with libraries and then fills with new ones. This is needed when updating the version of ONLYOFFICE Apps. The default hook execution time is 300s.
 The execution time can be changed using `--timeout [time]`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace --timeout 15m
+$ helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/apps --timeout 15m
 ```
 
 If you want to update any parameter other than the version of the ONLYOFFICE Apps, then run the `helm upgrade` command without `hooks`, for example:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set jwt.enabled=false --no-hooks
+$ helm upgrade [RELEASE_NAME] onlyoffice/apps --set jwt.enabled=false --no-hooks
 ```
 
 _See [helm upgrade](https://helm.sh/docs/helm/helm_upgrade/) for command documentation._
@@ -797,7 +797,7 @@ Use this type of exposure if you use external TLS termination, and don't have an
 To expose ONLYOFFICE Apps via service, set the `router.service.type` parameter to `LoadBalancer`:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set router.service.type=LoadBalancer,router.service.port.external=8092
+$ helm install [RELEASE_NAME] onlyoffice/apps --set router.service.type=LoadBalancer,router.service.port.external=8092
 
 ```
 
@@ -842,7 +842,7 @@ Use this type if you use external TLS termination and when you have several WEB 
 To expose ONLYOFFICE Apps via ingress HTTP, set the `ingress.enabled` and the `ingress.host` parameters to true:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true --set ingress.host=example.com
+$ helm install [RELEASE_NAME] onlyoffice/apps --set ingress.enabled=true --set ingress.host=example.com
 
 ```
 
@@ -875,7 +875,7 @@ $ kubectl create secret tls tls \
 ```
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
+$ helm install [RELEASE_NAME] onlyoffice/apps --set ingress.enabled=true,ingress.tls.enabled=true,ingress.tls.secretName=tls,ingress.host=example.com
 
 ```
 
@@ -917,7 +917,7 @@ Next, perform the installation or upgrade by setting the `ingress.enabled`, `ing
 Note: If you are changing the `ingress.path`, `ingress.host`, or `ingress.tenants` values after ONLYOFFICE Apps is already installed with `ingress.letsencrypt.enabled=true`, run the upgrade with `--server-side=true` and `--force-conflicts` to avoid field ownership conflicts:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --server-side=true --force-conflicts -f values.yaml
+$ helm upgrade [RELEASE_NAME] onlyoffice/apps --server-side=true --force-conflicts -f values.yaml
 ```
 
 This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=true`). If you use your own certificate that is already installed in the cluster and do not enable Let's Encrypt, these flags are not needed during upgrade.
@@ -1002,7 +1002,7 @@ Starting from **chart version 3.2.0**, the encryption key used by the Identity s
 If you are upgrading from a version older than 3.2.0, and you have already created applications or configured OAuth2 integrations, we recommend disabling automatic key generation to preserve compatibility with existing data:
 
 ```bash
-$ helm upgrade [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=false
+$ helm upgrade [RELEASE_NAME] onlyoffice/apps --set identity.secret.generate=false
 ```
 
 This setting ensures consistent encryption behavior during the upgrade.
@@ -1014,7 +1014,7 @@ This setting ensures consistent encryption behavior during the upgrade.
 No additional configuration is required. A secure key will be generated automatically:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.generate=true
+$ helm install [RELEASE_NAME] onlyoffice/apps --set identity.secret.generate=true
 ```
 #### Manual configuration
 
@@ -1023,7 +1023,7 @@ Manual configuration of the encryption key is also supported if needed:
 - To use an existing Kubernetes Secret:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.existingSecret=secret-file
+$ helm install [RELEASE_NAME] onlyoffice/apps --set identity.secret.existingSecret=secret-file
 ```
 
 The specified Secret must contain the key `SPRING_APPLICATION_ENCRYPTION_SECRET`.
@@ -1031,7 +1031,7 @@ The specified Secret must contain the key `SPRING_APPLICATION_ENCRYPTION_SECRET`
 - To explicitly set the secret value:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/docspace --set identity.secret.springEncryptionValue=secret-value
+$ helm install [RELEASE_NAME] onlyoffice/apps --set identity.secret.springEncryptionValue=secret-value
 ```
 #### Parameter priority
 
@@ -1055,7 +1055,7 @@ The domain and protocol are taken automatically from **Ingress** settings, but i
 If you previously installed ONLYOFFICE Apps without a public domain or switched to HTTPS later, enable this job before the next upgrade:
 
 ```bash
-helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
+helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
 ```
 
 > **Note:** The domain name and HTTPS/HTTP scheme will be applied from your current Ingress configuration.
@@ -1063,7 +1063,7 @@ helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.e
 If your Ingress is external or not managed by the chart, specify domain and protocol manually:
 
 ```bash
-helm upgrade [RELEASE_NAME] onlyoffice/docspace   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=docspace.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
+helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=docspace.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
 ```
 
 #### For new installations
