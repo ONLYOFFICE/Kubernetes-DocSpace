@@ -1,9 +1,9 @@
 # Database migration to `onlyoffice_apps`
 
 Starting from version 4.0.0 the default database name changed from `docspace` to `onlyoffice_apps`
-(`connections.mysqlDatabase` and `docs.connections.dbName`). An existing installation keeps its data
-in the old `docspace` database, so before upgrading you need to copy that data into `onlyoffice_apps`.
-
+(`connections.mysqlDatabase` and `docs.connections.dbName`). Installations created before version 4.0.0
+may still keep their data in the old `docspace` database, so before upgrading to version 4.0.0 you need
+to copy that data into `onlyoffice_apps`.
 Only the MySQL database is copied. Files stored in the persistent volume are not affected — they are
 addressed by tenant and file id, not by the database name, and keep working after the switch.
 
@@ -12,10 +12,11 @@ addressed by tenant and file id, not by the database name, and keep working afte
 Run the migration while the release is still on the previous version, then upgrade.
 
 1. Copy the data with the provided job (adjust the values at the top of the file if your MySQL host,
-   database names or root secret differ):
+   database names or root secret differ). The job creates the `onlyoffice_apps` database if it does not
+   exist, grants access to the application user, and then copies the data from `docspace`:
 
    ```bash
-   kubectl apply -f sources/db-migration.yaml
+   kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/db-migration.yaml
    ```
 
 2. Check the result — the table counts of both databases should match:
@@ -27,13 +28,13 @@ Run the migration while the release is still on the previous version, then upgra
 3. Upgrade to the new version (the default `onlyoffice_apps` is now populated):
 
    ```bash
-   helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/docspace
+   helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/apps
    ```
 
 4. Remove the job:
 
    ```bash
-   kubectl delete -f sources/db-migration.yaml
+   kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/db-migration.yaml
    ```
 
 ## Notes
@@ -44,8 +45,8 @@ Run the migration while the release is still on the previous version, then upgra
   copy data.
 - The image must provide `mysqldump`. If needed, set `image` to a MySQL client image matching your
   server version.
-- To keep the new name but avoid the copy, set `connections.mysqlDatabase=docspace` and
-  `docs.connections.dbName=docspace` on upgrade instead — the installation stays on the old database.
+- If you want to keep using the old database and skip the migration, set
+  `connections.mysqlDatabase=docspace` and `docs.connections.dbName=docspace` on upgrade.
 
 ## Doing it manually
 
