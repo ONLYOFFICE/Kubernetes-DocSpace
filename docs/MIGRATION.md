@@ -1,4 +1,23 @@
-# Database migration to `onlyoffice_apps`
+# Migration to version 4.0.0
+
+Version 4.0.0 changes two things that affect existing installations: the chart name and the default
+database name. Both are covered below.
+
+## Chart name
+
+Starting from version 4.0.0 the chart is published as `onlyoffice/apps` (previously `onlyoffice/docspace`).
+The old chart stays in the repository, but it is not updated anymore — if you keep using it, you will
+not see version 4.0.0 and later.
+
+Switching is a regular upgrade: the release name and all deployed resources stay the same, so there is
+nothing to reinstall.
+
+```bash
+helm repo update
+helm upgrade [RELEASE_NAME] -f values.yaml onlyoffice/apps
+```
+
+## Database name
 
 Starting from version 4.0.0 the default database name changed from `docspace` to `onlyoffice_apps`
 (`connections.mysqlDatabase` and `docs.connections.dbName`). Installations created before version 4.0.0
@@ -7,7 +26,7 @@ to copy that data into `onlyoffice_apps`.
 Only the MySQL database is copied. Files stored in the persistent volume are not affected — they are
 addressed by tenant and file id, not by the database name, and keep working after the switch.
 
-## Steps
+### Steps
 
 Run the migration while the release is still on the previous version, then upgrade.
 
@@ -37,7 +56,7 @@ Run the migration while the release is still on the previous version, then upgra
    kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/db-migration.yaml
    ```
 
-## Notes
+### Notes
 
 - The old `docspace` database is left untouched and can be kept as a backup or dropped later.
 - The job connects as `root` (secret `mysql`, key `mysql-root-password`). For an external or
@@ -48,7 +67,7 @@ Run the migration while the release is still on the previous version, then upgra
 - If you want to keep using the old database and skip the migration, set
   `connections.mysqlDatabase=docspace` and `docs.connections.dbName=docspace` on upgrade.
 
-## Doing it manually
+### Doing it manually
 
 Instead of the job, the same result can be achieved by hand.
 
