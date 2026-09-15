@@ -401,7 +401,7 @@ images:
   repoPrefix: ""
   # images.tag Global image tag for all ONLYOFFICE Apps applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.7.2
+  tag: 4.0.0
   ## images.registry Global image registry for all ONLYOFFICE Apps containers
   registry: ""
 # Global amount of replicas for all ONLYOFFICE Apps applications
