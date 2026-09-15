@@ -8,6 +8,8 @@
 
 ### Changes
 
+* Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`
+* Renamed the application images from `onlyoffice/docspace-*` to `onlyoffice/apps-*`
 * Changed the default database name to `onlyoffice_apps`
 
 ## 3.4.0
