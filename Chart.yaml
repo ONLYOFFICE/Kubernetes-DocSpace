@@ -1,5 +1,5 @@
 apiVersion: v2
-name: docspace
+name: apps
 kubeVersion: ">= 1.19.0-0"
 description: ONLYOFFICE Apps is a secure, room-based DMS featuring advanced document editors and AI agents.
 type: application
