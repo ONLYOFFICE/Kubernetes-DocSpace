@@ -28,5 +28,5 @@ data:
   TELEGRAM_HOST: {{ .Values.connections.telegramHost }}:{{ .Values.telegram.containerPorts.app }}
   AI_HOST: {{ .Values.connections.aiHost }}:{{ .Values.ai.containerPorts.app }}
   AI_WORKER_HOST: {{ .Values.connections.aiWorkerHost }}:{{ .Values.aiWorker.containerPorts.app }}
-  NEWAI_HOST: {{ .Values.connections.newaiHost }}:{{ .Values.newai.containerPorts.app }}
+  AI_CHAT_HOST: {{ .Values.connections.aiChatHost }}:{{ .Values.aiChat.containerPorts.app }}
 {{- end }}

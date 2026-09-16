@@ -1,58 +1,58 @@
-{{- if .Values.newai.enabled }}
+{{- if .Values.aiChat.enabled }}
 apiVersion: apps/v1
-kind: {{ .Values.newai.kind }}
+kind: {{ .Values.aiChat.kind }}
 metadata:
-  name: newai
+  name: ai-chat
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: newai
+    app: ai-chat
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
-  {{- if or .Values.commonAnnotations .Values.newai.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.newai.annotations }}
+  {{- if or .Values.commonAnnotations .Values.aiChat.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.aiChat.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.newai.autoscaling.enabled }}
-  replicas: {{ default .Values.replicas .Values.newai.replicaCount }}
+  {{- if not .Values.aiChat.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.aiChat.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: newai
+      app: ai-chat
       {{- if .Values.commonLabels }}
       {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
       {{- end }}
-  {{- if eq .Values.newai.kind "StatefulSet" }}
-  serviceName: newai
+  {{- if eq .Values.aiChat.kind "StatefulSet" }}
+  serviceName: ai-chat
   {{- end }}
-  {{- if .Values.newai.updateStrategy }}
-  {{- if eq .Values.newai.kind "Deployment" }}
-  strategy: {{- include "docspace.update.strategyType" .Values.newai.updateStrategy }}
+  {{- if .Values.aiChat.updateStrategy }}
+  {{- if eq .Values.aiChat.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.aiChat.updateStrategy }}
   {{- else }}
-  updateStrategy: {{- include "docspace.update.strategyType" .Values.newai.updateStrategy }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.aiChat.updateStrategy }}
   {{- end }}
   {{- end }}
-  {{- if eq .Values.newai.kind "StatefulSet" }}
-  podManagementPolicy: {{ .Values.newai.podManagementPolicy }}
+  {{- if eq .Values.aiChat.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.aiChat.podManagementPolicy }}
   {{- end }}
   template:
     metadata:
       labels:
-        app: newai
+        app: ai-chat
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if or .Values.podAnnotations .Values.newai.podAnnotations }}
-      {{- $dictValue := default .Values.podAnnotations .Values.newai.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.aiChat.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.aiChat.podAnnotations }}
       annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
-      {{- if or .Values.podSecurityContext.enabled .Values.newai.podSecurityContext.enabled }}
+      {{- if or .Values.podSecurityContext.enabled .Values.aiChat.podSecurityContext.enabled }}
       {{- $psc := dict }}
-      {{- if .Values.newai.podSecurityContext.enabled }}
-      {{- $psc = .Values.newai.podSecurityContext }}
+      {{- if .Values.aiChat.podSecurityContext.enabled }}
+      {{- $psc = .Values.aiChat.podSecurityContext }}
       {{- else }}
       {{- $psc = .Values.podSecurityContext }}
       {{- end }}
@@ -68,7 +68,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - newai
+                  - ai-chat
               topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
             weight: {{ .Values.podAntiAffinity.weight }}
           {{- else if eq .Values.podAntiAffinity.type "required" }}
@@ -78,25 +78,25 @@ spec:
               - key: app
                 operator: In
                 values:
-                - newai
+                - ai-chat
             topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
           {{- end }}
-          {{- with .Values.newai.customPodAntiAffinity }}
+          {{- with .Values.aiChat.customPodAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- with .Values.newai.podAffinity }}
+        {{- with .Values.aiChat.podAffinity }}
         podAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- with .Values.newai.nodeAffinity }}
+        {{- with .Values.aiChat.nodeAffinity }}
         nodeAffinity:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-      {{- if or .Values.nodeSelector .Values.newai.nodeSelector }}
-      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.newai.nodeSelector) | nindent 8 }}
+      {{- if or .Values.nodeSelector .Values.aiChat.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.aiChat.nodeSelector) | nindent 8 }}
       {{- end }}
-      {{- if or .Values.tolerations .Values.newai.tolerations }}
-      tolerations: {{ toYaml (default .Values.tolerations .Values.newai.tolerations) | nindent 8 }}
+      {{- if or .Values.tolerations .Values.aiChat.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.aiChat.tolerations) | nindent 8 }}
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -110,37 +110,37 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: newai
-        image: {{ include "docspace.imageRegistry" (list . .Values.newai.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.newai.image.repository) }}:{{ default .Values.images.tag .Values.newai.image.tag }}
-        imagePullPolicy: {{ .Values.newai.image.pullPolicy }}
-        {{- if or .Values.containerSecurityContext.enabled .Values.newai.containerSecurityContext.enabled }}
+      - name: ai-chat
+        image: {{ include "docspace.imageRegistry" (list . .Values.aiChat.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.aiChat.image.repository) }}:{{ default .Values.images.tag .Values.aiChat.image.tag }}
+        imagePullPolicy: {{ .Values.aiChat.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.aiChat.containerSecurityContext.enabled }}
         {{- $csc := dict }}
-        {{- if .Values.newai.containerSecurityContext.enabled }}
-        {{- $csc = .Values.newai.containerSecurityContext }}
+        {{- if .Values.aiChat.containerSecurityContext.enabled }}
+        {{- $csc = .Values.aiChat.containerSecurityContext }}
         {{- else }}
         {{- $csc = .Values.containerSecurityContext }}
         {{- end }}
         securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
         {{- end }}
-        {{- if .Values.newai.lifecycleHooks }}
-        lifecycle: {{- toYaml .Values.newai.lifecycleHooks | nindent 10 }}
+        {{- if .Values.aiChat.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.aiChat.lifecycleHooks | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.newai.containerPorts.app }}
+        - containerPort: {{ .Values.aiChat.containerPorts.app }}
           name: app
-        {{- if .Values.newai.startupProbe.enabled }}
-        startupProbe: {{- omit .Values.newai.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiChat.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.aiChat.startupProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.newai.readinessProbe.enabled }}
-        readinessProbe: {{- omit .Values.newai.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiChat.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.aiChat.readinessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        {{- if .Values.newai.livenessProbe.enabled }}
-        livenessProbe: {{- omit .Values.newai.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- if .Values.aiChat.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.aiChat.livenessProbe "enabled" | toYaml | nindent 10 }}
         {{- end }}
-        resources: {{- toYaml .Values.newai.resources | nindent 10 }}
+        resources: {{- toYaml .Values.aiChat.resources | nindent 10 }}
         env:
         - name: MYSQL_USER
-          value: {{ default .Values.connections.mysqlUser .Values.newai.mysqlUser }}
+          value: {{ default .Values.connections.mysqlUser .Values.aiChat.mysqlUser }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -176,7 +176,7 @@ spec:
             secretKeyRef:
               name: {{ template "docspace.jwt.secretName" . }}
               key: JWT_HEADER
-        {{- with .Values.newai.extraEnvVars }}
+        {{- with .Values.aiChat.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
@@ -195,7 +195,7 @@ spec:
           subPath: {{ . }}
         {{- end }}
         {{- end }}
-        {{- with .Values.newai.extraVolumeMounts }}
+        {{- with .Values.aiChat.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: docspace-data
@@ -206,7 +206,7 @@ spec:
         secret:
           secretName: {{ .Values.extraConf.secretName }}
       {{- end }}
-      {{- with .Values.newai.extraVolumes }}
+      {{- with .Values.aiChat.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
       - name: docspace-data

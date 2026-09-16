@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: newai
+  name: ai-chat
   namespace: {{ include "docspace.namespace" . | quote }}
   labels:
-    app: newai
+    app: ai-chat
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}
@@ -13,11 +13,11 @@ metadata:
   {{- end }}
 spec:
   ports:
-  - port: {{ .Values.newai.containerPorts.app }}
+  - port: {{ .Values.aiChat.containerPorts.app }}
     name: app
-    targetPort: {{ .Values.newai.containerPorts.app }}
+    targetPort: {{ .Values.aiChat.containerPorts.app }}
   selector:
-    app: newai
+    app: ai-chat
     {{- if .Values.commonLabels }}
     {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
     {{- end }}

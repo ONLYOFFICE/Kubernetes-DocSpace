@@ -1,45 +1,45 @@
-{{- if .Values.newai.autoscaling.enabled }}
+{{- if .Values.aiChat.autoscaling.enabled }}
 apiVersion: {{ .Capabilities.APIVersions.Has "autoscaling/v2" | ternary "autoscaling/v2" "autoscaling/v2beta2" }}
 kind: HorizontalPodAutoscaler
 metadata:
-  name: newai-hpa
+  name: ai-chat-hpa
   namespace: {{ include "docspace.namespace" . | quote }}
   {{- if .Values.commonLabels }}
   labels:
   {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
   {{- end }}
-  {{- if or .Values.commonAnnotations .Values.newai.autoscaling.annotations }}
-  {{- $dictValue := default .Values.commonAnnotations .Values.newai.autoscaling.annotations }}
+  {{- if or .Values.commonAnnotations .Values.aiChat.autoscaling.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.aiChat.autoscaling.annotations }}
   annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: newai
-  minReplicas: {{ .Values.newai.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.newai.autoscaling.maxReplicas }}
+    name: ai-chat
+  minReplicas: {{ .Values.aiChat.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.aiChat.autoscaling.maxReplicas }}
   metrics:
-  {{- if .Values.newai.autoscaling.targetCPU.enabled }}
+  {{- if .Values.aiChat.autoscaling.targetCPU.enabled }}
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: {{ .Values.newai.autoscaling.targetCPU.utilizationPercentage }}
+        averageUtilization: {{ .Values.aiChat.autoscaling.targetCPU.utilizationPercentage }}
   {{- end }}
-  {{- if .Values.newai.autoscaling.targetMemory.enabled }}
+  {{- if .Values.aiChat.autoscaling.targetMemory.enabled }}
   - type: Resource
     resource:
       name: memory
       target:
         type: Utilization
-        averageUtilization: {{ .Values.newai.autoscaling.targetMemory.utilizationPercentage }}
+        averageUtilization: {{ .Values.aiChat.autoscaling.targetMemory.utilizationPercentage }}
   {{- end }}
-  {{- with .Values.newai.autoscaling.customMetricsType }}
+  {{- with .Values.aiChat.autoscaling.customMetricsType }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
-  {{- with .Values.newai.autoscaling.behavior }}
+  {{- with .Values.aiChat.autoscaling.behavior }}
   behavior:
     {{- toYaml . | nindent 4 }}
   {{- end }}
