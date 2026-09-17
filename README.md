@@ -268,6 +268,8 @@ Note: If you have Elasticsearch installed, please read [this section](#2-transit
 
 Note: When upgrading to version `3.0.0` from an earlier version, set the parameters `docs.upgrade.job.enabled` and `docs.clearCache.job.enabled` to `false`. When installing version `3.0.0` or upgrading from version `3.0.0` to a later version, these parameters should be set to `true`. Additionally, when upgrading to version `3.0.0` from an earlier version, set the parameter `upgrade.job.docsInitDB.enabled` to `true`. However, when installing version `3.0.0` or upgrading from version "3.0.0" to a later version, this parameter should be set to `false`.
 
+Note: Starting from version `4.0.0` the chart is published as `onlyoffice/apps` (previously `onlyoffice/docspace`). The old chart is not updated anymore — see [Migration](docs/MIGRATION.md) for how to switch.
+
 It's necessary to set the parameters for updating. For example,
 
 ```bash
