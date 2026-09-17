@@ -230,7 +230,7 @@ $ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=t
 
 ### 1. Add a license
 
-If you have a valid ONLYOFFICE Apps license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE ONLYOFFICE Apps
+If you have a valid ONLYOFFICE Apps license, set the `global.installationType` parameter to `ENTERPRISE` and install ONLYOFFICE Apps
 
 ```bash
 $ helm install [RELEASE_NAME] -f values.yaml onlyoffice/apps --set global.installationType=ENTERPRISE
@@ -396,8 +396,8 @@ _See [helm rollback](https://helm.sh/docs/helm/helm_rollback/) for command docum
 | `podSecurityContext.enabled`                           | Enable security context for the pods. If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate. Individual values for `docs` and `elasticsearch` | `false`                |
 | `podSecurityContext.fsGroup`                           | Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the ONLYOFFICE Apps application Pods | `107`          |
 | `containerSecurityContext.enabled`                     | Enable security context for containers in ONLYOFFICE Apps application pods. Individual values for `docs` and `opensearch` | `false`                       |
-| `nodeSelector`                                         | Node labels for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE ONLYOFFICE Apps application can override the values specified here with its own | `{}`                  |
-| `tolerations`                                          | Tolerations for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE ONLYOFFICE Apps application can override the values specified here with its own | `[]`                  |
+| `nodeSelector`                                         | Node labels for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE Apps application can override the values specified here with its own | `{}`                  |
+| `tolerations`                                          | Tolerations for ONLYOFFICE Apps application pods assignment. Each ONLYOFFICE Apps application can override the values specified here with its own | `[]`                  |
 | `imagePullSecrets`                                     | Container image registry secret name                                                                                        | `""`                          |
 | `images.registry`                                      | Global image registry for all ONLYOFFICE Apps applications.                                                                        | `""`                          |
 | `images.tag`                                           | Global image tag for all ONLYOFFICE Apps applications. Does not apply to the Document Server, Elasticsearch and Proxy Frontend     | `4.0.0`                       |
