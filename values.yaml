@@ -658,7 +658,7 @@ files:
     # files.image.registry files container image registry
     registry: ""
     # files.image.repository files container image repository
-    repository: onlyoffice/docspace-files
+    repository: onlyoffice/apps-files
     # files.image.tag files container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -879,7 +879,7 @@ peopleServer:
     # peopleServer.image.registry People Server container image registry
     registry: ""
     # peopleServer.image.repository People Server container image repository
-    repository: onlyoffice/docspace-people-server
+    repository: onlyoffice/apps-people-server
     # peopleServer.image.tag People Server container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1091,7 +1091,7 @@ router:
     # router.image.registry Router container image registry
     registry: ""
     # router.image.repository Router container image repository
-    repository: onlyoffice/docspace-router
+    repository: onlyoffice/apps-router
     # router.image.tag Router container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1358,7 +1358,7 @@ healthchecks:
     # healthchecks.image.registry Healthchecks container image registry
     registry: ""
     # healthchecks.image.repository Healthchecks container image repository
-    repository: onlyoffice/docspace-healthchecks
+    repository: onlyoffice/apps-healthchecks
     # healthchecks.image.tag Healthchecks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1565,7 +1565,7 @@ apiSystem:
     # apiSystem.image.registry Api System container image registry
     registry: ""
     # apiSystem.image.repository Api System container image repository
-    repository: onlyoffice/docspace-api-system
+    repository: onlyoffice/apps-api-system
     # apiSystem.image.tag Api System container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1780,7 +1780,7 @@ api:
     # api.image.registry Api container image registry
     registry: ""
     # api.image.repository Api container image repository
-    repository: onlyoffice/docspace-api
+    repository: onlyoffice/apps-api
     # api.image.tag Api container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1990,7 +1990,7 @@ backup:
     # backup.image.registry Backup container image registry
     registry: ""
     # backup.image.repository Backup container image repository
-    repository: onlyoffice/docspace-backup
+    repository: onlyoffice/apps-backup
     # backup.image.tag Backup container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2195,7 +2195,7 @@ backupWorker:
     # backupWorker.image.registry Backup Worker container image registry
     registry: ""
     # backupWorker.image.repository Backup Worker container image repository
-    repository: onlyoffice/docspace-backup-worker
+    repository: onlyoffice/apps-backup-worker
     # backupWorker.image.tag Backup Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2400,7 +2400,7 @@ clearEvents:
     # clearEvents.image.registry Clear Events container image registry
     registry: ""
     # clearEvents.image.repository Clear Events container image repository
-    repository: onlyoffice/docspace-clear-events
+    repository: onlyoffice/apps-clear-events
     # clearEvents.image.tag Clear Events container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2605,7 +2605,7 @@ doceditor:
     # doceditor.image.registry Doceditor container image registry
     registry: ""
     # doceditor.image.repository Doceditor container image repository
-    repository: onlyoffice/docspace-doceditor
+    repository: onlyoffice/apps-doceditor
     # doceditor.image.tag Doceditor container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2810,7 +2810,7 @@ filesWorker:
     # filesWorker.image.registry Files Worker container image registry
     registry: ""
     # filesWorker.image.repository Files Worker container image repository
-    repository: onlyoffice/docspace-files-worker
+    repository: onlyoffice/apps-files-worker
     # filesWorker.image.tag Files Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3015,7 +3015,7 @@ login:
     # login.image.registry Login container image registry
     registry: ""
     # login.image.repository Login container image repository
-    repository: onlyoffice/docspace-login
+    repository: onlyoffice/apps-login
     # login.image.tag Login container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3267,7 +3267,7 @@ identity:
       # identity.authorization.image.registry Identity container image registry
       registry: ""
       # identity.authorization.image.repository Identity container image repository
-      repository: onlyoffice/docspace-identity-authorization
+      repository: onlyoffice/apps-identity-authorization
       # identity.authorization.image.tag Identity container image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -3473,7 +3473,7 @@ identity:
       # identity.api.image.registry Identity Api container image registry
       registry: ""
       # identity.api.image.repository Identity Api container image repository
-      repository: onlyoffice/docspace-identity-api
+      repository: onlyoffice/apps-identity-api
       # identity.api.image.tag Identity Api container image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -3682,7 +3682,7 @@ notify:
     # notify.image.registry Notify container image registry
     registry: ""
     # notify.image.repository Notify container image repository
-    repository: onlyoffice/docspace-notify
+    repository: onlyoffice/apps-notify
     # notify.image.tag Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3887,7 +3887,7 @@ socket:
     # socket.image.registry Socket container image registry
     registry: ""
     # socket.image.repository Socket container image repository
-    repository: onlyoffice/docspace-socket
+    repository: onlyoffice/apps-socket
     # socket.image.tag Socket container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4094,7 +4094,7 @@ ssoauth:
     # ssoauth.image.registry ssoauth container image registry
     registry: ""
     # ssoauth.image.repository ssoauth container image repository
-    repository: onlyoffice/docspace-ssoauth
+    repository: onlyoffice/apps-ssoauth
     # ssoauth.image.tag ssoauth container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4301,7 +4301,7 @@ studio:
     # studio.image.registry Studio container image registry
     registry: ""
     # studio.image.repository Studio container image repository
-    repository: onlyoffice/docspace-studio
+    repository: onlyoffice/apps-studio
     # studio.image.tag Studio container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4506,7 +4506,7 @@ studioNotify:
     # studioNotify.image.registry Studio Notify container image registry
     registry: ""
     # studioNotify.image.repository Studio Notify container image repository
-    repository: onlyoffice/docspace-studio-notify
+    repository: onlyoffice/apps-studio-notify
     # studioNotify.image.tag Studio Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4711,7 +4711,7 @@ sdk:
     # sdk.image.registry SDK container image registry
     registry: ""
     # sdk.image.repository SDK container image repository
-    repository: onlyoffice/docspace-sdk
+    repository: onlyoffice/apps-sdk
     # sdk.image.tag SDK container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4916,7 +4916,7 @@ telegram:
     # telegram.image.registry Telegram container image registry
     registry: ""
     # telegram.image.repository Telegram container image repository
-    repository: onlyoffice/docspace-telegram
+    repository: onlyoffice/apps-telegram
     # telegram.image.tag Telegram container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5121,7 +5121,7 @@ management:
     # management.image.registry Management container image registry
     registry: ""
     # management.image.repository Management container image repository
-    repository: onlyoffice/docspace-management
+    repository: onlyoffice/apps-management
     # management.image.tag Management container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5336,7 +5336,7 @@ ai:
     # ai.image.registry AI container image registry
     registry: ""
     # ai.image.repository AI container image repository
-    repository: onlyoffice/docspace-ai
+    repository: onlyoffice/apps-ai
     # ai.image.tag AI container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5556,7 +5556,7 @@ aiWorker:
     # aiWorker.image.registry AI Worker container image registry
     registry: ""
     # aiWorker.image.repository AI Worker container image repository
-    repository: onlyoffice/docspace-ai-worker
+    repository: onlyoffice/apps-ai-worker
     # aiWorker.image.tag AI Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5946,7 +5946,7 @@ aiChat:
     # aiChat.image.registry AI Chat container image registry
     registry: ""
     # aiChat.image.repository AI Chat container image repository
-    repository: onlyoffice/docspace-ai-chat
+    repository: onlyoffice/apps-ai-chat
     # aiChat.image.tag AI Chat container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -6529,7 +6529,7 @@ install:
           # install.job.initContainers.migrationRunner.image.registry Job by pre-install Migration Runner container image registry
           registry: ""
           # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
-          repository: onlyoffice/docspace-migration-runner
+          repository: onlyoffice/apps-migration-runner
           # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -6660,7 +6660,7 @@ upgrade:
           # upgrade.job.initContainers.migrationRunner.image.registry Job by pre-upgrade Migration Runner container image registry
           registry: ""
           # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
-          repository: onlyoffice/docspace-migration-runner
+          repository: onlyoffice/apps-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
