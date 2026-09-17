@@ -211,6 +211,8 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/apps --set extraConf.se
 
 ## Deploy ONLYOFFICE Apps
 
+Note: The names of the deployed resources are not affected by the product name. Resources such as the `docspace-data` PVC, the `docspace-jwt` secret, the ConfigMaps and the `test-docspace` Pod keep their names, so that an existing installation can be upgraded without recreating them.
+
 Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
 
 To do this, run the following commands:
