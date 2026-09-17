@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.0
+
+### Changes
+
+* Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`
+* Renamed the application images from `onlyoffice/docspace-*` to `onlyoffice/apps-*`
+
 ## 3.4.0
 
 ### New Features
