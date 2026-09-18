@@ -1,4 +1,4 @@
-# ONLYOFFICE Apps for Kubernetes
+# ONLYOFFICE Apps (formerly ONLYOFFICE DocSpace) for Kubernetes
 The following guide covers the installation process of the ‘ONLYOFFICE Apps’ into a Kubernetes cluster or OpenShift cluster.
 
 ## Contents
