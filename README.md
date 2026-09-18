@@ -254,7 +254,7 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 
 ### 3. Uninstall ONLYOFFICE Apps
 
-To uninstall/delete the `docspace` deployment:
+To uninstall/delete the ONLYOFFICE Apps deployment:
 
 ```bash
 $ helm uninstall [RELEASE_NAME]
