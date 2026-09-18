@@ -211,7 +211,7 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/apps --set extraConf.se
 
 ## Deploy ONLYOFFICE Apps
 
-Note: The names of the deployed resources are not affected by the product name. Resources such as the `docspace-data` PVC, the `docspace-jwt` secret, the ConfigMaps and the `test-docspace` Pod keep their names, so that an existing installation can be upgraded without recreating them.
+Note: The names of the deployed resources are not affected by the product name. Resources such as the `docspace-data` PVC, the `docspace-jwt` secret and the ConfigMaps keep their names, so that an existing installation can be upgraded without recreating them.
 
 Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
 
@@ -1096,15 +1096,15 @@ Phase: Succeeded
 To view the log of the Pod running as a result of the `helm test` command, run the following command:
 
 ```bash
-$ kubectl logs -f test-docspace -n <NAMESPACE>
+$ kubectl logs -f test-apps -n <NAMESPACE>
 ```
 
 The ONLYOFFICE Apps services availability check is considered a priority, so if it fails with an error, the test is considered to be failed.
 
-After this, you can delete the `test-docspace` Pod by running the following command:
+After this, you can delete the `test-apps` Pod by running the following command:
 
 ```bash
-$ kubectl delete pod test-docspace -n <NAMESPACE>
+$ kubectl delete pod test-apps -n <NAMESPACE>
 ```
 
 Note: This testing is for informational purposes only and cannot guarantee 100% availability results.
