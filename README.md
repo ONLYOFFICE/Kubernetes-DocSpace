@@ -179,7 +179,7 @@ if you plan to use the already installed Onlyoffice Docs and it is deployed in t
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE Apps is planned, for example, `documentserver.ds:8888`.
 Also, in the `connections.appUrlPortal` parameter, specify the router service name of the ONLYOFFICE Apps and the Namespace in which ONLYOFFICE Apps will be deployed, for example, `http://router.default:8092`.
 
-If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE Apps is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE Apps](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-apps), for example, `https://docspace.example.com`.
+If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE Apps is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE Apps](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-apps), for example, `https://apps.example.com`.
 
 Also, when using Kubernetes-Docs, installed not as a subchart, specify the ONLYOFFICE Apps JWT parameters the same as in Docs in `jwt.secret`, `jwt.header`, etc.
 
@@ -810,7 +810,7 @@ Run the following command to get the `router` service IP:
 $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
 ```
 
-After that, ONLYOFFICE Apps will be available at `http://DOCSPACE-SERVICE-IP/`.
+After that, ONLYOFFICE Apps will be available at `http://APPS-SERVICE-IP/`.
 
 If the service IP is empty, try getting the `router` service hostname:
 
@@ -818,7 +818,7 @@ If the service IP is empty, try getting the `router` service hostname:
 $ kubectl get service router -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
-In this case, ONLYOFFICE Apps will be available at `http://DOCSPACE-SERVICE-HOSTNAME/`.
+In this case, ONLYOFFICE Apps will be available at `http://APPS-SERVICE-HOSTNAME/`.
 
 
 #### 1.2 Expose ONLYOFFICE Apps via Ingress
@@ -861,7 +861,7 @@ If the ingress IP is empty, try getting the `docspace` ingress hostname:
 $ kubectl get ingress docspace -o jsonpath="{.status.loadBalancer.ingress[*].hostname}"
 ```
 
-In this case, ONLYOFFICE Apps will be available at `http://DOCSPACE-INGRESS-HOSTNAME/`.
+In this case, ONLYOFFICE Apps will be available at `http://APPS-INGRESS-HOSTNAME/`.
 
 #### 1.2.3 Expose ONLYOFFICE Apps via HTTPS
 
@@ -1058,7 +1058,7 @@ The domain and protocol are taken automatically from **Ingress** settings, but i
 If you previously installed ONLYOFFICE Apps without a public domain or switched to HTTPS later, enable this job before the next upgrade:
 
 ```bash
-helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set ingress.host=docspace.example.com
+helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set ingress.host=apps.example.com
 ```
 
 > **Note:** The domain name and HTTPS/HTTP scheme will be applied from your current Ingress configuration.
@@ -1066,7 +1066,7 @@ helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabl
 If your Ingress is external or not managed by the chart, specify domain and protocol manually:
 
 ```bash
-helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=docspace.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
+helm upgrade [RELEASE_NAME] onlyoffice/apps   --set singlePortalDomain.job.enabled=true   --set singlePortalDomain.job.env.domain=apps.example.com   --set singlePortalDomain.job.env.appCoreServerRoot=https://*/
 ```
 
 #### For new installations

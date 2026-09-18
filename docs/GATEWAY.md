@@ -11,7 +11,7 @@ Before you begin, install the Gateway API CRDs and a controller. For [NGINX Gate
 To expose ONLYOFFICE Apps via the Gateway API over HTTP, set the `gateway.enabled` and the `gateway.host` parameters:
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/apps --set gateway.enabled=true --set gateway.host=docspace.example.com
+$ helm install [RELEASE_NAME] onlyoffice/apps --set gateway.enabled=true --set gateway.host=apps.example.com
 ```
 
 Note: The `gateway.host` field is optional. Access is also possible by IP address.
@@ -24,7 +24,7 @@ $ kubectl get gateway [RELEASE_NAME]-gateway -o jsonpath="{.status.addresses[*].
 
 Associate the Gateway address with your domain name through your DNS provider.
 
-In this case, ONLYOFFICE Apps will be available at `http://docspace.example.com/`.
+In this case, ONLYOFFICE Apps will be available at `http://apps.example.com/`.
 
 ## Expose ONLYOFFICE Apps via HTTPS
 
@@ -39,7 +39,7 @@ $ kubectl create secret tls tls-gw \
 ```
 
 ```bash
-$ helm install [RELEASE_NAME] onlyoffice/apps --set gateway.enabled=true,gateway.ssl.enabled=true,gateway.host=docspace.example.com
+$ helm install [RELEASE_NAME] onlyoffice/apps --set gateway.enabled=true,gateway.ssl.enabled=true,gateway.host=apps.example.com
 ```
 
 The `gateway.host` or `gateway.tenants` field is required.
@@ -83,7 +83,7 @@ $ helm install [RELEASE_NAME] onlyoffice/apps \
   --set gateway.ssl.enabled=true \
   --set gateway.letsencrypt.enabled=true \
   --set gateway.letsencrypt.email=you@example.com \
-  --set gateway.host=docspace.example.com
+  --set gateway.host=apps.example.com
 ```
 
 The chart creates a `ClusterIssuer`, and cert-manager solves the ACME HTTP-01 challenge through the Gateway, writing the issued certificate into the Secret named in `gateway.ssl.secret`. Run the following command to view the state of the certificate issuing:
