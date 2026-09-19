@@ -1207,7 +1207,7 @@ router:
   # Router service parameters
   service:
     # router.service.existing The name of an existing service for Router. If not set, a service named `router` will be created
-    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/router.yaml
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-Apps/blob/main/templates/services/router.yaml
     existing: ""
     # router.service.annotations Map of annotations to add to the Router service
     annotations: {}
@@ -6287,7 +6287,7 @@ proxyFrontend:
   # Proxy Frontend service parameters
   service:
     # proxyFrontend.service.existing The name of an existing service for Proxy Frontend. If not set, a service named `proxy-frontend` will be created
-    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/proxy-frontend.yaml
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-Apps/blob/main/templates/services/proxy-frontend.yaml
     existing: ""
     # proxyFrontend.service.annotations Map of annotations to add to the Proxy Frontend service
     annotations: {}
@@ -6301,7 +6301,7 @@ proxyFrontend:
 
 # ONLYOFFICE Apps ingress parameters
 # NGINX Ingress Controller must be installed
-# ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-f5-nginx-ingress-controller
+# ref: https://github.com/ONLYOFFICE/Kubernetes-Apps#121-installing-f5-nginx-ingress-controller
 #
 ingress:
   # ingress.enabled Enable the creation of an ingress for the ONLYOFFICE Apps

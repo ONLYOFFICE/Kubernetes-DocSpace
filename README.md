@@ -66,7 +66,7 @@ Note: It may be required to apply `SecurityContextConstraints` policy when insta
 To do this, run the following commands:
 
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/helm-components.yaml
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/helm-components.yaml
 $ oc adm policy add-scc-to-group scc-helm-components system:authenticated
 ```
 
@@ -106,7 +106,7 @@ See more details about installing NFS Server Provisioner via Helm [here](https:/
 To install MySQL to your cluster, run the following command:
 
 ```bash
-$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml --version 14.0.3 bitnami/mysql \
+$ helm install mysql -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/mysql_values.yaml --version 14.0.3 bitnami/mysql \
   --set auth.database=docspace \
   --set auth.username=onlyoffice_user \
   --set primary.persistence.storageClass=PERSISTENT_STORAGE_CLASS \
@@ -179,7 +179,7 @@ if you plan to use the already installed Onlyoffice Docs and it is deployed in t
 Also, specify the Namespace if the Docs is deployed in a different Namespace than ONLYOFFICE Apps is planned, for example, `documentserver.ds:8888`.
 Also, in the `connections.appUrlPortal` parameter, specify the router service name of the ONLYOFFICE Apps and the Namespace in which ONLYOFFICE Apps will be deployed, for example, `http://router.default:8092`.
 
-If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE Apps is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE Apps](https://github.com/ONLYOFFICE/Kubernetes-DocSpace/tree/main?tab=readme-ov-file#1-expose-onlyoffice-apps), for example, `https://apps.example.com`.
+If Kubernetes-Docs is deployed externally, relative to the cluster in which ONLYOFFICE Apps is planned to be deployed, then you need to specify the [external Docs address](https://github.com/ONLYOFFICE/Kubernetes-Docs?tab=readme-ov-file#53-expose-onlyoffice-docs) in the `connections.documentServerUrlExternal` parameter in the `http(s)://<documentserver-address>/` format and set `docs.enabled` to `false` and in the `connections.appUrlPortal` parameter, specify the [external address of the ONLYOFFICE Apps](https://github.com/ONLYOFFICE/Kubernetes-Apps/tree/main?tab=readme-ov-file#1-expose-onlyoffice-apps), for example, `https://apps.example.com`.
 
 Also, when using Kubernetes-Docs, installed not as a subchart, specify the ONLYOFFICE Apps JWT parameters the same as in Docs in `jwt.secret`, `jwt.header`, etc.
 
@@ -218,7 +218,7 @@ Note: It may be required to apply `SecurityContextConstraints` policy when insta
 To do this, run the following commands:
 
 ```
-$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/docspace-components.yaml
+$ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
 $ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 ```
 
@@ -955,12 +955,12 @@ NOTE: If you have an external Elasticsearch installed, please follow these steps
 3. Apply these files `elasticsearch-clear-indexes.yaml`:
 
   ```bash
-  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
+  kubectl apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/elasticsearch-clear-indexes.yaml
   ```
 After successfully executing the Pod `elasticsearch-clear-indexes` that created the Job, delete this Job with the following command:
 
   ``` bash
-  kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/elasticsearch-clear-indexes.yaml
+  kubectl delete -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/elasticsearch-clear-indexes.yaml
   ```
 ### 3. Scale ONLYOFFICE Apps (optional)
 
