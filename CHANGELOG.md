@@ -4,7 +4,7 @@
 
 ### Changes
 
-* Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`
+* Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`. See [Migration](docs/MIGRATION.md) for upgrade instructions
 * Renamed the application images from `onlyoffice/docspace-*` to `onlyoffice/apps-*`
 
 ## 3.4.0
