@@ -12,7 +12,7 @@ Check the Installation type
 {{- end -}}
 
 {{/*
-Get the DocSpace Namespace
+Get the ONLYOFFICE Apps Namespace
 */}}
 {{- define "docspace.namespace" -}}
 {{- if .Values.namespaceOverride -}}
@@ -23,7 +23,7 @@ Get the DocSpace Namespace
 {{- end -}}
 
 {{/*
-Get the DocSpace labels
+Get the ONLYOFFICE Apps labels
 */}}
 {{- define "docspace.labels.commonLabels" -}}
 {{- range $key, $value := .Values.commonLabels }}
@@ -32,7 +32,7 @@ Get the DocSpace labels
 {{- end -}}
 
 {{/*
-Get the DocSpace annotations
+Get the ONLYOFFICE Apps annotations
 */}}
 {{- define "docspace.annotations" -}}
 {{- $annotations := toYaml .keyName }}
@@ -44,7 +44,7 @@ Get the DocSpace annotations
 {{- end -}}
 
 {{/*
-Get the update strategy type for DocSpace Apps
+Get the update strategy type for ONLYOFFICE Apps
 */}}
 {{- define "docspace.update.strategyType" -}}
 {{- if eq .type "RollingUpdate" -}}
@@ -55,7 +55,7 @@ Get the update strategy type for DocSpace Apps
 {{- end -}}
 
 {{/*
-Get the DocSpace Service Account name
+Get the ONLYOFFICE Apps Service Account name
 */}}
 {{- define "docspace.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
@@ -66,7 +66,7 @@ Get the DocSpace Service Account name
 {{- end -}}
 
 {{/*
-Get the DocSpace Identity Service Account name
+Get the ONLYOFFICE Apps Identity Service Account name
 */}}
 {{- define "docspace.identity.serviceAccountName" -}}
 {{- if .Values.identity.serviceAccount.create -}}
@@ -79,7 +79,7 @@ Get the DocSpace Identity Service Account name
 {{- end -}}
 
 {{/*
-Get the DocSpace Security Context
+Get the ONLYOFFICE Apps Security Context
 */}}
 {{- define "docspace.securityContext" -}}
 {{- if not .seLinuxOptions -}}
@@ -101,7 +101,7 @@ A function to return correct registry.
 {{- end -}}
 
 {{/*
-Get the DocSpace image repository
+Get the ONLYOFFICE Apps image repository
 */}}
 {{- define "docspace.imageRepository" -}}
 {{- $context := index . 0 -}}
@@ -231,7 +231,7 @@ Get the Broker URI
 {{- end -}}
 
 {{/*
-Get the DocSpace Url Portal
+Get the ONLYOFFICE Apps Url Portal
 */}}
 {{- define "docspace.url.portal" -}}
 {{- if empty .Values.connections.appUrlPortal -}}
@@ -299,7 +299,7 @@ Return Core Machine Key
 {{- end -}}
 
 {{/*
-Return resolver for DocSpace Router
+Return resolver for ONLYOFFICE Apps Router
 */}}
 {{- define "docspace.router.resolver" -}}
 {{- if .Values.router.resolver.dns -}}
@@ -310,7 +310,7 @@ Return resolver for DocSpace Router
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for DocSpace Router
+Return true if a service object should be created for ONLYOFFICE Apps Router
 */}}
 {{- define "docspace.svc.router.create" -}}
 {{- if empty .Values.router.service.existing }}
@@ -319,7 +319,7 @@ Return true if a service object should be created for DocSpace Router
 {{- end -}}
 
 {{/*
-Get the service name for DocSpace Router
+Get the service name for ONLYOFFICE Apps Router
 */}}
 {{- define "docspace.svc.router.name" -}}
 {{- if .Values.router.service.existing -}}
@@ -330,7 +330,7 @@ Get the service name for DocSpace Router
 {{- end -}}
 
 {{/*
-Return true if a service object should be created for DocSpace Proxy Frontend
+Return true if a service object should be created for ONLYOFFICE Apps Proxy Frontend
 */}}
 {{- define "docspace.svc.proxyFrontend.create" -}}
 {{- if empty .Values.proxyFrontend.service.existing }}
@@ -339,7 +339,7 @@ Return true if a service object should be created for DocSpace Proxy Frontend
 {{- end -}}
 
 {{/*
-Get the service name for DocSpace Proxy Frontend
+Get the service name for ONLYOFFICE Apps Proxy Frontend
 */}}
 {{- define "docspace.svc.proxyFrontend.name" -}}
 {{- if .Values.proxyFrontend.service.existing -}}
@@ -350,7 +350,7 @@ Get the service name for DocSpace Proxy Frontend
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace Data
+Get the PVC name for ONLYOFFICE Apps Data
 */}}
 {{- define "docspace.pvc.data.name" -}}
 {{- if .Values.persistence.docspaceData.existingClaim -}}
@@ -361,7 +361,7 @@ Get the PVC name for DocSpace Data
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for DocSpace Data
+Return true if a pvc object should be created for ONLYOFFICE Apps Data
 */}}
 {{- define "docspace.pvc.data.create" -}}
 {{- if empty .Values.persistence.docspaceData.existingClaim }}
@@ -370,7 +370,7 @@ Return true if a pvc object should be created for DocSpace Data
 {{- end -}}
 
 {{/*
-Get the PVC name for DocSpace Router log
+Get the PVC name for ONLYOFFICE Apps Router log
 */}}
 {{- define "docspace.pvc.router.name" -}}
 {{- if .Values.persistence.routerLog.existingClaim -}}
@@ -381,7 +381,7 @@ Get the PVC name for DocSpace Router log
 {{- end -}}
 
 {{/*
-Return true if a pvc object should be created for DocSpace Router log
+Return true if a pvc object should be created for ONLYOFFICE Apps Router log
 */}}
 {{- define "docspace.pvc.router.create" -}}
 {{- if empty .Values.persistence.routerLog.existingClaim }}
@@ -469,7 +469,7 @@ Get the domain for single-portal setups
 {{- end }}
 
 {{/*
-Get the Gateway name for DocSpace
+Get the Gateway name for ONLYOFFICE Apps
 */}}
 {{- define "docspace.gateway.name" -}}
 {{- default (printf "%s-gateway" .Release.Name) .Values.gateway.name }}

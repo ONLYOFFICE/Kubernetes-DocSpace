@@ -1,6 +1,6 @@
-# Global parameters for DocSpace and Docs
+# Global parameters for ONLYOFFICE Apps and Docs
 #
-# global.installationType Defines solution type for DocSpace and Docs
+# global.installationType Defines solution type for ONLYOFFICE Apps and Docs
 # Possible values are `DEVELOPER` or `ENTERPRISE`
 global:
   installationType: "ENTERPRISE"
@@ -10,7 +10,7 @@ global:
 #
 docs:
   # docs.enabled Enables Onlyoffice Docs subchart installation
-  # Set to `false` if you plan to use the already installed Onlyoffice Docs or install DocSpace without it
+  # Set to `false` if you plan to use the already installed Onlyoffice Docs or install ONLYOFFICE Apps without it
   enabled: true
   # Image parameters for Onlyoffice Docs subchart
   images:
@@ -18,7 +18,7 @@ docs:
     registry: ""
   connections:
     # Onlyoffice Docs Database connection parameters
-    # By default, the same Database connection is used as for DocSpace
+    # By default, the same Database connection is used as for ONLYOFFICE Apps
     # docs.connections.dbType The Database type
     dbType: mysql
     # docs.connections.dbHost The IP address or the name of the Database host
@@ -40,7 +40,7 @@ docs:
     # If set to, it takes priority over the `docs.connections.dbExistingSecret`
     dbPassword: ""
     # Onlyoffice Docs Redis connection parameters
-    # By default, the same Redis connection is used as for DocSpace, except for `docs.connections.redisDBNum`
+    # By default, the same Redis connection is used as for ONLYOFFICE Apps, except for `docs.connections.redisDBNum`
     # docs.connections.redisHost The IP address or the name of the Redis host
     redisHost: redis-master
     # docs.connections.redisPort The Redis server port number
@@ -64,7 +64,7 @@ docs:
     # If the connection to Redis server does not require a password, set the value to `true`
     redisNoPass: false
     # Onlyoffice Docs RabbitMQ connection parameters
-    # By default, the same RabbitMQ connection is used as for DocSpace
+    # By default, the same RabbitMQ connection is used as for ONLYOFFICE Apps
     # docs.connections.amqpType Defines the AMQP server type
     amqpType: rabbitmq
     # docs.connections.amqpHost The IP address or the name of the AMQP server
@@ -89,14 +89,17 @@ docs:
   # docs.service.port ONLYOFFICE Docs service port
   service:
     port: "80"
+  # docs.persistence.storageClass PVC Storage Class for Onlyoffice Docs data and runtime config volumes
+  persistence:
+    storageClass: "nfs"
   # docs.license.existingClaim Name of the existing PVC in which the license is stored
   # Must contain the file `license.lic`
-  # By default, a PVC is connected, in which a license is added when using DocSpace Enterprise
+  # By default, a PVC is connected, in which a license is added when using ONLYOFFICE Apps Enterprise
   license:
     existingClaim: "docspace-data"
   # docs.jwt.existingSecret The name of an existing secret containing variables for jwt
   # If not specified, a secret named `jwt` will be created
-  # By default, the jwt secret is used, which will be created with values from the jwt DocSpace
+  # By default, the jwt secret is used, which will be created with values from the jwt ONLYOFFICE Apps
   jwt:
     existingSecret: "docspace-jwt"
   # docs.upgrade.job.enabled Enable the execution of job Docs pre-upgrade before upgrading
@@ -112,15 +115,15 @@ docs:
     job:
       enabled: true
 
-# Default values for DocSpace
+# Default values for ONLYOFFICE Apps
 
 ## product.name Specifies name of the product
 ## This is a service variable. You don't need to change it
 product:
   name: onlyoffice
 
-# DocSpace common parameters
-# This block defines common parameters for all DocSpace Apps services
+# ONLYOFFICE Apps common parameters
+# This block defines common parameters for all ONLYOFFICE Apps Apps services
 #
 # Connection parameters to services
 connections:
@@ -176,6 +179,8 @@ connections:
   # connections.redisNoPass Defines whether to use a Redis auth without a password
   # If the connection to Redis server does not require a password, set the value to `true`
   redisNoPass: false
+  # connections.redisSSL Enables SSL/TLS for the connection to the Redis server
+  redisSSL: false
   # connections.brokerHost The IP address or the name of the Broker host
   brokerHost: rabbitmq
   # connections.brokerPort The port for the connection to Broker host
@@ -206,71 +211,73 @@ connections:
   elkPort: "9200"
   # connections.elkThreads Number of threads in Opensearch
   elkThreads: "1"
-  # connections.apiHost The name of the DocSpace Api service
+  # connections.apiHost The name of the ONLYOFFICE Apps Api service
   apiHost: api
   # connections.apiHostInternalRequests Enables sending some Api requests over the internal network
   apiHostInternalRequests: true
-  # connections.apiSystemHost The name of the DocSpace Api System service
+  # connections.apiSystemHost The name of the ONLYOFFICE Apps Api System service
   apiSystemHost: api-system
-  # connections.notifyHost The name of the DocSpace Notify service
+  # connections.notifyHost The name of the ONLYOFFICE Apps Notify service
   notifyHost: notify
-  # connections.studioNotifyHost The name of the DocSpace Studio Notify service
+  # connections.studioNotifyHost The name of the ONLYOFFICE Apps Studio Notify service
   studioNotifyHost: studio-notify
-  # connections.socketHost The name of the DocSpace Socket service
+  # connections.socketHost The name of the ONLYOFFICE Apps Socket service
   socketHost: socket
-  # connections.peopleServerHost The name of the DocSpace People Server service
+  # connections.peopleServerHost The name of the ONLYOFFICE Apps People Server service
   peopleServerHost: people-server
-  # connections.filesHost The name of the DocSpace Files service
+  # connections.filesHost The name of the ONLYOFFICE Apps Files service
   filesHost: files
-  # connections.filesServicesHost The name of the DocSpace Files Services service
-  filesServicesHost: files-worker
-  # connections.studioHost The name of the DocSpace Studio service
+  # connections.filesWorkerHost The name of the ONLYOFFICE Apps Files Worker service
+  filesWorkerHost: files-worker
+  # connections.studioHost The name of the ONLYOFFICE Apps Studio service
   studioHost: studio
-  # connections.backupHost The name of the DocSpace Backup service
+  # connections.backupHost The name of the ONLYOFFICE Apps Backup service
   backupHost: backup
-  # connections.ssoauthHost The name of the DocSpace SSO service
+  # connections.ssoauthHost The name of the ONLYOFFICE Apps SSO service
   ssoauthHost: ssoauth
-  # connections.clearEventsHost The name of the DocSpace Clear Events service
+  # connections.clearEventsHost The name of the ONLYOFFICE Apps Clear Events service
   clearEventsHost: clear-events
-  # connections.doceditorHost The name of the DocSpace Doceditor service
+  # connections.doceditorHost The name of the ONLYOFFICE Apps Doceditor service
   doceditorHost: doceditor
-  # connections.backupWorkerHost The name of the DocSpace Backup Worker service
+  # connections.backupWorkerHost The name of the ONLYOFFICE Apps Backup Worker service
   backupWorkerHost: backup-worker
-  # connections.loginHost The name of the DocSpace Login service
+  # connections.loginHost The name of the ONLYOFFICE Apps Login service
   loginHost: login
-  # connections.healthchecksHost The name of the DocSpace Healthchecks service
+  # connections.healthchecksHost The name of the ONLYOFFICE Apps Healthchecks service
   healthchecksHost: healthchecks
-  # connections.identityApiHost The name of the DocSpace Identity Api service
+  # connections.identityApiHost The name of the ONLYOFFICE Apps Identity Api service
   identityApiHost: identity-api
-  # connections.identityAuthorizationHost The name of the DocSpace Identity service
+  # connections.identityAuthorizationHost The name of the ONLYOFFICE Apps Identity service
   identityAuthorizationHost: identity-authorization
-  # connections.sdkHost The name of the DocSpace SDK service
+  # connections.sdkHost The name of the ONLYOFFICE Apps SDK service
   sdkHost: sdk
-  # connections.telegramHost The name of the DocSpace Telegram service
+  # connections.telegramHost The name of the ONLYOFFICE Apps Telegram service
   telegramHost: telegram
-  # connections.managementHost The name of the DocSpace Management service
+  # connections.managementHost The name of the ONLYOFFICE Apps Management service
   managementHost: management
-  # connections.aiHost The name of the DocSpace AI service
+  # connections.aiHost The name of the ONLYOFFICE Apps AI service
   aiHost: ai
-  # connections.aiWorkerHost The name of the DocSpace AI Worker service
+  # connections.aiWorkerHost The name of the ONLYOFFICE Apps AI Worker service
   aiWorkerHost: ai-worker
-  # connections.aiMCPHost The name of the DocSpace AI MCP service
+  # connections.aiMCPHost The name of the ONLYOFFICE Apps AI MCP service
   aiMCPHost: ai-mcp
+  # connections.aiChatHost The name of the ONLYOFFICE Apps AI Chat service
+  aiChatHost: ai-chat
   # connections.documentServerHost The name of the Document Server service
   # Used when installing a local Document Server (by default `docs.enabled=true`)
-  # If you want to install DocSpace without Document Server then specify an empty value
+  # If you want to install ONLYOFFICE Apps without Document Server then specify an empty value
   documentServerHost: documentserver
   # connections.documentServerUrlExternal The address of the external Document Server
   # If set, the local Document Server will not be installed
   # The address must be in the `http(s)://<documentserver-address>/` format
   documentServerUrlExternal: ""
-  # connections.appUrlPortal URL for DocSpace requests
+  # connections.appUrlPortal URL for ONLYOFFICE Apps requests
   # By default, the name of the routing (Router) service and the port on which it accepts requests are used
   appUrlPortal: "http://router:8092"
-  # connections.appCoreBaseDomain The base domain on which the DocSpace will be available
+  # connections.appCoreBaseDomain The base domain on which the ONLYOFFICE Apps will be available
   appCoreBaseDomain: localhost
   appCoreMachinekey:
-    # connections.appCoreMachinekey.secretKey The secret key used in the DocSpace
+    # connections.appCoreMachinekey.secretKey The secret key used in the ONLYOFFICE Apps
     secretKey: "your_core_machinekey"
     # connections.appCoreMachinekey.existingSecret The name of an existing secret containing Core Machine Key
     # Must contain the `APP_CORE_MACHINEKEY` key
@@ -285,8 +292,8 @@ connections:
   wrongPortalNameURL: ""
   # connections.oauthOrigin The address of the OAUTH2 server
   oauthOrigin: ""
-  # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for DocSpace services
-  # In particular, the networks in which the proxies that you are using in front of DocSpace services are located should be indicated here
+  # connections.appKnownNetworks Defines the address ranges of known networks to accept forwarded headers from for ONLYOFFICE Apps services
+  # In particular, the networks in which the proxies that you are using in front of ONLYOFFICE Apps services are located should be indicated here
   # Provide IP ranges using CIDR notation
   # Example:
   # appKnownNetworks: "10.244.0.0/16,10.245.0.0/16"
@@ -303,7 +310,7 @@ connections:
   hostAliases: []
   # connections.oauthRedirectURL Address of the oauth authorization server
   oauthRedirectURL: "https://service.onlyoffice.com/oauth2.aspx"
-# namespaceOverride The name of the namespace in which DocSpace will be deployed
+# namespaceOverride The name of the namespace in which ONLYOFFICE Apps will be deployed
 # If not set, the name will be taken from .Release.Namespace
 namespaceOverride: ""
 # commonLabels Defines labels that will be additionally added to all the deployed resources
@@ -325,8 +332,8 @@ commonLabels: {}
 #   "key1": "value1"
 #   "key2": "{{ value2 }}"
 commonAnnotations: {}
-# podAnnotations Map of annotations to add to the DocSpace pods
-# Each Docspace application can override the values specified here with its own
+# podAnnotations Map of annotations to add to the ONLYOFFICE Apps pods
+# Each ONLYOFFICE Apps application can override the values specified here with its own
 podAnnotations:
   rollme: "{{ randAlphaNum 5 | quote }}"
 # Service account parameters
@@ -344,75 +351,75 @@ serviceAccount:
   # Used only if `serviceAccount.create` is `true`
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting
   automountServiceAccountToken: true
-# Configure a Security Context for the DocSpace application Pods
-# Each Docspace application can override the values specified here with its own
+# Configure a Security Context for the ONLYOFFICE Apps application Pods
+# Each ONLYOFFICE Apps application can override the values specified here with its own
 # Individual values for `docs` and `elasticsearch`
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   # podSecurityContext.enabled Enable security context for the pods
   # If set to true, `podSecurityContext` is enabled for all resources describing the podTemplate
   enabled: false
-  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the DocSpace application Pods
+  # podSecurityContext.fsGroup Defines the Group ID to which the owner and permissions for all files in volumes are changed when mounted in the ONLYOFFICE Apps application Pods
   fsGroup: 107
-# Configure a Security Context for containers in DocSpace application Pods
-# Each Docspace application can override the values specified here with its own
+# Configure a Security Context for containers in ONLYOFFICE Apps application Pods
+# Each ONLYOFFICE Apps application can override the values specified here with its own
 # Individual values for `docs` and `elasticsearch`
 containerSecurityContext:
-  # containerSecurityContext.enabled Enable security context for containers in DocSpace application pods
+  # containerSecurityContext.enabled Enable security context for containers in ONLYOFFICE Apps application pods
   enabled: false
-  # containerSecurityContext.runAsUser User ID for the DocSpace application containers
+  # containerSecurityContext.runAsUser User ID for the ONLYOFFICE Apps application containers
   runAsUser: 104
-  # containerSecurityContext.runAsGroup Group ID for the DocSpace application containers
+  # containerSecurityContext.runAsGroup Group ID for the ONLYOFFICE Apps application containers
   runAsGroup: 107
   # containerSecurityContext.runAsNonRoot Require that the container will run with a user with UID other than 0
   runAsNonRoot: true
   # containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
   allowPrivilegeEscalation: false
-  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace application containers
+  # containerSecurityContext.seLinuxOptions Defines SELinux labels for the ONLYOFFICE Apps application containers
   seLinuxOptions: {}
-  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace application containers
+  # containerSecurityContext.seccompProfile Defines the Seccomp profile for the ONLYOFFICE Apps application containers
   seccompProfile:
     type: RuntimeDefault
   # containerSecurityContext.capabilities Defines the privileges granted to the process
   capabilities:
     drop: ["ALL"]
-# nodeSelector Node labels for DocSpace application pods assignment
-# Each Docspace application can override the values specified here with its own
+# nodeSelector Node labels for ONLYOFFICE Apps application pods assignment
+# Each ONLYOFFICE Apps application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
-# tolerations Tolerations for DocSpace application pods assignment
-# Each Docspace application can override the values specified here with its own
+# tolerations Tolerations for ONLYOFFICE Apps application pods assignment
+# Each ONLYOFFICE Apps application can override the values specified here with its own
 # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
 # imagePullSecrets Container image registry secret name
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: ""
-# Global image parameters for for all DocSpace applications
+# Global image parameters for for all ONLYOFFICE Apps applications
 # Does not apply to the Document Server, Elasticsearch and Proxy Frontend
 images:
-  # images.repoPrefix Global repository prefix for all DocSpace applications
+  # images.repoPrefix Global repository prefix for all ONLYOFFICE Apps applications
   repoPrefix: ""
-  # images.tag Global image tag for all DocSpace applications
+  # images.tag Global image tag for all ONLYOFFICE Apps applications
   # Does not apply to the Document Server and Elasticsearch
-  tag: 3.7.2
-  ## images.registry Global image registry for all DocSpace containers
+  tag: 4.0.0
+  ## images.registry Global image registry for all ONLYOFFICE Apps containers
   registry: ""
-# Global amount of replicas for all DocSpace applications
+# Global amount of replicas for all ONLYOFFICE Apps applications
 replicas: 2
 # JSON Web Token parameters
 jwt:
-  # jwt.enabled Specifies the enabling the JSON Web Token validation by the DocSpace
+  # jwt.enabled Specifies the enabling the JSON Web Token validation by the ONLYOFFICE Apps
   enabled: true
-  # jwt.secret Defines the secret key to validate the JSON Web Token in the request to the DocSpace
+  # jwt.secret Defines the secret key to validate the JSON Web Token in the request to the ONLYOFFICE Apps
   secret: "jwt_secret"
   # jwt.header Defines the http header that will be used to send the JSON Web Token
   header: "AuthorizationJwt"
-  # jwt.inBody Specifies the enabling the token validation in the request body to the DocSpace
+  # jwt.inBody Specifies the enabling the token validation in the request body to the ONLYOFFICE Apps
   inBody: false
   # jwt.existingSecret The name of an existing secret containing variables for jwt
   # If not specified, a secret named `jwt` will be created
   existingSecret: ""
-# Configs for overriding default values and additional configuration files for DocSpace
+# Configs for overriding default values and additional configuration files for ONLYOFFICE Apps
 extraConf:
   # extraConf.secretName The name of the Secret containing the json files that override the default values and additional configuration files
   secretName: ""
@@ -429,7 +436,7 @@ debug:
   enabled: "false"
 # nodeOptions
 nodeOptions: "--max_old_space_size=4096"
-# DocSpace Init Containers parameters
+# ONLYOFFICE Apps Init Containers parameters
 # Containers that run before containers in a Pods
 # ref:https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 initContainers:
@@ -466,9 +473,9 @@ initContainers:
   #     - name: docspace-data
   #       mountPath: /app/onlyoffice/data
   custom: []
-# DocSpace persistence parameters
+# ONLYOFFICE Apps persistence parameters
 persistence:
-  # persistence.storageClass PVC Storage Class for DocSpace data volume
+  # persistence.storageClass PVC Storage Class for ONLYOFFICE Apps data volume
   storageClass: "nfs"
   docspaceData:
     # persistence.docspaceData.existingClaim The name of the existing PVC for storing files common to all services
@@ -502,7 +509,7 @@ podAntiAffinity:
   # podAntiAffinity.weight Priority when selecting node. It is in the range from 1 to 100. Used only when `podAntiAffinity.type=preferred`
   weight: "100"
 
-# DocSpace Files application parameters
+# ONLYOFFICE Apps Files application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 files:
@@ -651,7 +658,7 @@ files:
     # files.image.registry files container image registry
     registry: ""
     # files.image.repository files container image repository
-    repository: onlyoffice/docspace-files
+    repository: onlyoffice/apps-files
     # files.image.tag files container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -760,7 +767,7 @@ files:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace People Server application parameters
+# ONLYOFFICE Apps People Server application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 peopleServer:
@@ -872,7 +879,7 @@ peopleServer:
     # peopleServer.image.registry People Server container image registry
     registry: ""
     # peopleServer.image.repository People Server container image repository
-    repository: onlyoffice/docspace-people-server
+    repository: onlyoffice/apps-people-server
     # peopleServer.image.tag People Server container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -962,7 +969,7 @@ peopleServer:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Router application parameters
+# ONLYOFFICE Apps Router application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 router:
@@ -1084,7 +1091,7 @@ router:
     # router.image.registry Router container image registry
     registry: ""
     # router.image.repository Router container image repository
-    repository: onlyoffice/docspace-router
+    repository: onlyoffice/apps-router
     # router.image.tag Router container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1200,7 +1207,7 @@ router:
   # Router service parameters
   service:
     # router.service.existing The name of an existing service for Router. If not set, a service named `router` will be created
-    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/router.yaml
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-Apps/blob/main/templates/services/router.yaml
     existing: ""
     # router.service.annotations Map of annotations to add to the Router service
     annotations: {}
@@ -1239,7 +1246,7 @@ router:
     # local: "/tmp/resolv.conf"
     local: "on"
 
-# DocSpace Healthchecks application parameters
+# ONLYOFFICE Apps Healthchecks application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 healthchecks:
@@ -1351,7 +1358,7 @@ healthchecks:
     # healthchecks.image.registry Healthchecks container image registry
     registry: ""
     # healthchecks.image.repository Healthchecks container image repository
-    repository: onlyoffice/docspace-healthchecks
+    repository: onlyoffice/apps-healthchecks
     # healthchecks.image.tag Healthchecks container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1431,9 +1438,9 @@ healthchecks:
   ## healthchecks.extraVolumeMounts An array with extra volume mounts for the Healthchecks container
   extraVolumeMounts: []
 
-# DocSpace statefulsets
+# ONLYOFFICE Apps statefulsets
 #
-# DocSpace Api System application parameters
+# ONLYOFFICE Apps Api System application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 apiSystem:
@@ -1558,7 +1565,7 @@ apiSystem:
     # apiSystem.image.registry Api System container image registry
     registry: ""
     # apiSystem.image.repository Api System container image repository
-    repository: onlyoffice/docspace-api-system
+    repository: onlyoffice/apps-api-system
     # apiSystem.image.tag Api System container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1648,7 +1655,7 @@ apiSystem:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Api application parameters
+# ONLYOFFICE Apps Api application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 api:
@@ -1773,7 +1780,7 @@ api:
     # api.image.registry Api container image registry
     registry: ""
     # api.image.repository Api container image repository
-    repository: onlyoffice/docspace-api
+    repository: onlyoffice/apps-api
     # api.image.tag Api container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -1868,7 +1875,7 @@ api:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup application parameters
+# ONLYOFFICE Apps Backup application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 backup:
@@ -1983,7 +1990,7 @@ backup:
     # backup.image.registry Backup container image registry
     registry: ""
     # backup.image.repository Backup container image repository
-    repository: onlyoffice/docspace-backup
+    repository: onlyoffice/apps-backup
     # backup.image.tag Backup container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2073,7 +2080,7 @@ backup:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Backup Worker application parameters
+# ONLYOFFICE Apps Backup Worker application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 backupWorker:
@@ -2188,7 +2195,7 @@ backupWorker:
     # backupWorker.image.registry Backup Worker container image registry
     registry: ""
     # backupWorker.image.repository Backup Worker container image repository
-    repository: onlyoffice/docspace-backup-worker
+    repository: onlyoffice/apps-backup-worker
     # backupWorker.image.tag Backup Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2278,7 +2285,7 @@ backupWorker:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Clear Events application parameters
+# ONLYOFFICE Apps Clear Events application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 clearEvents:
@@ -2393,7 +2400,7 @@ clearEvents:
     # clearEvents.image.registry Clear Events container image registry
     registry: ""
     # clearEvents.image.repository Clear Events container image repository
-    repository: onlyoffice/docspace-clear-events
+    repository: onlyoffice/apps-clear-events
     # clearEvents.image.tag Clear Events container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2483,7 +2490,7 @@ clearEvents:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Doceditor application parameters
+# ONLYOFFICE Apps Doceditor application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 doceditor:
@@ -2598,7 +2605,7 @@ doceditor:
     # doceditor.image.registry Doceditor container image registry
     registry: ""
     # doceditor.image.repository Doceditor container image repository
-    repository: onlyoffice/docspace-doceditor
+    repository: onlyoffice/apps-doceditor
     # doceditor.image.tag Doceditor container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2688,7 +2695,7 @@ doceditor:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Files Worker application parameters
+# ONLYOFFICE Apps Files Worker application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 filesWorker:
@@ -2803,7 +2810,7 @@ filesWorker:
     # filesWorker.image.registry Files Worker container image registry
     registry: ""
     # filesWorker.image.repository Files Worker container image repository
-    repository: onlyoffice/docspace-files-worker
+    repository: onlyoffice/apps-files-worker
     # filesWorker.image.tag Files Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -2893,7 +2900,7 @@ filesWorker:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Login application parameters
+# ONLYOFFICE Apps Login application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 login:
@@ -3008,7 +3015,7 @@ login:
     # login.image.registry Login container image registry
     registry: ""
     # login.image.repository Login container image repository
-    repository: onlyoffice/docspace-login
+    repository: onlyoffice/apps-login
     # login.image.tag Login container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3098,7 +3105,7 @@ login:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Identity application parameters
+# ONLYOFFICE Apps Identity application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 identity:
@@ -3147,7 +3154,7 @@ identity:
     # identity.secret.generate If true, a new secret will be automatically generated
     # If you experience OAuth2 access issues, set this to "false"
     generate: "true"
-  # DocSpace Identity Authorization application parameters
+  # ONLYOFFICE Apps Identity Authorization application parameters
   # This block defines the parameters common to all the Pods of this application
   #
   authorization:
@@ -3260,7 +3267,7 @@ identity:
       # identity.authorization.image.registry Identity container image registry
       registry: ""
       # identity.authorization.image.repository Identity container image repository
-      repository: onlyoffice/docspace-identity-authorization
+      repository: onlyoffice/apps-identity-authorization
       # identity.authorization.image.tag Identity container image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -3353,7 +3360,7 @@ identity:
     # If not set, `connections.mysqlUser` will be used
     # If set to, it takes priority over the `connections.mysqlUser`
     mysqlUser: ""
-  # DocSpace Identity API application parameters
+  # ONLYOFFICE Apps Identity API application parameters
   # This block defines the parameters common to all the Pods of this application
   #
   api:
@@ -3466,7 +3473,7 @@ identity:
       # identity.api.image.registry Identity Api container image registry
       registry: ""
       # identity.api.image.repository Identity Api container image repository
-      repository: onlyoffice/docspace-identity-api
+      repository: onlyoffice/apps-identity-api
       # identity.api.image.tag Identity Api container image tag
       # If set to, it takes priority over the `images.tag`
       tag: ""
@@ -3560,7 +3567,7 @@ identity:
     # If set to, it takes priority over the `connections.mysqlUser`
     mysqlUser: ""
 
-# DocSpace Notify application parameters
+# ONLYOFFICE Apps Notify application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 notify:
@@ -3675,7 +3682,7 @@ notify:
     # notify.image.registry Notify container image registry
     registry: ""
     # notify.image.repository Notify container image repository
-    repository: onlyoffice/docspace-notify
+    repository: onlyoffice/apps-notify
     # notify.image.tag Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3765,7 +3772,7 @@ notify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Socket application parameters
+# ONLYOFFICE Apps Socket application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 socket:
@@ -3880,7 +3887,7 @@ socket:
     # socket.image.registry Socket container image registry
     registry: ""
     # socket.image.repository Socket container image repository
-    repository: onlyoffice/docspace-socket
+    repository: onlyoffice/apps-socket
     # socket.image.tag Socket container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -3972,7 +3979,7 @@ socket:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace ssoauth application parameters
+# ONLYOFFICE Apps ssoauth application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 ssoauth:
@@ -4087,7 +4094,7 @@ ssoauth:
     # ssoauth.image.registry ssoauth container image registry
     registry: ""
     # ssoauth.image.repository ssoauth container image repository
-    repository: onlyoffice/docspace-ssoauth
+    repository: onlyoffice/apps-ssoauth
     # ssoauth.image.tag ssoauth container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4179,7 +4186,7 @@ ssoauth:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio application parameters
+# ONLYOFFICE Apps Studio application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 studio:
@@ -4294,7 +4301,7 @@ studio:
     # studio.image.registry Studio container image registry
     registry: ""
     # studio.image.repository Studio container image repository
-    repository: onlyoffice/docspace-studio
+    repository: onlyoffice/apps-studio
     # studio.image.tag Studio container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4384,7 +4391,7 @@ studio:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Studio Notify application parameters
+# ONLYOFFICE Apps Studio Notify application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 studioNotify:
@@ -4499,7 +4506,7 @@ studioNotify:
     # studioNotify.image.registry Studio Notify container image registry
     registry: ""
     # studioNotify.image.repository Studio Notify container image repository
-    repository: onlyoffice/docspace-studio-notify
+    repository: onlyoffice/apps-studio-notify
     # studioNotify.image.tag Studio Notify container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4589,7 +4596,7 @@ studioNotify:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace SDK application parameters
+# ONLYOFFICE Apps SDK application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 sdk:
@@ -4704,7 +4711,7 @@ sdk:
     # sdk.image.registry SDK container image registry
     registry: ""
     # sdk.image.repository SDK container image repository
-    repository: onlyoffice/docspace-sdk
+    repository: onlyoffice/apps-sdk
     # sdk.image.tag SDK container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4794,7 +4801,7 @@ sdk:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Telegram application parameters
+# ONLYOFFICE Apps Telegram application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 telegram:
@@ -4909,7 +4916,7 @@ telegram:
     # telegram.image.registry Telegram container image registry
     registry: ""
     # telegram.image.repository Telegram container image repository
-    repository: onlyoffice/docspace-telegram
+    repository: onlyoffice/apps-telegram
     # telegram.image.tag Telegram container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -4999,7 +5006,7 @@ telegram:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Management application parameters
+# ONLYOFFICE Apps Management application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 management:
@@ -5114,7 +5121,7 @@ management:
     # management.image.registry Management container image registry
     registry: ""
     # management.image.repository Management container image repository
-    repository: onlyoffice/docspace-management
+    repository: onlyoffice/apps-management
     # management.image.tag Management container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5204,7 +5211,7 @@ management:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace AI application parameters
+# ONLYOFFICE Apps AI application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 ai:
@@ -5329,7 +5336,7 @@ ai:
     # ai.image.registry AI container image registry
     registry: ""
     # ai.image.repository AI container image repository
-    repository: onlyoffice/docspace-ai
+    repository: onlyoffice/apps-ai
     # ai.image.tag AI container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5424,7 +5431,7 @@ ai:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace AI Service application parameters
+# ONLYOFFICE Apps AI Service application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 aiWorker:
@@ -5549,7 +5556,7 @@ aiWorker:
     # aiWorker.image.registry AI Worker container image registry
     registry: ""
     # aiWorker.image.repository AI Worker container image repository
-    repository: onlyoffice/docspace-ai-worker
+    repository: onlyoffice/apps-ai-worker
     # aiWorker.image.tag AI Worker container image tag
     # If set to, it takes priority over the `images.tag`
     tag: ""
@@ -5644,7 +5651,7 @@ aiWorker:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace AI MCP StatefulSet parameters
+# ONLYOFFICE Apps AI MCP StatefulSet parameters
 #
 aiMCP:
   # aiMCP.enabled Enables AI MCP installation
@@ -5814,7 +5821,227 @@ aiMCP:
   # If set to, it takes priority over the `connections.mysqlUser`
   mysqlUser: ""
 
-# DocSpace Proxy Frontend application parameters
+# ONLYOFFICE Apps AI Chat application parameters
+# This block defines the parameters common to all the Pods of this application
+#
+aiChat:
+  # aiChat.enabled Enables AI Chat installation
+  enabled: true
+  # aiChat.kind The controller used for deploy
+  # Possible values are `Deployment` (default) or `StatefulSet`
+  kind: Deployment
+  # aiChat.annotations Defines annotations that will be additionally added to AI Chat deploy
+  # If set to, it takes priority over the `commonAnnotations`
+  # You can also use `tpl` as the value for the key
+  annotations: {}
+  # aiChat.replicaCount Number of AI Chat replicas to deploy
+  # If the `aiChat.autoscaling.enabled` parameter is enabled, it is ignored
+  # If set to, it takes priority over the `replicas`
+  replicaCount: ""
+  # Update strategy used to replace old Pods by new ones
+  updateStrategy:
+    # aiChat.updateStrategy.type AI Chat update strategy type
+    # Allowed values: `RollingUpdate` or `OnDelete` if `aiChat.kind` is set to `StatefulSet` and `RollingUpdate` or `Recreate` if `aiChat.kind` is set to `Deployment`
+    type: RollingUpdate
+    # aiChat.updateStrategy.rollingUpdate Used only when `aiChat.updateStrategy.type=RollingUpdate`
+    rollingUpdate:
+      # aiChat.updateStrategy.rollingUpdate.maxUnavailable Maximum number of AI Chat Pods unavailable during the update process
+      maxUnavailable: 25%
+      # aiChat.updateStrategy.rollingUpdate.maxSurge Maximum number of AI Chat Pods created over the desired number of Pods
+      maxSurge: 25%
+  # aiChat.podManagementPolicy The AI Chat Pods scaling operations policy
+  # Used if `aiChat.kind` is set to `StatefulSet`
+  # ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#pod-management-policies
+  podManagementPolicy: OrderedReady
+  # aiChat.podAnnotations Map of annotations to add to the AI Chat pods
+  podAnnotations: {}
+  # Configure a Security Context for the AI Chat Pods
+  # If set to, it takes priority over the `podSecurityContext`
+  podSecurityContext:
+    # aiChat.podSecurityContext.enabled Enable security context for the AI Chat pods
+    enabled: false
+  # aiChat.customPodAntiAffinity Prohibiting the scheduling of AI Chat Pods relative to other Pods containing the specified labels on the same node
+  # Example:
+  # customPodAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - files
+  #     topologyKey: kubernetes.io/hostname
+  customPodAntiAffinity: {}
+  # Pod affinity rules for AI Chat Pod scheduling by nodes relative to other Pods
+  # Pod affinity allow you to constrain which nodes AI Chat Pods can be scheduled on based on the labels of Pods already running on that node
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # Example:
+  # podAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     podAffinityTerm:
+  #       labelSelector:
+  #         matchExpressions:
+  #         - key: app
+  #           operator: NotIn
+  #           values:
+  #           - database
+  #       topologyKey: kubernetes.io/hostname
+  podAffinity: {}
+  # Node affinity rules for AI Chat Pod scheduling by nodes
+  # Node affinity allow you to constrain which nodes AI Chat Pods can be scheduled on based on node labels
+  # ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  # Example:
+  # nodeAffinity:
+  #   preferredDuringSchedulingIgnoredDuringExecution:
+  #   - weight: 100
+  #     preference:
+  #       matchExpressions:
+  #       - key: kubernetes.io/name
+  #         operator: In
+  #         values:
+  #         - name1
+  #         - name2
+  nodeAffinity: {}
+  # aiChat.nodeSelector Node labels for AI Chat pods assignment
+  # If set to, it takes priority over the `nodeSelector`
+  nodeSelector: {}
+  # aiChat.tolerations Tolerations for AI Chat pods assignment
+  # If set to, it takes priority over the `tolerations`
+  tolerations: []
+  ## Horizontal Pod Autoscaling parameters
+  ## Horizontal Pod Autoscaling is used for autoscaling of the AI Chat deployment
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## The parameters below for autoscaling are used only when `aiChat.autoscaling.enabled=true`
+  autoscaling:
+    ## aiChat.autoscaling.enabled Enable AI Chat deployment autoscaling
+    enabled: false
+    ## aiChat.autoscaling.annotations Defines annotations that will be additionally added to AI Chat deployment HPA
+    ## If set to, it takes priority over the `commonAnnotations`
+    ## You can also use `tpl` as the value for the key
+    annotations: {}
+    ## aiChat.autoscaling.minReplicas AI Chat deployment autoscaling minimum number of replicas
+    minReplicas: 2
+    ## aiChat.autoscaling.maxReplicas AI Chat deployment autoscaling maximum number of replicas
+    maxReplicas: 16
+    targetCPU:
+      ## aiChat.autoscaling.targetCPU.enabled Enable autoscaling of AI Chat deployment by CPU usage percentage
+      enabled: true
+      ## aiChat.autoscaling.targetCPU.utilizationPercentage AI Chat deployment autoscaling target CPU percentage
+      utilizationPercentage: 70
+    targetMemory:
+      ## aiChat.autoscaling.targetMemory.enabled Enable autoscaling of AI Chat deployment by memory usage percentage
+      enabled: false
+      ## aiChat.autoscaling.targetMemory.utilizationPercentage AI Chat deployment autoscaling target memory percentage
+      utilizationPercentage: 70
+    ## aiChat.autoscaling.customMetricsType Custom, additional or external autoscaling metrics for the AI Chat deployment
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+    customMetricsType: []
+    ## aiChat.autoscaling.behavior Configuring AI Chat deployment scaling behavior policies for the `scaleDown` and `scaleUp` fields
+    ## If not set the default values are used:
+    ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
+    behavior: {}
+  # AI Chat container image parameters
+  image:
+    # aiChat.image.registry AI Chat container image registry
+    registry: ""
+    # aiChat.image.repository AI Chat container image repository
+    repository: onlyoffice/apps-ai-chat
+    # aiChat.image.tag AI Chat container image tag
+    # If set to, it takes priority over the `images.tag`
+    tag: ""
+    # aiChat.image.pullPolicy AI Chat container image pull policy
+    pullPolicy: IfNotPresent
+  # Configure a Security Context for containers in AI Chat Pods
+  # If set to, it takes priority over the `containerSecurityContext`
+  containerSecurityContext:
+    # aiChat.containerSecurityContext.enabled Enable security context for containers in AI Chat pods
+    enabled: false
+  # aiChat.lifecycleHooks Defines the AI Chat container lifecycle hooks
+  # ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # It is used to trigger events to run at certain points in a container's lifecycle
+  # There are two hooks that are exposed: `PostStart` and `PreStop`
+  # Example:
+  # lifecycleHooks:
+  #   preStop:
+  #     exec:
+  #       command: ["/bin/sh", "-c", "sleep 25"]
+  lifecycleHooks: {}
+  # aiChat.containerPorts.app AI Chat container port
+  containerPorts:
+    app: 5050
+  # Probe used for the AI Chat container: startup, readiness and liveness probes
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # The parameters below for startup probes are used only when `aiChat.startupProbe.enabled=true`
+  startupProbe:
+    # aiChat.startupProbe.enabled Enable startupProbe for AI Chat container
+    enabled: true
+    httpGet:
+      # aiChat.startupProbe.httpGet.path Checking the path for startupProbe
+      path: /health/
+      # aiChat.startupProbe.httpGet.port Checking the port for startupProbe
+      port: 5050
+    # aiChat.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 30
+    # aiChat.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 10
+  # The parameters below for readiness probes are used only when `aiChat.readinessProbe.enabled=true`
+  readinessProbe:
+    # aiChat.readinessProbe.enabled Enable readinessProbe for AI Chat container
+    enabled: true
+    # aiChat.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 2
+    httpGet:
+      # aiChat.readinessProbe.httpGet.path Checking the path for readinessProbe
+      path: /health/
+      # aiChat.readinessProbe.httpGet.port Checking the port for readinessProbe
+      port: 5050
+    # aiChat.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 20
+    # aiChat.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+    # aiChat.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 5
+  # The parameters below for liveness probes are used only when `aiChat.livenessProbe.enabled=true`
+  livenessProbe:
+    # aiChat.livenessProbe.enabled Enable livenessProbe for AI Chat container
+    enabled: true
+    # aiChat.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    httpGet:
+      # aiChat.livenessProbe.httpGet.path Checking the path for livenessProbe
+      path: /health/
+      # aiChat.livenessProbe.httpGet.port Checking the port for livenessProbe
+      port: 5050
+    # aiChat.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 20
+    # aiChat.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+    # aiChat.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 5
+  # AI Chat container resource requests and limits
+  # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # aiChat.resources.requests The requested resources for the AI Chat container
+  # aiChat.resources.limits The resources limits for the AI Chat container
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
+  ## aiChat.extraEnvVars An array with extra env variables for the AI Chat container
+  extraEnvVars: []
+  ## aiChat.extraVolumes An array with extra volumes for the AI Chat container
+  extraVolumes: []
+  ## aiChat.extraVolumeMounts An array with extra volume mounts for the AI Chat container
+  extraVolumeMounts: []
+  # aiChat.mysqlUser Database user who will be used by the AI Chat service to connect to the database
+  # If not set, `connections.mysqlUser` will be used
+  # If set to, it takes priority over the `connections.mysqlUser`
+  mysqlUser: ""
+
+# ONLYOFFICE Apps Proxy Frontend application parameters
 # This block defines the parameters common to all the Pods of this application
 #
 proxyFrontend:
@@ -6044,7 +6271,7 @@ proxyFrontend:
       # May contain multiple values
       fileName:
         - example.conf
-  # proxyFrontend.hostname The hostname (domainname) by which the DocSpace will be available
+  # proxyFrontend.hostname The hostname (domainname) by which the ONLYOFFICE Apps will be available
   hostname: ""
   # Proxy Frontend TLS parameters
   tls:
@@ -6060,7 +6287,7 @@ proxyFrontend:
   # Proxy Frontend service parameters
   service:
     # proxyFrontend.service.existing The name of an existing service for Proxy Frontend. If not set, a service named `proxy-frontend` will be created
-    # ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace/blob/master/templates/services/proxy-frontend.yaml
+    # ref: https://github.com/ONLYOFFICE/Kubernetes-Apps/blob/main/templates/services/proxy-frontend.yaml
     existing: ""
     # proxyFrontend.service.annotations Map of annotations to add to the Proxy Frontend service
     annotations: {}
@@ -6072,12 +6299,12 @@ proxyFrontend:
     # proxyFrontend.service.type Proxy Frontend service type
     type: LoadBalancer
 
-# DocSpace ingress parameters
+# ONLYOFFICE Apps ingress parameters
 # NGINX Ingress Controller must be installed
-# ref: https://github.com/ONLYOFFICE/Kubernetes-DocSpace#121-installing-f5-nginx-ingress-controller
+# ref: https://github.com/ONLYOFFICE/Kubernetes-Apps#121-installing-f5-nginx-ingress-controller
 #
 ingress:
-  # ingress.enabled Enable the creation of an ingress for the DocSpace
+  # ingress.enabled Enable the creation of an ingress for the ONLYOFFICE Apps
   enabled: false
   # ingress.annotations Map of annotations to add to the Ingress
   annotations:
@@ -6091,15 +6318,15 @@ ingress:
   #                   `ingress-nginx` (Kubernetes community controller, nginx.ingress.kubernetes.io annotations)
   controllerName: nginx-ingress
   tls:
-    # ingress.tls.enabled Enable TLS for the DocSpace
+    # ingress.tls.enabled Enable TLS for the ONLYOFFICE Apps
     enabled: false
     # ingress.tls.secretName Secret name for TLS to mount into the Ingress
     # Used only when `ingress.tls.enabled=true`
     secretName: tls
-  ## ingress.pathType Specifies the path type for the ONLYOFFICE DocSpace ingress resource
+  ## ingress.pathType Specifies the path type for the ONLYOFFICE Apps ingress resource
   ## Allowed values: `Exact`, `Prefix` or `ImplementationSpecific`
   pathType: ImplementationSpecific
-  # ingress.host Ingress hostname for the DocSpace
+  # ingress.host Ingress hostname for the ONLYOFFICE Apps
   host: ""
   # ingress.tenants Ingress hostnames if you need to use more than one name
   # For example, for multitenancy
@@ -6119,12 +6346,12 @@ ingress:
     # ingress.letsencrypt.secretName Name of a secret used to store the ACME account private key
     secretName: "letsencrypt-prod-private-key"
 
-# ONLYOFFICE DocSpace Gateway API parameters
+# ONLYOFFICE Apps Gateway API parameters
 # Kubernetes Gateway API must be installed
 # ref: https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api
 #
 gateway:
-  ## gateway.enabled Enable the creation of Gateway and HTTPRoute resources for ONLYOFFICE DocSpace
+  ## gateway.enabled Enable the creation of Gateway and HTTPRoute resources for ONLYOFFICE Apps
   enabled: false
   ## gateway.name Name of the Gateway resource
   ## Defaults to "<release-name>-gateway" if not set
@@ -6208,7 +6435,7 @@ gateway:
   ## contain a certificate valid for all listed hostnames (e.g. a SAN cert or wildcard)
   tenants: []
   ## gateway.clientSettingsPolicy Configure connection behavior between client and NGINX
-  ## Requires NGINX Gateway Fabric. The directives specified here are applied to the DocSpace HTTPRoute
+  ## Requires NGINX Gateway Fabric. The directives specified here are applied to the ONLYOFFICE Apps HTTPRoute
   ## via a ClientSettingsPolicy resource. Set to `{}` or remove to disable.
   ## ref: https://docs.nginx.com/nginx-gateway-fabric/overview/custom-policies
   ## ref: https://docs.nginx.com/nginx-gateway-fabric/traffic-management/client-settings
@@ -6248,13 +6475,14 @@ openshift:
     wildcardPolicy: None
 
 # DocSpace jobs parameters
+# ONLYOFFICE Apps jobs parameters
 #
 # Job by install has a pre-install hook and executes before any resources are created in Kubernetes
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
-# He creates tables, initializes the database in the `connections.mysqlDatabase` database and initializes the storage for DocSpace
+# He creates tables, initializes the database in the `connections.mysqlDatabase` database and initializes the storage for ONLYOFFICE Apps
 install:
   job:
-    # install.job.enabled Enable the execution of job pre-install before installing DocSpace
+    # install.job.enabled Enable the execution of job pre-install before installing ONLYOFFICE Apps
     enabled: true
     # install.job.annotations Defines annotations that will be additionally added to Install Job
     # If set to, it takes priority over the `commonAnnotations`
@@ -6319,7 +6547,7 @@ install:
           # install.job.initContainers.migrationRunner.image.registry Job by pre-install Migration Runner container image registry
           registry: ""
           # install.job.initContainers.migrationRunner.image.repository Job by pre-install Migration Runner container image repository
-          repository: onlyoffice/docspace-migration-runner
+          repository: onlyoffice/apps-migration-runner
           # install.job.initContainers.migrationRunner.image.tag Job by pre-install Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -6339,10 +6567,10 @@ install:
 
 # Job by upgrade has a pre-upgrade hook and executes on an upgrade request before all of the release's resources have been upgraded
 # ref: https://helm.sh/docs/topics/charts_hooks/#the-available-hooks
-# He updates the `connections.mysqlDatabase` database and reinitializes the storage for DocSpace
+# He updates the `connections.mysqlDatabase` database and reinitializes the storage for ONLYOFFICE Apps
 upgrade:
   job:
-    # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading DocSpace
+    # upgrade.job.enabled Enable the execution of job pre-upgrade before upgrading ONLYOFFICE Apps
     enabled: true
     # upgrade.job.annotations Defines annotations that will be additionally added to Upgrade Job
     # If set to, it takes priority over the `commonAnnotations`
@@ -6427,17 +6655,17 @@ upgrade:
         containerSecurityContext:
           # upgrade.job.initContainers.rootless.containerSecurityContext.enabled Enable security context for the rootless initContainer
           enabled: true
-          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser User ID for the DocSpace rootless initContainer
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsUser User ID for the ONLYOFFICE Apps rootless initContainer
           # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify uid=104
           runAsUser: 0
-          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup Group ID for the DocSpace rootless initContainer
+          # upgrade.job.initContainers.rootless.containerSecurityContext.runAsGroup Group ID for the ONLYOFFICE Apps rootless initContainer
           # When performing a clean install of 3.0+ images or upgrading from version 3.0+ to a later version, you can specify gid=107
           runAsGroup: 0
           # upgrade.job.initContainers.rootless.containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
           allowPrivilegeEscalation: false
-          # upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions Defines SELinux labels for the DocSpace rootless initContainer
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seLinuxOptions Defines SELinux labels for the ONLYOFFICE Apps rootless initContainer
           seLinuxOptions: {}
-          # upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile Defines the Seccomp profile for the DocSpace rootless initContainer
+          # upgrade.job.initContainers.rootless.containerSecurityContext.seccompProfile Defines the Seccomp profile for the ONLYOFFICE Apps rootless initContainer
           seccompProfile:
             type: RuntimeDefault
           # upgrade.job.initContainers.rootless.containerSecurityContext.capabilities Defines the privileges granted to the process
@@ -6450,7 +6678,7 @@ upgrade:
           # upgrade.job.initContainers.migrationRunner.image.registry Job by pre-upgrade Migration Runner container image registry
           registry: ""
           # upgrade.job.initContainers.migrationRunner.image.repository Job by pre-upgrade Migration Runner container image repository
-          repository: onlyoffice/docspace-migration-runner
+          repository: onlyoffice/apps-migration-runner
           # upgrade.job.initContainers.migrationRunner.image.tag Job by pre-upgrade Migration Runner container image tag
           # If set to, it takes priority over the `images.tag`
           tag: ""
@@ -6497,7 +6725,7 @@ upgrade:
 # He checks if Elasticsearch is installed with this chart and if it is installed, it clears the table in the database and indexes in Elasticsearch
 elasticsearchClearIndexes:
   job:
-    # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading DocSpace
+    # elasticsearchClearIndexes.job.enabled Enable the execution of job elasticsearchClearIndexes before upgrading ONLYOFFICE Apps
     # If you are using Opensearch or an external Elasticsearch, you can set it to `false`
     enabled: true
     # Elasticsearch-clear-indexes container image parameters
@@ -6554,7 +6782,7 @@ elasticsearchClearIndexes:
         memory: "1Gi"
         cpu: "1000m"
 
-# DocSpace Opensearch StatefulSet parameters
+# ONLYOFFICE Apps Opensearch StatefulSet parameters
 #
 opensearch:
   # opensearch.enabled Enables Opensearch installation
@@ -6785,7 +7013,7 @@ opensearch:
 # Job by singlePortalDomain has a pre-upgrade hook and executes on an upgrade request
 singlePortalDomain:
   job:
-    # singlePortalDomain.job.enabled Enable the execution of job singlePortalDomain before upgrading DocSpace    
+    # singlePortalDomain.job.enabled Enable the execution of job singlePortalDomain before upgrading ONLYOFFICE Apps    
     enabled: false
     env:
      # singlePortalDomain.job.env.appCoreServerRoot Configures APP_CORE_SERVER_ROOT; automatically set to "https://*/" if ingress.tls.enabled is true
@@ -6846,10 +7074,10 @@ singlePortalDomain:
         memory: "1Gi"
         cpu: "1000m"
 
-# DocSpace tests parameters
+# ONLYOFFICE Apps tests parameters
 #
 tests:
-  # tests.enabled Enable the resources creation necessary for DocSpace launch testing and connected dependencies availability testing
+  # tests.enabled Enable the resources creation necessary for ONLYOFFICE Apps launch testing and connected dependencies availability testing
   # These resources will be used when running the `helm test` command
   enabled: true
   # tests.annotations Defines annotations that will be additionally added to Test Pod
