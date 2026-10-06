@@ -1,11 +1,11 @@
-# ONLYOFFICE DocSpace on OpenShift 4.x
+# ONLYOFFICE Apps on OpenShift 4.x
 
 ## Security Context Constraints (SCC)
 > [!NOTE]
-> OpenShift enforces strict security policies on pods. ONLYOFFICE DocSpace requires a compatible SCC because its containers run with non-root UIDs — the ONLYOFFICE DocSpace application containers as UID 104 and the bundled ONLYOFFICE Docs subchart (`docs.enabled=true`) as UID 101 — but some SCCs may conflict with these requirements. Therefore, we recommend assigning the `scc-docspace-components`, `nonroot-v2` or `anyuid` SCC to the relevant service accounts.
+> OpenShift enforces strict security policies on pods. ONLYOFFICE Apps requires a compatible SCC because its containers run with non-root UIDs — the ONLYOFFICE Apps application containers as UID 104 and the bundled ONLYOFFICE Docs subchart (`docs.enabled=true`) as UID 101 — but some SCCs may conflict with these requirements. Therefore, we recommend assigning the `scc-docspace-components`, `nonroot-v2` or `anyuid` SCC to the relevant service accounts.
 
 The chart ships two SCCs in [`sources/scc`](../sources/scc):
-- `scc-docspace-components` ([`docspace-components.yaml`](../sources/scc/docspace-components.yaml)) — a `MustRunAsRange` SCC over UID `101`-`1001`, so a single SCC covers the ONLYOFFICE DocSpace application containers (UID 104) and the bundled ONLYOFFICE Docs (UID 101). Recommended for the ONLYOFFICE DocSpace release.
+- `scc-docspace-components` ([`docspace-components.yaml`](../sources/scc/docspace-components.yaml)) — a `MustRunAsRange` SCC over UID `101`-`1001`, so a single SCC covers the ONLYOFFICE Apps application containers (UID 104) and the bundled ONLYOFFICE Docs (UID 101). Recommended for the ONLYOFFICE Apps release.
 - `scc-helm-components` ([`helm-components.yaml`](../sources/scc/helm-components.yaml)) — a `MustRunAsRange` SCC over UID `1000`-`1001`, for the external dependencies (MySQL, RabbitMQ, Redis) installed via the bitnami Helm charts.
 
 ## Assign SCC to service accounts
@@ -57,9 +57,9 @@ oc adm policy add-scc-to-group nonroot-v2 system:authenticated
 ```
 
 ## Set the SCC annotation in the chart
-When several SCCs are available to a service account, OpenShift may not pick the intended one. To force it, set the `openshift.io/required-scc` annotation. In ONLYOFFICE DocSpace the annotation must be set on the pods, so use `podAnnotations`.
+When several SCCs are available to a service account, OpenShift may not pick the intended one. To force it, set the `openshift.io/required-scc` annotation. In ONLYOFFICE Apps the annotation must be set on the pods, so use `podAnnotations`.
 
-To apply the required SCC to all ONLYOFFICE DocSpace application pods:
+To apply the required SCC to all ONLYOFFICE Apps application pods:
 ```bash
 --set podAnnotations."openshift\.io/required-scc"="scc-docspace-components"
 ```
@@ -72,7 +72,7 @@ For the bundled ONLYOFFICE Docs subchart:
 ## Enable security contexts
 If you assigned an SCC that requires the pod to declare its user (e.g. `nonroot-v2`), enable the security contexts in the chart. With `scc-docspace-components`, which assigns a UID from its range automatically, this step is optional.
 
-To enable them for ONLYOFFICE DocSpace (covers all application pods and containers):
+To enable them for ONLYOFFICE Apps (covers all application pods and containers):
 
 ```bash
 --set podSecurityContext.enabled=true \
@@ -96,10 +96,10 @@ To enable them for the bundled ONLYOFFICE Docs subchart, per component/job that 
 ```
 
 > [!NOTE]
-> The ONLYOFFICE DocSpace `pre-upgrade` job runs a `rootless` init container (a `chown` that needs UID 0), which no non-root SCC allows. On OpenShift the volume ownership is handled by `fsGroup`, so disable it: `--set upgrade.job.initContainers.rootless.enabled=false`.
+> The ONLYOFFICE Apps `pre-upgrade` job runs a `rootless` init container (a `chown` that needs UID 0), which no non-root SCC allows. On OpenShift the volume ownership is handled by `fsGroup`, so disable it: `--set upgrade.job.initContainers.rootless.enabled=false`.
 
-## Publish ONLYOFFICE DocSpace via Route
-To expose ONLYOFFICE DocSpace outside the OpenShift cluster, you can use an OpenShift Route. It is created for the `router` service. To enable route creation, set the following parameters:
+## Publish ONLYOFFICE Apps via Route
+To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShift Route. It is created for the `router` service. To enable route creation, set the following parameters:
 ```bash
 --set openshift.route.enabled=true \
 --set openshift.route.host=<HOSTNAME>
@@ -134,7 +134,7 @@ spec:
 > [!IMPORTANT]
 > Deployment of dependencies such as RabbitMQ, Redis, and Database not included in the example below. Make sure to deploy them first or set the corresponding parameters to use external services.
 
-Complete example of deploying ONLYOFFICE DocSpace on OpenShift with the `scc-docspace-components` SCC and a route enabled:
+Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and a route enabled:
 
 ```bash
 # execute with a user who has cluster-admin permissions
@@ -142,7 +142,7 @@ oc apply -f sources/scc/docspace-components.yaml
 oc adm policy add-scc-to-group scc-docspace-components system:authenticated
 oc adm policy who-can use scc scc-docspace-components
 # then, install the chart with any user
-helm install docspace onlyoffice/docspace \
+helm install apps onlyoffice/apps \
   --set openshift.route.enabled=true \
   --set openshift.route.host=<HOSTNAME> \
   --set podSecurityContext.enabled=true \
