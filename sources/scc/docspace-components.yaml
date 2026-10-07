@@ -2,7 +2,7 @@ kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
 metadata:
   annotations:
-    kubernetes.io/description: "SCC for ONLYOFFICE Apps and its components."
+    kubernetes.io/description: "SCC for the ONLYOFFICE Apps release and its components, including the bundled ONLYOFFICE Docs subchart. Not for the external dependencies, which use scc-helm-components."
   name: scc-docspace-components
 allowPrivilegedContainer: false
 allowPrivilegeEscalation: false

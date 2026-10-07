@@ -4,9 +4,15 @@
 > [!NOTE]
 > OpenShift enforces strict security policies on pods. ONLYOFFICE Apps requires a compatible SCC because its containers run with non-root UIDs — the ONLYOFFICE Apps application containers as UID 104 and the bundled ONLYOFFICE Docs subchart (`docs.enabled=true`) as UID 101 — but some SCCs may conflict with these requirements. Therefore, we recommend assigning the `scc-docspace-components`, `nonroot-v2` or `anyuid` SCC to the relevant service accounts.
 
-The chart ships two SCCs in [`sources/scc`](../sources/scc):
-- `scc-docspace-components` ([`docspace-components.yaml`](../sources/scc/docspace-components.yaml)) — a `MustRunAsRange` SCC over UID `101`-`1001`, so a single SCC covers the ONLYOFFICE Apps application containers (UID 104) and the bundled ONLYOFFICE Docs (UID 101). Recommended for the ONLYOFFICE Apps release.
-- `scc-helm-components` ([`helm-components.yaml`](../sources/scc/helm-components.yaml)) — a `MustRunAsRange` SCC over UID `1000`-`1001`, for the external dependencies (MySQL, RabbitMQ, Redis) installed via the bitnami Helm charts.
+The chart ships two SCCs in [`sources/scc`](../sources/scc). They cover different workloads and are applied independently — apply only the one you need, or both if you install the external dependencies into the same cluster:
+
+| SCC | File | UID range | Covers | Apply when |
+|-----|------|-----------|--------|------------|
+| `scc-docspace-components` | [`docspace-components.yaml`](../sources/scc/docspace-components.yaml) | `101`-`1001` | the ONLYOFFICE Apps application containers (UID 104) and the bundled ONLYOFFICE Docs subchart (UID 101) | always, for the ONLYOFFICE Apps release. Recommended |
+| `scc-helm-components` | [`helm-components.yaml`](../sources/scc/helm-components.yaml) | `1000`-`1001` | the external dependencies (MySQL, RabbitMQ, Redis) installed via the bitnami Helm charts | only if you install those dependencies yourself. Skip it when you connect to external services |
+
+> [!NOTE]
+> The `101`-`1001` range of `scc-docspace-components` already covers the `1000`-`1001` range of `scc-helm-components`, so technically one SCC could serve both. They are kept separate on purpose: the dependencies are a different trust boundary, are often installed by a different user and into a different namespace, and granting them the wider range would hand the bitnami pods UIDs they never need. Do not grant `scc-docspace-components` to the dependency service accounts.
 
 ## Assign SCC to service accounts
 > [!NOTE]
