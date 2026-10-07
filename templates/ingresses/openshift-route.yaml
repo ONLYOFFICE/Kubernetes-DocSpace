@@ -10,7 +10,7 @@ metadata:
   {{- end }}
   {{- if or .Values.commonAnnotations .Values.openshift.route.annotations }}
   annotations:
-    {{- $dictValue := default .Values.commonAnnotations .Values.openshift.route.annotations }}
+    {{- $dictValue := merge (deepCopy .Values.openshift.route.annotations) .Values.commonAnnotations }}
     {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
   {{- end }}
 spec:

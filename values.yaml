@@ -6465,7 +6465,7 @@ openshift:
     ## openshift.route.enabled Enable the creation of an OpenShift Route for ONLYOFFICE Apps
     enabled: false
     ## openshift.route.annotations Map of annotations to add to the OpenShift Route
-    ## If set, takes priority over commonAnnotations
+    ## Merged with `commonAnnotations`, the keys set here take priority
     annotations: {}
     ## openshift.route.host The hostname for the ONLYOFFICE Apps OpenShift Route resource
     ## If left empty, OpenShift generates a hostname automatically
