@@ -16,7 +16,13 @@ The chart ships two SCCs in [`sources/scc`](../sources/scc). They cover differen
 
 ## Assign SCC to service accounts
 > [!NOTE]
-> By default `serviceAccount.create` is `false`, so the pods run under the namespace `default` service account (the bundled Docs subchart also uses `default` plus `wopi-sa`, and the Identity services use `identity-sa`). Granting the SCC to the `system:authenticated` group covers all of them at once.
+> By default `serviceAccount.create` is `false`, so the pods run under the namespace `default` service account. The bundled Docs subchart additionally creates `wopi-sa` for its WOPI key jobs, and the Identity services use `identity-sa` when `identity.serviceAccount.create` is set to `true`. Grant the SCC to the service accounts your configuration actually uses:
+>
+> | Service account | Exists when |
+> |-----------------|-------------|
+> | `default` | always, unless you set `serviceAccount.create=true` and a custom `serviceAccount.name` |
+> | `wopi-sa` | `docs.enabled=true` (the bundled ONLYOFFICE Docs subchart) |
+> | `identity-sa` | `identity.serviceAccount.create=true` |
 
 > [!IMPORTANT]
 > If required, enable the `podSecurityContext` and/or `containerSecurityContext` settings. Use the table below to check compatibility:
@@ -49,17 +55,34 @@ If you selected one of the default SCCs, assign it to the service accounts.
 > [!IMPORTANT]
 > You must have `cluster-admin` privileges to manage SCCs.
 
-If you chose `scc-docspace-components` (recommended), apply it and grant it:
+If you chose `scc-docspace-components` (recommended), apply it and grant it to the service accounts of your project:
 
 ```bash
 oc apply -f sources/scc/docspace-components.yaml
-oc adm policy add-scc-to-group scc-docspace-components system:authenticated
+oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
+
+Add `-z identity-sa` if you set `identity.serviceAccount.create=true`, and replace `default` with your own service account if you set `serviceAccount.create=true`.
 
 If you chose one of the built-in SCCs, assign it the same way:
 
 ```bash
-oc adm policy add-scc-to-group nonroot-v2 system:authenticated
+oc adm policy add-scc-to-user nonroot-v2 -z default -z wopi-sa
+```
+
+> [!IMPORTANT]
+> `add-scc-to-user -z` grants the SCC inside the current project only, so run it after switching to the namespace you install into (`oc project <NAMESPACE>`).
+
+> [!WARNING]
+> Earlier versions of this guide granted the SCC to the `system:authenticated` group, which makes it available to every authenticated subject in the **whole cluster**, not just your namespace. If you followed those instructions, revoke the grant after assigning the SCC to the service accounts:
+> ```bash
+> oc adm policy remove-scc-from-group scc-docspace-components system:authenticated
+> ```
+
+To check which subjects may use the SCC:
+
+```bash
+oc adm policy who-can use scc scc-docspace-components
 ```
 
 ## Set the SCC annotation in the chart
@@ -143,9 +166,9 @@ spec:
 Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and a route enabled:
 
 ```bash
-# execute with a user who has cluster-admin permissions
+# execute with a user who has cluster-admin permissions, in the namespace you install into
 oc apply -f sources/scc/docspace-components.yaml
-oc adm policy add-scc-to-group scc-docspace-components system:authenticated
+oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 oc adm policy who-can use scc scc-docspace-components
 # then, install the chart with any user
 helm install apps onlyoffice/apps \

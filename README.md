@@ -221,7 +221,7 @@ To do this, run the following commands:
 
 ```
 $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
-$ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
+$ oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
 Also, you must set the `podSecurityContext.enabled` parameter to `true`:
