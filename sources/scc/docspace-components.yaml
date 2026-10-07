@@ -1,8 +1,19 @@
 kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
 metadata:
+  annotations:
+    kubernetes.io/description: "SCC for ONLYOFFICE Apps and its components."
   name: scc-docspace-components
 allowPrivilegedContainer: false
+allowPrivilegeEscalation: false
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+readOnlyRootFilesystem: false
+allowedCapabilities: null
+requiredDropCapabilities: [ALL]
 runAsUser:
   type: MustRunAsRange
   uidRangeMin: 101
