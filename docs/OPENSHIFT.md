@@ -2,27 +2,13 @@
 
 ## Security Context Constraints (SCC)
 > [!NOTE]
-> OpenShift enforces strict security policies on pods. ONLYOFFICE Apps requires a compatible SCC because its containers run with non-root UIDs — the ONLYOFFICE Apps application containers as UID 104 and the bundled ONLYOFFICE Docs subchart (`docs.enabled=true`) as UID 101 — but some SCCs may conflict with these requirements. Therefore, we recommend assigning the `scc-docspace-components`, `nonroot-v2` or `anyuid` SCC to the relevant service accounts.
+> OpenShift enforces strict security policies on pods. ONLYOFFICE Apps requires a compatible SCC because its containers run with non-root UIDs — the application containers as UID 104 and the bundled ONLYOFFICE Docs subchart as UID 101, but some SCCs may conflict with these requirements. Therefore, we recommend assigning the `nonroot-v2`, `anyuid` or [scc-docspace-components](../sources/scc/docspace-components.yaml) SCC to the relevant service accounts.
 
-The chart ships two SCCs in [`sources/scc`](../sources/scc). They cover different workloads and are applied independently — apply only the one you need, or both if you install the external dependencies into the same cluster:
-
-| SCC | File | UID range | Covers | Apply when |
-|-----|------|-----------|--------|------------|
-| `scc-docspace-components` | [`docspace-components.yaml`](../sources/scc/docspace-components.yaml) | `101`-`1001` | the ONLYOFFICE Apps application containers (UID 104) and the bundled ONLYOFFICE Docs subchart (UID 101) | always, for the ONLYOFFICE Apps release. Recommended |
-| `scc-helm-components` | [`helm-components.yaml`](../sources/scc/helm-components.yaml) | `1000`-`1001` | the external dependencies (MySQL, RabbitMQ, Redis) installed via the bitnami Helm charts | only if you install those dependencies yourself. Skip it when you connect to external services |
-
-> [!NOTE]
-> The `101`-`1001` range of `scc-docspace-components` already covers the `1000`-`1001` range of `scc-helm-components`, so technically one SCC could serve both. They are kept separate on purpose: the dependencies are a different trust boundary, are often installed by a different user and into a different namespace, and granting them the wider range would hand the bitnami pods UIDs they never need. Do not grant `scc-docspace-components` to the dependency service accounts.
+The chart ships two SCCs in [`sources/scc`](../sources/scc): `scc-docspace-components` over UID `101`-`1001` for the release itself, and `scc-helm-components` over UID `1000`-`1001` for the external dependencies installed from the bitnami Helm charts. They are applied and granted separately, so use only the one you need.
 
 ## Assign SCC to service accounts
 > [!NOTE]
-> By default `serviceAccount.create` is `false`, so the pods run under the namespace `default` service account. The bundled Docs subchart additionally creates `wopi-sa` for its WOPI key jobs, and the Identity services use `identity-sa` when `identity.serviceAccount.create` is set to `true`. Grant the SCC to the service accounts your configuration actually uses:
->
-> | Service account | Exists when |
-> |-----------------|-------------|
-> | `default` | always, unless you set `serviceAccount.create=true` and a custom `serviceAccount.name` |
-> | `wopi-sa` | `docs.enabled=true` (the bundled ONLYOFFICE Docs subchart) |
-> | `identity-sa` | `identity.serviceAccount.create=true` |
+> By default `serviceAccount.create` is `false`, so the pods run under the namespace `default` service account. The `wopi-sa` service account is created by the bundled ONLYOFFICE Docs subchart, and `identity-sa` is used when `identity.serviceAccount.create` is set to `true`.
 
 > [!IMPORTANT]
 > If required, enable the `podSecurityContext` and/or `containerSecurityContext` settings. Use the table below to check compatibility:
@@ -55,40 +41,31 @@ If you selected one of the default SCCs, assign it to the service accounts.
 > [!IMPORTANT]
 > You must have `cluster-admin` privileges to manage SCCs.
 
-If you chose `scc-docspace-components` (recommended), apply it and grant it to the service accounts of your project:
+```bash
+oc adm policy add-scc-to-user <SCC-name> -z default -z wopi-sa
+```
+
+If you chose `scc-docspace-components`, apply it and then grant it:
 
 ```bash
-oc apply -f sources/scc/docspace-components.yaml
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
 oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
-Add `-z identity-sa` if you set `identity.serviceAccount.create=true`, and replace `default` with your own service account if you set `serviceAccount.create=true`.
-
-If you chose one of the built-in SCCs, assign it the same way:
+The external dependencies (MySQL, RabbitMQ, Redis) installed from the bitnami Helm charts use a separate SCC:
 
 ```bash
-oc adm policy add-scc-to-user nonroot-v2 -z default -z wopi-sa
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/helm-components.yaml
+oc adm policy add-scc-to-user scc-helm-components -z default
 ```
 
 > [!IMPORTANT]
-> `add-scc-to-user -z` grants the SCC inside the current project only, so run it after switching to the namespace you install into (`oc project <NAMESPACE>`).
-
-> [!WARNING]
-> Earlier versions of this guide granted the SCC to the `system:authenticated` group, which makes it available to every authenticated subject in the **whole cluster**, not just your namespace. If you followed those instructions, revoke the grant after assigning the SCC to the service accounts:
-> ```bash
-> oc adm policy remove-scc-from-group scc-docspace-components system:authenticated
-> ```
-
-To check which subjects may use the SCC:
-
-```bash
-oc adm policy who-can use scc scc-docspace-components
-```
+> `add-scc-to-user -z` grants the SCC inside the current project, so run it after switching to the namespace you install into (`oc project <NAMESPACE>`).
 
 ## Set the SCC annotation in the chart
-When several SCCs are available to a service account, OpenShift may not pick the intended one. To force it, set the `openshift.io/required-scc` annotation. In ONLYOFFICE Apps the annotation must be set on the pods, so use `podAnnotations`.
+The `openshift.io/required-scc` annotation must be set on the pods, so use `podAnnotations`.
 
-To apply the required SCC to all ONLYOFFICE Apps application pods:
+To apply the required SCC to all ONLYOFFICE Apps pods:
 ```bash
 --set podAnnotations."openshift\.io/required-scc"="scc-docspace-components"
 ```
@@ -99,16 +76,16 @@ For the bundled ONLYOFFICE Docs subchart:
 ```
 
 ## Enable security contexts
-If you assigned an SCC that requires the pod to declare its user (e.g. `nonroot-v2`), enable the security contexts in the chart. With `scc-docspace-components`, which assigns a UID from its range automatically, this step is optional.
+If you assigned an SCC that requires security contexts, enable them in the chart. With `scc-docspace-components` this step is optional, because the SCC assigns a UID from its range automatically.
 
-To enable them for ONLYOFFICE Apps (covers all application pods and containers):
+To enable `podSecurityContext` and `containerSecurityContext`:
 
 ```bash
 --set podSecurityContext.enabled=true \
 --set containerSecurityContext.enabled=true
 ```
 
-To enable them for the bundled ONLYOFFICE Docs subchart, per component/job that you run:
+To enable them for the bundled ONLYOFFICE Docs subchart:
 ```bash
 --set docs.podSecurityContext.enabled=true \
 --set docs.docservice.containerSecurityContext.enabled=true \
@@ -125,7 +102,7 @@ To enable them for the bundled ONLYOFFICE Docs subchart, per component/job that 
 ```
 
 > [!NOTE]
-> The ONLYOFFICE Apps `pre-upgrade` job runs a `rootless` init container (a `chown` that needs UID 0), which no non-root SCC allows. On OpenShift the volume ownership is handled by `fsGroup`, so disable it: `--set upgrade.job.initContainers.rootless.enabled=false`.
+> The `pre-upgrade` job runs a `rootless` init container that needs UID 0, which no non-root SCC allows. On OpenShift the volume ownership is handled by `fsGroup`, so disable it: `--set upgrade.job.initContainers.rootless.enabled=false`.
 
 ## Publish ONLYOFFICE Apps via Route
 To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShift Route. It is created for the `router` service. To enable route creation, set the following parameters:
@@ -149,7 +126,7 @@ metadata:
 spec:
   host: <HOSTNAME>
   path: /
-  wildcardPolicy: None
+  wildcardPolicy: <WILDCARD_POLICY>
   to:
     kind: Service
     name: router
@@ -163,17 +140,20 @@ spec:
 > [!IMPORTANT]
 > Deployment of dependencies such as RabbitMQ, Redis, and Database not included in the example below. Make sure to deploy them first or set the corresponding parameters to use external services.
 
-Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and a route enabled:
+Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and route enabled:
 
 ```bash
-# execute with a user who has cluster-admin permissions, in the namespace you install into
-oc apply -f sources/scc/docspace-components.yaml
+# execute with a user who has cluster-admin permissions
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
 oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 oc adm policy who-can use scc scc-docspace-components
 # then, install the chart with any user
 helm install apps onlyoffice/apps \
   --set openshift.route.enabled=true \
   --set openshift.route.host=<HOSTNAME> \
+  --set podAnnotations."openshift\.io/required-scc"="scc-docspace-components" \
+  --set docs.commonAnnotations."openshift\.io/required-scc"="scc-docspace-components" \
+  --set upgrade.job.initContainers.rootless.enabled=false \
   --set podSecurityContext.enabled=true \
   --set containerSecurityContext.enabled=true \
   --set docs.podSecurityContext.enabled=true \

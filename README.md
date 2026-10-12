@@ -215,7 +215,7 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/apps --set extraConf.se
 
 Note: The names of the deployed resources are not affected by the product name. Resources such as the `docspace-data` PVC, the `docspace-jwt` secret and the ConfigMaps keep their names, so that an existing installation can be upgraded without recreating them.
 
-Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose ID is in the range `101`-`1001` (ONLYOFFICE Apps, its components and the bundled ONLYOFFICE Docs). See the [OPENSHIFT.md](docs/OPENSHIFT.md) file for details.
+Note: To install ONLYOFFICE Apps into an OpenShift cluster, it may be necessary to grant a specific SecurityContextConstraints policy. This policy provides permission to run containers using a user with ID in the range `101`-`1001`. For more information, see [OPENSHIFT.md](./docs/OPENSHIFT.md) file.
 
 To do this, run the following commands:
 
@@ -665,10 +665,10 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default                                                                                   |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `openshift.route.enabled`                                | Enable the creation of an OpenShift Route for the ONLYOFFICE Apps                                               | `false`                                                                                   |
-| `openshift.route.name`                                   | The name of the OpenShift Route resource. If not specified, a Route named `docspace` will be created            | `""`                                                                                      |
-| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. Merged with `commonAnnotations`, the keys set here take priority | `{}`                                                                                    |
-| `openshift.route.host`                                   | The hostname for the ONLYOFFICE Apps OpenShift Route resource. If left empty, OpenShift generates a hostname automatically | `""`                                                                            |
-| `openshift.route.wildcardPolicy`                         | Defines how wildcards are handled for the Route host. Allowed values: `None`, `Subdomain`                       | `None`                                                                                    |
+| `openshift.route.name`                                   | The name of the OpenShift Route resource. If not set, a Route named `docspace` will be created                  | `""`                                                                                      |
+| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. If set to, these are merged with the `commonAnnotations`       | `{}`                                                                                      |
+| `openshift.route.host`                                   | OpenShift Route hostname for the ONLYOFFICE Apps route                                                           | `""`                                                                                      |
+| `openshift.route.wildcardPolicy`                         | The policy for handling wildcard subdomains in the OpenShift Route. Allowed values are `None`, `Subdomain`       | `None`                                                                                    |
 
 ### ONLYOFFICE Apps Jobs parameters
 
