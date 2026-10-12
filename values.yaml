@@ -6477,6 +6477,16 @@ openshift:
     ## openshift.route.wildcardPolicy Defines how wildcards are handled for the Route host
     ## Allowed values: `None`, `Subdomain`
     wildcardPolicy: None
+    tls:
+      ## openshift.route.tls.enabled Enable TLS termination for the ONLYOFFICE Apps OpenShift Route
+      ## If no certificate is specified, the Route uses the default certificate of the OpenShift ingress controller
+      enabled: true
+      ## openshift.route.tls.termination Defines where the TLS connection is terminated
+      ## Allowed values: `edge`, `passthrough`, `reencrypt`
+      termination: edge
+      ## openshift.route.tls.insecureEdgeTerminationPolicy Defines how the Route handles insecure (HTTP) traffic
+      ## Allowed values: `Redirect`, `None`, `Allow`
+      insecureEdgeTerminationPolicy: Redirect
 
 # ONLYOFFICE Apps jobs parameters
 #
