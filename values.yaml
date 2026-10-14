@@ -6779,6 +6779,7 @@ opensearch:
     # Allowed values: `RollingUpdate` or `OnDelete`
     type: RollingUpdate
   # opensearch.podAnnotations Map of annotations to add to the Opensearch pod
+  # The `podAnnotations` are not inherited to avoid restarting Opensearch on every upgrade
   podAnnotations: {}
   # Configure a Security Context for the Opensearch Pod
   podSecurityContext:
