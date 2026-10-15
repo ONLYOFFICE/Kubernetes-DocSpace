@@ -666,9 +666,9 @@ Instead of `Application`, the parameter name should have the following values: `
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `openshift.route.enabled`                                | Enable the creation of an OpenShift Route for the ONLYOFFICE Apps                                               | `false`                                                                                   |
 | `openshift.route.name`                                   | The name of the OpenShift Route resource. If not set, a Route named `docspace` will be created                  | `""`                                                                                      |
-| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. If set to, these are merged with the `commonAnnotations`       | `{}`                                                                                      |
-| `openshift.route.host`                                   | OpenShift Route hostname for the ONLYOFFICE Apps route                                                           | `""`                                                                                      |
-| `openshift.route.wildcardPolicy`                         | The policy for handling wildcard subdomains in the OpenShift Route. Allowed values are `None`, `Subdomain`       | `None`                                                                                    |
+| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. Merged with the `commonAnnotations`, the keys set here take priority | `{}`                                                                                      |
+| `openshift.route.host`                                   | OpenShift Route hostname for the ONLYOFFICE Apps route                                                          | `""`                                                                                      |
+| `openshift.route.wildcardPolicy`                         | The policy for handling wildcard subdomains in the OpenShift Route. Allowed values are `None`, `Subdomain`      | `None`                                                                                    |
 
 ### ONLYOFFICE Apps Jobs parameters
 

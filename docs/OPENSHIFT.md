@@ -138,7 +138,7 @@ spec:
 ## Example install command
 
 > [!IMPORTANT]
-> Deployment of dependencies such as RabbitMQ, Redis, and Database not included in the example below. Make sure to deploy them first or set the corresponding parameters to use external services.
+> Deployment of dependencies such as RabbitMQ, Redis, and Database is not included in the example below. Make sure to deploy them first or set the corresponding parameters to use external services.
 
 Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and route enabled:
 
