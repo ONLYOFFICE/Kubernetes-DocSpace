@@ -341,20 +341,6 @@ Get the name of the OpenShift Route for ONLYOFFICE Apps
 {{- end -}}
 
 {{/*
-Get the name of the Secret with the certificate for the OpenShift Route
-Empty if the Route uses the default certificate of the OpenShift ingress controller
-*/}}
-{{- define "docspace.route.tls.secretName" -}}
-{{- if .Values.openshift.route.tls.enabled -}}
-{{- if .Values.openshift.route.tls.existingSecret -}}
-    {{- printf "%s" (tpl .Values.openshift.route.tls.existingSecret $) -}}
-{{- else if .Values.openshift.route.tls.letsencrypt.enabled -}}
-    {{- default (printf "%s-tls" (include "docspace.route.name" .)) (tpl .Values.openshift.route.tls.letsencrypt.certificate.secretName $) -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return true if a service object should be created for ONLYOFFICE Apps Proxy Frontend
 */}}
 {{- define "docspace.svc.proxyFrontend.create" -}}
