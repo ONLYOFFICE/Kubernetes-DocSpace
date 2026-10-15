@@ -2,10 +2,6 @@
 
 ## 4.0.0
 
-### New Features
-
-* Added TLS for the OpenShift Route: your own certificate from an existing Secret, or a Let's Encrypt certificate issued and renewed by cert-manager (ACME HTTP-01)
-
 ### Changes
 
 * Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`. See [Migration](docs/MIGRATION.md) for upgrade instructions

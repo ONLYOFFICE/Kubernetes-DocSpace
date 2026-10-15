@@ -111,6 +111,9 @@ To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShif
 --set openshift.route.host=<HOSTNAME>
 ```
 
+> [!WARNING]
+> TLS configuration is not managed by the chart. Configure TLS manually in the console after installation.
+
 > [!TIP]
 > For reference, here is an example route configuration. Use it as a template if you need to create or modify the route manually:
 
@@ -131,42 +134,6 @@ spec:
   port:
     targetPort: 8092
 ```
-
-## Configure TLS for the Route
-TLS is terminated on the Route (`edge`) and HTTP is redirected to HTTPS. If no certificate is set, the Route uses the default certificate of the OpenShift ingress controller.
-
-> [!IMPORTANT]
-> Your own certificate and Let's Encrypt use the Route `spec.tls.externalCertificate` field, so OpenShift 4.19+ is required. The chart creates a Role and RoleBinding that let the OpenShift router read the certificate Secret (`openshift.route.tls.rbac.create`).
-
-To use your own certificate, create a Secret of type `kubernetes.io/tls` in the namespace of the Route before the installation and set its name:
-```bash
-oc create secret tls docspace-tls --cert=tls.crt --key=tls.key -n <NAMESPACE>
-```
-```bash
---set openshift.route.tls.existingSecret=docspace-tls
-```
-
-To issue a Let's Encrypt certificate via [cert-manager](https://cert-manager.io/docs/installation/) (ACME HTTP-01):
-```bash
---set openshift.route.tls.letsencrypt.enabled=true \
---set openshift.route.tls.letsencrypt.email=<EMAIL>
-```
-
-The `openshift.route.host` must have a public DNS record pointing to the OpenShift ingress controller, with port 80 reachable from the Internet. By default the chart creates a namespaced `Issuer`. To use an existing issuer, set `openshift.route.tls.letsencrypt.issuer.create=false` and its `kind` and `name`.
-
-> [!IMPORTANT]
-> cert-manager v1.18+ must run with the `ACMEHTTP01IngressPathTypeExact=false` feature gate. Otherwise OpenShift does not convert the challenge Ingress into a Route and the certificate is never issued:
-> ```bash
-> helm upgrade cert-manager jetstack/cert-manager -n cert-manager --reuse-values --set featureGates=ACMEHTTP01IngressPathTypeExact=false
-> ```
-
-> [!NOTE]
-> The API rejects a Route that refers to a missing Secret, so on the first installation the Route uses the default certificate. When the Certificate is Ready, run the upgrade again to attach it to the Route:
-> ```bash
-> oc wait certificate/docspace --for=condition=Ready --timeout=10m -n <NAMESPACE>
-> helm upgrade [RELEASE_NAME] onlyoffice/apps --reset-then-reuse-values --no-hooks -n <NAMESPACE>
-> ```
-> cert-manager then renews the certificate in the same Secret, and the router picks it up automatically.
 
 ## Example install command
 
