@@ -23,11 +23,4 @@ spec:
     weight: 100
   port:
     targetPort: {{ .Values.router.service.port.external }}
-  {{- if .Values.openshift.route.tls.enabled }}
-  tls:
-    termination: {{ .Values.openshift.route.tls.termination }}
-    {{- if .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
-    insecureEdgeTerminationPolicy: {{ .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
-    {{- end }}
-  {{- end }}
 {{- end -}}
