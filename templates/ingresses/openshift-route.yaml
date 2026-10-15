@@ -1,3 +1,9 @@
+{{- if and .Values.openshift.route.enabled .Values.openshift.route.tls.letsencrypt.enabled .Values.openshift.route.tls.existingSecret }}
+  {{- fail "openshift.route.tls.existingSecret cannot be used together with openshift.route.tls.letsencrypt.enabled=true." }}
+{{- end }}
+{{- if and .Values.openshift.route.enabled .Values.openshift.route.tls.letsencrypt.enabled (not .Values.openshift.route.host) }}
+  {{- fail "openshift.route.tls.letsencrypt.enabled=true requires openshift.route.host to be set." }}
+{{- end }}
 {{- if .Values.openshift.route.enabled }}
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -28,6 +34,10 @@ spec:
     termination: {{ .Values.openshift.route.tls.termination }}
     {{- if .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
     insecureEdgeTerminationPolicy: {{ .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
+    {{- end }}
+    {{- if and (include "docspace.route.tls.secretName" .) (or (not .Values.openshift.route.tls.letsencrypt.enabled) (lookup "v1" "Secret" (include "docspace.namespace" .) (include "docspace.route.tls.secretName" .))) }}
+    externalCertificate:
+      name: {{ include "docspace.route.tls.secretName" . }}
     {{- end }}
   {{- end }}
 {{- end -}}

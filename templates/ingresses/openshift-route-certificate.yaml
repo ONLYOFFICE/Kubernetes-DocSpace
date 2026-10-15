@@ -1,0 +1,32 @@
+{{- if and .Values.openshift.route.enabled .Values.openshift.route.tls.enabled .Values.openshift.route.tls.letsencrypt.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "docspace.route.name" . }}
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.openshift.route.tls.letsencrypt.certificate.annotations }}
+  annotations:
+    {{- $dictValue := merge (deepCopy .Values.openshift.route.tls.letsencrypt.certificate.annotations) .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  secretName: {{ include "docspace.route.tls.secretName" . }}
+  dnsNames:
+  - {{ .Values.openshift.route.host }}
+  {{- if .Values.openshift.route.tls.letsencrypt.certificate.duration }}
+  duration: {{ .Values.openshift.route.tls.letsencrypt.certificate.duration }}
+  {{- end }}
+  {{- if .Values.openshift.route.tls.letsencrypt.certificate.renewBefore }}
+  renewBefore: {{ .Values.openshift.route.tls.letsencrypt.certificate.renewBefore }}
+  {{- end }}
+  privateKey:
+    rotationPolicy: Always
+  issuerRef:
+    group: cert-manager.io
+    kind: {{ .Values.openshift.route.tls.letsencrypt.issuer.kind }}
+    name: {{ .Values.openshift.route.tls.letsencrypt.issuer.name }}
+{{- end }}
