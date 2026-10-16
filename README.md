@@ -69,7 +69,7 @@ To do this, run the following commands:
 
 ```
 $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/helm-components.yaml
-$ oc adm policy add-scc-to-group scc-helm-components system:authenticated
+$ oc adm policy add-scc-to-user scc-helm-components -z mysql -z rabbitmq -z redis-master
 ```
 
 ### 1. Add Helm repositories
@@ -224,10 +224,10 @@ $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/
 $ oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
-Also, you must set the `podSecurityContext.enabled` parameter to `true`:
+Also, you must set the `containerSecurityContext.enabled` parameter to `true`. See the complete list of parameters for OpenShift in [OPENSHIFT.md](./docs/OPENSHIFT.md#example-install-command):
 
 ```
-$ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/apps --set containerSecurityContext.enabled=true
 ```
 
 ### 1. Add a license
