@@ -224,10 +224,10 @@ $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/
 $ oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
-Also, you must set the `containerSecurityContext.enabled` parameter to `true`. See the complete list of parameters for OpenShift in [OPENSHIFT.md](./docs/OPENSHIFT.md#example-install-command):
+Also, you must set the `containerSecurityContext.enabled` parameter to `true`, and we recommend setting `podSecurityContext.enabled` to `true` as well. See the complete list of parameters for OpenShift in [OPENSHIFT.md](./docs/OPENSHIFT.md#example-install-command):
 
 ```
-$ helm install [RELEASE_NAME] onlyoffice/apps --set containerSecurityContext.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=true --set containerSecurityContext.enabled=true
 ```
 
 ### 1. Add a license

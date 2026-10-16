@@ -7,7 +7,7 @@
 The chart ships two SCCs in [`sources/scc`](../sources/scc): `scc-docspace-components` over UID `101`-`1001` for the release itself, and `scc-helm-components` over UID `1000`-`1001` for the external dependencies installed from the bitnami Helm charts. They are applied and granted separately, so use only the one you need.
 
 > [!WARNING]
-> Install ONLYOFFICE Apps into a dedicated project. SCCs are not enforced in the `default`, `kube-*` and `openshift-*` projects, so an installation there does not reflect how the pods run in a regular project.
+> Install ONLYOFFICE Apps into a dedicated project. SCCs are not enforced in highly privileged projects such as `default`, `kube-system` and `kube-public`, so an installation there does not reflect how the pods run in a regular project.
 
 ## Assign SCC to service accounts
 > [!NOTE]
@@ -52,7 +52,7 @@ OpenSearch does not use the global `podAnnotations`, so set the annotation for i
 ```
 
 ## Enable security contexts
-If you assigned an SCC that requires security contexts, enable them in the chart. With `scc-docspace-components` the `containerSecurityContext` is required: otherwise the SCC assigns UID `101` to all containers, and the ONLYOFFICE Apps containers that run as UID `104` fail to start. The `podSecurityContext` is optional, without it the SCC assigns the `fsGroup` from its range.
+If you assigned an SCC that requires security contexts, enable them in the chart. With `scc-docspace-components` the `containerSecurityContext` is required: otherwise the SCC assigns UID `101` to the containers, and the ONLYOFFICE Apps containers that run as UID `104` fail to start. The `podSecurityContext` is recommended: it sets the `fsGroup` to the application group `107`, without it the SCC assigns the `fsGroup` from its range.
 
 To enable `podSecurityContext` and `containerSecurityContext`:
 
