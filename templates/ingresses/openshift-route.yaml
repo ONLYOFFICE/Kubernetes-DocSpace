@@ -22,5 +22,5 @@ spec:
     name: {{ include "docspace.svc.router.name" . }}
     weight: 100
   port:
-    targetPort: {{ .Values.router.service.port.external }}
+    targetPort: {{ .Values.router.containerPorts.external }}
 {{- end -}}
