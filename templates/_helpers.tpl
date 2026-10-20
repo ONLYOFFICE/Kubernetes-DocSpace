@@ -330,6 +330,17 @@ Get the service name for ONLYOFFICE Apps Router
 {{- end -}}
 
 {{/*
+Get the name of the OpenShift Route for ONLYOFFICE Apps
+*/}}
+{{- define "docspace.route.name" -}}
+{{- if .Values.openshift.route.name -}}
+    {{- printf "%s" (tpl .Values.openshift.route.name $) -}}
+{{- else -}}
+    {{- printf "docspace" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return true if a service object should be created for ONLYOFFICE Apps Proxy Frontend
 */}}
 {{- define "docspace.svc.proxyFrontend.create" -}}

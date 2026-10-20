@@ -29,6 +29,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE Apps’
   * [ONLYOFFICE Docs parameters](#onlyoffice-docs-parameters)
   * [ONLYOFFICE Apps Ingress parameters](#onlyoffice-apps-ingress-parameters)
   * [ONLYOFFICE Apps Gateway API parameters](#onlyoffice-apps-gateway-api-parameters)
+  * [ONLYOFFICE Apps OpenShift parameters](#onlyoffice-apps-openshift-parameters)
   * [ONLYOFFICE Apps Jobs parameters](#onlyoffice-apps-jobs-parameters)
   * [ONLYOFFICE Apps Elasticsearch parameters](#onlyoffice-apps-opensearch-parameters)
   * [ONLYOFFICE Apps Test parameters](#onlyoffice-apps-test-parameters)
@@ -41,6 +42,7 @@ The following guide covers the installation process of the ‘ONLYOFFICE Apps’
     + [1.2.3 Expose ONLYOFFICE Apps via HTTPS](#123-expose-onlyoffice-apps-via-https)
     + [1.2.4 Expose ONLYOFFICE Apps via HTTPS using the Let's Encrypt certificate](#124-expose-onlyoffice-apps-via-https-using-the-lets-encrypt-certificate)
     + [1.3 Expose ONLYOFFICE Apps via Gateway API](#13-expose-onlyoffice-apps-via-gateway-api)
+    + [1.4 Expose ONLYOFFICE Apps via route in OpenShift](#14-expose-onlyoffice-apps-via-route-in-openshift)
   * [2. Transition from ElasticSearch to OpenSearch](#2-transition-from-elasticsearch-to-opensearch)
   * [3. Scale ONLYOFFICE Apps (optional)](#3-scale-onlyoffice-apps-optional)
     + [3.1 Horizontal Pod Autoscaling](#31-horizontal-pod-autoscaling)
@@ -67,7 +69,7 @@ To do this, run the following commands:
 
 ```
 $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/helm-components.yaml
-$ oc adm policy add-scc-to-group scc-helm-components system:authenticated
+$ oc adm policy add-scc-to-user scc-helm-components -z mysql -z rabbitmq -z redis-master
 ```
 
 ### 1. Add Helm repositories
@@ -213,19 +215,19 @@ and then run the `helm upgrade [RELEASE_NAME] onlyoffice/apps --set extraConf.se
 
 Note: The names of the deployed resources are not affected by the product name. Resources such as the `docspace-data` PVC, the `docspace-jwt` secret and the ConfigMaps keep their names, so that an existing installation can be upgraded without recreating them.
 
-Note: It may be required to apply `SecurityContextConstraints` policy when installing into OpenShift cluster, which adds permission to run containers from a user whose `ID = 104`.
+Note: To install ONLYOFFICE Apps into an OpenShift cluster, it may be necessary to grant a specific SecurityContextConstraints policy. This policy provides permission to run containers using a user with ID in the range `101`-`1001`. For more information, see [OPENSHIFT.md](./docs/OPENSHIFT.md) file.
 
 To do this, run the following commands:
 
 ```
 $ oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
-$ oc adm policy add-scc-to-group scc-docspace-components system:authenticated
+$ oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
-Also, you must set the `podSecurityContext.enabled` parameter to `true`:
+Also, you must set the `containerSecurityContext.enabled` parameter to `true`, and we recommend setting `podSecurityContext.enabled` to `true` as well. See the complete list of parameters for OpenShift in [OPENSHIFT.md](./docs/OPENSHIFT.md#example-install-command):
 
 ```
-$ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=true
+$ helm install [RELEASE_NAME] onlyoffice/apps --set podSecurityContext.enabled=true --set containerSecurityContext.enabled=true
 ```
 
 ### 1. Add a license
@@ -658,6 +660,16 @@ Instead of `Application`, the parameter name should have the following values: `
 | `gateway.letsencrypt.server`                             | The address of the Let's Encrypt server to which requests for certificates will be sent                        | `https://acme-v02.api.letsencrypt.org/directory`                                          |
 | `gateway.letsencrypt.secretName`                         | Name of a secret used to store the ACME account private key                                                     | `letsencrypt-prod-gw-private-key`                                                         |
 
+### ONLYOFFICE Apps OpenShift parameters
+
+| Parameter                                                | Description                                                                                                     | Default                                                                                   |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `openshift.route.enabled`                                | Enable the creation of an OpenShift Route for the ONLYOFFICE Apps                                               | `false`                                                                                   |
+| `openshift.route.name`                                   | The name of the OpenShift Route resource. If not set, a Route named `docspace` will be created                  | `""`                                                                                      |
+| `openshift.route.annotations`                            | Map of annotations to add to the OpenShift Route. Merged with the `commonAnnotations`, the keys set here take priority | `{}`                                                                                      |
+| `openshift.route.host`                                   | OpenShift Route hostname for the ONLYOFFICE Apps route                                                          | `""`                                                                                      |
+| `openshift.route.wildcardPolicy`                         | The policy for handling wildcard subdomains in the OpenShift Route. Allowed values are `None`, `Subdomain`      | `None`                                                                                    |
+
 ### ONLYOFFICE Apps Jobs parameters
 
 | Parameter                                                       | Description                                                                                                                                                                                                | Default                                         |
@@ -930,6 +942,9 @@ This is only required when using Let's Encrypt (`ingress.letsencrypt.enabled=tru
 As an alternative to the classic Ingress described above, ONLYOFFICE Apps can be exposed using the [Gateway API](https://gateway-api.sigs.k8s.io/) by setting `gateway.enabled=true`. The Gateway API requires its CRDs and a controller (e.g. NGINX Gateway Fabric) to be installed in the cluster beforehand.
 
 See the dedicated [Gateway API guide](docs/GATEWAY.md) for prerequisites, configuration examples (single host, multi-tenant, HTTP to HTTPS redirect, TLS with your own certificate or with Let's Encrypt via cert-manager) and the full list of `gateway` parameters.
+
+#### 1.4 Expose ONLYOFFICE Apps via route in OpenShift
+This type of exposure allows you to expose ONLYOFFICE Apps via route in OpenShift. Route configuration can be found [here](./docs/OPENSHIFT.md#publish-onlyoffice-apps-via-route).
 
 ### 2. Transition from ElasticSearch to OpenSearch
 
