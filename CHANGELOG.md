@@ -5,6 +5,7 @@
 ### New Features
 
 * Added the ability to expose ONLYOFFICE Apps via an OpenShift Route
+* Added the ability to connect via Gateway API
 
 ### Changes
 
