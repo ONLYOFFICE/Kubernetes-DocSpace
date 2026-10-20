@@ -32,8 +32,9 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.aiMCP.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.aiMCP.podAnnotations "context" $ ) | nindent 8 }}
+      {{- if or .Values.podAnnotations .Values.aiMCP.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.aiMCP.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
