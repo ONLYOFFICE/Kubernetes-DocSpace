@@ -1,0 +1,61 @@
+{{- if and .Values.gateway.enabled .Values.gateway.ssl.redirect.enabled (not .Values.gateway.ssl.enabled) }}
+  {{- fail "gateway.ssl.redirect.enabled=true requires gateway.ssl.enabled=true. There is no HTTPS listener to redirect to. Either enable TLS (gateway.ssl.enabled=true) or disable the redirect (gateway.ssl.redirect.enabled=false)." }}
+{{- end }}
+{{- if and .Values.gateway.enabled .Values.gateway.ssl.redirect.enabled .Values.gateway.external.parentRefs (not .Values.gateway.external.redirectParentRefs) }}
+  {{- fail "gateway.external.redirectParentRefs is required for the HTTP->HTTPS redirect on an external Gateway. Set it to the Gateway's HTTP listener, or disable the redirect (gateway.ssl.redirect.enabled=false)." }}
+{{- end }}
+{{- if and .Values.gateway.enabled .Values.gateway.ssl.enabled .Values.gateway.ssl.redirect.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: docspace-http-redirect
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.gateway.annotations }}
+  annotations:
+    {{- $dictValue := default .Values.commonAnnotations .Values.gateway.annotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- $hosts := list }}
+  {{- if .Values.gateway.tenants }}
+    {{- $hosts = .Values.gateway.tenants }}
+  {{- else if .Values.gateway.host }}
+    {{- $hosts = list .Values.gateway.host }}
+  {{- end }}
+  {{- with .Values.gateway.ssl.redirect.hostnames | default $hosts }}
+  hostnames:
+    {{- range . }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  parentRefs:
+  {{- if .Values.gateway.external.parentRefs }}
+    {{- toYaml .Values.gateway.external.redirectParentRefs | nindent 2 }}
+  {{- else }}
+  {{- $gwName := include "docspace.gateway.name" . }}
+  {{- if $hosts }}
+    {{- range $idx, $host := $hosts }}
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gwName }}
+      sectionName: {{ printf "http-%d" $idx }}
+    {{- end }}
+  {{- else }}
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $gwName }}
+      sectionName: http
+  {{- end }}
+  {{- end }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            port: 443
+            statusCode: {{ .Values.gateway.ssl.redirect.statusCode }}
+{{- end }}

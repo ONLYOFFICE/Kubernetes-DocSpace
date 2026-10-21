@@ -128,6 +128,15 @@ spec:
       containers:
       - name: docspace-pre-install
         image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.install.job.containerSecurityContext.enabled }}
+        {{- $cpisc := dict }}
+        {{- if .Values.install.job.containerSecurityContext.enabled }}
+        {{- $cpisc = .Values.install.job.containerSecurityContext }}
+        {{- else }}
+        {{- $cpisc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $cpisc | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c", "echo Install Job completed"]
       volumes:
       - name: check-db

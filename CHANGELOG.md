@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.0.0
+
+### New Features
+
+* Added the ability to expose ONLYOFFICE Apps via an OpenShift Route
+* Added the ability to connect via Gateway API
+
+### Changes
+
+* Renamed the chart to `apps`. It is now installed as `onlyoffice/apps`. See [Migration](docs/MIGRATION.md) for upgrade instructions
+* Renamed the application images from `onlyoffice/docspace-*` to `onlyoffice/apps-*`
+* The `scc-docspace-components` SCC now allows UIDs `101`-`1001` and drops all capabilities. See [OPENSHIFT.md](docs/OPENSHIFT.md) for the deployment to OpenShift
+
 ## 3.4.0
 
 ### New Features

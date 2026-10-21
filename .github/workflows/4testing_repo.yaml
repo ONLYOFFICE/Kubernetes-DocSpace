@@ -17,7 +17,7 @@ jobs:
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
             chmod +x /usr/bin/yq
           NEW_VERSION=$(yq '.version' Chart.yaml)
-          MAX_RC=$(yq '.entries.docspace[].version' /tmp/index.yaml | \
+          MAX_RC=$(yq '.entries.apps[].version' /tmp/index.yaml | \
             grep "^${NEW_VERSION}" | \
             sed -E 's/.*rc([0-9]+).*/\1/' | \
             sort -n | \

@@ -1,7 +1,7 @@
 apiVersion: v2
-name: docspace
+name: apps
 kubeVersion: ">= 1.19.0-0"
-description: ONLYOFFICE DocSpace is a secure, room-based DMS featuring advanced document editors and AI agents.
+description: ONLYOFFICE Apps is a secure, room-based DMS featuring advanced document editors and AI agents.
 type: application
 keywords:
   - dms
@@ -18,9 +18,9 @@ sources:
   - https://github.com/ONLYOFFICE/DocSpace-server
 dependencies:
 - name: docs
-  version: 6.1.1
+  version: 7.0.0
   repository: https://download.onlyoffice.com/charts/stable
   condition: docs.enabled
 icon: https://avatars.githubusercontent.com/u/1426033
-version: 3.4.0
-appVersion: 3.7.2
+version: 4.0.0
+appVersion: 4.0.0

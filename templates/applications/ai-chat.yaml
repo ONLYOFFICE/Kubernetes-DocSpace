@@ -1,0 +1,215 @@
+{{- if .Values.aiChat.enabled }}
+apiVersion: apps/v1
+kind: {{ .Values.aiChat.kind }}
+metadata:
+  name: ai-chat
+  namespace: {{ include "docspace.namespace" . | quote }}
+  labels:
+    app: ai-chat
+    {{- if .Values.commonLabels }}
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.aiChat.annotations }}
+  {{- $dictValue := default .Values.commonAnnotations .Values.aiChat.annotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.aiChat.autoscaling.enabled }}
+  replicas: {{ default .Values.replicas .Values.aiChat.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: ai-chat
+      {{- if .Values.commonLabels }}
+      {{- include "docspace.labels.commonLabels" . | trim | nindent 6 }}
+      {{- end }}
+  {{- if eq .Values.aiChat.kind "StatefulSet" }}
+  serviceName: ai-chat
+  {{- end }}
+  {{- if .Values.aiChat.updateStrategy }}
+  {{- if eq .Values.aiChat.kind "Deployment" }}
+  strategy: {{- include "docspace.update.strategyType" .Values.aiChat.updateStrategy }}
+  {{- else }}
+  updateStrategy: {{- include "docspace.update.strategyType" .Values.aiChat.updateStrategy }}
+  {{- end }}
+  {{- end }}
+  {{- if eq .Values.aiChat.kind "StatefulSet" }}
+  podManagementPolicy: {{ .Values.aiChat.podManagementPolicy }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: ai-chat
+        {{- if .Values.commonLabels }}
+        {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.podAnnotations .Values.aiChat.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.aiChat.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "docspace.serviceAccountName" . }}
+      {{- if or .Values.podSecurityContext.enabled .Values.aiChat.podSecurityContext.enabled }}
+      {{- $psc := dict }}
+      {{- if .Values.aiChat.podSecurityContext.enabled }}
+      {{- $psc = .Values.aiChat.podSecurityContext }}
+      {{- else }}
+      {{- $psc = .Values.podSecurityContext }}
+      {{- end }}
+      securityContext: {{- include "docspace.securityContext" $psc | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.podAntiAffinity.type "preferred" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ai-chat
+              topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+            weight: {{ .Values.podAntiAffinity.weight }}
+          {{- else if eq .Values.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - ai-chat
+            topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.aiChat.customPodAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- with .Values.aiChat.podAffinity }}
+        podAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.aiChat.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if or .Values.nodeSelector .Values.aiChat.nodeSelector }}
+      nodeSelector: {{ toYaml (default .Values.nodeSelector .Values.aiChat.nodeSelector) | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.tolerations .Values.aiChat.tolerations }}
+      tolerations: {{ toYaml (default .Values.tolerations .Values.aiChat.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if .Values.connections.hostAliases }}
+      hostAliases: {{- toYaml .Values.connections.hostAliases | nindent 8 }}
+      {{- end }}
+      {{- with .Values.initContainers.custom }}
+      initContainers:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: ai-chat
+        image: {{ include "docspace.imageRegistry" (list . .Values.aiChat.image.registry) }}{{ include "docspace.imageRepository" (list . .Values.aiChat.image.repository) }}:{{ default .Values.images.tag .Values.aiChat.image.tag }}
+        imagePullPolicy: {{ .Values.aiChat.image.pullPolicy }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.aiChat.containerSecurityContext.enabled }}
+        {{- $csc := dict }}
+        {{- if .Values.aiChat.containerSecurityContext.enabled }}
+        {{- $csc = .Values.aiChat.containerSecurityContext }}
+        {{- else }}
+        {{- $csc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $csc | nindent 10 }}
+        {{- end }}
+        {{- if .Values.aiChat.lifecycleHooks }}
+        lifecycle: {{- toYaml .Values.aiChat.lifecycleHooks | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.aiChat.containerPorts.app }}
+          name: app
+        {{- if .Values.aiChat.startupProbe.enabled }}
+        startupProbe: {{- omit .Values.aiChat.startupProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.aiChat.readinessProbe.enabled }}
+        readinessProbe: {{- omit .Values.aiChat.readinessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        {{- if .Values.aiChat.livenessProbe.enabled }}
+        livenessProbe: {{- omit .Values.aiChat.livenessProbe "enabled" | toYaml | nindent 10 }}
+        {{- end }}
+        resources: {{- toYaml .Values.aiChat.resources | nindent 10 }}
+        env:
+        - name: MYSQL_USER
+          value: {{ default .Values.connections.mysqlUser .Values.aiChat.mysqlUser }}
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.mysql.secretName" . }}
+              key: {{ .Values.connections.mysqlSecretKeyPassword }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.redis.secretName" . }}
+              key: {{ .Values.connections.redisSecretKeyName }}
+        - name: RABBIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-broker-uri
+              key: broker_uri
+        - name: RABBIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.broker.secretName" . }}
+              key: {{ .Values.connections.brokerSecretKeyName }}
+        - name: DOCUMENT_SERVER_JWT_ENABLED
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_ENABLED
+        - name: DOCUMENT_SERVER_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_SECRET
+        - name: DOCUMENT_SERVER_JWT_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "docspace.jwt.secretName" . }}
+              key: JWT_HEADER
+        {{- with .Values.aiChat.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: docspace
+        - secretRef:
+            name: {{ template "docspace.coreMachineKey.secretName" . }}
+        - secretRef:
+            name: {{ template "docspace.jwt.secretName" . }}
+        volumeMounts:
+        {{- if .Values.extraConf.secretName }}
+        {{- $context := . }}
+        {{- range .Values.extraConf.fileName }}
+        - name: custom-file
+          mountPath: /app/{{ $context.Values.product.name }}/config/{{ . }}
+          subPath: {{ . }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.aiChat.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: docspace-data
+          mountPath: /app/{{ .Values.product.name }}/data
+      volumes:
+      {{- if .Values.extraConf.secretName }}
+      - name: custom-file
+        secret:
+          secretName: {{ .Values.extraConf.secretName }}
+      {{- end }}
+      {{- with .Values.aiChat.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      - name: docspace-data
+        persistentVolumeClaim:
+          claimName: {{ template "docspace.pvc.data.name" . }}
+{{- end }}

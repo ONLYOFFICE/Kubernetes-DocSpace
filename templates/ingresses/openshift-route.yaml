@@ -1,0 +1,26 @@
+{{- if .Values.openshift.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "docspace.route.name" . }}
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.commonAnnotations .Values.openshift.route.annotations }}
+  annotations:
+    {{- $dictValue := merge (deepCopy .Values.openshift.route.annotations) .Values.commonAnnotations }}
+    {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  host: {{ .Values.openshift.route.host }}
+  path: /
+  wildcardPolicy: {{ .Values.openshift.route.wildcardPolicy }}
+  to:
+    kind: Service
+    name: {{ include "docspace.svc.router.name" . }}
+    weight: 100
+  port:
+    targetPort: {{ .Values.router.containerPorts.external }}
+{{- end -}}
