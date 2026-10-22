@@ -84,9 +84,6 @@ OpenSearch has its own security contexts and runs as UID `1000`. Its `change-vol
 --set opensearch.initContainers.changeVolumeOwner.enabled=false
 ```
 
-> [!NOTE]
-> The `pre-upgrade` job runs a `rootless` init container that needs UID 0, which no non-root SCC allows. On OpenShift the volume ownership is handled by `fsGroup`, so disable it: `--set upgrade.job.initContainers.rootless.enabled=false`.
-
 ## Publish ONLYOFFICE Apps via Route
 To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShift Route. It is created for the `router` service. To enable route creation, set the following parameters:
 ```bash
@@ -142,7 +139,6 @@ helm install apps onlyoffice/apps -n <NAMESPACE> \
   --set podAnnotations."openshift\.io/required-scc"="scc-docspace-components" \
   --set docs.commonAnnotations."openshift\.io/required-scc"="scc-docspace-components" \
   --set opensearch.podAnnotations."openshift\.io/required-scc"="scc-docspace-components" \
-  --set upgrade.job.initContainers.rootless.enabled=false \
   --set podSecurityContext.enabled=true \
   --set containerSecurityContext.enabled=true \
   --set opensearch.podSecurityContext.enabled=true \
