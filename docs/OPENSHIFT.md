@@ -84,6 +84,9 @@ OpenSearch has its own security contexts and runs as UID `1000`. Its `change-vol
 --set opensearch.initContainers.changeVolumeOwner.enabled=false
 ```
 
+> [!NOTE]
+> If you are upgrading from a chart version earlier than `2.4.0`, whose images ran as root, do not enable `upgrade.job.initContainers.rootless.enabled`: its init container needs UID 0, which no non-root SCC allows. The volume ownership is handled by `fsGroup` from the `podSecurityContext`. If your storage does not support `fsGroup` (for example, NFS), change the owner of the `docspace-data` and `router-log` volumes to `104:107` manually before the upgrade.
+
 ## Publish ONLYOFFICE Apps via Route
 To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShift Route. It is created for the `router` service. To enable route creation, set the following parameters:
 ```bash
