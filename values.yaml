@@ -6633,7 +6633,7 @@ upgrade:
     initContainers:
       rootless:
         # upgrade.job.initContainers.rootless.enabled Enable the rootless initContainer to change file ownership
-        enabled: true
+        enabled: false
         image:
           # upgrade.job.initContainers.rootless.image.registry Rootless initContainer image registry
           registry: ""
