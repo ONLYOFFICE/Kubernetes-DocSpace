@@ -94,8 +94,7 @@ To expose ONLYOFFICE Apps outside the OpenShift cluster, you can use an OpenShif
 --set openshift.route.host=<HOSTNAME>
 ```
 
-> [!WARNING]
-> TLS configuration is not managed by the chart. Configure TLS manually in the console after installation.
+By default the Route terminates TLS with the default certificate of the OpenShift ingress controller. To use your own certificate, see [Configure TLS for the Route](#configure-tls-for-the-route).
 
 > [!TIP]
 > For reference, here is an example route configuration. Use it as a template if you need to create or modify the route manually:
@@ -116,6 +115,95 @@ spec:
     weight: 100
   port:
     targetPort: 8092
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    # Optional. Without it the default certificate of the OpenShift ingress controller is used
+    externalCertificate:
+      name: <SECRET_NAME>
+```
+
+## Configure TLS for the Route
+The Route terminates TLS (`edge`) and redirects HTTP to HTTPS. Without a certificate it uses the default certificate of the OpenShift ingress controller.
+
+To use your own certificate (OpenShift 4.19+), create a `kubernetes.io/tls` Secret in the release namespace **before** the installation, the API rejects a Route that refers to a missing Secret. Then pass its name:
+```bash
+--set openshift.route.tls.existingSecret=<SECRET_NAME>
+```
+
+The chart also creates a Role and RoleBinding that let the OpenShift router read the Secret. Set `openshift.route.tls.rbac.create=false` to manage them yourself.
+
+### Your own certificate
+```bash
+oc create secret tls <SECRET_NAME> --cert=tls.crt --key=tls.key -n <NAMESPACE>
+```
+
+### Let's Encrypt via cert-manager
+Create the issuer and the certificate yourself before installing ONLYOFFICE Apps. cert-manager renews the certificate in the same Secret and the router picks it up, no `helm upgrade` is needed.
+
+> [!IMPORTANT]
+> cert-manager v1.18+ must run with the `ACMEHTTP01IngressPathTypeExact=false` feature gate, and `<HOSTNAME>` must be reachable on port 80 from the Internet (HTTP-01).
+
+Install cert-manager with the feature gate if it is not installed yet:
+```bash
+helm repo add jetstack https://charts.jetstack.io
+helm upgrade --install cert-manager jetstack/cert-manager -n cert-manager --create-namespace \
+  --set crds.enabled=true \
+  --set featureGates=ACMEHTTP01IngressPathTypeExact=false
+```
+
+`issuer.yaml` (replace `<EMAIL>`). For several namespaces use a `ClusterIssuer`: the same spec without `namespace`. For tests use the staging server `https://acme-staging-v02.api.letsencrypt.org/directory`:
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+  namespace: <NAMESPACE>
+spec:
+  acme:
+    email: <EMAIL>
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+    - http01:
+        ingress:
+          ingressClassName: openshift-default
+```
+
+`certificate.yaml` (`secretName` is the value for `existingSecret`, use `kind: ClusterIssuer` for a `ClusterIssuer`):
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: docspace-route-tls
+  namespace: <NAMESPACE>
+spec:
+  secretName: docspace-route-tls
+  dnsNames:
+  - <HOSTNAME>
+  privateKey:
+    rotationPolicy: Always
+  issuerRef:
+    kind: Issuer
+    name: letsencrypt-prod
+```
+
+Apply them and wait for the certificate:
+```bash
+oc apply -f issuer.yaml -f certificate.yaml
+oc wait certificate/docspace-route-tls -n <NAMESPACE> --for=condition=Ready --timeout=10m
+```
+
+Install ONLYOFFICE Apps with the Secret (see the [example install command](#example-install-command)) and check the result:
+```bash
+--set openshift.route.enabled=true \
+--set openshift.route.host=<HOSTNAME> \
+--set openshift.route.tls.existingSecret=docspace-route-tls
+```
+```bash
+oc get route docspace -n <NAMESPACE> -o jsonpath='{.spec.tls.externalCertificate}'
+echo | openssl s_client -connect <HOSTNAME>:443 -servername <HOSTNAME> -verify_return_error 2>&1 | grep -E "issuer=|Verify return code"
 ```
 
 ## Example install command
@@ -125,6 +213,9 @@ spec:
 
 > [!NOTE]
 > The Redis host must be set as the FQDN of the service. The default value points to the `default` namespace, so set `connections.redisHost` for the namespace you install into.
+
+> [!NOTE]
+> The example uses the default certificate of the OpenShift ingress controller for the Route. To use your own certificate, create the Secret first and add `--set openshift.route.tls.existingSecret=<SECRET_NAME>`, see [Configure TLS for the Route](#configure-tls-for-the-route).
 
 Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspace-components` SCC and route enabled:
 
