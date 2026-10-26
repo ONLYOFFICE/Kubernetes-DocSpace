@@ -19,14 +19,14 @@ The chart ships two SCCs in [`sources/scc`](../sources/scc): `scc-docspace-compo
 Apply `scc-docspace-components` and grant it to the service accounts:
 
 ```bash
-oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/docspace-components.yaml
 oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 ```
 
 The external dependencies (MySQL, RabbitMQ, Redis) installed from the bitnami Helm charts use a separate SCC. Grant it to the service accounts created by these charts (`mysql`, `rabbitmq` and `redis-master` for the release names used in the [README](../README.md#deploy-prerequisites)):
 
 ```bash
-oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/helm-components.yaml
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/helm-components.yaml
 oc adm policy add-scc-to-user scc-helm-components -z mysql -z rabbitmq -z redis-master
 ```
 
@@ -131,7 +131,7 @@ Complete example of deploying ONLYOFFICE Apps on OpenShift with the `scc-docspac
 ```bash
 # execute with a user who has cluster-admin permissions
 oc new-project <NAMESPACE>
-oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-Apps/main/sources/scc/docspace-components.yaml
+oc apply -f https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/scc/docspace-components.yaml
 oc adm policy add-scc-to-user scc-docspace-components -z default -z wopi-sa
 oc adm policy who-can use scc scc-docspace-components
 # then, install the chart with any user
