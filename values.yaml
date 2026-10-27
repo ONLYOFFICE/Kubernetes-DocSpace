@@ -6903,7 +6903,7 @@ opensearch:
     # opensearch.image.repository Opensearch container image repository
     repository: onlyoffice/opensearch
     # opensearch.image.tag Opensearch container image tag
-    tag: 3.5.0
+    tag: 3.9.0
     # opensearch.image.pullPolicy Opensearch container image pull policy
     pullPolicy: IfNotPresent
   # Configure a Security Context for Opensearch container in Pod
