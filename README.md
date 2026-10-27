@@ -550,6 +550,7 @@ Instead of `Application`, the parameter name should have the following values: `
 | Parameter                                                | Description                                                                                                     | Default              |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------|
 | `aiMCP.containerPorts.app`                               | AI MCP container port                                                                                           | `5158`                  |
+| `aiMCP.env.disabledTools`                                | Comma-separated list of AI MCP tools to disable (`DOCSPACE_DISABLED_TOOLS`). If empty, all tools stay enabled   | `run_builder_script,get_office_api_reference` |
 
 ### ONLYOFFICE Apps Proxy Frontend Application additional parameters
 

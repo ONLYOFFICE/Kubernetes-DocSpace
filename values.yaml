@@ -5750,6 +5750,9 @@ aiMCP:
   # aiMCP.containerPorts.app AI MCP container port
   containerPorts:
     app: 5158
+  env:
+    # aiMCP.env.disabledTools Comma-separated list of AI MCP tools to disable
+    disabledTools: "run_builder_script,get_office_api_reference"
   # Probe used for the AI MCP container: startup, readiness and liveness probes
   # ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   # The parameters below for startup probes are used only when `aiMCP.startupProbe.enabled=true`

@@ -136,6 +136,10 @@ spec:
           value: "0.0.0.0"
         - name: DOCSPACE_PORT
           value: {{ .Values.aiMCP.containerPorts.app | quote }}
+        {{- if .Values.aiMCP.env.disabledTools }}
+        - name: DOCSPACE_DISABLED_TOOLS
+          value: {{ .Values.aiMCP.env.disabledTools | quote }}
+        {{- end }}
         - name: MYSQL_USER
           value: {{ default .Values.connections.mysqlUser .Values.aiMCP.mysqlUser }}
         - name: MYSQL_PASSWORD
