@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.0
+
+### New Features
+
+* Added TLS for the OpenShift Route (`openshift.route.tls.enabled`, disabled by default) with a certificate from an existing Secret, for example one issued by cert-manager. See [OpenShift](docs/OPENSHIFT.md#configure-tls-for-the-route)
+
 ## 4.0.0
 
 ### New Features

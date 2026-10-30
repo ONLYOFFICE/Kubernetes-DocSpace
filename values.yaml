@@ -6480,6 +6480,23 @@ openshift:
     ## openshift.route.wildcardPolicy Defines how wildcards are handled for the Route host
     ## Allowed values: `None`, `Subdomain`
     wildcardPolicy: None
+    tls:
+      ## openshift.route.tls.enabled Enable TLS termination for the ONLYOFFICE Apps OpenShift Route
+      ## If disabled, the Route is rendered without the `tls` block
+      ## If no certificate is specified, the Route uses the default certificate of the OpenShift ingress controller
+      enabled: false
+      ## openshift.route.tls.insecureEdgeTerminationPolicy Defines how the Route handles insecure (HTTP) traffic
+      ## Allowed values: `Redirect`, `None`, `Allow`
+      insecureEdgeTerminationPolicy: Redirect
+      ## openshift.route.tls.existingSecret The name of an existing Secret of type `kubernetes.io/tls` with the certificate for the Route
+      ## The Secret must exist in the Route namespace before the Route is created. Requires OpenShift 4.19+
+      ## If left empty, the default certificate of the OpenShift ingress controller is used
+      ## You can also use `tpl` as the value
+      existingSecret: ""
+      rbac:
+        ## openshift.route.tls.rbac.create Enable the creation of the Role and RoleBinding that allow the OpenShift router to read the certificate Secret
+        ## Used if `openshift.route.tls.existingSecret` is set
+        create: true
 
 # ONLYOFFICE Apps jobs parameters
 #

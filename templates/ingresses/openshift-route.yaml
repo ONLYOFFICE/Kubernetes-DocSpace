@@ -23,4 +23,15 @@ spec:
     weight: 100
   port:
     targetPort: {{ .Values.router.containerPorts.external }}
+  {{- if .Values.openshift.route.tls.enabled }}
+  tls:
+    termination: edge
+    {{- if .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
+    insecureEdgeTerminationPolicy: {{ .Values.openshift.route.tls.insecureEdgeTerminationPolicy }}
+    {{- end }}
+    {{- if include "docspace.route.tls.secretName" . }}
+    externalCertificate:
+      name: {{ include "docspace.route.tls.secretName" . }}
+    {{- end }}
+  {{- end }}
 {{- end -}}
