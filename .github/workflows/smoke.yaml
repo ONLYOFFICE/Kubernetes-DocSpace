@@ -1,0 +1,292 @@
+name: DocSpace smoke install
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_prefix:
+        description: Repository prefix of the DocSpace images, for example 4testing, the public images when empty
+        required: false
+        default: ""
+      image_tag:
+        description: Tag of the DocSpace images, for example 4.1.0.100, the tag of the chart when empty
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.18.4
+
+      - name: Build chart dependencies
+        run: |
+          helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
+          helm dependency build .
+
+      # The chart reads the other passwords from the secrets of MySQL, Redis and RabbitMQ in the cluster,
+      # so offline rendering needs only the broker password.
+      - name: Helm lint
+        run: helm lint . --strict --set connections.brokerPassword=ci
+
+      - name: Helm template
+        run: |
+          helm template docspace . --set connections.brokerPassword=ci > /dev/null
+          helm template docspace . --set connections.brokerPassword=ci --set docs.enabled=false > /dev/null
+
+  install:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.18.4
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: docspace
+          ignore_failed_clean: true
+
+      - name: Show cluster info
+        run: |
+          kubectl cluster-info
+          kubectl get nodes -o wide
+
+      - name: "Deps: Add Helm repositories"
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add nfs-server-provisioner https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
+          helm repo add onlyoffice https://download.onlyoffice.com/charts/stable
+          helm repo update
+
+      - name: "Deps: Install NFS provisioner"
+        run: |
+          helm upgrade --install nfs-server \
+            nfs-server-provisioner/nfs-server-provisioner \
+            --set persistence.enabled=false \
+            --set "storageClass.mountOptions={noac,vers=4.1,retrans=2,timeo=30}" \
+            --wait \
+            --timeout 5m
+
+      - name: "Deps: Install MySQL"
+        run: |
+          helm install mysql \
+            -f sources/mysql_values.yaml \
+            --version 14.0.3 \
+            bitnami/mysql \
+            --set auth.database=docspace \
+            --set auth.username=onlyoffice_user \
+            --set primary.persistence.enabled=false \
+            --set primary.resourcesPreset=none \
+            --set image.repository=bitnamilegacy/mysql \
+            --set global.security.allowInsecureImages=true \
+            --set image.tag=9.4.0-debian-12-r1 \
+            --set metrics.enabled=false \
+            --set primary.livenessProbe.timeoutSeconds=10 \
+            --set primary.readinessProbe.timeoutSeconds=10 \
+            --set primary.livenessProbe.periodSeconds=20 \
+            --set primary.readinessProbe.periodSeconds=20 \
+            --wait \
+            --timeout 10m
+
+      - name: "Deps: Install Redis"
+        run: |
+          helm install redis \
+            --version 22.0.7 \
+            bitnami/redis \
+            --set architecture=standalone \
+            --set master.persistence.enabled=false \
+            --set master.resourcesPreset=none \
+            --set global.security.allowInsecureImages=true \
+            --set image.repository=bitnamilegacy/redis \
+            --set image.tag=8.2.1-debian-12-r0 \
+            --set metrics.enabled=false \
+            --wait \
+            --timeout 10m
+
+      - name: "Deps: Install RabbitMQ"
+        run: |
+          helm install rabbitmq \
+            --version 16.0.14 \
+            bitnami/rabbitmq \
+            --set persistence.enabled=false \
+            --set resourcesPreset=none \
+            --set image.repository=bitnamilegacy/rabbitmq \
+            --set image.tag=4.1.3-debian-12-r1 \
+            --set global.security.allowInsecureImages=true \
+            --set metrics.enabled=false \
+            --wait \
+            --timeout 10m
+
+      - name: "Deps: Build DocSpace chart dependencies"
+        run: |
+          helm dependency build .
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tests/smoke/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install -r tests/smoke/requirements.txt
+
+      # The chart asks for more CPU than the single node of the kind cluster has, the last pod stays Pending.
+      - name: Lower CPU requests
+        run: |
+          pip install pyyaml
+          python .github/scripts/ci_values.py values.yaml > ci-values.yaml
+
+      # Images of a test build (4testing) are private, the pods pull them with this secret.
+      - name: Docker Hub pull secret
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "Docker Hub secrets are not set, the images are pulled anonymously"
+            exit 0
+          fi
+          kubectl create secret docker-registry dockerhub \
+            --docker-server=https://index.docker.io/v1/ \
+            --docker-username="$DOCKERHUB_USERNAME" \
+            --docker-password="$DOCKERHUB_TOKEN"
+          echo "PULL_SECRET=dockerhub" >> "$GITHUB_ENV"
+
+      - name: Install DocSpace
+        env:
+          IMAGE_PREFIX: ${{ inputs.image_prefix }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          overrides=()
+          [ -n "$IMAGE_PREFIX" ] && overrides+=(--set "images.repoPrefix=$IMAGE_PREFIX")
+          [ -n "$IMAGE_TAG" ] && overrides+=(--set "images.tag=$IMAGE_TAG")
+          [ -n "${PULL_SECRET:-}" ] && overrides+=(--set "imagePullSecrets=$PULL_SECRET")
+          helm install docspace . \
+            -f ci-values.yaml \
+            -f tests/smoke/values/minimal.yaml \
+            "${overrides[@]}" \
+            --wait \
+            --timeout 10m
+
+      - name: Port-forward router
+        run: |
+          kubectl port-forward svc/router 8092:8092 >/tmp/port-forward.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null http://localhost:8092/ && exit 0
+            sleep 2
+          done
+          cat /tmp/port-forward.log
+          exit 1
+
+      - name: Prepare license
+        env:
+          DOCSPACE_LICENSE_B64: ${{ secrets.DOCSPACE_LICENSE_B64 }}
+        run: |
+          if [ -n "$DOCSPACE_LICENSE_B64" ]; then
+            echo "$DOCSPACE_LICENSE_B64" | base64 -d > "$RUNNER_TEMP/license.lic"
+            echo "LICENSE_FILE=$RUNNER_TEMP/license.lic" >> "$GITHUB_ENV"
+          else
+            echo "::warning::DOCSPACE_LICENSE_B64 secret is not set, the wizard will fail if a license is required"
+          fi
+
+      - name: Run smoke tests
+        env:
+          BASE_URL: http://localhost:8092
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          EXPECTED_VERSION=$(grep '^appVersion:' Chart.yaml | tr -d '"' | awk '{print $2}')
+          # Images of another build report their own version: major.minor.patch of the image tag.
+          TAG_VERSION=$(echo "$IMAGE_TAG" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+' || true)
+          [ -n "$TAG_VERSION" ] && EXPECTED_VERSION=$TAG_VERSION
+          export EXPECTED_VERSION
+          echo "Expected portal version: $EXPECTED_VERSION"
+          # The order matters: the cluster folder goes last, its persistence test restarts services.
+          pytest tests/smoke/core tests/smoke/docs tests/smoke/cluster --junitxml=smoke-report.xml
+
+      - name: Collect compact cluster diagnostics
+        if: failure()
+        run: |
+          # A Pending pod has no Ready condition at all, so "not Ready" means "no Ready=True condition".
+          NOT_READY='.items[]
+            | select(.status.phase != "Succeeded")
+            | select((.status.conditions // []) | any(.type == "Ready" and .status == "True") | not)'
+          {
+            echo "not-Ready pods:"
+            kubectl get pods -o json | jq -r "$NOT_READY
+              | \"  \(.metadata.name) \(.status.phase) \" + ([.status.containerStatuses[]? | (.state.waiting.reason // .state.terminated.reason // \"running\")] | join(\",\")) + ([.status.conditions[]? | select(.type == \"PodScheduled\" and .status == \"False\") | \" \(.reason): \(.message[0:110])\"] | join(\"\"))" | head -8
+            for app in files converter docservice; do
+              echo "errors in $app logs (last 2):"
+              kubectl logs "deploy/$app" --tail=300 2>&1 | grep -iE 'error|exception' | tail -2 | cut -c1-220 | sed 's/^/  /'
+            done
+            echo "warning events (last 6):"
+            kubectl get events --field-selector type=Warning --sort-by=.lastTimestamp -o json \
+              | jq -r '.items[-6:][] | "  \(.involvedObject.name): \(.reason) \(.message[0:120])"'
+            for pod in $(kubectl get pods -o json | jq -r "$NOT_READY | .metadata.name" | head -2); do
+              echo "log tail of $pod:"
+              kubectl logs "$pod" --all-containers --tail=4 2>&1 | sed 's/^/  /'
+            done
+          } > smoke-diagnostics.txt 2>&1 || true
+
+      - name: Smoke summary
+        if: always()
+        run: python3 .github/scripts/smoke_report.py summary
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: |
+            smoke-report.xml
+            smoke-diagnostics.txt
+          if-no-files-found: ignore
+
+      - name: Show DocSpace state
+        if: always()
+        run: |
+          echo "::group::Pods Status"
+          kubectl get pods -o wide
+          echo "::endgroup::"
+
+          echo "::group::Persistent Volume Claims"
+          kubectl get pvc
+          echo "::endgroup::"
+
+          echo "::group::Services"
+          kubectl get svc
+          echo "::endgroup::"
+
+          echo "::group::Helm Releases"
+          helm list
+          echo "::endgroup::"
+
+          echo "::group::Kubernetes Events (last 100)"
+          kubectl get events --sort-by=.lastTimestamp | tail -100
+          echo "::endgroup::"
+
+          echo "::group::Logs of Not Ready Pods"
+          for pod in $(kubectl get pods -o json | jq -r '.items[] | select(.status.phase != "Succeeded") | select((.status.conditions // []) | any(.type == "Ready" and .status == "True") | not) | .metadata.name'); do
+            echo "--- $pod ---"
+            kubectl describe pod "$pod" | tail -30
+            kubectl logs "$pod" --all-containers --tail=100 || true
+          done
+          echo "::endgroup::"
