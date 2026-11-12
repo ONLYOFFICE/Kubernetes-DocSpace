@@ -150,6 +150,15 @@ spec:
       containers:
       - name: docspace-pre-upgrade
         image: {{ include "docspace.imageRegistry" (list . .Values.initContainers.checkDB.image.registry) }}{{ .Values.initContainers.checkDB.image.repository }}:{{ .Values.initContainers.checkDB.image.tag }}
+        {{- if or .Values.containerSecurityContext.enabled .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $cpusc := dict }}
+        {{- if .Values.upgrade.job.containerSecurityContext.enabled }}
+        {{- $cpusc = .Values.upgrade.job.containerSecurityContext }}
+        {{- else }}
+        {{- $cpusc = .Values.containerSecurityContext }}
+        {{- end }}
+        securityContext: {{- include "docspace.securityContext" $cpusc | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c", "echo Upgrade Job completed"]
       volumes:
       - name: check-db

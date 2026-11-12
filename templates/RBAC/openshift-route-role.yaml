@@ -1,0 +1,19 @@
+{{- if and .Values.openshift.route.enabled (include "docspace.route.tls.secretName" .) .Values.openshift.route.tls.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "docspace.route.name" . }}-route-role
+  namespace: {{ include "docspace.namespace" . | quote }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- include "docspace.labels.commonLabels" . | trim | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: [{{ include "docspace.route.tls.secretName" . | quote }}]
+  verbs: ["get", "watch", "list"]
+{{- end }}

@@ -43,8 +43,9 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.proxyFrontend.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.proxyFrontend.podAnnotations "context" $ ) | nindent 8 }}
+      {{- if or .Values.podAnnotations .Values.proxyFrontend.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.proxyFrontend.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}

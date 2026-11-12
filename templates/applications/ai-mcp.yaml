@@ -32,8 +32,9 @@ spec:
         {{- if .Values.commonLabels }}
         {{- include "docspace.labels.commonLabels" . | trim | nindent 8 }}
         {{- end }}
-      {{- if .Values.aiMCP.podAnnotations }}
-      annotations: {{- include "docspace.annotations" ( dict "keyName" .Values.aiMCP.podAnnotations "context" $ ) | nindent 8 }}
+      {{- if or .Values.podAnnotations .Values.aiMCP.podAnnotations }}
+      {{- $dictValue := default .Values.podAnnotations .Values.aiMCP.podAnnotations }}
+      annotations: {{- include "docspace.annotations" ( dict "keyName" $dictValue "context" $ ) | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "docspace.serviceAccountName" . }}
@@ -135,6 +136,10 @@ spec:
           value: "0.0.0.0"
         - name: DOCSPACE_PORT
           value: {{ .Values.aiMCP.containerPorts.app | quote }}
+        {{- if .Values.aiMCP.env.disabledTools }}
+        - name: DOCSPACE_DISABLED_TOOLS
+          value: {{ .Values.aiMCP.env.disabledTools | quote }}
+        {{- end }}
         - name: MYSQL_USER
           value: {{ default .Values.connections.mysqlUser .Values.aiMCP.mysqlUser }}
         - name: MYSQL_PASSWORD

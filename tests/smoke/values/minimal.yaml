@@ -1,0 +1,25 @@
+# Minimal install for the smoke tests: one replica of everything, small volumes, no OpenSearch.
+# The services keep Docs, so every test folder applies to this configuration.
+replicas: 1
+
+docs:
+  converter:
+    replicas: 1
+  docservice:
+    replicas: 1
+  persistence:
+    size: 1Gi
+    buffer:
+      size: 1Gi
+    runtimeConfig:
+      size: 256Mi
+
+opensearch:
+  enabled: false
+
+persistence:
+  storageClass: nfs
+  docspaceData:
+    size: 1Gi
+  routerLog:
+    size: 256Mi
