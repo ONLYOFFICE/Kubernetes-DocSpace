@@ -6,6 +6,105 @@ Change the number/resources of the worker nodes and the parameter values if nece
 
 ## Deploy MySQL Database
 
+[MySQL Operator for Kubernetes](https://dev.mysql.com/doc/mysql-operator/en/)
+
+Install the MySQL Operator:
+
+```bash
+helm repo add mysql-operator https://mysql.github.io/mysql-operator/
+helm repo update
+
+helm install mysql-operator --version 2.3.1 mysql-operator/mysql-operator \
+  --namespace mysql-operator \
+  --create-namespace \
+  --set envs.k8sClusterDomain=cluster.local
+```
+
+For more details, see [here](https://github.com/mysql/mysql-operator).
+
+Create a `mysql.yaml` manifest with the following content:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-root
+type: Opaque
+stringData:
+  rootUser: root
+  rootHost: "%"
+  rootPassword: "password"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql
+type: Opaque
+stringData:
+  mysql-password: "password"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-db-provisioning
+spec:
+  backoffLimit: 6
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: provisioning
+        image: onlyoffice/docs-utils:9.4.1-1
+        env:
+        - name: DB_HOST
+          value: mysql
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: docspace
+        - name: DB_USER
+          value: onlyoffice_user
+        - name: ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: rootUser
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root
+              key: rootPassword
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: mysql-password
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -e
+          until mysql -h"$DB_HOST" -P"$DB_PORT" -u"$ADMIN_USER" -p"$ADMIN_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
+            echo "waiting for MySQL at $DB_HOST:$DB_PORT"
+            sleep 5
+          done
+          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$ADMIN_USER" -p"$ADMIN_PASSWORD" <<EOSQL
+          CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
+          CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
+          ALTER USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD';
+          GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'%';
+          FLUSH PRIVILEGES;
+          EOSQL
+          echo "database $DB_NAME and user $DB_USER are ready"
+```
+
+> **Note:**\
+> In the `mysql-root` and `mysql` secrets, specify your own passwords.
+
+> **Note:**\
+> Unlike the bitnami chart, the operator does not create the database and the user. This is done by the `mysql-db-provisioning` job, it waits until the cluster is available.
 
 Apply the created manifest:
 
@@ -13,10 +112,76 @@ Apply the created manifest:
 kubectl apply -f mysql.yaml
 ```
 
-This creates one master and two replicas.
+Create a `mysql_values.yaml` file with the following content:
+
+```yaml
+serverVersion: 8.4.8
+
+serverInstances: 3
+routerInstances: 2
+
+credentials:
+  root:
+    secretName: mysql-root
+
+tls:
+  useSelfSigned: true
+
+datadirVolumeClaimTemplate:
+  storageClassName: PERSISTENT_STORAGE_CLASS
+  accessModes: ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
+
+serverConfig:
+  mycnf: |
+    [mysqld]
+    sql_mode=NO_ENGINE_SUBSTITUTION
+    max_connections=1000
+    max_allowed_packet=1048576000
+    group_concat_max_len=2048
+    character_set_server=utf8mb3
+    collation_server=utf8mb3_general_ci
+    skip_name_resolve=ON
+    explicit_defaults_for_timestamp=ON
+    loose_group_replication_transaction_size_limit=1073741824
+
+podSpec:
+  nodeSelector:
+    For: dep
+  tolerations:
+  - key: "For"
+    operator: "Equal"
+    value: "dep"
+    effect: "NoSchedule"
+  containers:
+  - name: mysql
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 4000m
+        memory: 4Gi
+```
 
 > **Note:**\
-> If you set `spec.instances: 1` in `kind: Cluster`, only the master will be created.
+> `serverVersion` is set to `8.4.8`, the 8.4 LTS branch. Without it, the operator installs its own default version, which has not been tested with DocSpace.
+
+> **Note:**\
+> Group Replication requires a primary key on every table. Use a DocSpace version in which the `identity_client_*` tables have primary keys, otherwise the migrations fail.
+
+Install the InnoDB Cluster:
+
+```bash
+helm install mysql --version 2.3.1 mysql-operator/mysql-innodbcluster -f mysql_values.yaml
+```
+
+This creates one primary and two secondaries in Group Replication, and MySQL Router available via the `mysql` service.
+
+> **Note:**\
+> If you set `serverInstances: 1`, only the primary will be created.
 
 To install DocSpace, specify the corresponding parameters:
 
@@ -180,8 +345,8 @@ kind: ValkeyCluster
 metadata:
   name: valkey
 spec:
-  shards: 3
-  replicas: 1
+  shards: 1
+  replicas: 0
   persistence:
     size: 10Gi
     storageClassName: PERSISTENT_STORAGE_CLASS
@@ -206,10 +371,6 @@ spec:
         operator: "Equal"
         value: "dep"
         effect: "NoSchedule"
-    node:
-      spread:
-        shard:
-          mode: Preferred
   exporter:
     resources:
       requests:
@@ -222,6 +383,9 @@ spec:
 
 > **Note:**\
 > In the `docs-valkey-cluster` secret, specify your own password for the `valkey-password` key.
+
+> **Note:**\
+> DocSpace requires Valkey with a single node: `spec.shards: 1` and `spec.replicas: 0`.
 
 > **Note:**\
 > The metrics exporter is enabled by default. Each pod runs a `metrics-exporter`
